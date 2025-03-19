@@ -1,3 +1,5 @@
+package Hex;
+
 import java.awt.*;
 /*
  Coordinate system: (2i, 2j, 2k)
