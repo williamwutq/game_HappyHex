@@ -22,7 +22,24 @@ class HexEngine implements HexGrid{
                 }
             }
         }
-        // To be implemented further
+        // Sort by getLineI, getLineK, selection sort
+        for(int a = 0; a < length() - 1; a ++){
+            // Find min
+            int minIndex = a;
+            for(int b = a + 1; b < length(); b++){
+                Block minBlock = blocks[a];
+                Block currentBlock = blocks[b];
+                if(minBlock.getLineI() > currentBlock.getLineI() && minBlock.getLineK() > currentBlock.getLineK()){
+                    minIndex = b;
+                }
+            }
+            // swap a and minIndex
+            if(minIndex != a){
+                Block tempBlock = blocks[a];
+                blocks[a] = blocks[minIndex];
+                blocks[minIndex] = tempBlock;
+            }
+        }
     }
     // Implements HexGrid
     public int length(){
@@ -41,10 +58,29 @@ class HexEngine implements HexGrid{
     }
     public Block getBlock(int i, int k){
         if(inRange(i, k)){
-            // Implement logic
-            return blocks[0]; // Placeholder
+            return search(i, k, 0, length()-1); // private binary search
         }else{
             return null;
+        }
+    }
+    private Block search(int i, int k, int start, int end){
+        if(start > end){return null;}
+        int middleIndex = (start + end)/2;
+        Block middle = blocks[middleIndex];
+        if(middle.getLineI() == i && middle.getLineK() == k){
+            return middle;
+        } else if (middle.getLineI() < i){
+            // second half
+            return search(i, k, middleIndex+1, end);
+        } else if (middle.getLineI() > i){
+            // first half
+            return search(i, k, start, middleIndex-1);
+        } else if (middle.getLineK() < k) {
+            // second half
+            return search(i, k, middleIndex+1, end);
+        } else {
+            // first half
+            return search(i, k, start, middleIndex-1);
         }
     }
     public void add(Block origin, HexGrid other){
