@@ -72,7 +72,7 @@ class Block{
     public String getLines(){
         return "{I = " + getLineI() + ", J = " + getLineJ() + ", K = " + getLineK() + "}";
     }
-
+ 
     // Line booleans
     public boolean inLineI(int line){
         return getLineI() == line;
@@ -124,6 +124,11 @@ class Block{
     public boolean equals(Block other) {
         return this.x == other.x && this.y == other.y && this.state == other.state;
     }
+    public boolean inRange(int radius){
+        return 0 <= getLineI() && getLineI() < radius*2 - 1 &&
+               -radius < getLineJ() && getLineJ() < radius &&
+               0 <= getLineK() && getLineK() < radius*2 - 1;
+    }
 
     // convert to rectangular
     public double X(){
@@ -148,6 +153,7 @@ class Block{
     public void changeState(){
         this.state = !this.state;
     }
+ 
     // Coordinate manipulation
     public void moveI(int unit){
         this.x += 2 * unit;
@@ -160,6 +166,15 @@ class Block{
     public void moveK(int unit){
         this.x -= unit;
         this.y += 2 * unit;
+    }
+    public Block shiftI(int unit){
+        return new Block (this.x + 2 * unit, this.y - unit);
+    }
+    public Block shiftJ(int unit){
+        return new Block (this.x + unit, this.y + unit);
+    }
+    public Block shiftK(int unit){
+        return new Block (this.x - unit, this.y + 2 * unit);
     }
 
     // Add and subtract
@@ -193,5 +208,19 @@ class Block{
         System.out.print(b3.getLineI() + " "); // should be 5
         System.out.print(b3.getLineJ() + " "); // should be -1
         System.out.println(b3.getLineK()); // should be 4
+
+        int radius = 5;
+        for(int a = 0; a <= radius * 2; a++){
+            for(int b = 0; b <= radius * 2; b++){
+                Block nb = new Block();
+                nb.moveI(a);
+                nb.moveK(b);
+                //System.out.print(nb.getLineI());
+                if(nb.inRange(radius)){
+                    System.out.println(nb.getLines());
+                }
+            }
+            System.out.println();
+        }
     }
 }
