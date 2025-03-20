@@ -7,6 +7,7 @@ interface HexGrid {
     abstract Block[] blocks();
     abstract boolean inRange(int i, int k);
     abstract Block getBlock(int i, int k);
+    abstract Block getBlock(int index); // Use this with length(); in a for loop for any grid
     default boolean getState(int i, int k){
         return getBlock(i, k).getState();
     }
