@@ -14,32 +14,15 @@ class HexEngine implements HexGrid{
         for(int a = 0; a <= radius*2-1; a++){
             for(int b = 0; b <= radius*2-1; b++){
                 Block nb = new Block();
-                nb.moveI(a);
-                nb.moveK(b);
+                nb.moveI(b);
+                nb.moveK(a);
                 if(nb.inRange(radius)){
                     blocks[i] = nb;
                     i ++;
                 }
             }
         }
-        // Sort by getLineI, getLineK, selection sort
-        for(int a = 0; a < length() - 1; a ++){
-            // Find min
-            int minIndex = a;
-            for(int b = a + 1; b < length(); b++){
-                Block minBlock = blocks[a];
-                Block currentBlock = blocks[b];
-                if(minBlock.getLineI() > currentBlock.getLineI() && minBlock.getLineK() > currentBlock.getLineK()){
-                    minIndex = b;
-                }
-            }
-            // swap a and minIndex
-            if(minIndex != a){
-                Block tempBlock = blocks[a];
-                blocks[a] = blocks[minIndex];
-                blocks[minIndex] = tempBlock;
-            }
-        }
+        // Already sorted by first I then K
     }
     // Implements HexGrid
     public int length(){
@@ -89,12 +72,14 @@ class HexEngine implements HexGrid{
     public String toString(){
         StringBuilder str = new StringBuilder("{HexEngine: ");
         for (Block block : blocks) {
-            str.append(block);
+            str.append(block.getLines());
         }
         return str + "}";
     }
     public static void main(String[] args){
         HexEngine engine = new HexEngine(7);
         System.out.println(engine);
+        System.out.println(engine.inRange(8,11));
+        System.out.println(engine.getBlock(8,11));
     }
 }
