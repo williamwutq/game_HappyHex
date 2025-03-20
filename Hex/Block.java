@@ -54,9 +54,24 @@ class Block extends Hex{
         this.color = color;
     }
     /**
+     * Constructs a block at the specified (i, k) coordinates with a specified color and state.
+     *
+     * @param i The i-coordinate.
+     * @param k The k-coordinate.
+     * @param color The color of the block.
+     * @param state The state of the block.
+     */
+    public Block(int i, int k, Color color, boolean state){
+        // Complete constructor
+        super(i, k);
+        this.color = color;
+        this.state = state;
+    }
+ 
+    /**
      * Constructs a block at the specified hex coordinates and unoccupied state.
      *
-     * @param hex the coordinate
+     * @param hex the coordinate.
      */
     public Block(Hex hex){
         // Coordinate constructor
@@ -68,7 +83,7 @@ class Block extends Hex{
     /**
      * Constructs a block at the specified hex coordinates with a specified color and unoccupied state.
      *
-     * @param hex the coordinate
+     * @param hex the coordinate.
      * @param color The color of the block.
      */
     public Block(Hex hex, Color color){
@@ -77,6 +92,20 @@ class Block extends Hex{
         super.set(hex);
         this.state = false;
         this.color = color;
+    }
+    /**
+     * Constructs a block at the specified hex coordinates with a specified color and state.
+     *
+     * @param hex the coordinate.
+     * @param color The color of the block.
+     * @param state The state of the block.
+     */
+    public Block(Hex hex, Color color, boolean state){
+        // Complete constructor
+        super();
+        super.set(hex);
+        this.color = color;
+        this.state = state;
     }
 
     // Line constructors (static)
