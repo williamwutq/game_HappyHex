@@ -16,6 +16,7 @@ import java.awt.*;
 class Block{
     private final double sinOf60 = Math.sqrt(3) / 2;
     private Color color;
+    private boolean state;
     private int x;
     private int y;
 
@@ -23,24 +24,30 @@ class Block{
         // Basic constructor
         this.x = 0;
         this.y = 0;
+        this.state = false;
         this.color = Color.BLACK;
     }
     public Block(int i, int k){
         // Coordinate constructor
         this.x = i;
         this.y = k;
+        this.state = false;
         this.color = Color.BLACK;
     }
     public Block(int i, int k, Color color){
         // Complete constructor
         this.x = i;
         this.y = k;
+        this.state = false;
         this.color = color;
     }
 
     // Getters
     public Color color(){
         return color;
+    }
+    public boolean getState(){
+        return state;
     }
     public int I(){
         return x;
@@ -73,12 +80,18 @@ class Block{
     public String toString(){
         return "{Color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
                 + "}; I,J,K = {" + I() + ", " + J() + ", " + K() +
-                "}; X,Y = {" + X() + ", "+ Y() + "};}";
+                "}; X,Y = {" + X() + ", "+ Y() + "}; State = " + state + ";}";
     }
 
     // Setters
     public void setColor(Color color){
         this.color = color;
+    }
+    public void setState(boolean state){
+        this.state = state;
+    }
+    public void changeState(){
+        this.state = !this.state;
     }
     // Coordinate manipulation
     public void moveI(int unit){
@@ -104,12 +117,13 @@ class Block{
 
     // Test main
     public static void main(String[] args){
-        // Move up 1, left 1, down 1
+        // Move up 1, left 1, down 1, state testing
         Block b1 = new Block();
         System.out.println(b1);
         b1.moveI(1);
         System.out.println(b1);
         b1.moveJ(-1);
+        b1.changeState();
         System.out.println(b1);
         b1.moveK(1);
         System.out.println(b1);
