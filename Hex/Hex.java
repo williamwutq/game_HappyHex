@@ -442,6 +442,15 @@ class Hex{
      */
     public void set(Hex other){
         this.x = other.x;
-        this.y = other.y
+        this.y = other.y;
+    }
+    // Get
+    /**
+     * This hex coordinate
+     *
+     * @return this hex coordinate object
+     */
+    public Hex thisHex(){
+        return this;
     }
 }
