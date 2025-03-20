@@ -70,6 +70,58 @@ class Block{
         return (2*x+y)/3;
     }
 
+    // Line booleans
+    public boolean inLineI(int line){
+        return getLineI() == line;
+    }
+    public boolean inLineJ(int line){
+        return getLineJ() == line;
+    }
+    public boolean inLineK(int line){
+        return getLineK() == line;
+    }
+    public boolean inLineI(Block other){
+        return this.getLineI() == other.getLineI();
+    }
+    public boolean inLineJ(Block other){
+        return this.getLineJ() == other.getLineJ();
+    }
+    public boolean inLineK(Block other){
+        return this.getLineK() == other.getLineK();
+    }
+    public boolean adjacent(Block other){
+        return front(other) || back(other);
+    }
+    public boolean front(Block other){
+        // adjacent, this is one higher in I, J, or K
+        return frontI(other) || frontJ(other) || frontK(other);
+    }
+    public boolean back(Block other){
+        // adjacent, this is one lower in I, J, or K
+        return backI(other) || backJ(other) || backK(other);
+    }
+    public boolean frontI(Block other){
+        return this.x == other.x + 2 && this.y == other.y - 1;
+    }
+    public boolean frontJ(Block other){
+        return this.x == other.x + 1 && this.y == other.y + 1;
+    }
+    public boolean frontK(Block other){
+        return this.x == other.x - 1 && this.y == other.y + 2;
+    }
+    public boolean backI(Block other){
+        return this.x == other.x - 2 && this.y == other.y + 1;
+    }
+    public boolean backJ(Block other){
+        return this.x == other.x - 1 && this.y == other.y - 1;
+    }
+    public boolean backK(Block other){
+        return this.x == other.x + 1 && this.y == other.y - 2;
+    }
+    public boolean equals(Block other) {
+        return this.x == other.x && this.y == other.y && this.state == other.state;
+    }
+
     // convert to rectangular
     public double X(){
         return (x+y)/2.0;
