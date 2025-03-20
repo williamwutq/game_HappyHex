@@ -406,43 +406,101 @@ class Block{
     }
 
     // Setters
+    /**
+     * Sets the color of the block.
+     *
+     * @param color The new color of the block.
+     */
     public void setColor(Color color){
         this.color = color;
     }
+    /**
+     * Sets the state of the block.
+     *
+     * @param state The new state of the block (true = occupied).
+     */
     public void setState(boolean state){
         this.state = state;
     }
+    /**
+     * Toggles the state of the block.
+     */
     public void changeState(){
         this.state = !this.state;
     }
- 
+
     // Coordinate manipulation
+    /**
+     * Moves the block along the I-axis.
+     *
+     * @param unit The number of units to move.
+     */
     public void moveI(int unit){
         this.x += 2 * unit;
         this.y -= unit;
     }
+    /**
+     * Moves the block along the J-axis.
+     *
+     * @param unit The number of units to move.
+     */
     public void moveJ(int unit){
         this.x += unit;
         this.y += unit;
     }
+    /**
+     * Moves the block along the K-axis.
+     *
+     * @param unit The number of units to move.
+     */
     public void moveK(int unit){
         this.x -= unit;
         this.y += 2 * unit;
     }
+    /**
+     * Creates a new block shifted along the I-axis.
+     *
+     * @param unit The number of units to shift.
+     * @return A new block shifted along the I-axis.
+     */
     public Block shiftI(int unit){
         return new Block (this.x + 2 * unit, this.y - unit);
     }
+    /**
+     * Creates a new block shifted along the J-axis.
+     *
+     * @param unit The number of units to shift.
+     * @return A new block shifted along the J-axis.
+     */
     public Block shiftJ(int unit){
         return new Block (this.x + unit, this.y + unit);
     }
+    /**
+     * Creates a new block shifted along the K-axis.
+     *
+     * @param unit The number of units to shift.
+     * @return A new block shifted along the K-axis.
+     */
     public Block shiftK(int unit){
         return new Block (this.x - unit, this.y + 2 * unit);
     }
 
     // Add and subtract
+    /**
+     * Adds the coordinates of another block to this block and returns a new block.
+     *
+     * @param other The block to add.
+     * @return A new block with the summed coordinates.
+     */
     public Block add(Block other){
         return new Block(this.x + other.x, this.y + other.y, this.color);
     }
+    /**
+     * Subtracts the coordinates of another block from this block and returns a new block.
+     *
+     * @param other The block to subtract.
+     * @return A new block with the subtracted coordinates.
+     */
     public Block subtract(Block other){
         return new Block(this.x - other.x, this.y - other.y, this.color);
     }
