@@ -51,6 +51,18 @@ class Block{
     public int K(){
         return y;
     }
+
+    // Lines
+    public int getLineI(){
+        return (2*y+x)/3;
+    }
+    public int getLineJ(){
+        return (x-y)/3;
+    }
+    public int getLineK(){
+        return (2*x+y)/3;
+    }
+
     // convert to rectangular
     public double X(){
         return (x+y)/2.0;
@@ -61,7 +73,7 @@ class Block{
     public String toString(){
         return "{Color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
                 + "}; I,J,K = {" + I() + ", " + J() + ", " + K() +
-                "}; X,Y = {" + X() + ", "+ Y() + "}";
+                "}; X,Y = {" + X() + ", "+ Y() + "};}";
     }
 
     // Setters
@@ -101,5 +113,16 @@ class Block{
         System.out.println(b1);
         b1.moveK(1);
         System.out.println(b1);
+        // Lines tests
+        Block b2 = new Block();
+        Block b3 = new Block();
+        b2.moveI(5);
+        System.out.print(b2.getLineJ() + " "); // should be 5
+        System.out.println(b2.getLineK()); // should be -5
+        b3.moveJ(4);
+        b3.moveK(1);
+        System.out.print(b3.getLineI() + " "); // should be 5
+        System.out.print(b3.getLineJ() + " "); // should be -1
+        System.out.println(b3.getLineK()); // should be 4
     }
 }
