@@ -82,6 +82,14 @@ class Block{
         this.y += 2 * unit;
     }
 
+    // Add and subtract
+    public Block add(Block other){
+        return new Block(this.x + other.x, this.y + other.y, this.color);
+    }
+    public Block subtract(Block other){
+        return new Block(this.x - other.x, this.y - other.y, this.color);
+    }
+
     // Test main
     public static void main(String[] args){
         // Move up 1, left 1, down 1
