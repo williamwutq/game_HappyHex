@@ -12,7 +12,6 @@ import java.awt.*;
     k
  */
 
-
 class Block{
     private final double sinOf60 = Math.sqrt(3) / 2;
     private Color color;
@@ -535,7 +534,6 @@ class Block{
                 Block nb = new Block();
                 nb.moveI(a);
                 nb.moveK(b);
-                //System.out.print(nb.getLineI());
                 if(nb.inRange(radius)){
                     System.out.println(nb.getLines());
                 }
