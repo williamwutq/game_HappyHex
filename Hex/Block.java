@@ -20,6 +20,7 @@ class Block{
     private int x;
     private int y;
 
+    // Basic constructors
     public Block(){
         // Basic constructor
         this.x = 0;
@@ -40,6 +41,18 @@ class Block{
         this.y = k;
         this.state = false;
         this.color = color;
+    }
+
+    // Line constructors (static)
+    // Please use those for the game instead of the old constructors
+    public static Block block(){
+        return new Block();
+    }
+    public static Block block(int i, int k){
+        return new Block().shiftI(i).shiftK(k);
+    }
+    public static Block block(int i, int k, Color color){
+        return new Block(0,0, color).shiftI(i).shiftK(k);
     }
 
     // Getters
