@@ -14,35 +14,84 @@ import java.awt.*;
 
 
 class Block{
+    private final double sinOf60 = Math.sqrt(3) / 2;
     private Color color;
-    private int i;
-    private int j;
-    private int k;
-    
+    private int x;
+    private int y;
+
     public Block(){
         // Basic constructor
-        this.i = 0;
-        this.j = 0;
-        this.k = 0;
+        this.x = 0;
+        this.y = 0;
         this.color = Color.BLACK;
     }
     public Block(int i, int k){
         // Coordinate constructor
-        this.i = 0;
-        this.j = i + k;
-        this.k = 0;
+        this.x = i;
+        this.y = k;
         this.color = Color.BLACK;
     }
     public Block(int i, int k, Color color){
         // Complete constructor
-        this.i = 0;
-        this.j = i + k;
-        this.k = 0;
+        this.x = i;
+        this.y = k;
         this.color = color;
+    }
+
+    // Getters
+    public Color color(){
+        return color;
+    }
+    public int I(){
+        return x;
+    }
+    public int J(){
+        return x + y;
+    }
+    public int K(){
+        return y;
+    }
+    // convert to rectangular
+    public double X(){
+        return (x+y)/2.0;
+    }
+    public double Y(){
+        return sinOf60 * 0.5 * (x-y);
+    }
+    public String toString(){
+        return "{Color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
+                + "}; I,J,K = {" + I() + ", " + J() + ", " + K() +
+                "}; X,Y = {" + X() + ", "+ Y() + "}";
+    }
+
+    // Setters
+    public void setColor(Color color){
+        this.color = color;
+    }
+    // Coordinate manipulation
+    public void moveI(int unit){
+        this.x += 2 * unit;
+        this.y -= unit;
+    }
+    public void moveJ(int unit){
+        this.x += unit;
+        this.y += unit;
+    }
+    public void moveK(int unit){
+        this.x -= unit;
+        this.y += 2 * unit;
     }
 
     // Test main
     public static void main(String[] args){
-        // Do nothing currently
+        // Move up 1, left 1, down 1
+        Block b1 = new Block();
+        System.out.println(b1);
+        b1.moveI(1);
+        System.out.println(b1);
+        b1.moveJ(-1);
+        System.out.println(b1);
+        b1.moveK(1);
+        System.out.println(b1);
     }
 }
