@@ -69,6 +69,9 @@ class Block{
     public int getLineK(){
         return (2*x+y)/3;
     }
+    public String getLines(){
+        return "{I = " + getLineI() + ", J = " + getLineJ() + ", K = " + getLineK() + "}";
+    }
 
     // Line booleans
     public boolean inLineI(int line){
