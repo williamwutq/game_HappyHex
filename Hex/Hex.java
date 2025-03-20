@@ -434,4 +434,14 @@ class Hex{
     public Hex subtract(Hex other){
         return new Hex(this.x - other.x, this.y - other.y);
     }
+    // Set
+    /**
+     * Adds set hex to another hex coordinate.
+     *
+     * @param other The target hex coordinate.
+     */
+    public void set(Hex other){
+        this.x = other.x;
+        this.y = other.y
+    }
 }
