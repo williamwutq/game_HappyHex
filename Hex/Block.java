@@ -172,7 +172,9 @@ class Block extends Hex{
      * @return A new hex coordinate shifted along the I-axis.
      */
     public Block shiftI(int unit){
-        return new Block (thisHex().shiftI(unit), this.color);
+        Block temp = this;
+        temp.moveI(unit);
+        return temp;
     }
     /**
      * Creates a new hex coordinate shifted along the J-axis.
@@ -181,7 +183,9 @@ class Block extends Hex{
      * @return A new hex coordinate shifted along the J-axis.
      */
     public Block shiftJ(int unit){
-        return new Block (thisHex().shiftJ(unit), this.color);
+        Block temp = this;
+        temp.moveJ(unit);
+        return temp;
     }
     /**
      * Creates a new hex coordinate shifted along the K-axis.
@@ -190,7 +194,9 @@ class Block extends Hex{
      * @return A new hex coordinate shifted along the K-axis.
      */
     public Block shiftK(int unit){
-        return new Block (thisHex().shiftK(unit), this.color);
+        Block temp = this;
+        temp.moveK(unit);
+        return temp;
     }
 
     // Add and subtract
@@ -201,7 +207,9 @@ class Block extends Hex{
      * @return A new hex coordinate with the summed coordinates.
      */
     public Block add(Hex other){
-        return new Block(thisHex().add(other), this.color);
+        Block temp = this;
+        temp.add(other);
+        return temp;
     }
     /**
      * Subtracts another hex coordinate from this hex coordinate and returns a new hex coordinate.
@@ -210,7 +218,9 @@ class Block extends Hex{
      * @return A new hex coordinate with the subtracted coordinates.
      */
     public Block subtract(Hex other){
-        return new Block(thisHex().subtract(other), this.color);
+        Block temp = this;
+        temp.subtract(other);
+        return temp;
     }
 
     // Test main
