@@ -127,7 +127,7 @@ class Block extends Hex{
      * @return A new block positioned according to the given line indices.
      */
     public static Block block(int i, int k){
-        return new Block().shiftI(i).shiftK(k);
+        return new Block().shiftI(k).shiftK(i);
     }
     /**
      * Creates a block using hexagonal line indices and assigns it a specific color.
@@ -139,7 +139,7 @@ class Block extends Hex{
      * @return A new block positioned according to the given line indices with the specified color.
      */
     public static Block block(int i, int k, Color color){
-        return new Block(0,0, color).shiftI(i).shiftK(k);
+        return new Block(0,0, color).shiftI(k).shiftK(i);
     }
 
     // Getters
@@ -275,6 +275,8 @@ class Block extends Hex{
         System.out.print(b3.getLineI() + " "); // should be 5
         System.out.print(b3.getLineJ() + " "); // should be -1
         System.out.println(b3.getLineK()); // should be 4
+        System.out.println(Block.block(2,-5).getLineI()); // should be 2
+        System.out.println(Block.block(2,-5).getLineK()); // should be -5
 
         int radius = 5;
         for(int a = 0; a <= radius * 2; a++){
