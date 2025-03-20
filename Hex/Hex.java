@@ -58,7 +58,7 @@ class Hex{
      * @return A new hex coordinate positioned according to the given line indices.
      */
     public static Hex hex(int i, int k){
-        return new Hex().shiftI(i).shiftK(k);
+        return new Hex().shiftI(k).shiftK(i);
     }
 
     // Raw coordinates
