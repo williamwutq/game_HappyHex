@@ -1,3 +1,5 @@
+package Hex;
+
 import java.awt.*;
 
 class Piece implements HexGrid{
@@ -14,7 +16,7 @@ class Piece implements HexGrid{
             return blocks.length;
         }
     }
-    public Blocks[] blocks(){
+    public Block[] blocks(){
         return this.blocks;
     }
     public boolean inRange(int i, int k){
