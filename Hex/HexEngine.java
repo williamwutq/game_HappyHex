@@ -79,6 +79,23 @@ public class HexEngine implements HexGrid{
             return search(i, k, start, middleIndex-1);
         }
     }
+    public boolean checkAdd(Hex origin, HexGrid other){
+        // Iterate through other
+        Block[] otherBlocks = other.blocks();
+        for(int i = 0; i < other.length(); i ++){
+            Block current = otherBlocks[i];
+            // Null check and state check
+            if (current != null && current.getState()){
+                current = current.add(origin); // placement
+                // Check for this HexGrid
+                Block selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                if (selfTarget == null || selfTarget.getState()){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     public void add(Hex origin, HexGrid other) throws IllegalArgumentException{
         // Iterate through other
         Block[] otherBlocks = other.blocks();
