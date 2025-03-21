@@ -143,6 +143,68 @@ public class HexEngine implements HexGrid{
         // Return
         return positions;
     }
+    public int eliminate(){
+        // Eliminate according to I, J, K, then return how many blocks are being eliminated
+        ArrayList<Block> eliminate = new ArrayList<Block>();
+        // Check I
+        for(int i = 0; i < radius*2 - 1; i ++){
+            ArrayList<Block> line = new ArrayList<Block>();
+            for(int index = 0; index < length(); index ++){
+                if(blocks[index].getLineI() == i){
+                    // Found block
+                    if(blocks[index].getState()){
+                        line.add(blocks[index]);
+                    } else {
+                        // Else this line does not satisfy, clean up line and break out of the for loop
+                        line.clear();
+                        break;
+                    }
+                }
+            }
+            eliminate.addAll(line);
+        }
+        // Check J
+        for(int j = 1 - radius; j < radius; j ++){
+            ArrayList<Block> line = new ArrayList<Block>();
+            for(int index = 0; index < length(); index ++){
+                if(blocks[index].getLineJ() == j){
+                    // Found block
+                    if(blocks[index].getState()){
+                        line.add(blocks[index]);
+                    } else {
+                        // Else this line does not satisfy, clean up line and break out of the for loop
+                        line.clear();
+                        break;
+                    }
+                }
+            }
+            eliminate.addAll(line);
+        }
+        // Check K
+        for(int k = 0; k < radius*2 - 1; k ++){
+            ArrayList<Block> line = new ArrayList<Block>();
+            for(int index = 0; index < length(); index ++){
+                if(blocks[index].getLineK() == k){
+                    // Found block
+                    if(blocks[index].getState()){
+                        line.add(blocks[index]);
+                    } else {
+                        // Else this line does not satisfy, clean up line and break out of the for loop
+                        line.clear();
+                        break;
+                    }
+                }
+            }
+            eliminate.addAll(line);
+        }
+        // Eliminate
+        for(Block block : eliminate){
+            block.setColor(Color.BLACK);
+            block.setState(false);
+            setBlock(block.getLineI(), block.getLineK(), block);
+        }
+        return eliminate.size(); // Number of blocks being eliminated
+    }
 
     public String toString(){
         StringBuilder str = new StringBuilder("{HexEngine: ");
@@ -155,17 +217,43 @@ public class HexEngine implements HexGrid{
         return str + "}";
     }
     public static void main(String[] args){
-        HexEngine engine = new HexEngine(7);
+        /*
+Running log example:
+{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},false; {I = 0, J = 2, K = 2},false; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},false; {I = 1, J = 1, K = 2},false; {I = 1, J = 2, K = 3},false; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},false; {I = 2, J = 1, K = 3},false; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
+{Piece: {I = 0, J = 1, K = 1}{I = 0, J = 0, K = 0}{I = 1, J = -1, K = 0}}
+{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},true; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},true; {I = 1, J = 1, K = 2},false; {I = 1, J = 2, K = 3},false; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},false; {I = 2, J = 1, K = 3},false; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
+
+{Piece: {I = 0, J = 0, K = 0}{I = 0, J = 1, K = 1}{I = 1, J = 0, K = 1}}
+8 out of 19 positions available.
+{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},true; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},true; {I = 1, J = 1, K = 2},true; {I = 1, J = 2, K = 3},true; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},false; {I = 2, J = 1, K = 3},true; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
+
+{Piece: {I = 0, J = 1, K = 1}{I = 0, J = 0, K = 0}{I = 1, J = -1, K = 0}}
+3 out of 19 positions available.
+{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},true; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},true; {I = 1, J = 1, K = 2},true; {I = 1, J = 2, K = 3},true; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},true; {I = 2, J = 0, K = 2},true; {I = 2, J = 1, K = 3},true; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},true; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
+After elimination
+4
+{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},false; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},false; {I = 1, J = 1, K = 2},true; {I = 1, J = 2, K = 3},true; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},true; {I = 2, J = 1, K = 3},true; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
+         */
+        HexEngine engine = new HexEngine(3);
         System.out.println(engine);
-        System.out.println(engine.inRange(8,11));
-        System.out.println(engine.getBlock(8,11));
         Piece piece = Piece.generatePiece();
-        engine.add(Hex.hex(3, 2), piece);
+        engine.add(engine.checkPositions(piece).get(1), piece);
         System.out.println(piece);
         System.out.println(engine);
         Piece piece2 = Piece.generatePiece();
         System.out.println();
-        System.out.println(piece);
-        System.out.println(engine.checkPositions(piece).size() + " out of " + engine.length() + " positions available.");
+        System.out.println(piece2);
+        System.out.println(engine.checkPositions(piece2).size() + " out of " + engine.length() + " positions available.");
+        engine.add(engine.checkPositions(piece2).get(0), piece2);
+        System.out.println(engine);
+        Piece piece3 = Piece.generatePiece();
+        System.out.println();
+        System.out.println(piece3);
+        System.out.println(engine.checkPositions(piece3).size() + " out of " + engine.length() + " positions available.");
+        engine.add(engine.checkPositions(piece3).get(0), piece3);
+        System.out.println(engine);
+        System.out.println("After elimination");
+        System.out.println(engine.eliminate());
+        System.out.println(engine);
     }
 }
