@@ -225,9 +225,7 @@ public class Block extends Hex{
      * @return A new hex coordinate with the summed coordinates.
      */
     public Block add(Hex other){
-        Block temp = this;
-        temp.add(other);
-        return temp;
+        return new Block(thisHex().add(other), this.color, this.state);
     }
     /**
      * Subtracts another hex coordinate from this hex coordinate and returns a new hex coordinate.
@@ -236,9 +234,7 @@ public class Block extends Hex{
      * @return A new hex coordinate with the subtracted coordinates.
      */
     public Block subtract(Hex other){
-        Block temp = this;
-        temp.subtract(other);
-        return temp;
+        return new Block(thisHex().subtract(other), this.color, this.state);
     }
 
     // Test main
