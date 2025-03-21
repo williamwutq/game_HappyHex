@@ -2,7 +2,7 @@ package Hex;
 
 import java.awt.*;
 
-interface HexGrid {
+public interface HexGrid {
     abstract int length();
     abstract Block[] blocks();
     abstract boolean inRange(int i, int k);
@@ -14,8 +14,8 @@ interface HexGrid {
     default Color getColor(int i, int k){
         return getBlock(i, k).color();
     }
-    abstract void add(Block origin, HexGrid other);
-    default void add(HexGrid other){
+    abstract void add(Block origin, HexGrid other) throws IllegalArgumentException;
+    default void add (HexGrid other) throws IllegalArgumentException{
         add(new Block(), other);
     }
 }
