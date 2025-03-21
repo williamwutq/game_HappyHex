@@ -1,15 +1,16 @@
 package Hex;
 
-import java.awt.*;
 /*
  Coordinate system: (2i, 2j, 2k)
-    i
-   + * (5, 4, -1)
-  +     * (5, 7, 2)
- + + + j
-  + * (0, 3, 3)
-   +
-    k
+    I
+   / * (5, 4, -1)
+  /     * (5, 7, 2)
+ o - - J
+  \ * (0, 3, 3)
+   \
+    K
+ Coordinates: dimension along the line I, J, or K.
+ Line distances: distances to I or K, which are perpendicular to the coordinates.
  */
 
 public class Hex{
