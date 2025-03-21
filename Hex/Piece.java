@@ -82,6 +82,9 @@ class Piece implements HexGrid{
         }
         return null;
     }
+    public Block getBlock(int index){
+        return blocks[index];
+    }
     public void add(Block origin, HexGrid other) throws IllegalArgumentException{
         throw new IllegalArgumentException("Adding Grid to piece prohibited. Please add block by block.");
     }
