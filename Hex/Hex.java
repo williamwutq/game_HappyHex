@@ -451,6 +451,6 @@ public class Hex{
      * @return this hex coordinate object
      */
     public Hex thisHex(){
-        return this;
+        return Hex.hex(this.getLineI(), this.getLineK());
     }
 }
