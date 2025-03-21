@@ -1,19 +1,9 @@
 package Hex;
 
 import java.awt.*;
-/*
- Coordinate system: (2i, 2j, 2k)
-    i
-   + * (5, 4, -1)
-  +     * (5, 7, 2)
- + + + j
-  + * (0, 3, 3)
-   +
-    k
- */
 
-
-class Block extends Hex{
+// Please see Hex
+public class Block extends Hex{
     private final double sinOf60 = Math.sqrt(3) / 2;
     private Color color;
     private boolean state;
@@ -67,7 +57,6 @@ class Block extends Hex{
         this.color = color;
         this.state = state;
     }
- 
     /**
      * Constructs a block at the specified hex coordinates and unoccupied state.
      *
@@ -277,18 +266,5 @@ class Block extends Hex{
         System.out.println(b3.getLineK()); // should be 4
         System.out.println(Block.block(2,-5).getLineI()); // should be 2
         System.out.println(Block.block(2,-5).getLineK()); // should be -5
-
-        int radius = 5;
-        for(int a = 0; a <= radius * 2; a++){
-            for(int b = 0; b <= radius * 2; b++){
-                Block nb = new Block();
-                nb.moveI(a);
-                nb.moveK(b);
-                if(nb.inRange(radius)){
-                    System.out.println(nb.getLines());
-                }
-            }
-            System.out.println();
-        }
     }
 }
