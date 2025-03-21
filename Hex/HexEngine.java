@@ -1,5 +1,8 @@
 package Hex;
 
+import java.awt.Color;
+import java.util.ArrayList;
+
 public class HexEngine implements HexGrid{
     private int radius;
     private Block[] blocks;
@@ -23,6 +26,13 @@ public class HexEngine implements HexGrid{
             }
         }
         // Already sorted by first I then K
+    }
+    public void reset(){
+        // Set all to empty and default color
+        for (Block block : blocks){
+            block.setColor(Color.BLACK);
+            block.setState(false);
+        }
     }
     // Implements HexGrid
     public int length(){
@@ -119,6 +129,21 @@ public class HexEngine implements HexGrid{
             }
         }
     }
+    public ArrayList<Hex> checkPositions(HexGrid other){
+        ArrayList<Hex> positions = new ArrayList<Hex>();
+        // Try to find positions by checking all available space
+        for (Block block : blocks){
+            Hex hex = block.thisHex();
+            // Use blocks as hex
+            if(checkAdd(hex, other)){
+                // If it is possible to add, record this position
+                positions.add(hex);
+            }
+        }
+        // Return
+        return positions;
+    }
+
     public String toString(){
         StringBuilder str = new StringBuilder("{HexEngine: ");
         for (Block block : blocks) {
@@ -138,5 +163,9 @@ public class HexEngine implements HexGrid{
         engine.add(Hex.hex(3, 2), piece);
         System.out.println(piece);
         System.out.println(engine);
+        Piece piece2 = Piece.generatePiece();
+        System.out.println();
+        System.out.println(piece);
+        System.out.println(engine.checkPositions(piece).size() + " out of " + engine.length() + " positions available.");
     }
 }
