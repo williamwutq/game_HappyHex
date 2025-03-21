@@ -12,8 +12,7 @@ import java.awt.*;
     k
  */
 
-
-class Hex{
+public class Hex{
     private final double sinOf60 = Math.sqrt(3) / 2;
     private int x;
     private int y;
