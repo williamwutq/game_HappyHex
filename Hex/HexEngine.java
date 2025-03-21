@@ -1,6 +1,6 @@
 package Hex;
 
-class HexEngine implements HexGrid{
+public class HexEngine implements HexGrid{
     private int radius;
     private Block[] blocks;
     public HexEngine(int radius){
@@ -37,21 +37,34 @@ class HexEngine implements HexGrid{
     }
     public boolean inRange(int i, int k){
         // Use line
-        return Block.block(i, k).inRange(radius);
+        return Hex.hex(i, k).inRange(radius);
     }
     public Block getBlock(int i, int k){
         if(inRange(i, k)){
-            return search(i, k, 0, length()-1); // private binary search
-        }else{
-            return null;
+            int index = search(i, k, 0, length()-1);
+            if (index >= 0) {
+                return getBlock(index); // private binary search
+            }
+        }
+        return null;
+    }
+    public Block getBlock(int index){
+        return blocks[index];
+    }
+    public void setBlock(int i, int k, Block block){
+        if(inRange(i, k)){
+            int index = search(i, k, 0, length()-1);
+            if (index >= 0) {
+                blocks[index] = block;
+            }
         }
     }
-    private Block search(int i, int k, int start, int end){
-        if(start > end){return null;}
+    private int search(int i, int k, int start, int end){
+        if(start > end){return -1;}
         int middleIndex = (start + end)/2;
         Block middle = blocks[middleIndex];
         if(middle.getLineI() == i && middle.getLineK() == k){
-            return middle;
+            return middleIndex;
         } else if (middle.getLineI() < i){
             // second half
             return search(i, k, middleIndex+1, end);
@@ -66,13 +79,36 @@ class HexEngine implements HexGrid{
             return search(i, k, start, middleIndex-1);
         }
     }
-    public void add(Block origin, HexGrid other){
-        // To be implemented
+    public void add(Hex origin, HexGrid other) throws IllegalArgumentException{
+        // Iterate through other
+        Block[] otherBlocks = other.blocks();
+        for(int i = 0; i < other.length(); i ++){
+            Block current = otherBlocks[i];
+            // Null check and state check
+            if (current != null && current.getState()){
+                current = current.add(origin); // placement
+                // Check for this HexGrid
+                Block selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                if (selfTarget == null){
+                    // If it cannot be found, it must be out of range
+                    throw new IllegalArgumentException(new IndexOutOfBoundsException("Block out of grid when adding"));
+                } else if (selfTarget.getState()){
+                    // If this position is already occupied, it can't be added neither
+                    throw new IllegalArgumentException("Cannot add into existing block");
+                } else {
+                    // If all checks, proceed to add block
+                    setBlock(current.getLineI(), current.getLineK(), current);
+                }
+            }
+        }
     }
     public String toString(){
         StringBuilder str = new StringBuilder("{HexEngine: ");
         for (Block block : blocks) {
             str.append(block.getLines());
+            str.append(",");
+            str.append(block.getState());
+            str.append("; ");
         }
         return str + "}";
     }
@@ -81,5 +117,9 @@ class HexEngine implements HexGrid{
         System.out.println(engine);
         System.out.println(engine.inRange(8,11));
         System.out.println(engine.getBlock(8,11));
+        Piece piece = Piece.generatePiece();
+        engine.add(Hex.hex(3, 2), piece);
+        System.out.println(piece);
+        System.out.println(engine);
     }
 }
