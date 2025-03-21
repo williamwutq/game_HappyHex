@@ -159,17 +159,25 @@ public class Piece implements HexGrid{
         return p;
     }
     public static Piece generatePiece(){
-        return switch((int)(Math.random() * 19)){
-            case 1, 2, 3 -> triangle3A();
-            case 4, 5, 6 -> triangle3B();
-            case 7, 8 -> line3I();
-            case 9, 10 -> line3J();
-            case 11, 12 -> line3K();
-            case 13, 14 -> corner3I();
-            case 15, 16 -> corner3J();
-            case 17, 18 -> corner3K();
-            default -> bigBlock();
-        };
+        int i = (int) (Math.random() * 19);
+        if (i == 1 || i == 2 || i == 3) {
+            return triangle3A();
+        } else if (i == 4 || i == 5 || i == 6) {
+            return triangle3B();
+        } else if (i == 7 || i == 8) {
+            return line3I();
+        } else if (i == 9 || i == 10) {
+            return line3J();
+        } else if (i == 11 || i == 12) {
+            return line3K();
+        } else if (i == 13 || i == 14) {
+            return corner3I();
+        } else if (i == 15 || i == 16) {
+            return corner3J();
+        } else if (i == 17 || i == 18) {
+            return corner3K();
+        }
+        return bigBlock();
     }
 
     public String toString(){
