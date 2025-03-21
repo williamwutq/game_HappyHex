@@ -14,7 +14,7 @@ public interface HexGrid {
     default Color getColor(int i, int k){
         return getBlock(i, k).color();
     }
-    abstract void add(Block origin, HexGrid other) throws IllegalArgumentException;
+    abstract void add(Hex origin, HexGrid other) throws IllegalArgumentException;
     default void add (HexGrid other) throws IllegalArgumentException{
         add(new Block(), other);
     }
