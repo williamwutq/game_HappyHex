@@ -10,39 +10,30 @@ public class HexPanel extends JPanel {
     public HexPanel(int size, Color color) {
         this.size = size;
         this.color = color;
-        int width = (int) Math.round(Math.sqrt(3) * size);
-        int height = 2 * size;
-        setPreferredSize(new Dimension(width, height));
-        setMinimumSize(new Dimension(width, height));
+        Dimension dimension = new Dimension((int) Math.round(Math.sqrt(3) * size), 2 * size);
+        setSize(dimension);
+        setPreferredSize(dimension);
+        setMinimumSize(dimension);
         setBackground(new Color(0,0,0,0));
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(java.awt.Graphics g) {
         super.paintComponent(g);
-
-        int width = getWidth();
-        int height = getHeight();
-
-        int[] xPoints = new int[6];
-        int[] yPoints = new int[6];
-
-        for (int i = 0; i < 6; i++) {
-            double angle = Math.toRadians(60 * i);
-            xPoints[i] = (int) (width / 2 + size * Math.sin(angle));
-            yPoints[i] = (int) (height / 2 + size * Math.cos(angle));
-        }
-
-        Polygon hexagon = new Polygon(xPoints, yPoints, 6);
-        g.setColor(color);
-        g.fillPolygon(hexagon);
+        GameEssentials.paintHexagon(g, this.color, size);
     }
 
     public static void main(String[] args) {
+        // Basic testing
         JFrame frame = new JFrame("Test: HexPanel");
+        JPanel panel = new HexPanel(50, Color.BLUE);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new HexPanel(50, Color.BLUE));
-        frame.setSize(100, 150);
+        // Sizes
+        Dimension size = new Dimension(panel.getWidth(), panel.getHeight() + 28);
+        frame.setSize(size);
+        frame.setMinimumSize(size);
+        frame.add(panel);
+        // Show
         frame.setVisible(true);
     }
 }
