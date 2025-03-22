@@ -80,6 +80,7 @@ public class GamePanel extends JPanel {
             }
         }
         engine.reset();
+        gamePanel.repaint();
         System.out.println("Auto Play: Game Over");
         System.out.println("This game lasted for " + turns + " turns.");
     }
