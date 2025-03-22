@@ -3,6 +3,7 @@ package GUI;
 import java.awt.*;
 
 public class GameEssentials {
+    public final double sinOf60 = Math.sqrt(3) / 2;
     public static Color generateColor(){
         Color colors[] = new Color[12];
         colors[0] = new Color(0, 0, 240);
