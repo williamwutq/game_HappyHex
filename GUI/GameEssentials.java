@@ -3,7 +3,7 @@ package GUI;
 import java.awt.*;
 
 public class GameEssentials {
-    public static final double sinOf60 = Math.sqrt(3) / 2;
+    public static final double sinOf60 = Math.sqrt(3) / 4;
     public static Color generateColor(){
         Color colors[] = new Color[12];
         colors[0] = new Color(0, 0, 240);
@@ -26,8 +26,22 @@ public class GameEssentials {
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
             double angle = Math.toRadians(60 * i);
-            xPoints[i] = (int) Math.round(size * Math.sqrt(3) / 2 + size * Math.sin(angle));
+            xPoints[i] = (int) Math.round(size * 2 * sinOf60 + size * Math.sin(angle));
             yPoints[i] = (int) Math.round(size + size * Math.cos(angle));
+        }
+        Polygon hexagon = new Polygon(xPoints, yPoints, 6);
+        // Paint
+        g.setColor(color);
+        g.fillPolygon(hexagon);
+    }
+    public static void paintHexagon(java.awt.Graphics g, Color color, double x, double y, double size, double fill){
+        // Create Polygon
+        int[] xPoints = new int[6];
+        int[] yPoints = new int[6];
+        for (int i = 0; i < 6; i++) {
+            double angle = Math.toRadians(60 * i);
+            xPoints[i] = (int) Math.round(size * (x * 2 + sinOf60 * 2 + Math.sin(angle) * fill));
+            yPoints[i] = (int) Math.round(size * (y * 2 + 2.0 + Math.cos(angle) * fill));
         }
         Polygon hexagon = new Polygon(xPoints, yPoints, 6);
         // Paint
