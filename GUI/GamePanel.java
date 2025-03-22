@@ -27,22 +27,27 @@ public class GamePanel extends JPanel {
     }
 
     public static void main(String[] args) {
+        // Settings
+        int size = 7;
+        int delay = 200;
+
         // Frame
         JFrame frame = new JFrame("Test: GamePanel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        frame.setBackground(Color.BLACK);
-        frame.setMaximumSize(new Dimension(800, 800));
-        frame.setSize(new Dimension(500, 500));
+        frame.setBackground(Color.WHITE);
+        frame.setAlwaysOnTop(true);
+        frame.setSize(new Dimension(2400, 1600));
         frame.setMinimumSize(new Dimension(200, 200));
 
         // Engine
-        HexEngine engine = new HexEngine(7);
+        HexEngine engine = new HexEngine(size);
         GamePanel gamePanel = new GamePanel(engine);
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
         // Autoplay
         int turns = 0;
+        int score = 0;
         while (true) {
             Piece piece = Piece.generatePiece();
             try {
@@ -66,22 +71,22 @@ public class GamePanel extends JPanel {
                     }
                 }
             }
+            score += piece.length();
             gamePanel.repaint();
             try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-            }
-            engine.eliminate();
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {}
+            score += engine.eliminate() * 3;
             gamePanel.repaint();
             turns++;
             try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-            }
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {}
         }
         engine.reset();
         gamePanel.repaint();
         System.out.println("Auto Play: Game Over");
         System.out.println("This game lasted for " + turns + " turns.");
+        System.out.println("The total score is: " + score + " points.");
     }
 }
