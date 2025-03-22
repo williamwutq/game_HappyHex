@@ -4,25 +4,28 @@ import Hex.*;
 import javax.swing.*;
 import java.awt.*;
 
-public class GamePanel extends JPanel{
+public class GamePanel extends JPanel {
     private HexEngine engine;
-    public GamePanel(HexEngine engine){
+
+    public GamePanel(HexEngine engine) {
         super();
         // Variables
         this.engine = engine;
         this.setBackground(Color.WHITE);
     }
-    public void paintComponent(java.awt.Graphics g){
+
+    public void paintComponent(java.awt.Graphics g) {
         super.paintComponent(g);
         // Calculate minimum size
         double horizontalCount = engine.getRadius() * 4 - 2;
         double verticalCount = engine.getRadius() * 3 - 1;
-        double minSize = Math.min(this.getHeight()/verticalCount, this.getWidth()/horizontalCount/GameEssentials.sinOf60/2);
+        double minSize = Math.min(this.getHeight() / verticalCount, this.getWidth() / horizontalCount / GameEssentials.sinOf60 / 2);
         // paint every hexagon
-        for(Block block : engine.blocks()){
-            GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() + engine.getRadius() * GameEssentials.sinOf60, minSize, 0.9);
+        for (Block block : engine.blocks()) {
+            GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() - 1 + verticalCount / 4, minSize, 0.9);
         }
     }
+
     public static void main(String[] args) {
         // Frame
         JFrame frame = new JFrame("Test: GamePanel");
@@ -34,17 +37,50 @@ public class GamePanel extends JPanel{
         frame.setMinimumSize(new Dimension(200, 200));
 
         // Engine
-        HexEngine engine = new HexEngine(4);
-        Piece piece1 = Piece.generatePiece();
-        Piece piece2 = Piece.generatePiece();
-        engine.add(engine.checkPositions(piece1).get(1), piece1);
-        engine.add(engine.checkPositions(piece2).getFirst(), piece2);
-        System.out.println("Pieces: " + piece1 + " and " + piece2);
-        System.out.println("Engine: " + engine);
-
-        // GamePanel
+        HexEngine engine = new HexEngine(7);
         GamePanel gamePanel = new GamePanel(engine);
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
+        // Autoplay
+        int turns = 0;
+        while (true) {
+            Piece piece = Piece.generatePiece();
+            try {
+                engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.length())), piece);
+            } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+                try {
+                    engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.length())), piece);
+                } catch (IllegalArgumentException | IndexOutOfBoundsException e1) {
+                    try {
+                        engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.length())), piece);
+                    } catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
+                        try {
+                            engine.add(engine.checkPositions(piece).get(3), piece);
+                        } catch (IllegalArgumentException | IndexOutOfBoundsException e3) {
+                            try {
+                                engine.add(engine.checkPositions(piece).get(0), piece);
+                            } catch (IllegalArgumentException | IndexOutOfBoundsException e4) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            gamePanel.repaint();
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+            }
+            engine.eliminate();
+            gamePanel.repaint();
+            turns++;
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+            }
+        }
+        engine.reset();
+        System.out.println("Auto Play: Game Over");
+        System.out.println("This game lasted for " + turns + " turns.");
     }
 }
