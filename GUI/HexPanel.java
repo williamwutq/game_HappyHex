@@ -10,7 +10,7 @@ public class HexPanel extends JPanel {
     public HexPanel(int size, Color color) {
         this.size = size;
         this.color = color;
-        Dimension dimension = new Dimension((int) Math.round(Math.sqrt(3) * size), 2 * size);
+        Dimension dimension = new Dimension((int) Math.round(4 * size * GameEssentials.sinOf60), 2 * size);
         setSize(dimension);
         setPreferredSize(dimension);
         setMinimumSize(dimension);
