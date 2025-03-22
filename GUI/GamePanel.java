@@ -10,7 +10,7 @@ public class GamePanel extends JPanel{
         super();
         // Variables
         this.engine = engine;
-        this.setBackground(Color.BLACK);
+        this.setBackground(Color.WHITE);
     }
     public void paintComponent(java.awt.Graphics g){
         super.paintComponent(g);
@@ -20,11 +20,7 @@ public class GamePanel extends JPanel{
         double minSize = Math.min(this.getHeight()/verticalCount, this.getWidth()/horizontalCount/GameEssentials.sinOf60/2);
         // paint every hexagon
         for(Block block : engine.blocks()){
-            if(block.getState()) {
-                GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() + engine.getRadius() * GameEssentials.sinOf60, minSize, 0.9);
-            }else{
-                GameEssentials.paintHexagon(g, Color.WHITE, block.X(), block.Y() + engine.getRadius() * GameEssentials.sinOf60, minSize, 0.9);
-            }
+            GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() + engine.getRadius() * GameEssentials.sinOf60, minSize, 0.9);
         }
     }
     public static void main(String[] args) {
