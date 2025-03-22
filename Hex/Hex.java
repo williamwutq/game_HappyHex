@@ -14,7 +14,7 @@ package Hex;
  */
 
 public class Hex{
-    private final double sinOf60 = Math.sqrt(3) / 2;
+    private final double sinOf60 = Math.sqrt(3) / 4;
     private int x;
     private int y;
 
