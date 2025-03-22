@@ -4,7 +4,6 @@ import java.awt.*;
 
 // Please see Hex
 public class Block extends Hex{
-    private final double sinOf60 = Math.sqrt(3) / 2;
     private Color color;
     private boolean state;
 
