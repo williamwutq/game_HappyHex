@@ -34,6 +34,9 @@ public class HexEngine implements HexGrid{
             block.setState(false);
         }
     }
+    public int getRadius(){
+        return radius;
+    }
     // Implements HexGrid
     public int length(){
         if(blocks == null){
