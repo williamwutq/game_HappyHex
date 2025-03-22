@@ -28,7 +28,7 @@ public class CircularButton extends JButton implements ActionListener {
     }
 
     @Override
-    public void paint(Graphics g) {
+    public void paint(java.awt.Graphics g) {
         super.paint(g);
         g.setColor(this.getForeground());
         g.fillOval(0,0,this.getWidth(), this.getHeight());
