@@ -331,22 +331,22 @@ public class Hex{
     /**
      * Converts the hexagonal coordinates to a rectangular X coordinate.
      * This transformation is based on the hexagonal grid layout, where the X-coordinate
-     * is computed using the sine of 30 degrees to account for the hexagonal tiling pattern.
+     * is computed using the sine of 60 degrees to account for the hexagonal tiling pattern.
      *
      * @return The X-coordinate in rectangular space.
      */
     public double X(){
-        return (x+y)/2.0;
+        return sinOf60 * (x+y);
     }
     /**
      * Converts the hexagonal coordinates to a rectangular Y coordinate.
      * This transformation is based on the hexagonal grid layout, where the Y-coordinate
-     * is computed using the sine of 60 degrees to account for the hexagonal tiling pattern.
+     * is computed using the sine of 30 degrees to account for the hexagonal tiling pattern.
      *
      * @return The Y-coordinate in rectangular space.
      */
     public double Y(){
-        return sinOf60 * 0.5 * (x-y);
+        return (x-y)/4.0;
     }
     /**
      * String representation of the hex coordinate used for debugging
