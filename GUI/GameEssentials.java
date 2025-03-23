@@ -42,6 +42,9 @@ public class GameEssentials {
         g.fillPolygon(hexagon);
     }
     public static void paintHexagon(java.awt.Graphics g, Color color, double x, double y, double size){
+        paintHexagon(g, color, x, y, size, GameEssentials.fill);
+    }
+    public static void paintHexagon(java.awt.Graphics g, Color color, double x, double y, double size, double fill){
         // Create Polygon
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
@@ -59,3 +62,4 @@ public class GameEssentials {
         // Debug code
     }
 }
+
