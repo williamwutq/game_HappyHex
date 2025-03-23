@@ -31,7 +31,7 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
         this.setMaximumSize(dimension);
         this.setPreferredSize(dimension);
         int x = (int) Math.round(size * 2 * block.X());
-        int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75));
+        int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75 - 0.75));
         this.setBounds(x, y, (int) Math.round(4 * size * GameEssentials.sinOf60), 2 * (int)size);
         this.addActionListener(this);
         this.addMouseListener(this);
@@ -44,11 +44,11 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
         this.setPreferredSize(dimension);
         if (hover){
             int x = (int) Math.round(size * 2 * block.X() + (1 - extended) * size);
-            int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75) + (1 - extended) * size);
+            int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75 - 0.75) + (1 - extended) * size);
             this.setBounds(x, y, (int) Math.round(extended * 4 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
         } else {
             int x = (int) Math.round(size * 2 * block.X());
-            int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75));
+            int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75 - 0.75));
             this.setBounds(x, y, (int) Math.round(4 * size * GameEssentials.sinOf60), 2 * (int)size);
         }
     }
@@ -97,21 +97,21 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
     public static void main(String[] args){
         JFrame frame = new JFrame("Test: CircularButton");
         JPanel panel = new JPanel();
-        int engineRadius = 3;
-        HexButton.setEngineRadius(3);
+        int engineRadius = 5;
+        HexButton.setEngineRadius(engineRadius);
         HexButton.setSize(60);
         panel.setLayout(null);
         panel.add(new HexButton(new Block()));
         panel.add(new HexButton(Block.block(1,1, Color.GREEN)));
         panel.add(new HexButton(Block.block(1,0, Color.BLUE)));
-        panel.add(new HexButton(Block.block(engineRadius,0, Color.BLUE)));
+        panel.add(new HexButton(Block.block(engineRadius-1,0, Color.BLUE)));
         panel.add(new HexButton(Block.block(0,1, Color.RED)));
-        panel.add(new HexButton(Block.block(0,engineRadius, Color.RED)));
-        panel.add(new HexButton(Block.block(engineRadius*2-1,engineRadius*2-1, Color.GREEN)));
+        panel.add(new HexButton(Block.block(0,engineRadius-1, Color.RED)));
+        panel.add(new HexButton(Block.block(engineRadius*2-2,engineRadius*2-2, Color.GREEN)));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.add(panel, BorderLayout.CENTER);
-        Dimension dm = new Dimension((int)((engineRadius * 8)*GameEssentials.sinOf60*size), (engineRadius * 3 + 2)*(int)size+28);
+        Dimension dm = new Dimension((int)((engineRadius * 8 - 4)*GameEssentials.sinOf60*size), (engineRadius * 3 - 1)*(int)size+28);
         frame.setSize(dm);
         frame.setMinimumSize(dm);
         frame.setVisible(true);
