@@ -153,13 +153,158 @@ public class Piece implements HexGrid{
     }
     public static Piece corner3K() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(1,1));
-        p.add(Block.block(0,0));
         p.add(Block.block(0,-1));
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,1));
         return p;
     }
+    public static Piece rhombus4I() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(0,1));
+        p.add(Block.block(1,1));
+        p.add(Block.block(1, 2));
+        return p;
+    }
+    public static Piece rhombus4J() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(0,1));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1,1));
+        return p;
+    }
+    public static Piece rhombus4K() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,0));
+        p.add(Block.block(1,1));
+        p.add(Block.block(2, 1));
+        return p;
+    }
+    public static Piece line4I() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(0,1));
+        p.add(Block.block(0,2));
+        p.add(Block.block(0,3));
+        return p;
+    }
+    public static Piece line4J() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,1));
+        p.add(Block.block(2,2));
+        p.add(Block.block(3,3));
+        return p;
+    }
+    public static Piece line4K() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,0));
+        p.add(Block.block(2,0));
+        p.add(Block.block(3,0));
+        return p;
+    }
+    public static Piece corner4Ir() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(0,1));
+        p.add(Block.block(1,0));
+        p.add(Block.block(2,1));
+        return p;
+    }
+    public static Piece corner4Il() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,-1));
+        p.add(Block.block(0,0));
+        p.add(Block.block(-1,0));
+        p.add(Block.block(-2,-1));
+        return p;
+    }
+    public static Piece corner4Jr() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1,0));
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,1));
+        p.add(Block.block(1,2));
+        return p;
+    }
+    public static Piece corner4Jl() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,-1));
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,1));
+        p.add(Block.block(2,1));
+        return p;
+    }
+    public static Piece corner4Kr() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(0,1));
+        p.add(Block.block(1,0));
+        p.add(Block.block(1,2));
+        return p;
+    }
+    public static Piece corner4Kl() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,-1));
+        p.add(Block.block(0,0));
+        p.add(Block.block(-1,-2));
+        p.add(Block.block(-1,0));
+        return p;
+    }
+    public static Piece asymmetrical4Il() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1,0));
+        p.add(Block.block(0,0));
+        p.add(Block.block(0,1));
+        p.add(Block.block(0,2));
+        return p;
+    }
+    public static Piece asymmetrical4Ir() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(0,1));
+        p.add(Block.block(0,2));
+        p.add(Block.block(1,1));
+        return p;
+    }
+    public static Piece asymmetrical4Jl() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,1));
+        p.add(Block.block(2,1));
+        p.add(Block.block(2,2));
+        return p;
+    }
+    public static Piece asymmetrical4Jr() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,1));
+        p.add(Block.block(1,2));
+        p.add(Block.block(2,2));
+        return p;
+    }
+    public static Piece asymmetrical4Kl() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,0));
+        p.add(Block.block(1,1));
+        p.add(Block.block(2,0));
+        return p;
+    }
+    public static Piece asymmetrical4Kr() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(0,-1));
+        p.add(Block.block(0,0));
+        p.add(Block.block(1,0));
+        p.add(Block.block(2,0));
+        return p;
+    }
+
     public static Piece generatePiece(){
-        int i = (int) (Math.random() * 19);
+        int i = (int) (Math.random() * 43);
         if (i == 1 || i == 2 || i == 3) {
             return triangle3A();
         } else if (i == 4 || i == 5 || i == 6) {
@@ -176,8 +321,43 @@ public class Piece implements HexGrid{
             return corner3J();
         } else if (i == 17 || i == 18) {
             return corner3K();
-        }
-        return bigBlock();
+        } else if (i == 19 || i == 20) {
+            return rhombus4I();
+        } else if (i == 21 || i == 22) {
+            return rhombus4J();
+        } else if (i == 23 || i == 24) {
+            return rhombus4K();
+        } else if (i == 25 || i == 26) {
+            return line4I();
+        } else if (i == 27 || i == 28) {
+            return line4J();
+        } else if (i == 29 || i == 30) {
+            return line4K();
+        } else if (i == 31) {
+            return corner4Il();
+        } else if (i == 32) {
+            return corner4Ir();
+        } else if (i == 33) {
+            return corner4Jl();
+        } else if (i == 34) {
+            return corner4Jr();
+        } else if (i == 35) {
+            return corner4Kl();
+        } else if (i == 36) {
+            return corner4Kr();
+        } else if (i == 37) {
+            return asymmetrical4Il();
+        } else if (i == 38) {
+            return asymmetrical4Ir();
+        } else if (i == 39) {
+            return asymmetrical4Jl();
+        } else if (i == 40) {
+            return asymmetrical4Jr();
+        } else if (i == 41) {
+            return asymmetrical4Kl();
+        } else if (i == 42) {
+            return asymmetrical4Kr();
+        } else return bigBlock();
     }
 
     public String toString(){
@@ -186,6 +366,16 @@ public class Piece implements HexGrid{
             str.append(block.getLines());
         }
         return str + "}";
+    }
+
+    public boolean equals(Piece piece) {
+        if(piece.length() != this.length()) {return false;}
+        for(int i = 0; i < this.length(); i ++){
+            if(!this.blocks[i].equals(piece.blocks[i])){
+                return false;
+            }
+        }
+        return true;
     }
 
     public static void main(String[] args){
