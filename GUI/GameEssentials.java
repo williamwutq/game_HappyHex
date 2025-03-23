@@ -4,6 +4,13 @@ import java.awt.*;
 
 public class GameEssentials {
     public static final double sinOf60 = Math.sqrt(3) / 4;
+    public static double fill = 0.9;
+    public static void setFill(double newFill){
+        if(newFill <= 1.0 && newFill > 0.0) {
+            // Only fill when checked
+            fill = newFill;
+        }
+    }
     public static Color generateColor(){
         Color colors[] = new Color[12];
         colors[0] = new Color(0, 0, 240);
@@ -34,7 +41,7 @@ public class GameEssentials {
         g.setColor(color);
         g.fillPolygon(hexagon);
     }
-    public static void paintHexagon(java.awt.Graphics g, Color color, double x, double y, double size, double fill){
+    public static void paintHexagon(java.awt.Graphics g, Color color, double x, double y, double size){
         // Create Polygon
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
