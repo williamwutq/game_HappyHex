@@ -22,7 +22,7 @@ public class GamePanel extends JPanel {
         double minSize = Math.min(this.getHeight() / verticalCount, this.getWidth() / horizontalCount / GameEssentials.sinOf60 / 2);
         // paint every hexagon
         for (Block block : engine.blocks()) {
-            GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() - 1 + verticalCount / 4, minSize, 0.9);
+            GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() - 1 + verticalCount / 4, minSize);
         }
     }
 
@@ -87,6 +87,6 @@ public class GamePanel extends JPanel {
         gamePanel.repaint();
         System.out.println("Auto Play: Game Over");
         System.out.println("This game lasted for " + turns + " turns.");
-        System.out.println("The total score is: " + score + " points.");
+        System.out.println("The total score is " + score + " points.");
     }
 }
