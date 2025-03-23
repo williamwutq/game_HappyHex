@@ -7,16 +7,19 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class HexButton extends JButton implements ActionListener {
-    private Block block;
+public class HexButton extends JButton implements ActionListener, MouseListener {
+    private static final double extended = 1.1;
     private static double size;
     private static int engineRadius;
+    private Block block;
+    private boolean hover;
     public HexButton(Block block){
         super();
         this.block = block;
+        this.hover = false;
         this.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.setAlignmentY(Component.CENTER_ALIGNMENT);
-        this.setForeground(Color.WHITE);
+        this.setForeground(block.color());
         this.setBackground(new Color(0,0,0,0));
         this.setBorder(new EmptyBorder(0,0,0,0));
         double width = 4 * size * GameEssentials.sinOf60;
@@ -30,6 +33,7 @@ public class HexButton extends JButton implements ActionListener {
         int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75));
         this.setBounds(x, y, (int) Math.round(4 * size * GameEssentials.sinOf60), 2 * (int)size);
         this.addActionListener(this);
+        this.addMouseListener(this);
     }
     public void resetSize(){
         Dimension dimension = new Dimension((int) Math.round(4 * size * GameEssentials.sinOf60), 2 * (int)size);
@@ -54,10 +58,31 @@ public class HexButton extends JButton implements ActionListener {
         HexButton.engineRadius = radius;
     }
 
-    @Override
     public void paint(java.awt.Graphics g) {
         super.paint(g);
-        GameEssentials.paintHexagon(g, block.color(), size);
+        if(hover) {
+            GameEssentials.paintHexagon(g, this.getForeground(), (extended-1)/2, (extended-1)/2, size, extended);
+        } else {
+            GameEssentials.paintHexagon(g, this.getForeground(), size);
+        }
+    }
+    public void mouseClicked(MouseEvent e) {}
+    public void mousePressed(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {
+        hover = true;
+        int x = (int) Math.round(size * 2 * block.X() + (1 - extended) * size);
+        int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75) + (1 - extended) * size);
+        this.setBounds(x, y, (int) Math.round(extended * 4 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
+        Color c = block.color();
+        this.setForeground(new Color(c.getRed(), c.getGreen(), c.getBlue(), 120));
+    }
+    public void mouseExited(MouseEvent e) {
+        hover = false;
+        int x = (int) Math.round(size * 2 * block.X());
+        int y = (int) Math.round(size * 2 * (block.Y() + engineRadius * 0.75));
+        this.setBounds(x, y, (int) Math.round(4 * size * GameEssentials.sinOf60), 2 * (int)size);
+        this.setForeground(block.color());
     }
 
     public void actionPerformed(ActionEvent e){
@@ -68,7 +93,7 @@ public class HexButton extends JButton implements ActionListener {
         JPanel panel = new JPanel();
         int engineRadius = 3;
         HexButton.setEngineRadius(3);
-        HexButton.setSize(40);
+        HexButton.setSize(60);
         panel.setLayout(null);
         panel.add(new HexButton(new Block()));
         panel.add(new HexButton(Block.block(1,1, Color.GREEN)));
