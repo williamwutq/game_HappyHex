@@ -27,14 +27,14 @@ public class GameEssentials {
         colors[11] = new Color(90, 0, 200);
         return colors[(int)(Math.random() * 12)];
     }
-    public static void paintHexagon(java.awt.Graphics g, Color color, int size){
+    public static void paintHexagon(java.awt.Graphics g, Color color, double size){
         // Create Polygon
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
             double angle = Math.toRadians(60 * i);
-            xPoints[i] = (int) Math.round(size * 2 * sinOf60 + size * Math.sin(angle));
-            yPoints[i] = (int) Math.round(size + size * Math.cos(angle));
+            xPoints[i] = (int) Math.round(size * 2 * sinOf60 + size * Math.sin(angle) * fill);
+            yPoints[i] = (int) Math.round(size + size * Math.cos(angle) * fill);
         }
         Polygon hexagon = new Polygon(xPoints, yPoints, 6);
         // Paint
