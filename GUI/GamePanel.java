@@ -6,29 +6,50 @@ import java.awt.*;
 
 public class GamePanel extends JPanel {
     private HexEngine engine;
+    private HexButton[] buttons;
 
     public GamePanel(HexEngine engine) {
         super();
         // Variables
         this.engine = engine;
         this.setBackground(Color.WHITE);
+        // Basic graphics
+        this.setLayout(null); // Use absolute
+        // Prepare
+        HexButton.setSize(1);
+        HexButton.setEngineRadius(engine.getRadius());
+        // Construct buttons
+        Block[] blocks = engine.blocks();
+        buttons = new HexButton[engine.length()];
+        for (int i = 0; i < blocks.length; i++) {
+            Block block = blocks[i];
+            buttons[i] = new HexButton(block);
+            this.add(buttons[i]);
+        }
+        this.repaint();
     }
 
     public void paintComponent(java.awt.Graphics g) {
-        super.paintComponent(g);
+        for (int i = 0; i < buttons.length; i++) {
+            HexButton b = buttons[i];
+            b.setBlock(engine.getBlock(i));
+        }
         // Calculate minimum size
         double horizontalCount = engine.getRadius() * 4 - 2;
         double verticalCount = engine.getRadius() * 3 - 1;
         double minSize = Math.min(this.getHeight() / verticalCount, this.getWidth() / horizontalCount / GameEssentials.sinOf60 / 2);
-        // paint every hexagon
-        for (Block block : engine.blocks()) {
-            GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() - 1 + verticalCount / 4, minSize);
-        }
+        // New code: set size.
+        HexButton.setSize(minSize);
+        super.paintComponent(g);
+        // Old code: paint hexagons
+        // for (Block block : engine.blocks()) {
+        //     GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() - 0.5 + verticalCount / 4, minSize);
+        // }
     }
 
     public static void main(String[] args) {
         // Settings
-        int size = 7;
+        int size = 9;
         int delay = 200;
 
         // Frame
@@ -37,7 +58,7 @@ public class GamePanel extends JPanel {
         frame.setLayout(new BorderLayout());
         frame.setBackground(Color.WHITE);
         frame.setAlwaysOnTop(true);
-        frame.setSize(new Dimension(2400, 1600));
+        frame.setSize(new Dimension(800, 800));
         frame.setMinimumSize(new Dimension(200, 200));
 
         // Engine
