@@ -28,18 +28,7 @@ public class GameEssentials {
         return colors[(int)(Math.random() * 12)];
     }
     public static void paintHexagon(java.awt.Graphics g, Color color, double size){
-        // Create Polygon
-        int[] xPoints = new int[6];
-        int[] yPoints = new int[6];
-        for (int i = 0; i < 6; i++) {
-            double angle = Math.toRadians(60 * i);
-            xPoints[i] = (int) Math.round(size * 2 * sinOf60 + size * Math.sin(angle) * fill);
-            yPoints[i] = (int) Math.round(size + size * Math.cos(angle) * fill);
-        }
-        Polygon hexagon = new Polygon(xPoints, yPoints, 6);
-        // Paint
-        g.setColor(color);
-        g.fillPolygon(hexagon);
+        paintHexagon(g, color, 0, 0, size, GameEssentials.fill);
     }
     public static void paintHexagon(java.awt.Graphics g, Color color, double x, double y, double size){
         paintHexagon(g, color, x, y, size, GameEssentials.fill);
@@ -51,7 +40,7 @@ public class GameEssentials {
         for (int i = 0; i < 6; i++) {
             double angle = Math.toRadians(60 * i);
             xPoints[i] = (int) Math.round(size * (x * 2 + sinOf60 * 2 + Math.sin(angle) * fill));
-            yPoints[i] = (int) Math.round(size * (y * 2 + 2.0 + Math.cos(angle) * fill));
+            yPoints[i] = (int) Math.round(size * (y * 2 + 1.0 + Math.cos(angle) * fill));
         }
         Polygon hexagon = new Polygon(xPoints, yPoints, 6);
         // Paint
