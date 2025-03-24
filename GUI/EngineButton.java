@@ -30,14 +30,12 @@ public class EngineButton extends HexButton {
             // For now: check queue
             checkQueue();
         }
+        // Paint and eliminate
         GameEssentials.window().repaint();
-        // Delay for 100 and eliminate
-        try {
-            Thread.sleep(GameEssentials.getDelay());
-        } catch (InterruptedException ex) {}
-        GameEssentials.engine().eliminate();
-        // Repaint
-        GameEssentials.window().repaint();
+        if(GameEssentials.engine().checkEliminate()) {
+            // Eliminate code is here, see GameTimer class
+            new GameTimer().start();
+        }
     }
     private void checkQueue(){
         Hex position = fetchBlock().thisHex();
