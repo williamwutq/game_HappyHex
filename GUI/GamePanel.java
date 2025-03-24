@@ -94,6 +94,14 @@ public class GamePanel extends JPanel {
         System.out.println("This game lasted for " + turns + " turns.");
         System.out.println("The total score is " + score + " points.");
     }
+    public static boolean checkEnd(){
+        for(int i = 0; i < GameEssentials.queue().length(); i ++){
+            if(!GameEssentials.engine().checkPositions(GameEssentials.queue().get(i)).isEmpty()){
+                return false;
+            }
+        }
+        return true;
+    }
     public static void play (int size, int queueSize, int delay) {
         // Frame
         JFrame frame = new JFrame("Test: GamePanel");
