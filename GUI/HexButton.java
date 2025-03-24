@@ -1,7 +1,6 @@
 package GUI;
 
-import Hex.Block;
-import Hex.HexEngine;
+import Hex.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -13,6 +12,8 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
     private static final int alphaHide = 200;
     private static double size;
     private static HexEngine engine;
+    private static Queue queue;
+    private static JFrame window;
     private int index;
     private boolean hover;
     public HexButton(int index){
@@ -61,6 +62,12 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
     public static void setEngine(HexEngine engine){
         HexButton.engine = engine;
     }
+    public static void setQueue(Queue queue){
+        HexButton.queue = queue;
+    }
+    public static void setWindow(JFrame window){
+        HexButton.window = window;
+    }
     // Prevent children
     public java.awt.Component add(java.awt.Component comp) {return comp;}
     protected void addImpl(java.awt.Component comp, Object constraints, int index) {}
@@ -90,6 +97,18 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
         resetSize();
     }
     public void actionPerformed(ActionEvent e){
-        // When it is clicked do something
+        // Fetch position
+        Hex position = engine.getBlock(index).thisHex();
+        // Check this position, if good then add
+        if(engine.checkAdd(position, queue.getFirst())){
+            engine.add(position, queue.next());
+        }
+        // Delay for 100 and eliminate
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {}
+        engine.eliminate();
+        // Repaint
+        window.repaint();
     }
 }
