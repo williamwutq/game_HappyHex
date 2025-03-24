@@ -5,27 +5,24 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel {
-    private HexEngine engine;
 
-    public GamePanel(HexEngine engine) {
+    public GamePanel() {
         super();
         // Variables
-        this.engine = engine;
         this.setBackground(Color.WHITE);
         // Basic graphics
         this.setLayout(null); // Use absolute
         // Prepare
         HexButton.setSize(1);
-        HexButton.setEngine(engine);
         // Construct buttons
-        for (int i = 0; i < engine.length(); i++) {
+        for (int i = 0; i < GameEssentials.engine().length(); i++) {
             this.add(new HexButton(i));
         }
     }
     public void paint(java.awt.Graphics g) {
         // Calculate minimum size
-        double horizontalCount = engine.getRadius() * 4 - 2;
-        double verticalCount = engine.getRadius() * 3 - 1;
+        double horizontalCount = GameEssentials.engine().getRadius() * 4 - 2;
+        double verticalCount = GameEssentials.engine().getRadius() * 3 - 1;
         double minSize = Math.min(this.getHeight() / verticalCount, this.getWidth() / horizontalCount / GameEssentials.sinOf60 / 2);
         // New code: set size.
         HexButton.setSize(minSize);
@@ -48,9 +45,10 @@ public class GamePanel extends JPanel {
         // Engine
         HexEngine engine = new HexEngine(size);
         Queue queue = new Queue(queueSize);
-        HexButton.setQueue(queue);
-        HexButton.setWindow(frame);
-        GamePanel gamePanel = new GamePanel(engine);
+        GameEssentials.setEngine(engine);
+        GameEssentials.setQueue(queue);
+        GameEssentials.setWindow(frame);
+        GamePanel gamePanel = new GamePanel();
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
         // Autoplay
@@ -110,9 +108,10 @@ public class GamePanel extends JPanel {
         // Engine
         HexEngine engine = new HexEngine(size);
         Queue queue = new Queue(queueSize);
-        HexButton.setQueue(queue);
-        HexButton.setWindow(frame);
-        GamePanel gamePanel = new GamePanel(engine);
+        GameEssentials.setEngine(engine);
+        GameEssentials.setQueue(queue);
+        GameEssentials.setWindow(frame);
+        GamePanel gamePanel = new GamePanel();
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
     }
