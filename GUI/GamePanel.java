@@ -48,6 +48,8 @@ public class GamePanel extends JPanel {
         // Engine
         HexEngine engine = new HexEngine(size);
         Queue queue = new Queue(queueSize);
+        HexButton.setQueue(queue);
+        HexButton.setWindow(frame);
         GamePanel gamePanel = new GamePanel(engine);
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -95,7 +97,7 @@ public class GamePanel extends JPanel {
         System.out.println("This game lasted for " + turns + " turns.");
         System.out.println("The total score is " + score + " points.");
     }
-    public static void play (int size, int delay) {
+    public static void play (int size, int queueSize, int delay) {
         // Frame
         JFrame frame = new JFrame("Test: GamePanel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -107,14 +109,15 @@ public class GamePanel extends JPanel {
 
         // Engine
         HexEngine engine = new HexEngine(size);
+        Queue queue = new Queue(queueSize);
+        HexButton.setQueue(queue);
+        HexButton.setWindow(frame);
         GamePanel gamePanel = new GamePanel(engine);
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
-
-        // To be implemented
     }
 
     public static void main(String[] args) {
-        autoplay(9, 9, 200);
+        play(9, 9, 200);
     }
 }
