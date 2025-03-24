@@ -9,6 +9,15 @@ public class EngineButton extends HexButton {
     protected Block fetchBlock(){
         return GameEssentials.engine().getBlock(getIndex());
     }
+    protected Color fetchColor() {
+        Hex position = fetchBlock().thisHex();
+        for(int i = 0; i < GameEssentials.queue().length(); i ++){
+            if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().get(i))) {
+                return Color.GRAY;
+            }
+        }
+        return super.fetchColor();
+    }
     public void clicked(){
         // Fetch position
         Hex position = fetchBlock().thisHex();
