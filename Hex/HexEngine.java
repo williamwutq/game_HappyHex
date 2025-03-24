@@ -208,6 +208,60 @@ public class HexEngine implements HexGrid{
         }
         return eliminate.size(); // Number of blocks being eliminated
     }
+    public boolean checkEliminate(){
+        // Check I
+        for(int i = 0; i < radius*2 - 1; i ++){
+            ArrayList<Block> line = new ArrayList<Block>();
+            for(int index = 0; index < length(); index ++){
+                if(blocks[index].getLineI() == i){
+                    // Found block
+                    if(blocks[index].getState()){
+                        line.add(blocks[index]);
+                    } else {
+                        // Else this line does not satisfy, clean up line and break out of the for loop
+                        line.clear();
+                        break;
+                    }
+                }
+            }
+            if(!line.isEmpty()) return true; // If one line is to be eliminated
+        }
+        // Check J
+        for(int j = 1 - radius; j < radius; j ++){
+            ArrayList<Block> line = new ArrayList<Block>();
+            for(int index = 0; index < length(); index ++){
+                if(blocks[index].getLineJ() == j){
+                    // Found block
+                    if(blocks[index].getState()){
+                        line.add(blocks[index]);
+                    } else {
+                        // Else this line does not satisfy, clean up line and break out of the for loop
+                        line.clear();
+                        break;
+                    }
+                }
+            }
+            if(!line.isEmpty()) return true; // If one line is to be eliminated
+        }
+        // Check K
+        for(int k = 0; k < radius*2 - 1; k ++){
+            ArrayList<Block> line = new ArrayList<Block>();
+            for(int index = 0; index < length(); index ++){
+                if(blocks[index].getLineK() == k){
+                    // Found block
+                    if(blocks[index].getState()){
+                        line.add(blocks[index]);
+                    } else {
+                        // Else this line does not satisfy, clean up line and break out of the for loop
+                        line.clear();
+                        break;
+                    }
+                }
+            }
+            if(!line.isEmpty()) return true; // If one line is to be eliminated
+        }
+        return false;
+    }
 
     public String toString(){
         StringBuilder str = new StringBuilder("{HexEngine: ");
