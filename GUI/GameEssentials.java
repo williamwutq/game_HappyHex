@@ -41,7 +41,7 @@ public final class GameEssentials {
      *
      * @param delay the new delay of a typical action in the game; must be between 10 (inclusive) and 100000 (inclusive).
      */
-    public static void setActionDelay(int delay) {
+    public static void setDelay(int delay) {
         if (delay <= 100000 && delay >= 10) {
             GameEssentials.actionDelay = delay;
         }
