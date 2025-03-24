@@ -22,7 +22,6 @@ public class GamePanel extends JPanel {
             this.add(new HexButton(i));
         }
     }
-
     public void paint(java.awt.Graphics g) {
         // Calculate minimum size
         double horizontalCount = engine.getRadius() * 4 - 2;
@@ -35,12 +34,8 @@ public class GamePanel extends JPanel {
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
         super.paintChildren(g);
     }
-
-    public static void main(String[] args) {
-        // Settings
-        int size = 9;
-        int delay = 200;
-
+    // Test: autoplay
+    public static void autoplay(int size, int delay){
         // Frame
         JFrame frame = new JFrame("Test: GamePanel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -98,5 +93,9 @@ public class GamePanel extends JPanel {
         System.out.println("Auto Play: Game Over");
         System.out.println("This game lasted for " + turns + " turns.");
         System.out.println("The total score is " + score + " points.");
+    }
+
+    public static void main(String[] args) {
+        autoplay(9, 200);
     }
 }
