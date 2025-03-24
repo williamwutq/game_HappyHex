@@ -35,7 +35,7 @@ public class GamePanel extends JPanel {
         super.paintChildren(g);
     }
     // Test: autoplay
-    public static void autoplay(int size, int delay){
+    public static void autoplay(int size, int queueSize, int delay){
         // Frame
         JFrame frame = new JFrame("Test: GamePanel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,6 +47,7 @@ public class GamePanel extends JPanel {
 
         // Engine
         HexEngine engine = new HexEngine(size);
+        Queue queue = new Queue(queueSize);
         GamePanel gamePanel = new GamePanel(engine);
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -54,26 +55,26 @@ public class GamePanel extends JPanel {
         int turns = 0;
         int score = 0;
         while (true) {
-            Piece piece = Piece.generatePiece();
+            Piece piece = queue.getFirst();
+            // Check positions
             try {
-                engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.length())), piece);
+                engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.checkPositions(piece).size())), piece);
+                queue.next();
             } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-                try {
-                    engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.length())), piece);
-                } catch (IllegalArgumentException | IndexOutOfBoundsException e1) {
+                int index = 1;
+                while(index < queueSize) {
+                    piece = queue.get(index);
                     try {
-                        engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.length())), piece);
-                    } catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
-                        try {
-                            engine.add(engine.checkPositions(piece).get(3), piece);
-                        } catch (IllegalArgumentException | IndexOutOfBoundsException e3) {
-                            try {
-                                engine.add(engine.checkPositions(piece).get(0), piece);
-                            } catch (IllegalArgumentException | IndexOutOfBoundsException e4) {
-                                break;
-                            }
-                        }
+                        engine.add(engine.checkPositions(piece).get((int) (Math.random() * engine.checkPositions(piece).size())), piece);
+                        queue.fetch(index);
+                        break;
+                    } catch (IllegalArgumentException | IndexOutOfBoundsException ex) {
+                        index ++;
                     }
+                }
+                if(index >= queueSize){
+                    // No possible solutions
+                    break;
                 }
             }
             score += piece.length();
@@ -94,8 +95,26 @@ public class GamePanel extends JPanel {
         System.out.println("This game lasted for " + turns + " turns.");
         System.out.println("The total score is " + score + " points.");
     }
+    public static void play (int size, int delay) {
+        // Frame
+        JFrame frame = new JFrame("Test: GamePanel");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setBackground(Color.WHITE);
+        frame.setAlwaysOnTop(true);
+        frame.setSize(new Dimension(800, 800));
+        frame.setMinimumSize(new Dimension(200, 200));
+
+        // Engine
+        HexEngine engine = new HexEngine(size);
+        GamePanel gamePanel = new GamePanel(engine);
+        frame.add(gamePanel, BorderLayout.CENTER);
+        frame.setVisible(true);
+
+        // To be implemented
+    }
 
     public static void main(String[] args) {
-        autoplay(9, 200);
+        autoplay(9, 9, 200);
     }
 }
