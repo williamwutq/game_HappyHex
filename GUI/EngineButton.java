@@ -1,6 +1,7 @@
 package GUI;
 
 import Hex.*;
+import java.awt.Color;
 
 public class EngineButton extends HexButton {
     public EngineButton(int index){
@@ -18,6 +19,7 @@ public class EngineButton extends HexButton {
         }
         return super.fetchColor();
     }
+
     public void clicked(){
         // Fetch position
         Hex position = fetchBlock().thisHex();
@@ -28,9 +30,10 @@ public class EngineButton extends HexButton {
             // For now: check queue
             checkQueue();
         }
+        GameEssentials.window().repaint();
         // Delay for 100 and eliminate
         try {
-            Thread.sleep(100);
+            Thread.sleep(GameEssentials.getDelay());
         } catch (InterruptedException ex) {}
         GameEssentials.engine().eliminate();
         // Repaint
