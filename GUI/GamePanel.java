@@ -6,7 +6,6 @@ import java.awt.*;
 
 public class GamePanel extends JPanel {
     private HexEngine engine;
-    private HexButton[] buttons;
 
     public GamePanel(HexEngine engine) {
         super();
@@ -17,34 +16,24 @@ public class GamePanel extends JPanel {
         this.setLayout(null); // Use absolute
         // Prepare
         HexButton.setSize(1);
-        HexButton.setEngineRadius(engine.getRadius());
+        HexButton.setEngine(engine);
         // Construct buttons
-        Block[] blocks = engine.blocks();
-        buttons = new HexButton[engine.length()];
-        for (int i = 0; i < blocks.length; i++) {
-            Block block = blocks[i];
-            buttons[i] = new HexButton(block);
-            this.add(buttons[i]);
+        for (int i = 0; i < engine.length(); i++) {
+            this.add(new HexButton(i));
         }
-        this.repaint();
     }
 
-    public void paintComponent(java.awt.Graphics g) {
-        for (int i = 0; i < buttons.length; i++) {
-            HexButton b = buttons[i];
-            b.setBlock(engine.getBlock(i));
-        }
+    public void paint(java.awt.Graphics g) {
         // Calculate minimum size
         double horizontalCount = engine.getRadius() * 4 - 2;
         double verticalCount = engine.getRadius() * 3 - 1;
         double minSize = Math.min(this.getHeight() / verticalCount, this.getWidth() / horizontalCount / GameEssentials.sinOf60 / 2);
         // New code: set size.
         HexButton.setSize(minSize);
-        super.paintComponent(g);
-        // Old code: paint hexagons
-        // for (Block block : engine.blocks()) {
-        //     GameEssentials.paintHexagon(g, block.color(), block.X(), block.Y() - 0.5 + verticalCount / 4, minSize);
-        // }
+        // print component and children
+        g.setColor(this.getBackground());
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        super.paintChildren(g);
     }
 
     public static void main(String[] args) {
