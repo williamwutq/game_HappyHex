@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel {
-
     public GamePanel() {
         super();
         // Variables
@@ -16,7 +15,7 @@ public class GamePanel extends JPanel {
         HexButton.setSize(1);
         // Construct buttons
         for (int i = 0; i < GameEssentials.engine().length(); i++) {
-            this.add(new HexButton(i));
+            this.add(new EngineButton(i));
         }
     }
     public void paint(java.awt.Graphics g) {
@@ -112,7 +111,9 @@ public class GamePanel extends JPanel {
         GameEssentials.setQueue(queue);
         GameEssentials.setWindow(frame);
         GamePanel gamePanel = new GamePanel();
+        //PiecePanel piecePanel = new PiecePanel();
         frame.add(gamePanel, BorderLayout.CENTER);
+        //frame.add(piecePanel, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
 
