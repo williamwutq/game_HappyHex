@@ -15,6 +15,9 @@ public class EngineButton extends HexButton {
         // Check this position, if good then add
         if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().getFirst())){
             GameEssentials.engine().add(position, GameEssentials.queue().next());
+        } else {
+            // For now: check queue
+            checkQueue();
         }
         // Delay for 100 and eliminate
         try {
@@ -23,5 +26,14 @@ public class EngineButton extends HexButton {
         GameEssentials.engine().eliminate();
         // Repaint
         GameEssentials.window().repaint();
+    }
+    private void checkQueue(){
+        Hex position = fetchBlock().thisHex();
+        for(int i = 0; i < GameEssentials.queue().length(); i ++){
+            if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().get(i))){
+                GameEssentials.engine().add(position, GameEssentials.queue().fetch(i));
+                break;
+            }
+        }
     }
 }
