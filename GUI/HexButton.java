@@ -7,11 +7,11 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class HexButton extends JButton implements ActionListener, MouseListener {
-    private static final double extended = 1.1;
-    private static final int alphaHide = 200;
-    private static double size;
-    private int index;
+abstract class HexButton extends JButton implements ActionListener, MouseListener {
+    protected static final double extended = 1.1;
+    protected static final int alphaHide = 200;
+    protected static double size;
+    private final int index;
     private boolean hover;
     public HexButton(int index){
         super();
@@ -22,7 +22,7 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
         this.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.setAlignmentY(Component.CENTER_ALIGNMENT);
         this.setLayout(null);
-        this.setForeground(GameEssentials.engine().getBlock(index).color());
+        this.setForeground(fetchColor());
         this.setBackground(new Color(0,0,0,0));
         this.setBorder(new EmptyBorder(0,0,0,0));
         // Size
@@ -31,11 +31,14 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
         this.addActionListener(this);
         this.addMouseListener(this);
     }
+    protected int getIndex(){
+        return index;
+    }
     public void resetSize(){
         int width = (int) Math.round(4 * size * GameEssentials.sinOf60);
         int height = (int) Math.round(2 * size);
         Dimension dimension = new Dimension(width, height);
-        Block block = GameEssentials.engine().getBlock(index); // Fetch block
+        Block block = fetchBlock(); // Fetch block
         this.setSize(dimension);
         this.setMinimumSize(dimension);
         this.setMaximumSize(dimension);
@@ -56,6 +59,12 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
     public static void setSize(double size){
         HexButton.size = size;
     }
+    // Abstract things as different ways to fetch color and block, and different reactions
+    protected abstract Block fetchBlock();
+    protected Color fetchColor(){
+        return fetchBlock().color();
+    }
+    protected abstract void clicked();
     // Prevent children
     public java.awt.Component add(java.awt.Component comp) {return comp;}
     protected void addImpl(java.awt.Component comp, Object constraints, int index) {}
@@ -64,7 +73,7 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
     public void paint(java.awt.Graphics g) {
         resetSize();
         // Fetch block color
-        Color blockColor = GameEssentials.engine().getBlock(index).color();
+        Color blockColor = fetchColor();
         if(hover) {
             Color color = new Color(blockColor.getRed(), blockColor.getGreen(), blockColor.getBlue(), alphaHide);
             GameEssentials.paintHexagon(g, color, (extended-1)/2, (extended-1)/2, size, extended);
@@ -85,18 +94,6 @@ public class HexButton extends JButton implements ActionListener, MouseListener 
         resetSize();
     }
     public void actionPerformed(ActionEvent e){
-        // Fetch position
-        Hex position = GameEssentials.engine().getBlock(index).thisHex();
-        // Check this position, if good then add
-        if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().getFirst())){
-            GameEssentials.engine().add(position, GameEssentials.queue().next());
-        }
-        // Delay for 100 and eliminate
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException ex) {}
-        GameEssentials.engine().eliminate();
-        // Repaint
-        GameEssentials.window().repaint();
+        clicked();
     }
 }
