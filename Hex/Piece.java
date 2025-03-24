@@ -57,6 +57,7 @@ public class Piece implements HexGrid{
     }
     public Block[] blocks(){
         // Remove null
+        sort();
         Block[] result = blocks;
         for(int i = 0; i < length(); i ++){
             if(blocks[i] == null){
@@ -156,6 +157,22 @@ public class Piece implements HexGrid{
         p.add(Block.block(0,-1));
         p.add(Block.block(0,0));
         p.add(Block.block(1,1));
+        return p;
+    }
+    public static Piece fan4A() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1,-1));
+        p.add(Block.block(0,0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 0));
+        return p;
+    }
+    public static Piece fan4B() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1,0));
+        p.add(Block.block(0,-1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece rhombus4I() {
@@ -304,7 +321,7 @@ public class Piece implements HexGrid{
     }
 
     public static Piece generatePiece(){
-        int i = (int) (Math.random() * 43);
+        int i = (int) (Math.random() * 47);
         if (i == 1 || i == 2 || i == 3) {
             return triangle3A();
         } else if (i == 4 || i == 5 || i == 6) {
@@ -357,9 +374,26 @@ public class Piece implements HexGrid{
             return asymmetrical4Kl();
         } else if (i == 42) {
             return asymmetrical4Kr();
-        } else return bigBlock();
+        } else if (i == 43 || i == 44){
+            return fan4A();
+        } else if (i == 45 || i == 46){
+            return fan4B();
+        }else return bigBlock();
     }
-
+    
+    private void sort() {
+        int n = blocks.length;
+        for (int i = 1; i < n; i++) {
+            Block key = blocks[i];
+            int j = i - 1;
+            // Sort by getLineI(), then getLineK() if equal
+            while (j >= 0 && (blocks[j].getLineI() > key.getLineI() || (blocks[j].getLineI() == key.getLineI() && blocks[j].getLineK() > key.getLineK()))) {
+                blocks[j + 1] = blocks[j];
+                j--;
+            }
+            blocks[j + 1] = key;
+        }
+    }
     public String toString(){
         StringBuilder str = new StringBuilder("{Piece: ");
         for (Block block : blocks) {
@@ -367,35 +401,15 @@ public class Piece implements HexGrid{
         }
         return str + "}";
     }
-
     public boolean equals(Piece piece) {
         if(piece.length() != this.length()) {return false;}
+        this.sort();
+        piece.sort();
         for(int i = 0; i < this.length(); i ++){
             if(!this.blocks[i].equals(piece.blocks[i])){
                 return false;
             }
         }
         return true;
-    }
-
-    public static void main(String[] args){
-        Piece p1 = new Piece(5, Color.BLUE);
-        System.out.println(p1.add(Block.block(0,0)));// Should be true
-        System.out.println(p1.add(Block.block(1,0)));// Should be true
-        System.out.println(p1.add(Block.block(0,2)));// Should be true
-        System.out.println(p1.add(Block.block(0,1)));// Should be true
-        System.out.println(p1.add(Block.block(1,1)));// Should be true
-        System.out.println(p1.add(Block.block(2,0)));// Should be false
-        System.out.println();
-        System.out.println(p1.inRange(2,0));// Should be false
-        System.out.println(p1.inRange(0,2));// Should be true
-        System.out.println(p1.inRange(1,1));// Should be true
-        System.out.println();
-        System.out.println(p1.getBlock(0,1));// Should have Color (0, 0, 255)
-        System.out.println();
-        System.out.println(p1); // Print out this
-        System.out.println(generatePiece()); // Print out random
-        System.out.println(generatePiece()); // Print out random
-        System.out.println(generatePiece()); // Print out random
     }
 }
