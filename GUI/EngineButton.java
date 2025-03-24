@@ -35,6 +35,10 @@ public class EngineButton extends HexButton {
         if(GameEssentials.engine().checkEliminate()) {
             // Eliminate code is here, see GameTimer class
             new GameTimer().start();
+        } else if (GamePanel.checkEnd()){
+            // Reset
+            GameEssentials.engine().reset();
+            GameEssentials.window().repaint();
         }
     }
     private void checkQueue(){
