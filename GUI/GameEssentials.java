@@ -16,7 +16,9 @@ public final class GameEssentials {
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 4;
     /** A scaling factor used for filling hexagons, ranging between 0.0 and 1.0. */
-    public static double fill = 0.9;
+    private static double fill = 0.9;
+    /** The delay to a typical action of the game, in ms*/
+    private static int actionDelay = 80;
     /** The main game engine object. */
     private static HexEngine engine;
     /** The main game queue of pieces, which contain a number of {@link Hex.Piece}. */
@@ -35,12 +37,30 @@ public final class GameEssentials {
         }
     }
     /**
+     * Sets the typical action delay of the game in ms, must be an integer between 10 and 100000.
+     *
+     * @param delay the new delay of a typical action in the game; must be between 10 (inclusive) and 100000 (inclusive).
+     */
+    public static void setActionDelay(int delay) {
+        if (delay <= 100000 && delay >= 10) {
+            GameEssentials.actionDelay = delay;
+        }
+    }
+    /**
+     * Get the typical action delay of the game in ms
+     *
+     * @return the delay of a typical action in the game.
+     */
+    public static int getDelay() {
+        return actionDelay;
+    }
+    /**
      * Generates a random color from a predefined set of 12 distinct colors.
      *
      * @return a randomly selected {@code Color} object.
      */
     public static Color generateColor() {
-        Color colors[] = new Color[12];
+        Color[] colors = new Color[12];
         colors[0] = new Color(0, 0, 240);
         colors[1] = new Color(0, 100, 190);
         colors[2] = new Color(0, 180, 180);
