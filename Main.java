@@ -1,11 +1,7 @@
-/**
- * Main file of the game
- * Run main
- *
- */
+import GUI.GamePanel;
 
 public class Main{
     public static void main(String[] args){
-        // The main method should only call method in Game class
+        GamePanel.play(7, 3, 400);
     }
 }
