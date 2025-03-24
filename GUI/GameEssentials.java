@@ -1,5 +1,9 @@
 package GUI;
 
+import Hex.HexEngine;
+import Hex.Queue;
+
+import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -13,6 +17,12 @@ public final class GameEssentials {
     public static final double sinOf60 = Math.sqrt(3) / 4;
     /** A scaling factor used for filling hexagons, ranging between 0.0 and 1.0. */
     public static double fill = 0.9;
+    /** The main game engine object. */
+    private static HexEngine engine;
+    /** The main game queue of pieces, which contain a number of {@link Hex.Piece}. */
+    private static Queue queue;
+    /** The main window of the game. */
+    private static JFrame window;
 
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
@@ -96,4 +106,20 @@ public final class GameEssentials {
         g.setColor(color);
         g.fillPolygon(xPoints, yPoints, 6);
     }
+
+    // Setters
+    public static void setEngine(HexEngine engine){
+        GameEssentials.engine = engine;
+    }
+    public static void setQueue(Queue queue){
+        GameEssentials.queue = queue;
+    }
+    public static void setWindow(JFrame window){
+        GameEssentials.window = window;
+    }
+
+    // Getters
+    public static HexEngine engine(){return engine;}
+    public static Queue queue(){return queue;}
+    public static JFrame window(){return window;}
 }
