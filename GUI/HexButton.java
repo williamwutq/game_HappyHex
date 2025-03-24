@@ -44,12 +44,12 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         this.setMaximumSize(dimension);
         this.setPreferredSize(dimension);
         if (hover){
-            int x = (int) Math.round(size * 2 * block.X() + (1 - extended) * size);
-            int y = (int) Math.round(size * 2 * (block.Y() + GameEssentials.engine().getRadius() * 0.75 - 0.75) + (1 - extended) * size);
+            int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension()) + (1 - extended) * size);
+            int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75) + (1 - extended) * size);
             this.setBounds(x, y, (int) Math.round(extended * 4 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
         } else {
-            int x = (int) Math.round(size * 2 * block.X());
-            int y = (int) Math.round(size * 2 * (block.Y() + GameEssentials.engine().getRadius() * 0.75 - 0.75));
+            int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension()));
+            int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75));
             this.setBounds(x, y, width, height);
         }
     }
@@ -59,6 +59,9 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     public static void setSize(double size){
         HexButton.size = size;
     }
+    // Methods to fetch extension in width and height, default is 0
+    protected int fetchWidthExtension(){return 0;}
+    protected int fetchHeightExtension(){return 0;}
     // Abstract things as different ways to fetch color and block, and different reactions
     protected abstract Block fetchBlock();
     protected Color fetchColor(){
