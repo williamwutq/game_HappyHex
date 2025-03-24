@@ -44,11 +44,11 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         this.setMaximumSize(dimension);
         this.setPreferredSize(dimension);
         if (hover){
-            int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension()) + (1 - extended) * size);
+            int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5) + (1 - extended) * size);
             int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75) + (1 - extended) * size);
             this.setBounds(x, y, (int) Math.round(extended * 4 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
         } else {
-            int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension()));
+            int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5));
             int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75));
             this.setBounds(x, y, width, height);
         }
