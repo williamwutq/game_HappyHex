@@ -140,6 +140,10 @@ public final class GameEssentials {
         double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60 / 2);
         HexButton.setSize(minSize);
     }
+    // End checking
+    public static boolean checkEnd(){
+        return GameEssentials.engine().checkPositions(GameEssentials.queue().getFirst()).isEmpty();
+    }
 
     // Setters
     public static void setEngine(HexEngine engine){
