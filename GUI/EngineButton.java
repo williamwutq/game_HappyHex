@@ -23,6 +23,7 @@ public class EngineButton extends HexButton {
     }
     public void clicked(){
         GameEssentials.turn ++;
+        GameEssentials.setSelectedPieceIndex(-1);
         // Fetch position
         Hex position = fetchBlock().thisHex();
         // Check this position, if good then add
