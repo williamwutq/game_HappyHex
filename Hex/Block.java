@@ -235,31 +235,4 @@ public class Block extends Hex{
     public Block subtract(Hex other){
         return new Block(thisHex().subtract(other), this.color, this.state);
     }
-
-    // Test main
-    public static void main(String[] args){
-        // Move up 1, left 1, down 1, state testing
-        Block b1 = new Block();
-        System.out.println(b1);
-        b1.moveI(1);
-        System.out.println(b1);
-        b1.moveJ(-1);
-        b1.changeState();
-        System.out.println(b1);
-        b1.moveK(1);
-        System.out.println(b1);
-        // Lines tests
-        Block b2 = new Block();
-        Block b3 = new Block();
-        b2.moveI(5);
-        System.out.print(b2.getLineJ() + " "); // should be 5
-        System.out.println(b2.getLineK()); // should be -5
-        b3.moveJ(4);
-        b3.moveK(1);
-        System.out.print(b3.getLineI() + " "); // should be 5
-        System.out.print(b3.getLineJ() + " "); // should be -1
-        System.out.println(b3.getLineK()); // should be 4
-        System.out.println(Block.block(2,-5).getLineI()); // should be 2
-        System.out.println(Block.block(2,-5).getLineK()); // should be -5
-    }
 }
