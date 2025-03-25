@@ -20,12 +20,4 @@ public class GamePanel extends JPanel {
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
         super.paintChildren(g);
     }
-    public static boolean checkEnd(){
-        for(int i = 0; i < GameEssentials.queue().length(); i ++){
-            if(!GameEssentials.engine().checkPositions(GameEssentials.queue().get(i)).isEmpty()){
-                return false;
-            }
-        }
-        return true;
-    }
 }
