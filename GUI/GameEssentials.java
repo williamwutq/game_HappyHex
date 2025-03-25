@@ -145,7 +145,12 @@ public final class GameEssentials {
     }
     // End checking
     public static boolean checkEnd(){
-        return GameEssentials.engine().checkPositions(GameEssentials.queue().getFirst()).isEmpty();
+        for(int i = 0; i < GameEssentials.queue().length(); i ++) {
+            if(GameEssentials.engine().checkPositions(GameEssentials.queue().get(i)).size() != 0){
+                return false;
+            }
+        }
+        return true;
     }
 
     // Setters
