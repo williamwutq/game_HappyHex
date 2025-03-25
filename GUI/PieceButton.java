@@ -8,6 +8,7 @@ public class PieceButton extends HexButton {
     public PieceButton(int pieceIndex, int blockIndex){
         super(blockIndex);
         this.pieceIndex = pieceIndex;
+        super.resetSize();
     }
 
     protected int fetchHeightExtension() {
