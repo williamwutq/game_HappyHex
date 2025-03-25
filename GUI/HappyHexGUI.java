@@ -6,10 +6,10 @@ import Hex.Queue;
 import javax.swing.*;
 import java.awt.*;
 
-class HappyHexGUI{
+public class HappyHexGUI{
     public static void play(int size, int queueSize, int delay) {
         // Frame
-        JFrame frame = new JFrame("Test: GamePanel");
+        JFrame frame = new JFrame("HappyHex Version 0.3");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setBackground(Color.WHITE);
@@ -30,8 +30,5 @@ class HappyHexGUI{
         frame.add(piecePanel, BorderLayout.SOUTH);
         frame.setVisible(true);
         frame.repaint();
-    }
-    public static void main(String[] args) {
-        play(9, 6, 200);
     }
 }
