@@ -129,6 +129,17 @@ public final class GameEssentials {
         g.setColor(color);
         g.fillPolygon(xPoints, yPoints, 6);
     }
+    // Resizing
+    public static void calculateButtonSize(){
+        if(engine == null || window == null){
+            throw new NullPointerException("Critical game components cannot be null");
+        }
+        // Calculate minimum size
+        double horizontalCount = engine().getRadius() * 4 - 2;
+        double verticalCount = engine().getRadius() * 3 + 4;
+        double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60 / 2);
+        HexButton.setSize(minSize);
+    }
 
     // Setters
     public static void setEngine(HexEngine engine){
