@@ -26,6 +26,9 @@ public final class GameEssentials {
     /** The main window of the game. */
     private static JFrame window;
 
+    public static int turn = 0;
+    public static int score = 0;
+
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
      *
