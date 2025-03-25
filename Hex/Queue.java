@@ -1,3 +1,5 @@
+package Hex;
+
 public class Queue{
     private Piece[] pieces;
     public Queue(int size){
