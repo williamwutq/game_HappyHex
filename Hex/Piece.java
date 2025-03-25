@@ -91,270 +91,353 @@ public class Piece implements HexGrid{
         throw new IllegalArgumentException("Adding Grid to piece prohibited. Please add block by block.");
     }
 
-    // Static pieces
+// Static pieces
     public static Piece bigBlock() {
         Piece p = new Piece(7, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(1,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(1,2));
-        p.add(Block.block(2,1));
-        p.add(Block.block(2,2));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece triangle3A() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(1,1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece triangle3B() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,0));
-        p.add(Block.block(1,1));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
         return p;
     }
     public static Piece line3I() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(0,2));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
         return p;
     }
     public static Piece line3J() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(2,2));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece line3K() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,0));
-        p.add(Block.block(2,0));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
         return p;
     }
-    public static Piece corner3I() {
+    public static Piece corner3Il() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1,0));
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
         return p;
     }
-    public static Piece corner3J() {
+    public static Piece corner3Jl() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0,1));
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,0));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
         return p;
     }
-    public static Piece corner3K() {
+    public static Piece corner3Kl() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0,-1));
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        return p;
+    }
+    public static Piece corner3Ir() {
+        Piece p = new Piece(3, GameEssentials.generateColor());
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 1));
+        return p;
+    }
+    public static Piece corner3Jr() {
+        Piece p = new Piece(3, GameEssentials.generateColor());
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 0));
+        return p;
+    }
+    public static Piece corner3Kr() {
+        Piece p = new Piece(3, GameEssentials.generateColor());
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece fan4A() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1,-1));
-        p.add(Block.block(0,0));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, 0));
         p.add(Block.block(0, 1));
         p.add(Block.block(1, 0));
         return p;
     }
     public static Piece fan4B() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1,0));
-        p.add(Block.block(0,-1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
         p.add(Block.block(0, 0));
         p.add(Block.block(1, 1));
         return p;
     }
     public static Piece rhombus4I() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(1,1));
-        p.add(Block.block(1, 2));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece rhombus4J() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1,1));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
         return p;
     }
     public static Piece rhombus4K() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(2, 1));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
         return p;
     }
     public static Piece corner4Ir() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(1,0));
-        p.add(Block.block(2,1));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(1, 0));
         return p;
     }
     public static Piece corner4Il() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,-1));
-        p.add(Block.block(0,0));
-        p.add(Block.block(-1,0));
-        p.add(Block.block(-2,-1));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(-1, 0));
         return p;
     }
     public static Piece corner4Jr() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1,0));
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(1,2));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece corner4Jl() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,-1));
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(2,1));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 1));
         return p;
     }
     public static Piece corner4Kr() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(1,0));
-        p.add(Block.block(1,2));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 1));
         return p;
     }
     public static Piece corner4Kl() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,-1));
-        p.add(Block.block(0,0));
-        p.add(Block.block(-1,-2));
-        p.add(Block.block(-1,0));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 1));
         return p;
     }
-    public static Piece asymmetrical4Il() {
+    public static Piece asymmetrical4Ia() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1,0));
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(0,2));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
         return p;
     }
-    public static Piece asymmetrical4Ir() {
+    public static Piece asymmetrical4Ib() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(0,2));
-        p.add(Block.block(1,1));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 0));
         return p;
     }
-    public static Piece asymmetrical4Jl() {
+    public static Piece asymmetrical4Ic() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(2,1));
-        p.add(Block.block(2,2));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
         return p;
     }
-    public static Piece asymmetrical4Jr() {
+    public static Piece asymmetrical4Id() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(1,2));
-        p.add(Block.block(2,2));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 1));
         return p;
     }
-    public static Piece asymmetrical4Kl() {
+    public static Piece asymmetrical4Ja() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(2,0));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
-    public static Piece asymmetrical4Kr() {
+    public static Piece asymmetrical4Jb() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,-1));
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,0));
-        p.add(Block.block(2,0));
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 1));
         return p;
     }
-
-    public static Piece generatePiece(){
-        int i = (int) (Math.random() * 47);
-        if (i == 1 || i == 2 || i == 3) {
+    public static Piece asymmetrical4Jc() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 1));
+        return p;
+    }
+    public static Piece asymmetrical4Jd() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 1));
+        return p;
+    }
+    public static Piece asymmetrical4Ka() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(0, 1));
+        p.add(Block.block(1, 0));
+        return p;
+    }
+    public static Piece asymmetrical4Kb() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1, -1));
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
+        return p;
+    }
+    public static Piece asymmetrical4Kc() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
+        return p;
+    }
+    public static Piece asymmetrical4Kd() {
+        Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, -1));
+        p.add(Block.block(0, 0));
+        p.add(Block.block(1, 0));
+        return p;
+    }
+    public static Piece generatePiece() {
+        int i = (int) (Math.random() * 86);
+        if (between(i, 0, 6)) {
             return triangle3A();
-        } else if (i == 4 || i == 5 || i == 6) {
+        } else if (between(i, 6, 12)) {
             return triangle3B();
-        } else if (i == 7 || i == 8) {
+        } else if (between(i, 12, 16)) {
             return line3I();
-        } else if (i == 9 || i == 10) {
+        } else if (between(i, 16, 20)) {
             return line3J();
-        } else if (i == 11 || i == 12) {
+        } else if (between(i, 20, 24)) {
             return line3K();
-        } else if (i == 13 || i == 14) {
-            return corner3I();
-        } else if (i == 15 || i == 16) {
-            return corner3J();
-        } else if (i == 17 || i == 18) {
-            return corner3K();
-        } else if (i == 19 || i == 20) {
+        } else if (between(i, 24, 26)) {
+            return corner3Ir();
+        } else if (between(i, 26, 28)) {
+            return corner3Jr();
+        } else if (between(i, 28, 30)) {
+            return corner3Kr();
+        } else if (between(i, 30, 32)) {
+            return corner3Il();
+        } else if (between(i, 32, 34)) {
+            return corner3Jl();
+        } else if (between(i, 34, 36)) {
+            return corner3Kl();
+        } else if (between(i, 36, 40)) {
             return rhombus4I();
-        } else if (i == 21 || i == 22) {
+        } else if (between(i, 40, 44)) {
             return rhombus4J();
-        } else if (i == 23 || i == 24) {
+        } else if (between(i, 44, 48)) {
             return rhombus4K();
-        } else if (i == 25 || i == 26) {
-            return line4I();
-        } else if (i == 27 || i == 28) {
-            return line4J();
-        } else if (i == 29 || i == 30) {
-            return line4K();
-        } else if (i == 31) {
-            return corner4Il();
-        } else if (i == 32) {
-            return corner4Ir();
-        } else if (i == 33) {
-            return corner4Jl();
-        } else if (i == 34) {
-            return corner4Jr();
-        } else if (i == 35) {
-            return corner4Kl();
-        } else if (i == 36) {
-            return corner4Kr();
-        } else if (i == 37) {
-            return asymmetrical4Il();
-        } else if (i == 38) {
-            return asymmetrical4Ir();
-        } else if (i == 39) {
-            return asymmetrical4Jl();
-        } else if (i == 40) {
-            return asymmetrical4Jr();
-        } else if (i == 41) {
-            return asymmetrical4Kl();
-        } else if (i == 42) {
-            return asymmetrical4Kr();
-        } else if (i == 43 || i == 44){
+        } else if (between(i, 48, 54)) {
             return fan4A();
-        } else if (i == 45 || i == 46){
+        } else if (between(i, 54, 60)) {
             return fan4B();
-        }else return bigBlock();
+        } else if (between(i, 60, 62)) {
+            return corner4Il();
+        } else if (between(i, 62, 64)) {
+            return corner4Ir();
+        } else if (between(i, 64, 66)) {
+            return corner4Jl();
+        } else if (between(i, 66, 68)) {
+            return corner4Jr();
+        } else if (between(i, 68, 70)) {
+            return corner4Kl();
+        } else if (between(i, 70, 72)) {
+            return corner4Kr();
+        } else if (i == 72) {
+            return asymmetrical4Ia();
+        } else if (i == 73) {
+            return asymmetrical4Ib();
+        } else if (i == 74) {
+            return asymmetrical4Ic();
+        } else if (i == 75) {
+            return asymmetrical4Id();
+        } else if (i == 76) {
+            return asymmetrical4Ja();
+        } else if (i == 77) {
+            return asymmetrical4Jb();
+        } else if (i == 78) {
+            return asymmetrical4Jc();
+        } else if (i == 79) {
+            return asymmetrical4Jd();
+        } else if (i == 80) {
+            return asymmetrical4Ka();
+        } else if (i == 81) {
+            return asymmetrical4Kb();
+        } else if (i == 82) {
+            return asymmetrical4Kc();
+        } else if (i == 83) {
+            return asymmetrical4Kd();
+        } else return bigBlock();
+    }
+    private static boolean between(int value, int start, int end) {
+        return value >= start && value < end;
     }
     
     private void sort() {
