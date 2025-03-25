@@ -26,6 +26,9 @@ public final class GameEssentials {
     /** The main window of the game. */
     private static JFrame window;
 
+    private static int selectedPieceIndex = -1;
+    private static int selectedBlockIndex = -1;
+
     public static int turn = 0;
     public static int score = 0;
 
@@ -155,9 +158,32 @@ public final class GameEssentials {
     public static void setWindow(JFrame window){
         GameEssentials.window = window;
     }
+    public static void setSelectedPieceIndex(int index){
+        if(index == -1 || (index >= 0 && index < queue.length())){
+            GameEssentials.selectedPieceIndex = index;
+            GameEssentials.selectedBlockIndex = -1;
+            window.repaint();
+        } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + queue.length());
+    }
+    public static void setSelectedBlockIndex(int index){
+        if(selectedPieceIndex == -1){
+            throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length 0");
+        } else {
+            // Try to get the piece
+            int pieceLength = queue.get(selectedPieceIndex).length();
+            if(index < -1 || index >= pieceLength){
+                throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + pieceLength);
+            } else {
+                window.repaint();
+                GameEssentials.selectedBlockIndex = index;
+            }
+        }
+    }
 
     // Getters
     public static HexEngine engine(){return engine;}
     public static Queue queue(){return queue;}
     public static JFrame window(){return window;}
+    public static int getSelectedPieceIndex(){return selectedPieceIndex;}
+    public static int getSelectedBlockIndex(){return selectedBlockIndex;}
 }
