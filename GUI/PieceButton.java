@@ -27,9 +27,22 @@ public class PieceButton extends HexButton {
         }
     }
     protected Color fetchColor() {
-        return GameEssentials.queue().get(pieceIndex).getColor();
+        if(isTarget()){
+            return Color.WHITE;
+        } else return GameEssentials.queue().get(pieceIndex).getColor();
     }
     protected void clicked() {
-        // Do nothing currently
+        if(isTarget()){
+            // Unselect
+            GameEssentials.setSelectedPieceIndex(-1);
+        } else {
+            // Select
+            GameEssentials.setSelectedPieceIndex(pieceIndex);
+            GameEssentials.setSelectedBlockIndex(super.getIndex());
+        }
+    }
+    private boolean isTarget(){
+        // Whether the selected block is this
+        return GameEssentials.getSelectedPieceIndex() == pieceIndex && GameEssentials.getSelectedBlockIndex() == super.getIndex();
     }
 }
