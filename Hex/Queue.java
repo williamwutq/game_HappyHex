@@ -1,5 +1,3 @@
-package Hex;
-
 public class Queue{
     private Piece[] pieces;
     public Queue(int size){
@@ -9,7 +7,7 @@ public class Queue{
         pieces = new Piece[size];
         // Generate Pieces
         for (int i = 0; i < size; i ++){
-            pieces[i] = Piece.generatePiece();
+            pieces[i] = generate();
         }
     }
     public Piece next(){
@@ -17,7 +15,7 @@ public class Queue{
         for(int i = 1; i < pieces.length; i ++){
             pieces[i - 1] = pieces[i];
         }
-        pieces[pieces.length - 1] = Piece.generatePiece();
+        pieces[pieces.length - 1] = generate();
         return next;
     }
     public Piece fetch(int index){
@@ -30,9 +28,12 @@ public class Queue{
             for(int i = index + 1; i < pieces.length; i ++){
                 pieces[i - 1] = pieces[i];
             }
-            pieces[pieces.length - 1] = Piece.generatePiece();
+            pieces[pieces.length - 1] = generate();
             return fetch;
         }
+    }
+    protected Piece generate(){
+        return Piece.generatePiece();
     }
     public Piece getFirst(){
         return get(0);
