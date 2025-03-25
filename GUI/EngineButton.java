@@ -16,14 +16,11 @@ public class EngineButton extends HexButton {
     }
     protected Color fetchColor() {
         Hex position = fetchBlock().thisHex();
-        for(int i = 0; i < GameEssentials.queue().length(); i ++){
-            if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().get(i))) {
-                return Color.GRAY;
-            }
+        if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().getFirst())) {
+            return Color.GRAY;
         }
         return super.fetchColor();
     }
-
     public void clicked(){
         GameEssentials.turn ++;
         // Fetch position
@@ -32,16 +29,13 @@ public class EngineButton extends HexButton {
         if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().getFirst())){
             GameEssentials.score += GameEssentials.queue().getFirst().length();
             GameEssentials.engine().add(position, GameEssentials.queue().next());
-        } else {
-            // For now: check queue
-            checkQueue();
         }
         // Paint and eliminate
         GameEssentials.window().repaint();
         if(GameEssentials.engine().checkEliminate()) {
             // Eliminate code is here, see GameTimer class
             new GameTimer().start();
-        } else if (GamePanel.checkEnd()){
+        } else if (GameEssentials.checkEnd()){
             System.out.println("---------- Game Over ----------");
             System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
             System.out.println("The total score is " + GameEssentials.score + " points.");
@@ -50,16 +44,6 @@ public class EngineButton extends HexButton {
             GameEssentials.turn = 0;
             GameEssentials.engine().reset();
             GameEssentials.window().repaint();
-        }
-    }
-    private void checkQueue(){
-        Hex position = fetchBlock().thisHex();
-        for(int i = 0; i < GameEssentials.queue().length(); i ++){
-            if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().get(i))){
-                GameEssentials.score += GameEssentials.queue().get(i).length();
-                GameEssentials.engine().add(position, GameEssentials.queue().fetch(i));
-                break;
-            }
         }
     }
 }
