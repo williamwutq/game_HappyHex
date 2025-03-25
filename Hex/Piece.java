@@ -199,30 +199,6 @@ public class Piece implements HexGrid{
         p.add(Block.block(2, 1));
         return p;
     }
-    public static Piece line4I() {
-        Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(0,1));
-        p.add(Block.block(0,2));
-        p.add(Block.block(0,3));
-        return p;
-    }
-    public static Piece line4J() {
-        Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,1));
-        p.add(Block.block(2,2));
-        p.add(Block.block(3,3));
-        return p;
-    }
-    public static Piece line4K() {
-        Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0,0));
-        p.add(Block.block(1,0));
-        p.add(Block.block(2,0));
-        p.add(Block.block(3,0));
-        return p;
-    }
     public static Piece corner4Ir() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(0,0));
