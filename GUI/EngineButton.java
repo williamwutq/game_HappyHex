@@ -16,35 +16,55 @@ public class EngineButton extends HexButton {
     }
     protected Color fetchColor() {
         Hex position = fetchBlock().thisHex();
-        if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().getFirst())) {
-            return Color.GRAY;
+        // Get indexes
+        int pieceIndex = GameEssentials.getSelectedPieceIndex();
+        int blockIndex = GameEssentials.getSelectedBlockIndex();
+        // If selected
+        if(blockIndex != -1) {
+            // Get piece
+            Piece piece = GameEssentials.queue().get(pieceIndex);
+            // Modify position relative to selected block
+            position = position.subtract(piece.getBlock(blockIndex));
+            if (GameEssentials.engine().checkAdd(position, piece)) {
+                // If addition is possible
+                return Color.GRAY;
+            }
         }
         return super.fetchColor();
     }
     public void clicked(){
-        GameEssentials.turn ++;
-        GameEssentials.setSelectedPieceIndex(-1);
-        // Fetch position
-        Hex position = fetchBlock().thisHex();
-        // Check this position, if good then add
-        if(GameEssentials.engine().checkAdd(position, GameEssentials.queue().getFirst())){
-            GameEssentials.score += GameEssentials.queue().getFirst().length();
-            GameEssentials.engine().add(position, GameEssentials.queue().next());
-        }
-        // Paint and eliminate
-        GameEssentials.window().repaint();
-        if(GameEssentials.engine().checkEliminate()) {
-            // Eliminate code is here, see GameTimer class
-            new GameTimer().start();
-        } else if (GameEssentials.checkEnd()){
-            System.out.println("---------- Game Over ----------");
-            System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
-            System.out.println("The total score is " + GameEssentials.score + " points.");
-            // Reset
-            GameEssentials.score = 0;
-            GameEssentials.turn = 0;
-            GameEssentials.engine().reset();
+        if(GameEssentials.getSelectedBlockIndex() != -1) {
+            GameEssentials.turn++;
+            // Fetch position
+            Hex position = fetchBlock().thisHex();
+            // Get index and reset index
+            int pieceIndex = GameEssentials.getSelectedPieceIndex();
+            int blockIndex = GameEssentials.getSelectedBlockIndex();
+            GameEssentials.setSelectedPieceIndex(-1);
+            // Get piece
+            Piece piece = GameEssentials.queue().get(pieceIndex);
+            // Modify position relative to selected block
+            position = position.subtract(piece.getBlock(blockIndex));
+            // Check this position, if good then add
+            if (GameEssentials.engine().checkAdd(position, piece)) {
+                GameEssentials.score += piece.length();
+                GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
+            }
+            // Paint and eliminate
             GameEssentials.window().repaint();
+            if (GameEssentials.engine().checkEliminate()) {
+                // Eliminate code is here, see GameTimer class
+                new GameTimer().start();
+            } else if (GameEssentials.checkEnd()) {
+                System.out.println("---------- Game Over ----------");
+                System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
+                System.out.println("The total score is " + GameEssentials.score + " points.");
+                // Reset
+                GameEssentials.score = 0;
+                GameEssentials.turn = 0;
+                GameEssentials.engine().reset();
+                GameEssentials.window().repaint();
+            }
         }
     }
 }
