@@ -37,18 +37,4 @@ public class CircularButton extends JButton implements ActionListener {
     public void actionPerformed(ActionEvent e){
         // When it is clicked do something
     }
-    public static void main(String[] args){
-        JFrame frame = new JFrame("Test: CircularButton");
-        JPanel panel = new JPanel();
-        CircularButton circularbutton = new CircularButton(new Hex(), null);
-        circularbutton.setSize(50);
-        circularbutton.setPosition(30, 60);
-        panel.setLayout(null);
-        panel.add(circularbutton);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.add(panel, BorderLayout.CENTER);
-        frame.setSize(300, 300);
-        frame.setVisible(true);
-    }
 }
