@@ -18,7 +18,7 @@ public class PiecePanel extends JPanel{
         this.setPreferredSize(new Dimension(width, height));
         // Construct buttons
         for(int p = 0; p < GameEssentials.queue().length(); p ++) {
-            for (int i = 0; i < GameEssentials.queue().get(p).length(); i++) {
+            for (int i = 0; i < 7; i++) {
                 this.add(new PieceButton(p, i));
             }
         }
