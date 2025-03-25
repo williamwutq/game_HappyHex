@@ -19,7 +19,12 @@ public class PieceButton extends HexButton {
     }
 
     protected Block fetchBlock() {
-        return GameEssentials.queue().get(pieceIndex).getBlock(getIndex());
+        Piece piece = GameEssentials.queue().get(pieceIndex);
+        try{
+            return piece.getBlock(getIndex());
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
     protected Color fetchColor() {
         return GameEssentials.queue().get(pieceIndex).getColor();
