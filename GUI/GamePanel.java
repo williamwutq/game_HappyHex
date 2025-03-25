@@ -7,28 +7,26 @@ import java.awt.*;
 public class GamePanel extends JPanel {
     public GamePanel() {
         super();
-        // Variables
         this.setBackground(Color.WHITE);
-        // Basic graphics
-        this.setLayout(null); // Use absolute
-        // Prepare
-        HexButton.setSize(1);
+        this.setLayout(null);
         // Construct buttons
         for (int i = 0; i < GameEssentials.engine().length(); i++) {
             this.add(new EngineButton(i));
         }
     }
     public void paint(java.awt.Graphics g) {
-        // Calculate minimum size
-        double horizontalCount = GameEssentials.engine().getRadius() * 4 - 2;
-        double verticalCount = GameEssentials.engine().getRadius() * 3 - 1;
-        double minSize = Math.min(this.getHeight() / verticalCount, this.getWidth() / horizontalCount / GameEssentials.sinOf60 / 2);
-        // New code: set size.
-        HexButton.setSize(minSize);
+        recalculate();
         // print component and children
         g.setColor(this.getBackground());
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
         super.paintChildren(g);
+    }
+    public void recalculate(){
+        // Calculate minimum size
+        double horizontalCount = GameEssentials.engine().getRadius() * 4 - 2;
+        double verticalCount = GameEssentials.engine().getRadius() * 3 - 1;
+        double minSize = Math.min((this.getHeight()-5) / verticalCount, (this.getWidth()-5) / horizontalCount / GameEssentials.sinOf60 / 2);
+        HexButton.setSize(minSize);
     }
     // Test: autoplay
     public static void autoplay(int size, int queueSize, int delay){
@@ -47,6 +45,7 @@ public class GamePanel extends JPanel {
         GameEssentials.setEngine(engine);
         GameEssentials.setQueue(queue);
         GameEssentials.setWindow(frame);
+        GameEssentials.setDelay(delay);
         GamePanel gamePanel = new GamePanel();
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -102,13 +101,12 @@ public class GamePanel extends JPanel {
         }
         return true;
     }
-    public static void play (int size, int queueSize, int delay) {
+    public static void play(int size, int queueSize, int delay) {
         // Frame
         JFrame frame = new JFrame("Test: GamePanel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setBackground(Color.WHITE);
-        frame.setAlwaysOnTop(true);
         frame.setSize(new Dimension(800, 800));
         frame.setMinimumSize(new Dimension(200, 200));
 
@@ -118,14 +116,22 @@ public class GamePanel extends JPanel {
         GameEssentials.setEngine(engine);
         GameEssentials.setQueue(queue);
         GameEssentials.setWindow(frame);
+        GameEssentials.setDelay(delay);
+        // Calculate minimum size
+        double horizontalCount = GameEssentials.engine().getRadius() * 4 - 2;
+        double verticalCount = GameEssentials.engine().getRadius() * 3 - 7;
+        double minSize = Math.min((frame.getHeight()-28-5) / verticalCount, (frame.getWidth()-5) / horizontalCount / GameEssentials.sinOf60 / 2);
+        // Set size
+        HexButton.setSize(minSize);
         GamePanel gamePanel = new GamePanel();
-        //PiecePanel piecePanel = new PiecePanel();
+        PiecePanel piecePanel = new PiecePanel();
         frame.add(gamePanel, BorderLayout.CENTER);
-        //frame.add(piecePanel, BorderLayout.SOUTH);
+        frame.add(piecePanel, BorderLayout.SOUTH);
         frame.setVisible(true);
+        frame.repaint();
     }
 
     public static void main(String[] args) {
-        play(9, 9, 200);
+        play(9, 6, 200);
     }
 }
