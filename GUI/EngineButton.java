@@ -6,6 +6,7 @@ import java.awt.Color;
 public class EngineButton extends HexButton {
     public EngineButton(int index){
         super(index);
+        super.resetSize();
     }
     protected int fetchHeightExtension(){
         return GameEssentials.engine().getRadius() - 1;
