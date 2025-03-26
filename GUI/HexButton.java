@@ -35,6 +35,9 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     protected boolean hovered(){
         return hover;
     }
+    protected void setHover(boolean hover){
+        this.hover = hover;
+    }
     public void resetSize(){
         Block block = fetchBlock(); // Fetch block
         if(block == null) {
