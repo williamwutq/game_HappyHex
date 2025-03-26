@@ -21,6 +21,11 @@ public class EngineButton extends HexButton {
         int blockIndex = GameEssentials.getSelectedBlockIndex();
         // If selected
         if(blockIndex != -1) {
+            // If is the range of potential blocks for adding
+            if(isPotentialPieceBlock()){
+                Color color = GameEssentials.queue().get(pieceIndex).getColor();
+                return new Color((color.getRed() + 255)/2, (color.getGreen() + 255)/2, (color.getBlue() + 255)/2);
+            }
             // Get piece
             Piece piece = GameEssentials.queue().get(pieceIndex);
             // Modify position relative to selected block
@@ -32,7 +37,7 @@ public class EngineButton extends HexButton {
         }
         return super.fetchColor();
     }
-    public void clicked(){
+    protected void clicked(){
         if(GameEssentials.getSelectedBlockIndex() != -1) {
             GameEssentials.turn++;
             // Fetch position
@@ -66,5 +71,37 @@ public class EngineButton extends HexButton {
                 GameEssentials.window().repaint();
             }
         }
+    }
+    protected void hovered(){
+        // Get indexes
+        int pieceIndex = GameEssentials.getSelectedPieceIndex();
+        int blockIndex = GameEssentials.getSelectedBlockIndex();
+        if(!fetchBlock().getState() && blockIndex != -1) {
+            // Get piece
+            Piece piece = GameEssentials.queue().get(pieceIndex);
+            // Modify position relative to selected block
+            Hex position = fetchBlock().thisHex().subtract(piece.getBlock(blockIndex));
+            if (GameEssentials.engine().checkAdd(position, piece)) {
+                // If addition is possible
+                GameEssentials.setHoveredOverIndex(getIndex());
+            }
+        }
+    }
+    protected void removed(){
+        GameEssentials.setHoveredOverIndex(-1);
+    }
+    private boolean isPotentialPieceBlock(){
+        if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
+            Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
+            Piece piece = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex());
+            hoverBlock = hoverBlock.subtract(piece.getBlock(GameEssentials.getSelectedBlockIndex()));
+            for (int i = 0; i < piece.length(); i++) {
+                Hex position = piece.getBlock(i).thisHex();
+                if (fetchBlock().thisHex().equals(hoverBlock.add(position))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
