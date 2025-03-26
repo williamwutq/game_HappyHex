@@ -1,0 +1,51 @@
+{
+  "Game" : "HappyHex",
+  "Environment" : "java",
+  "Generator" : "LaunchLogger",
+  "GeneratorID" : 5748164,
+  "Version" : {
+    "Major" : 0,
+    "Minor" : 3,
+    "Patch" : 1
+  },
+  "Scores" : [
+    {
+      "Player"  : "Dev",
+      "PlayerID" : "108e8d64d340340a",
+      "Time" : {
+        "Date": "2025-03-26",
+        "Time": "14:55:34",
+        "Zone": "PST"
+      },
+      "Highest" : {
+        "Score" : 0,
+        "Turn"  : 0
+      },
+      "Recent" : {
+        "Score": 0,
+        "Turn":  0
+      }
+    }
+  ],
+  "Games" : [
+    {
+      "Player"  : "Dev",
+      "PlayerID": "108e8d64d340340a",
+      "GameID"  : "4d892fd7fad89288",
+      "Version" : {
+        "Major": 0,
+        "Minor": 3,
+        "Patch": 1
+      },
+      "Time" : {
+        "Date": "2025-03-26",
+        "Time": "14:55:34",
+        "Zone": "PST"
+      },
+      "Result" : {
+        "Score": 0,
+        "Turn":  0
+      }
+    }
+  ]
+}
