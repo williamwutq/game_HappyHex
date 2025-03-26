@@ -6,6 +6,17 @@
 
 public class Main{
     public static void main(String[] args){
+        // Scores of Dev and his friends
+        // Dev -size 8 -queue 5 -> turn 860 point 18019
+        // Dev -size 8 -queue 5 -> turn 297 point 5912
+        // Dev -size 5 -queue 3 -> turn 220 point 4547
+        // Dev -size 5 -queue 3 -> turn 140 point 2911
+        // Dev -size 5 -queue 3 -> turn 135 point 2759
+        // Dev -size 5 -queue 3 -> turn 99 point 2018
+        // Dev -size 5 -queue 3 -> turn 66 point 1200
+        // Yiguo -size 5 -queue 3 -> turn 130 point 2707
+        // Mate -size 5 -queue 3 -> turn 37 point 590
+
         int size = 2;
         int queueSize = 1;
         int delay = 100;

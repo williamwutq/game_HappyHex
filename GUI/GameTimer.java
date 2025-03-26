@@ -10,7 +10,7 @@ public class GameTimer extends Timer implements ActionListener {
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        GameEssentials.engine().eliminate();
+        GameEssentials.score += GameEssentials.engine().eliminate();
         GameEssentials.window().repaint();
     }
 }
