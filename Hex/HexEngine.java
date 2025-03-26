@@ -273,44 +273,4 @@ public class HexEngine implements HexGrid{
         }
         return str + "}";
     }
-    public static void main(String[] args){
-        /*
-Running log example:
-{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},false; {I = 0, J = 2, K = 2},false; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},false; {I = 1, J = 1, K = 2},false; {I = 1, J = 2, K = 3},false; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},false; {I = 2, J = 1, K = 3},false; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
-{Piece: {I = 0, J = 1, K = 1}{I = 0, J = 0, K = 0}{I = 1, J = -1, K = 0}}
-{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},true; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},true; {I = 1, J = 1, K = 2},false; {I = 1, J = 2, K = 3},false; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},false; {I = 2, J = 1, K = 3},false; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
-
-{Piece: {I = 0, J = 0, K = 0}{I = 0, J = 1, K = 1}{I = 1, J = 0, K = 1}}
-8 out of 19 positions available.
-{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},true; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},true; {I = 1, J = 1, K = 2},true; {I = 1, J = 2, K = 3},true; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},false; {I = 2, J = 1, K = 3},true; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
-
-{Piece: {I = 0, J = 1, K = 1}{I = 0, J = 0, K = 0}{I = 1, J = -1, K = 0}}
-3 out of 19 positions available.
-{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},true; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},true; {I = 1, J = 1, K = 2},true; {I = 1, J = 2, K = 3},true; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},true; {I = 2, J = 0, K = 2},true; {I = 2, J = 1, K = 3},true; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},true; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
-After elimination
-4
-{HexEngine: {I = 0, J = 0, K = 0},false; {I = 0, J = 1, K = 1},false; {I = 0, J = 2, K = 2},true; {I = 1, J = -1, K = 0},false; {I = 1, J = 0, K = 1},false; {I = 1, J = 1, K = 2},true; {I = 1, J = 2, K = 3},true; {I = 2, J = -2, K = 0},false; {I = 2, J = -1, K = 1},false; {I = 2, J = 0, K = 2},true; {I = 2, J = 1, K = 3},true; {I = 2, J = 2, K = 4},false; {I = 3, J = -2, K = 1},false; {I = 3, J = -1, K = 2},false; {I = 3, J = 0, K = 3},false; {I = 3, J = 1, K = 4},false; {I = 4, J = -2, K = 2},false; {I = 4, J = -1, K = 3},false; {I = 4, J = 0, K = 4},false; }
-         */
-        HexEngine engine = new HexEngine(3);
-        System.out.println(engine);
-        Piece piece = Piece.generatePiece();
-        engine.add(engine.checkPositions(piece).get(1), piece);
-        System.out.println(piece);
-        System.out.println(engine);
-        Piece piece2 = Piece.generatePiece();
-        System.out.println();
-        System.out.println(piece2);
-        System.out.println(engine.checkPositions(piece2).size() + " out of " + engine.length() + " positions available.");
-        engine.add(engine.checkPositions(piece2).get(0), piece2);
-        System.out.println(engine);
-        Piece piece3 = Piece.generatePiece();
-        System.out.println();
-        System.out.println(piece3);
-        System.out.println(engine.checkPositions(piece3).size() + " out of " + engine.length() + " positions available.");
-        engine.add(engine.checkPositions(piece3).get(0), piece3);
-        System.out.println(engine);
-        System.out.println("After elimination");
-        System.out.println(engine.eliminate());
-        System.out.println(engine);
-    }
 }
