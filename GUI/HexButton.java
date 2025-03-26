@@ -29,13 +29,13 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         this.addActionListener(this);
         this.addMouseListener(this);
     }
-    protected int getIndex(){
+    protected final int getIndex(){
         return index;
     }
-    protected boolean hovered(){
+    protected final boolean isHovering(){
         return hover;
     }
-    public void resetSize(){
+    public final void resetSize(){
         Block block = fetchBlock(); // Fetch block
         if(block == null) {
             Dimension minDimension = new Dimension(1,1);
@@ -80,13 +80,15 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
             return new Color(0,0,0,0);
         } else return fetchBlock().color();
     }
-    protected abstract void clicked();
+    protected void clicked(){}
+    protected void hovered(){}
+    protected void removed(){}
     // Prevent children
-    public java.awt.Component add(java.awt.Component comp) {return comp;}
-    protected void addImpl(java.awt.Component comp, Object constraints, int index) {}
-    public void addContainerListener(java.awt.event.ContainerListener l) {}
+    public final java.awt.Component add(java.awt.Component comp) {return comp;}
+    protected final void addImpl(java.awt.Component comp, Object constraints, int index) {}
+    public final void addContainerListener(java.awt.event.ContainerListener l) {}
     // Paint: only paint this component
-    public void paint(java.awt.Graphics g) {
+    public final void paint(java.awt.Graphics g) {
         resetSize();
         // Fetch block color
         Color blockColor = fetchColor();
@@ -98,18 +100,20 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         }
     }
     // Actions
-    public void mouseClicked(MouseEvent e) {}
-    public void mousePressed(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}
-    public void mouseEntered(MouseEvent e) {
+    public final void mouseClicked(MouseEvent e) {}
+    public final void mousePressed(MouseEvent e) {}
+    public final void mouseReleased(MouseEvent e) {}
+    public final void mouseEntered(MouseEvent e) {
         hover = true;
         resetSize();
+        hovered();
     }
-    public void mouseExited(MouseEvent e) {
+    public final void mouseExited(MouseEvent e) {
         hover = false;
         resetSize();
+        removed();
     }
-    public void actionPerformed(ActionEvent e){
+    public final void actionPerformed(ActionEvent e){
         clicked();
     }
 }
