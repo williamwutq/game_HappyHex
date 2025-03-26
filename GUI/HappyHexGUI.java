@@ -26,6 +26,32 @@ public class HappyHexGUI{
         GameEssentials.calculateButtonSize();
         GamePanel gamePanel = new GamePanel();
         PiecePanel piecePanel = new PiecePanel();
+        JLabel scoreLabel = new JLabel("SCORE 0", SwingConstants.CENTER){
+            @Override
+            public void paint(java.awt.Graphics g){
+                this.setText("SCORE " + GameEssentials.score);
+                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/1.2)));
+                this.setBounds(gamePanel.getWidth() - (int)(6 * HexButton.getActiveSize()), 5, (int)(5 * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
+                super.paintComponent(g);
+            }
+        };
+        JLabel turnLabel = new JLabel("TURN 0", SwingConstants.CENTER){
+            @Override
+            public void paint(java.awt.Graphics g){
+                this.setText("TURN " + GameEssentials.turn);
+                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/1.2)));
+                this.setBounds(0, 5, (int)(6 * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
+                super.paintComponent(g);
+            }
+        };
+        scoreLabel.setForeground(Color.BLACK);
+        scoreLabel.setBounds(0, 0, 1, 1);
+        scoreLabel.setFont(new Font("Source Code Pro", Font.BOLD, 1));
+        turnLabel.setForeground(Color.BLACK);
+        turnLabel.setBounds(0, 0, 1, 1);
+        turnLabel.setFont(new Font("Source Code Pro", Font.BOLD, 1));
+        gamePanel.add(turnLabel);
+        gamePanel.add(scoreLabel);
         frame.add(gamePanel, BorderLayout.CENTER);
         frame.add(piecePanel, BorderLayout.SOUTH);
         frame.setVisible(true);
