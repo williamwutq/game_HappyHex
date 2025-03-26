@@ -8,9 +8,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 abstract class HexButton extends JButton implements ActionListener, MouseListener {
-    protected static final double extended = 1.1;
-    protected static final int alphaHide = 200;
-    protected static double size;
+    private static final double extended = 1.1;
+    private static final int alphaHide = 200;
+    private static double size;
     private final int index;
     private boolean hover;
     public HexButton(int index){
@@ -31,6 +31,9 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     }
     protected int getIndex(){
         return index;
+    }
+    protected boolean hovered(){
+        return hover;
     }
     public void resetSize(){
         Block block = fetchBlock(); // Fetch block
