@@ -30,8 +30,8 @@ public class HappyHexGUI{
             @Override
             public void paint(java.awt.Graphics g){
                 this.setText("SCORE " + GameEssentials.score);
-                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/1.2)));
-                this.setBounds(gamePanel.getWidth() - (int)(6 * HexButton.getActiveSize()), 5, (int)(5 * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
+                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/2)));
+                this.setBounds(gamePanel.getWidth() - (int)((GameEssentials.engine().getRadius()-0.5) * HexButton.getActiveSize()), 5, (int)((GameEssentials.engine().getRadius()-0.5) * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
                 super.paintComponent(g);
             }
         };
@@ -39,8 +39,8 @@ public class HappyHexGUI{
             @Override
             public void paint(java.awt.Graphics g){
                 this.setText("TURN " + GameEssentials.turn);
-                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/1.2)));
-                this.setBounds(0, 5, (int)(6 * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
+                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/2)));
+                this.setBounds(0, 5, (int)((GameEssentials.engine().getRadius()-0.5) * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
                 super.paintComponent(g);
             }
         };
