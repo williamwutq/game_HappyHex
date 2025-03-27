@@ -21,6 +21,7 @@ public class Main{
         int size = 2;
         int queueSize = 1;
         int delay = 100;
+        boolean easy = false;
         int i = 0;
         while (i < args.length - 1) {
             if (args[i].charAt(0) != '-') {
@@ -66,9 +67,13 @@ public class Main{
                     } else delay = input;
                     i += 2;
                 }
+                case "-easy", "-e" -> {
+                    easy = true;
+                    i += 2;
+                }
                 default -> i++;
             }
         }
-        GUI.HappyHexGUI.play(size, queueSize, delay);
+        GUI.HappyHexGUI.play(size, queueSize, delay, easy);
     }
 }

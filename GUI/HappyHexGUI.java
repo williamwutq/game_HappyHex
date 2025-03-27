@@ -14,7 +14,7 @@ public class HappyHexGUI{
     }
     public static void play(int size, int queueSize, int delay, boolean easy) {
         // Frame
-        JFrame frame = new JFrame("HappyHex Version 0.3");
+        JFrame frame = new JFrame("HappyHex Version 0.3.2");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setBackground(Color.WHITE);
