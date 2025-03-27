@@ -1,6 +1,6 @@
 package Launcher.IO;
 
-public class PlayerInfo {
+public final class PlayerInfo {
     private String player;
     private int highTurn;
     private int highScore;

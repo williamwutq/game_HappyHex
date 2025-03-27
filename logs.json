@@ -32,6 +32,8 @@
       "Player"  : "Dev",
       "PlayerID": "108e8d64d340340a",
       "GameID"  : "4d892fd7fad89288",
+      "EasyMode": false,
+      "Preset"  : "S",
       "Version" : {
         "Major": 0,
         "Minor": 3,
