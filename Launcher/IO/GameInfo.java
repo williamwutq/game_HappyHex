@@ -1,6 +1,10 @@
 package Launcher.IO;
 
-public class GameInfo {
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+public final class GameInfo implements JsonConvertible{
     private String player;
     private int turn;
     private int score;
@@ -55,4 +59,37 @@ public class GameInfo {
 
     public void setTurn(int turns) {this.turn = turns;}
     public void setScore(int score) {this.score = score;}
+
+    @Override
+    public JsonObject toJsonObject() {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("Player", player);
+        builder.add("PlayerID", playerID);
+        builder.add("GameId", gameID);
+        // Game mods
+        if(gameMode == GameMode.Small){
+            builder.add("EasyMode", false);
+            builder.add("Preset", "S");
+        } else if (gameMode == GameMode.Medium){
+            builder.add("EasyMode", false);
+            builder.add("Preset", "M");
+        } else if (gameMode == GameMode.Large){
+            builder.add("EasyMode", false);
+            builder.add("Preset", "L");
+        } else if (gameMode == GameMode.SmallEasy){
+            builder.add("EasyMode", true);
+            builder.add("Preset", "S");
+        } else if (gameMode == GameMode.MediumEasy){
+            builder.add("EasyMode", true);
+            builder.add("Preset", "M");
+        } else if (gameMode == GameMode.LargeEasy){
+            builder.add("EasyMode", true);
+            builder.add("Preset", "L");
+        }
+        //builder.add(version.toJsonObject()); version to be implemented
+        // builder.add(time) add time to be implemented
+        JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();
+        builder.add("Result", scoreElement);
+        return builder.build();
+    }
 }
