@@ -60,16 +60,7 @@ public class EngineButton extends HexButton {
             if (GameEssentials.engine().checkEliminate()) {
                 // Eliminate code is here, see GameTimer class
                 new GameTimer().start();
-            } else if (GameEssentials.checkEnd()) {
-                System.out.println("---------- Game Over ----------");
-                System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
-                System.out.println("The total score is " + GameEssentials.score + " points.");
-                // Reset
-                GameEssentials.score = 0;
-                GameEssentials.turn = 0;
-                GameEssentials.engine().reset();
-                GameEssentials.window().repaint();
-            }
+            } else GameEssentials.checkEnd();
         }
     }
     protected void hovered(){

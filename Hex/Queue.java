@@ -12,6 +12,12 @@ public class Queue{
             pieces[i] = generate();
         }
     }
+    public void reset(){
+        // Regenerate all pieces
+        for (int i = 0; i < pieces.length; i ++){
+            pieces[i] = generate();
+        }
+    }
     public Piece next(){
         Piece next = getFirst();
         for(int i = 1; i < pieces.length; i ++){

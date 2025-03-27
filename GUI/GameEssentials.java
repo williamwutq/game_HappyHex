@@ -145,13 +145,37 @@ public final class GameEssentials {
         HexButton.setSize(minSize);
     }
     // End checking
-    public static boolean checkEnd(){
+    public static void checkEnd(){
+        // If the game should end, log and reset
+        if(gameEnds()){
+            logGame();
+            resetGame();
+        }
+    }
+    private static boolean gameEnds(){
+        // Helper to check
         for(int i = 0; i < GameEssentials.queue().length(); i ++) {
             if(GameEssentials.engine().checkPositions(GameEssentials.queue().get(i)).size() != 0){
                 return false;
             }
         }
         return true;
+    }
+    public static void resetGame(){
+        // Reset
+        score = 0;
+        turn = 0;
+        engine.reset();
+        queue.reset();
+        window.repaint();
+    }
+
+    // Logging at the end
+    private static void logGame(){
+        // Temporary implementation: Print to console
+        System.out.println("---------- Game Over ----------");
+        System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
+        System.out.println("The total score is " + GameEssentials.score + " points.");
     }
 
     // Setters
