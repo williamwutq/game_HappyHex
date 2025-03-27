@@ -1,6 +1,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import Launcher.IO.GameInfo;
 import Launcher.IO.LaunchLogger;
 
 /**

@@ -1,13 +1,11 @@
-package Launcher;
-
-import Launcher.IO.LaunchLogger;
+package Launcher.IO;
 
 public class GameInfo {
     private String player;
     private int turn;
     private int score;
     private long playerID;
-    private long gameID;
+    private final long gameID;
     private final GameMode gameMode;
 
     public GameInfo(GameMode mode) {
