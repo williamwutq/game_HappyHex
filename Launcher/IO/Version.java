@@ -1,6 +1,8 @@
 package Launcher.IO;
 
-public final class Version implements Comparable<Version> {
+import javax.json.*;
+
+public final class Version implements Comparable<Version>, JsonConvertible{
     private final int major;
     private final int minor;
     private final int patch;
@@ -42,6 +44,14 @@ public final class Version implements Comparable<Version> {
     }
     public String toString(){
         return major + "." + minor + "." + patch;
+    }
+
+    public JsonObject toJsonObject(){
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("Major", major);
+        builder.add("Minor", minor);
+        builder.add("Patch", patch);
+        return builder.build();
     }
 
     // Getters
