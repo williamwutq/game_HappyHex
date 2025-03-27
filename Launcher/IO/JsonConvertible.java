@@ -1,11 +1,14 @@
 package Launcher.IO;
 
-import javax.json.JsonObject;
+import javax.json.*;
 
 /**
  * An object that can have a JSON representation
  * @see JsonObject
  */
 public interface JsonConvertible {
-    abstract JsonObject toJsonObject();
+    abstract JsonObjectBuilder toJsonObjectBuilder();
+    default JsonObject toJsonObject(){
+        return toJsonObjectBuilder().build();
+    }
 }

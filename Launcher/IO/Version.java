@@ -46,12 +46,12 @@ public final class Version implements Comparable<Version>, JsonConvertible{
         return major + "." + minor + "." + patch;
     }
 
-    public JsonObject toJsonObject(){
+    public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Major", major);
         builder.add("Minor", minor);
         builder.add("Patch", patch);
-        return builder.build();
+        return builder;
     }
 
     // Getters

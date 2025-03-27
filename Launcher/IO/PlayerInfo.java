@@ -72,7 +72,7 @@ public final class PlayerInfo implements JsonConvertible{
     }
 
     @Override
-    public JsonObject toJsonObject() {
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Player", player);
         builder.add("PlayerID", playerID);
@@ -81,6 +81,6 @@ public final class PlayerInfo implements JsonConvertible{
         builder.add("Highest", scoreElement);
         scoreElement = Json.createObjectBuilder().add("Score", recentScore).add("Turn", recentTurn).build();
         builder.add("Recent", scoreElement);
-        return builder.build();
+        return builder;
     }
 }

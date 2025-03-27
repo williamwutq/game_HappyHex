@@ -61,7 +61,7 @@ public final class GameInfo implements JsonConvertible{
     public void setScore(int score) {this.score = score;}
 
     @Override
-    public JsonObject toJsonObject() {
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Player", player);
         builder.add("PlayerID", playerID);
@@ -90,6 +90,6 @@ public final class GameInfo implements JsonConvertible{
         // builder.add(time) add time to be implemented
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();
         builder.add("Result", scoreElement);
-        return builder.build();
+        return builder;
     }
 }
