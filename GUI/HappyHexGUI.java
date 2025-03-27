@@ -1,6 +1,7 @@
 package GUI;
 
 import Hex.HexEngine;
+import Hex.Piece;
 import Hex.Queue;
 
 import javax.swing.*;
@@ -8,6 +9,10 @@ import java.awt.*;
 
 public class HappyHexGUI{
     public static void play(int size, int queueSize, int delay) {
+        // Legacy method
+        play(size, queueSize, delay, false);
+    }
+    public static void play(int size, int queueSize, int delay, boolean easy) {
         // Frame
         JFrame frame = new JFrame("HappyHex Version 0.3");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -17,6 +22,9 @@ public class HappyHexGUI{
         frame.setMinimumSize(new Dimension(200, 200));
 
         // Engine
+        if(easy) {
+            Piece.setEasy();
+        }
         HexEngine engine = new HexEngine(size);
         Queue queue = new Queue(queueSize);
         GameEssentials.setEngine(engine);
