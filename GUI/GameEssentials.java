@@ -2,6 +2,7 @@ package GUI;
 
 import Hex.HexEngine;
 import Hex.Queue;
+import Launcher.IO.Version;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,6 +33,8 @@ public final class GameEssentials {
 
     public static int turn = 0;
     public static int score = 0;
+
+    public static final Launcher.IO.Version version = new Version(0, 3, 2);
 
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
