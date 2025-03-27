@@ -1,6 +1,10 @@
 package Launcher.IO;
 
-public final class PlayerInfo {
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+public final class PlayerInfo implements JsonConvertible{
     private String player;
     private int highTurn;
     private int highScore;
@@ -65,5 +69,18 @@ public final class PlayerInfo {
         if(highScore < recentScore){
             highScore = recentScore;
         }
+    }
+
+    @Override
+    public JsonObject toJsonObject() {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("Player", player);
+        builder.add("PlayerID", playerID);
+        // builder.add(time) add time to be implemented
+        JsonObject scoreElement = Json.createObjectBuilder().add("Score", highScore).add("Turn", highTurn).build();
+        builder.add("Highest", scoreElement);
+        scoreElement = Json.createObjectBuilder().add("Score", recentScore).add("Turn", recentTurn).build();
+        builder.add("Recent", scoreElement);
+        return builder.build();
     }
 }
