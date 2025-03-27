@@ -3,6 +3,7 @@ package Launcher;
 import GUI.GameEssentials;
 import Launcher.IO.GameInfo;
 import Launcher.IO.LaunchLogger;
+import Launcher.IO.PlayerInfo;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -17,62 +18,34 @@ public final class LaunchEssentials {
     public static final String currentEnvironment = "java";
 
     // Game info
-    private static String currentPlayer = "Guest";
-    private static long currentPlayerID = -1;
-    private static int highestTurn = 0;
-    private static int highestScore = 0;
-    private static int recentTurn = 0;
-    private static int recentScore = 0;
+    private static PlayerInfo currentPlayerInfo;
 
-    public static String getCurrentPlayer(){
-        return currentPlayer;
-    }
-    public static long getCurrentPlayerID(){
-        return currentPlayerID;
-    }
-    public static int getHighestTurn(){
-        updateHighest();
-        return highestTurn;
-    }
-    public static int getHighestScore(){
-        updateHighest();
-        return highestScore;
-    }
-    public static int getRecentTurn(){
-        return recentTurn;
-    }
-    public static int getRecentScore(){
-        return recentScore;
+    public static PlayerInfo currentPlayerInfo(){
+        return currentPlayerInfo;
     }
     public static void setCurrentPlayer(String currentPlayer, long currentPlayerID) {
-        LaunchEssentials.currentPlayer = currentPlayer;
-        LaunchEssentials.currentPlayerID = currentPlayerID;
+        LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
     }
     public static void updateRecent(){
-        recentTurn = GameEssentials.turn;
-        recentScore = GameEssentials.score;
+        currentPlayerInfo.setRecentTurn(GameEssentials.turn);
+        currentPlayerInfo.setRecentScore(GameEssentials.score);
     }
     public static void updateHighest(){
         // Update the highest turn and score
-        if(currentPlayerID != -1) {
+        if(currentPlayerInfo.getPlayerID() != -1) {
             // Only if the player is logged in
             for (GameInfo info : LaunchLogger.fetchGames()) {
-                if (info.getPlayerID() == currentPlayerID) {
-                    if (info.getScore() > highestScore) {
-                        highestScore = info.getScore();
+                if (info.getPlayerID() == currentPlayerInfo.getPlayerID()) {
+                    if (info.getScore() > currentPlayerInfo.getHighScore()) {
+                        currentPlayerInfo.setHighScore(info.getScore());
                     }
-                    if (info.getTurn() > highestTurn) {
-                        highestTurn = info.getTurn();
+                    if (info.getTurn() > currentPlayerInfo.getHighTurn()) {
+                        currentPlayerInfo.setHighTurn(info.getScore());
                     }
                 }
             }
         }
-        if(recentScore > highestScore){
-            highestScore = recentScore;
-        }
-        if(recentTurn > highestTurn){
-            highestTurn = recentTurn;
-        }
+        currentPlayerInfo.updateHigh();
     }
 
 }
