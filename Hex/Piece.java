@@ -99,6 +99,11 @@ public class Piece implements HexGrid{
     }
 
 // Static pieces
+    public static Piece uno() {
+        Piece p = new Piece(1, GameEssentials.generateColor());
+        p.add(Block.block(0, 0));
+        return p;
+    }
     public static Piece bigBlock() {
         Piece p = new Piece(7, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -372,9 +377,9 @@ public class Piece implements HexGrid{
         return p;
     }
     public static Piece generatePiece() {
-        int i = (int) (Math.random() * 86);
         if(easy) {
             // Easier generation
+            int i = (int) (Math.random() * 74);
             if (between(i, 0, 8)) {
                 return triangle3A();
             } else if (between(i, 8, 16)) {
@@ -403,48 +408,51 @@ public class Piece implements HexGrid{
                 return rhombus4J();
             } else if (between(i, 60, 64)) {
                 return rhombus4K();
-            } else if (between(i, 64, 66)) {
+            }
+            int j = (int) (Math.random() * 25);
+            if (j == 0 || j == 1) {
                 return fan4A();
-            } else if (between(i, 66, 68)) {
+            } else if (j == 2 || j == 3) {
                 return fan4B();
-            } else if (i == 68) {
+            } else if (j == 4) {
                 return corner4Il();
-            } else if (i == 69) {
+            } else if (j == 5) {
                 return corner4Ir();
-            } else if (i == 70) {
+            } else if (j == 6) {
                 return corner4Jl();
-            } else if (i == 71) {
+            } else if (j == 7) {
                 return corner4Jr();
-            } else if (i == 72) {
+            } else if (j == 8) {
                 return corner4Kl();
-            } else if (i == 73) {
+            } else if (j == 9) {
                 return corner4Kr();
-            } else if (i == 74) {
+            } else if (j == 10) {
                 return asymmetrical4Ia();
-            } else if (i == 75) {
+            } else if (j == 11) {
                 return asymmetrical4Ib();
-            } else if (i == 76) {
+            } else if (j == 12) {
                 return asymmetrical4Ic();
-            } else if (i == 77) {
+            } else if (j == 13) {
                 return asymmetrical4Id();
-            } else if (i == 78) {
+            } else if (j == 14) {
                 return asymmetrical4Ja();
-            } else if (i == 79) {
+            } else if (j == 15) {
                 return asymmetrical4Jb();
-            } else if (i == 80) {
+            } else if (j == 16) {
                 return asymmetrical4Jc();
-            } else if (i == 81) {
+            } else if (j == 17) {
                 return asymmetrical4Jd();
-            } else if (i == 82) {
+            } else if (j == 18) {
                 return asymmetrical4Ka();
-            } else if (i == 83) {
+            } else if (j == 19) {
                 return asymmetrical4Kb();
-            } else if (i == 84) {
+            } else if (j == 20) {
                 return asymmetrical4Kc();
-            } else if (i == 85) {
+            } else if (j == 21) {
                 return asymmetrical4Kd();
-            } else return bigBlock(); // Should never reach
+            } else return uno(); // Should never reach
         } else {
+            int i = (int) (Math.random() * 86);
             if (between(i, 0, 6)) {
                 return triangle3A();
             } else if (between(i, 6, 12)) {
