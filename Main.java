@@ -13,6 +13,7 @@ public class Main{
         // Dev -size 5 -queue 3 -> turn 140 point 2911
         // Dev -size 5 -queue 3 -> turn 135 point 2759
         // Dev -size 5 -queue 3 -> turn 99 point 2018
+        // Dev -size 5 -queue 3 -> turn 70 point 1429
         // Dev -size 5 -queue 3 -> turn 66 point 1200
         // Yiguo -size 5 -queue 3 -> turn 130 point 2707
         // Mate -size 5 -queue 3 -> turn 37 point 590
