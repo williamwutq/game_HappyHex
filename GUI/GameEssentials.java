@@ -2,7 +2,6 @@ package GUI;
 
 import Hex.HexEngine;
 import Hex.Queue;
-import Launcher.IO.GameVersion;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,8 +32,6 @@ public final class GameEssentials {
 
     public static int turn = 0;
     public static int score = 0;
-
-    public static final GameVersion version = new GameVersion(0, 3, 2);
 
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
@@ -179,6 +176,9 @@ public final class GameEssentials {
         System.out.println("---------- Game Over ----------");
         System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
         System.out.println("The total score is " + GameEssentials.score + " points.");
+        // Logs
+        Launcher.LaunchEssentials.fetchGameInfo();
+        Launcher.LaunchEssentials.log();
     }
 
     // Setters

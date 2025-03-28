@@ -1,8 +1,8 @@
 package Launcher.IO;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import Launcher.LaunchEssentials;
+
+import javax.json.*;
 
 public final class GameInfo implements JsonConvertible{
     private String player;
@@ -22,7 +22,7 @@ public final class GameInfo implements JsonConvertible{
         this.time = new GameTime();
         this.gameID = LaunchLogger.generateHash(0);
         this.gameMode = mode;
-        this.gameVersion = GUI.GameEssentials.version;
+        this.gameVersion = LaunchEssentials.currentGameVersion;
     }
     public GameInfo(int turn, int score, GameMode mode, GameVersion version){
         this.turn = turn;
@@ -72,7 +72,6 @@ public final class GameInfo implements JsonConvertible{
         builder.add("Player", player);
         builder.add("PlayerID", Long.toHexString(playerID));
         builder.add("GameID", Long.toHexString(gameID));
-        // Game mods
         builder.add("EasyMode", GameMode.isEasy(gameMode));
         builder.add("Preset", GameMode.getChar(gameMode));
         builder.add("Version", gameVersion.toJsonObject());

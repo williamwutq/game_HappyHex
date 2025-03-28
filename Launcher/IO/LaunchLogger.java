@@ -1,18 +1,16 @@
 package Launcher.IO;
 
-import GUI.GameEssentials;
-
 import javax.json.*;
 import javax.json.stream.*;
 import java.io.*;
+import java.lang.management.PlatformLoggingMXBean;
 import java.nio.file.*;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public final class LaunchLogger {
     // Debug
-    private static final boolean IODebug = true;
+    private static final boolean IODebug = false;
 
     // Hashing
     private static final int[] SHIFTS = {31, 37, 41, 27, 23, 29, 33, 43};
@@ -168,13 +166,13 @@ public final class LaunchLogger {
         // Create JSON Object
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
         // Write basics
-        jsonObjectBuilder.add("Game", "HappyHex");
-        jsonObjectBuilder.add("Environment", "java");
+        jsonObjectBuilder.add("Game", Launcher.LaunchEssentials.currentGameName);
+        jsonObjectBuilder.add("Environment", Launcher.LaunchEssentials.currentEnvironment);
         jsonObjectBuilder.add("Generator", "LaunchLogger");
         jsonObjectBuilder.add("GeneratorID", ID);
 
         // Write version
-        jsonObjectBuilder.add("Version", GameEssentials.version.toJsonObject());
+        jsonObjectBuilder.add("Version", Launcher.LaunchEssentials.currentGameVersion.toJsonObject());
 
         // Write scores
         JsonArrayBuilder scoresJsonArray = Json.createArrayBuilder();
@@ -201,8 +199,44 @@ public final class LaunchLogger {
         writeJsonToFile(resultingObject);
     }
 
-    public static GameInfo[] fetchGames(){
-        return new GameInfo[0]; // Placeholder
+    public static PlayerInfo[] fetchPlayerStats(){
+        return new PlayerInfo[0]; // Placeholder
+    }
+
+    public static void addGame(GameInfo gameInfo){
+        games.add(gameInfo);
+        if(gameInfo.getPlayerID() != -1 && !gameInfo.getPlayer().equals("Guest")){
+            scores.add(new PlayerInfo(gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore()));
+        } else for (PlayerInfo info : scores){
+            if(info.getPlayerID() != -1 && !info.getPlayer().equals("Guest")){
+                // Skip guests
+                if(info.getPlayerID() == gameInfo.getPlayerID()){
+                    info.setRecentTurn(gameInfo.getTurn());
+                    info.setRecentScore(gameInfo.getScore());
+                    info.updateHigh();
+                    return;
+                }
+            }
+        }
+        // If not found
+        scores.add(new PlayerInfo(gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getPlayerID(), gameInfo.getPlayer()));
+    }
+    public static void addPlayer(PlayerInfo playerInfo){
+        if(playerInfo.getPlayerID() != -1 && !playerInfo.getPlayer().equals("Guest")){
+            scores.add(playerInfo);
+        } else for (PlayerInfo info : scores){
+            if(info.getPlayerID() != -1 && !info.getPlayer().equals("Guest")){
+                // Skip guests
+                if(info.getPlayerID() == playerInfo.getPlayerID()){
+                    info.setRecentTurn(playerInfo.getRecentTurn());
+                    info.setRecentScore(playerInfo.getRecentScore());
+                    info.updateHigh();
+                    return;
+                }
+            }
+        }
+        // If not found
+        scores.add(playerInfo);
     }
 
     // Getters

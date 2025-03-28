@@ -1,8 +1,6 @@
 package Launcher.IO;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 
 public final class PlayerInfo implements JsonConvertible{
     private String player;
@@ -31,7 +29,7 @@ public final class PlayerInfo implements JsonConvertible{
         this.player = "Guest";
         this.time = new GameTime();
     }
-    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, int playerID, String player){
+    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, long playerID, String player){
         this.setPlayer(player, playerID);
         this.highTurn = highTurn;
         this.highScore = highScore;
