@@ -11,6 +11,7 @@ public final class GameInfo implements JsonConvertible{
     private long playerID;
     private final long gameID;
     private final GameMode gameMode;
+    private final GameVersion gameVersion;
 
     public GameInfo(GameMode mode) {
         this.turn = 0;
@@ -19,21 +20,24 @@ public final class GameInfo implements JsonConvertible{
         this.player = "Guest";
         this.gameID = LaunchLogger.generateHash(0);
         this.gameMode = mode;
+        this.gameVersion = GUI.GameEssentials.version;
     }
-    public GameInfo(int turn, int score, GameMode mode){
+    public GameInfo(int turn, int score, GameMode mode, GameVersion version){
         this.turn = turn;
         this.score = score;
         this.playerID = -1;
         this.player = "Guest";
         this.gameID = LaunchLogger.generateHash(~(turn * score));
         this.gameMode = mode;
+        this.gameVersion = version;
     }
-    public GameInfo(int turn, int score, int playerID, String player, GameMode mode){
+    public GameInfo(int turn, int score, int playerID, String player, GameMode mode, GameVersion version){
         this.setPlayer(player, playerID);
         this.turn = turn;
         this.score = score;
         this.gameID = LaunchLogger.generateHash((turn * score) ^ playerID);
         this.gameMode = mode;
+        this.gameVersion = version;
     }
 
     public String getPlayer() {return player;}
@@ -83,7 +87,7 @@ public final class GameInfo implements JsonConvertible{
             builder.add("EasyMode", true);
             builder.add("Preset", "L");
         }
-        //builder.add(version.toJsonObject()); version to be implemented
+        builder.add("Version", gameVersion.toJsonObject());
         builder.add("Time", LaunchLogger.fetchCurrentTimeJson());
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();
         builder.add("Result", scoreElement);

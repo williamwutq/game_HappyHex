@@ -185,7 +185,7 @@ public final class LaunchLogger {
         // Write games
         JsonArrayBuilder gamesJsonArray = Json.createArrayBuilder();
         if(IODebug){
-            GameInfo debugTest = new GameInfo(139, 2862, GameMode.Small);
+            GameInfo debugTest = new GameInfo(139, 2862, GameMode.Small, new GameVersion(0,3,1));
             gamesJsonArray.add(debugTest.toJsonObject());
         }
         for (GameInfo info : games) {

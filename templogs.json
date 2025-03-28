@@ -15,7 +15,7 @@
             "PlayerID": -1,
             "Time": {
                 "Date": "2025-03-27",
-                "Time": "18:23:44",
+                "Time": "18:51:09",
                 "Zone": "America/Los_Angeles"
             },
             "Highest": {
@@ -32,12 +32,17 @@
         {
             "Player": "Guest",
             "PlayerID": -1,
-            "GameId": -7472738696230108891,
+            "GameId": 3587428493635300783,
             "EasyMode": false,
             "Preset": "S",
+            "Version": {
+                "Major": 0,
+                "Minor": 3,
+                "Patch": 1
+            },
             "Time": {
                 "Date": "2025-03-27",
-                "Time": "18:23:44",
+                "Time": "18:51:09",
                 "Zone": "America/Los_Angeles"
             },
             "Result": {

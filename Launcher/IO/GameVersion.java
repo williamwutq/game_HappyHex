@@ -2,28 +2,28 @@ package Launcher.IO;
 
 import javax.json.*;
 
-public final class Version implements Comparable<Version>, JsonConvertible{
+public final class GameVersion implements Comparable<GameVersion>, JsonConvertible{
     private final int major;
     private final int minor;
     private final int patch;
 
-    public Version(int major, int minor, int patch){
+    public GameVersion(int major, int minor, int patch){
         this.major = major;
         this.minor = minor;
         this.patch = patch;
     }
-    public static Version parse(String version){
+    public static GameVersion parse(String version){
         try {
             String[] parts = version.split("\\.");
             if (parts.length != 3) {
                 return null;
             }
-            return new Version(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+            return new GameVersion(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
         } catch (NumberFormatException e) {
             return null;
         }
     }
-    public int compareTo(Version other){
+    public int compareTo(GameVersion other){
         if (this.major != other.major){
             return Integer.compare(this.major, other.major);
         }
@@ -32,7 +32,7 @@ public final class Version implements Comparable<Version>, JsonConvertible{
         }
         return Integer.compare(this.patch, other.patch);
     }
-    public boolean equals(Version other){
+    public boolean equals(GameVersion other){
         return this.major == other.major && this.minor == other.minor && this.patch == other.patch;
     }
     public int hashCode(){
