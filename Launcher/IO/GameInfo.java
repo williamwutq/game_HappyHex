@@ -21,7 +21,6 @@ public final class GameInfo implements JsonConvertible{
         this.gameMode = mode;
     }
     public GameInfo(int turn, int score, GameMode mode){
-        if(player == "") player = "Guest";
         this.turn = turn;
         this.score = score;
         this.playerID = -1;
@@ -30,11 +29,9 @@ public final class GameInfo implements JsonConvertible{
         this.gameMode = mode;
     }
     public GameInfo(int turn, int score, int playerID, String player, GameMode mode){
-        if(player == "") player = "Guest";
+        this.setPlayer(player, playerID);
         this.turn = turn;
         this.score = score;
-        this.playerID = playerID;
-        this.player = player;
         this.gameID = LaunchLogger.generateHash((turn * score) ^ playerID);
         this.gameMode = mode;
     }

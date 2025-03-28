@@ -21,7 +21,6 @@ public final class PlayerInfo implements JsonConvertible{
         this.player = "Guest";
     }
     public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore){
-        if(player == "") player = "Guest";
         this.highTurn = highTurn;
         this.highScore = highScore;
         this.recentTurn = recentTurn;
@@ -30,7 +29,7 @@ public final class PlayerInfo implements JsonConvertible{
         this.player = "Guest";
     }
     public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, int playerID, String player){
-        if(player == "") player = "Guest";
+        this.setPlayer(player, playerID);
         this.highTurn = highTurn;
         this.highScore = highScore;
         this.recentTurn = recentTurn;
