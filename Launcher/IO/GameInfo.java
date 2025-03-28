@@ -73,25 +73,8 @@ public final class GameInfo implements JsonConvertible{
         builder.add("PlayerID", Long.toHexString(playerID));
         builder.add("GameID", Long.toHexString(gameID));
         // Game mods
-        if(gameMode == GameMode.Small){
-            builder.add("EasyMode", false);
-            builder.add("Preset", "S");
-        } else if (gameMode == GameMode.Medium){
-            builder.add("EasyMode", false);
-            builder.add("Preset", "M");
-        } else if (gameMode == GameMode.Large){
-            builder.add("EasyMode", false);
-            builder.add("Preset", "L");
-        } else if (gameMode == GameMode.SmallEasy){
-            builder.add("EasyMode", true);
-            builder.add("Preset", "S");
-        } else if (gameMode == GameMode.MediumEasy){
-            builder.add("EasyMode", true);
-            builder.add("Preset", "M");
-        } else if (gameMode == GameMode.LargeEasy){
-            builder.add("EasyMode", true);
-            builder.add("Preset", "L");
-        }
+        builder.add("EasyMode", GameMode.isEasy(gameMode));
+        builder.add("Preset", GameMode.getChar(gameMode));
         builder.add("Version", gameVersion.toJsonObject());
         builder.add("Time", time.toJsonObject());
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();

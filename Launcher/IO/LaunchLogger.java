@@ -83,99 +83,84 @@ public final class LaunchLogger {
     }
 
     public static void read() throws IOException {
-        String jsonString = readJsonFile(); // Read JSON
-        if (jsonString != null) {
-            // Parse the JSON string
-            JsonObject jsonObject;
-            try {
-                JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
-                jsonObject = jsonReader.readObject();
-                jsonReader.close();
-            } catch (Exception e) {
-                throw new IOException("Failed to parse JSON file");
-            }
+        String jsonString;
+        try {
+            jsonString = readJsonFile(); // Read JSON
+        } catch (Exception e) {
+            throw new IOException("Failed to read JSON file", e);
+        }
+        if (jsonString == null) {
+            throw new IOException("Failed to read JSON file because it is null");
+        }
 
-            // Game Check
-            String game;
-            try {
-                game = jsonObject.getString("Game");
-            } catch (Exception e) {
-                throw new IOException("Game type is not found");
-            }
-            if (game == null || !game.equals("HappyHex")){
-                throw new IOException("Game type is not HappyHex");
-            }
+        JsonObject jsonObject;
+        try (JsonReader jsonReader = Json.createReader(new StringReader(jsonString))) {
+            jsonObject = jsonReader.readObject();
+        } catch (Exception e) {
+            throw new IOException("Failed to parse JSON file", e);
+        }
 
+        // Game Check
+        String game;
+        try {
+            game = jsonObject.getString("Game");
+        } catch (Exception e) {
+            throw new IOException("Game type is not found", e);
+        }
+        if (!"HappyHex".equals(game)) {
+            throw new IOException("Game type is not HappyHex");
+        }
+
+        try {
             // Reading Scores Array
             JsonArray scoresJson = jsonObject.getJsonArray("Scores");
             for (JsonObject score : scoresJson.getValuesAs(JsonObject.class)) {
-                String player = score.getString("Player");
-                String playerID = score.getString("PlayerID");
-
-                JsonObject highest = score.getJsonObject("Highest");
-                int highestScore = highest.getInt("Score");
-                int highestTurn = highest.getInt("Turn");
-
-                JsonObject recent = score.getJsonObject("Recent");
-                int recentScore = recent.getInt("Score");
-                int recentTurn = recent.getInt("Turn");
-
-                JsonObject time = score.getJsonObject("Time");
-                String date = time.getString("Date");
-                String timeStr = time.getString("Time");
-                String zone = time.getString("Zone");
-                GameTime individualTime = new GameTime(date, timeStr, zone);
-
-                PlayerInfo info = new PlayerInfo(highestTurn, highestScore, recentTurn, recentScore, individualTime, playerID, player);
+                PlayerInfo info = new PlayerInfo(
+                        score.getJsonObject("Highest").getInt("Turn"),
+                        score.getJsonObject("Highest").getInt("Score"),
+                        score.getJsonObject("Recent").getInt("Turn"),
+                        score.getJsonObject("Recent").getInt("Score"),
+                        new GameTime(
+                                score.getJsonObject("Time").getString("Date"),
+                                score.getJsonObject("Time").getString("Time"),
+                                score.getJsonObject("Time").getString("Zone")
+                        ),
+                        score.getString("PlayerID"),
+                        score.getString("Player")
+                );
                 scores.add(info);
             }
 
             // Reading Games Array
             JsonArray gamesJson = jsonObject.getJsonArray("Games");
             for (JsonObject gameObj : gamesJson.getValuesAs(JsonObject.class)) {
-                String player = gameObj.getString("Player");
-                String playerID = gameObj.getString("PlayerID");
-                String gameID = gameObj.getString("GameID");
-                GameMode gameMode;
-                boolean GameEasyMode = gameObj.getBoolean("EasyMode");
-                String GamePreset = gameObj.getString("Preset");
-                if(GameEasyMode){
-                    if(GamePreset.equals("S")){
-                        gameMode = GameMode.SmallEasy;
-                    } else if (GamePreset.equals("L")){
-                        gameMode = GameMode.LargeEasy;
-                    } else {
-                        gameMode = GameMode.MediumEasy;
-                    }
-                } else {
-                    if(GamePreset.equals("S")){
-                        gameMode = GameMode.Small;
-                    } else if (GamePreset.equals("L")){
-                        gameMode = GameMode.Large;
-                    } else {
-                        gameMode = GameMode.Medium;
-                    }
-                }
+                GameMode gameMode = GameMode.determineGameMode(
+                        gameObj.getBoolean("EasyMode"),
+                        gameObj.getString("Preset")
+                );
 
-                JsonObject gameVersion = gameObj.getJsonObject("Version");
-                int gameMajor = gameVersion.getInt("Major");
-                int gameMinor = gameVersion.getInt("Minor");
-                int gamePatch = gameVersion.getInt("Patch");
-                GameVersion individualGameVersion = new GameVersion(gameMajor, gameMinor, gamePatch);
-
-                JsonObject gameTime = gameObj.getJsonObject("Time");
-                String gameDate = gameTime.getString("Date");
-                String gameTimeStr = gameTime.getString("Time");
-                String gameZone = gameTime.getString("Zone");
-                GameTime individualGameTime = new GameTime(gameDate, gameTimeStr, gameZone);
-
-                JsonObject result = gameObj.getJsonObject("Result");
-                int gameScore = result.getInt("Score");
-                int gameTurn = result.getInt("Turn");
-
-                GameInfo info = new GameInfo(gameTurn, gameScore, playerID, player, individualGameTime, gameID, gameMode, individualGameVersion);
+                GameInfo info = new GameInfo(
+                        gameObj.getJsonObject("Result").getInt("Turn"),
+                        gameObj.getJsonObject("Result").getInt("Score"),
+                        gameObj.getString("PlayerID"),
+                        gameObj.getString("Player"),
+                        new GameTime(
+                                gameObj.getJsonObject("Time").getString("Date"),
+                                gameObj.getJsonObject("Time").getString("Time"),
+                                gameObj.getJsonObject("Time").getString("Zone")
+                        ),
+                        gameObj.getString("GameID"),
+                        gameMode,
+                        new GameVersion(
+                                gameObj.getJsonObject("Version").getInt("Major"),
+                                gameObj.getJsonObject("Version").getInt("Minor"),
+                                gameObj.getJsonObject("Version").getInt("Patch")
+                        )
+                );
                 games.add(info);
             }
+        } catch (Exception e) {
+            throw new IOException("Error processing JSON data", e);
         }
     }
 
