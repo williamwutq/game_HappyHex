@@ -30,7 +30,7 @@ public final class LaunchEssentials {
         currentGameInfo = new GameInfo(mode);
     }
     public static void fetchGameInfo(){
-        currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, currentGameInfo.getGameMode(), currentGameVersion);
+        currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
     }
     public static void updateRecent(){
         currentPlayerInfo.setRecentTurn(currentGameInfo.getTurn());

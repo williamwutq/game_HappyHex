@@ -205,16 +205,16 @@ public final class LaunchLogger {
 
     public static void addGame(GameInfo gameInfo){
         games.add(gameInfo);
-        if(gameInfo.getPlayerID() != -1 && !gameInfo.getPlayer().equals("Guest")){
-            scores.add(new PlayerInfo(gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore()));
-        } else for (PlayerInfo info : scores){
-            if(info.getPlayerID() != -1 && !info.getPlayer().equals("Guest")){
-                // Skip guests
-                if(info.getPlayerID() == gameInfo.getPlayerID()){
-                    info.setRecentTurn(gameInfo.getTurn());
-                    info.setRecentScore(gameInfo.getScore());
-                    info.updateHigh();
-                    return;
+        if(gameInfo.getPlayerID() == -1 || gameInfo.getPlayer().equals("Guest")){
+            for (PlayerInfo info : scores) {
+                if (info.getPlayerID() != -1 && !info.getPlayer().equals("Guest")) {
+                    // Skip guests
+                    if (info.getPlayerID() == gameInfo.getPlayerID()) {
+                        info.setRecentTurn(gameInfo.getTurn());
+                        info.setRecentScore(gameInfo.getScore());
+                        info.updateHigh();
+                        return;
+                    }
                 }
             }
         }

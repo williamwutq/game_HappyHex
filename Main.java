@@ -14,6 +14,7 @@ public class Main{
         int delay = 100;
         int preset = -1;
         boolean easy = false;
+        String player = "Guest";
         int i = 0;
         while (i < args.length) {
             if (args[i].charAt(0) != '-') {
@@ -80,12 +81,17 @@ public class Main{
                     preset = 3;
                 }
                 i+=2;
+            } else if (args[i].equals("-player") || args[i].equals("-user") || args[i].equals("-u")) {
+                player = args[i + 1];
+                i+=2;
             }
             else i++;
         }
         // Preset is not enabled
         if(preset == -1) {
+            LaunchEssentials.initializeCurrentGame(GameMode.Medium); // Placeholder
             GUI.HappyHexGUI.play(size, queueSize, delay, easy);
+            LaunchEssentials.setCurrentPlayer(player, player.hashCode());
         } else {
             if(easy) {
                 if (preset == 1) {
@@ -104,6 +110,7 @@ public class Main{
                     LaunchEssentials.initializeCurrentGame(GameMode.Medium);
                 }
             }
+            LaunchEssentials.setCurrentPlayer(player, player.hashCode());
             GUI.HappyHexGUI.play(3*preset + 2, 2*preset + 1, delay, easy);
         }
     }
