@@ -44,20 +44,6 @@ public final class LaunchLogger {
         return ID;
     }
 
-    // Time
-    public static JsonObject fetchCurrentTimeJson(){
-        JsonObjectBuilder builder = Json.createObjectBuilder();
-        // Fetch current date, time, and time zone
-        String date = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        String zone = ZoneId.systemDefault().toString();
-        // Add to JSON
-        builder.add("Date", date);
-        builder.add("Time", time);
-        builder.add("Zone", zone);
-        return builder.build();
-    }
-
     // Try to read json log
     private static String readJsonFile() throws IOException {
         String[] possiblePaths = {
