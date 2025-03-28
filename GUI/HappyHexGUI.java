@@ -24,8 +24,10 @@ public class HappyHexGUI{
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 // Custom code to execute when the window is closing
-                // Log and reset
-                GameEssentials.logGame();
+                // Log if it has score and reset
+                if(GameEssentials.turn != 0) {
+                    GameEssentials.logGame();
+                }
                 GameEssentials.resetGame();
                 // Close
                 frame.dispose();
