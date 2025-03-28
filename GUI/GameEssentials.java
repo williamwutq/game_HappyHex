@@ -150,6 +150,7 @@ public final class GameEssentials {
         if(gameEnds()){
             logGame();
             resetGame();
+            Launcher.IO.LaunchLogger.resetLoggerInfo();
         }
     }
     private static boolean gameEnds(){

@@ -205,7 +205,7 @@ public final class LaunchLogger {
 
     public static void addGame(GameInfo gameInfo){
         games.add(gameInfo);
-        if(gameInfo.getPlayerID() == -1 || gameInfo.getPlayer().equals("Guest")){
+        if(gameInfo.getPlayerID() != -1 && !gameInfo.getPlayer().equals("Guest")){
             for (PlayerInfo info : scores) {
                 if (info.getPlayerID() != -1 && !info.getPlayer().equals("Guest")) {
                     // Skip guests
