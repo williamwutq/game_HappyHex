@@ -11,6 +11,7 @@ public final class PlayerInfo implements JsonConvertible{
     private int recentTurn;
     private int recentScore;
     private long playerID;
+    private GameTime time;
 
     public PlayerInfo() {
         this.highTurn = 0;
@@ -19,6 +20,7 @@ public final class PlayerInfo implements JsonConvertible{
         this.recentScore = 0;
         this.playerID = -1;
         this.player = "Guest";
+        this.time = new GameTime();
     }
     public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore){
         this.highTurn = highTurn;
@@ -27,6 +29,7 @@ public final class PlayerInfo implements JsonConvertible{
         this.recentScore = recentScore;
         this.playerID = -1;
         this.player = "Guest";
+        this.time = new GameTime();
     }
     public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, int playerID, String player){
         this.setPlayer(player, playerID);
@@ -34,8 +37,16 @@ public final class PlayerInfo implements JsonConvertible{
         this.highScore = highScore;
         this.recentTurn = recentTurn;
         this.recentScore = recentScore;
-        this.playerID = playerID;
-        this.player = player;
+        this.time = new GameTime();
+    }
+    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, GameTime time, String playerID, String player){
+        long ID = Long.parseUnsignedLong(playerID, 16);
+        this.setPlayer(player, ID);
+        this.highTurn = highTurn;
+        this.highScore = highScore;
+        this.recentTurn = recentTurn;
+        this.recentScore = recentScore;
+        this.time = time;
     }
 
     public String getPlayer() {return player;}
@@ -68,14 +79,19 @@ public final class PlayerInfo implements JsonConvertible{
         if(highScore < recentScore){
             highScore = recentScore;
         }
+        updateTime();
+    }
+
+    public void updateTime(){
+        this.time = new GameTime();
     }
 
     @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Player", player);
-        builder.add("PlayerID", playerID);
-        builder.add("Time", new GameTime().toJsonObject());
+        builder.add("PlayerID", Long.toHexString(playerID));
+        builder.add("Time", time.toJsonObject());
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", highScore).add("Turn", highTurn).build();
         builder.add("Highest", scoreElement);
         scoreElement = Json.createObjectBuilder().add("Score", recentScore).add("Turn", recentTurn).build();

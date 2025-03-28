@@ -1,52 +1,53 @@
+
 {
-  "Game" : "HappyHex",
-  "Environment" : "java",
-  "Generator" : "LaunchLogger",
-  "GeneratorID" : 5748164,
-  "Version" : {
-    "Major" : 0,
-    "Minor" : 3,
-    "Patch" : 1
+  "Game": "HappyHex",
+  "Environment": "java",
+  "Generator": "LaunchLogger",
+  "GeneratorID": 5748164,
+  "Version": {
+    "Major": 0,
+    "Minor": 3,
+    "Patch": 2
   },
-  "Scores" : [
+  "Scores": [
     {
-      "Player"  : "Dev",
-      "PlayerID" : "108e8d64d340340a",
-      "Time" : {
-        "Date": "2025-03-26",
-        "Time": "14:55:34",
-        "Zone": "PST"
+      "Player": "Guest",
+      "PlayerID": "ffffffffffffffff",
+      "Time": {
+        "Date": "2025-03-27",
+        "Time": "21:09:37",
+        "Zone": "America/Los_Angeles"
       },
-      "Highest" : {
-        "Score" : 0,
-        "Turn"  : 0
+      "Highest": {
+        "Score": 2862,
+        "Turn": 139
       },
-      "Recent" : {
-        "Score": 0,
-        "Turn":  0
+      "Recent": {
+        "Score": 1429,
+        "Turn": 70
       }
     }
   ],
-  "Games" : [
+  "Games": [
     {
-      "Player"  : "Dev",
-      "PlayerID": "108e8d64d340340a",
-      "GameID"  : "4d892fd7fad89288",
+      "Player": "Guest",
+      "PlayerID": "ffffffffffffffff",
+      "GameID": "c83df27701fe164d",
       "EasyMode": false,
-      "Preset"  : "S",
-      "Version" : {
+      "Preset": "S",
+      "Version": {
         "Major": 0,
         "Minor": 3,
         "Patch": 1
       },
-      "Time" : {
-        "Date": "2025-03-26",
-        "Time": "14:55:34",
-        "Zone": "PST"
+      "Time": {
+        "Date": "2025-03-27",
+        "Time": "21:09:37",
+        "Zone": "America/Los_Angeles"
       },
-      "Result" : {
-        "Score": 0,
-        "Turn":  0
+      "Result": {
+        "Score": 2862,
+        "Turn": 139
       }
     }
   ]

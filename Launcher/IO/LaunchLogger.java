@@ -77,6 +77,11 @@ public final class LaunchLogger {
         System.out.println("JSON data written to " + logsPath + " successfully.");
     }
 
+    public static void resetLoggerInfo(){
+        scores.clear();
+        games.clear();
+    }
+
     public static void read() throws IOException {
         String jsonString = readJsonFile(); // Read JSON
         if (jsonString != null) {
@@ -102,15 +107,10 @@ public final class LaunchLogger {
             }
 
             // Reading Scores Array
-            JsonArray scores = jsonObject.getJsonArray("Scores");
-            for (JsonObject score : scores.getValuesAs(JsonObject.class)) {
+            JsonArray scoresJson = jsonObject.getJsonArray("Scores");
+            for (JsonObject score : scoresJson.getValuesAs(JsonObject.class)) {
                 String player = score.getString("Player");
                 String playerID = score.getString("PlayerID");
-
-                JsonObject time = score.getJsonObject("Time");
-                String date = time.getString("Date");
-                String timeStr = time.getString("Time");
-                String zone = time.getString("Zone");
 
                 JsonObject highest = score.getJsonObject("Highest");
                 int highestScore = highest.getInt("Score");
@@ -119,28 +119,62 @@ public final class LaunchLogger {
                 JsonObject recent = score.getJsonObject("Recent");
                 int recentScore = recent.getInt("Score");
                 int recentTurn = recent.getInt("Turn");
+
+                JsonObject time = score.getJsonObject("Time");
+                String date = time.getString("Date");
+                String timeStr = time.getString("Time");
+                String zone = time.getString("Zone");
+                GameTime individualTime = new GameTime(date, timeStr, zone);
+
+                PlayerInfo info = new PlayerInfo(highestTurn, highestScore, recentTurn, recentScore, individualTime, playerID, player);
+                scores.add(info);
             }
 
             // Reading Games Array
-            JsonArray games = jsonObject.getJsonArray("Games");
-            for (JsonObject gameObj : games.getValuesAs(JsonObject.class)) {
+            JsonArray gamesJson = jsonObject.getJsonArray("Games");
+            for (JsonObject gameObj : gamesJson.getValuesAs(JsonObject.class)) {
                 String player = gameObj.getString("Player");
                 String playerID = gameObj.getString("PlayerID");
                 String gameID = gameObj.getString("GameID");
+                GameMode gameMode;
+                boolean GameEasyMode = gameObj.getBoolean("EasyMode");
+                String GamePreset = gameObj.getString("Preset");
+                if(GameEasyMode){
+                    if(GamePreset.equals("S")){
+                        gameMode = GameMode.SmallEasy;
+                    } else if (GamePreset.equals("L")){
+                        gameMode = GameMode.LargeEasy;
+                    } else {
+                        gameMode = GameMode.MediumEasy;
+                    }
+                } else {
+                    if(GamePreset.equals("S")){
+                        gameMode = GameMode.Small;
+                    } else if (GamePreset.equals("L")){
+                        gameMode = GameMode.Large;
+                    } else {
+                        gameMode = GameMode.Medium;
+                    }
+                }
 
                 JsonObject gameVersion = gameObj.getJsonObject("Version");
                 int gameMajor = gameVersion.getInt("Major");
                 int gameMinor = gameVersion.getInt("Minor");
                 int gamePatch = gameVersion.getInt("Patch");
+                GameVersion individualGameVersion = new GameVersion(gameMajor, gameMinor, gamePatch);
 
                 JsonObject gameTime = gameObj.getJsonObject("Time");
                 String gameDate = gameTime.getString("Date");
                 String gameTimeStr = gameTime.getString("Time");
                 String gameZone = gameTime.getString("Zone");
+                GameTime individualGameTime = new GameTime(gameDate, gameTimeStr, gameZone);
 
                 JsonObject result = gameObj.getJsonObject("Result");
                 int gameScore = result.getInt("Score");
                 int gameTurn = result.getInt("Turn");
+
+                GameInfo info = new GameInfo(gameTurn, gameScore, playerID, player, individualGameTime, gameID, gameMode, individualGameVersion);
+                games.add(info);
             }
         }
     }
@@ -190,8 +224,9 @@ public final class LaunchLogger {
 
     public static void main(String[] args){
         try {
+            read();
             write();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -12,10 +12,27 @@
     "Scores": [
         {
             "Player": "Guest",
-            "PlayerID": -1,
+            "PlayerID": "ffffffffffffffff",
             "Time": {
                 "Date": "2025-03-27",
-                "Time": "18:51:09",
+                "Time": "21:20:19",
+                "Zone": "America/Los_Angeles"
+            },
+            "Highest": {
+                "Score": 2862,
+                "Turn": 139
+            },
+            "Recent": {
+                "Score": 1429,
+                "Turn": 70
+            }
+        },
+        {
+            "Player": "Guest",
+            "PlayerID": "ffffffffffffffff",
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "21:09:37",
                 "Zone": "America/Los_Angeles"
             },
             "Highest": {
@@ -31,8 +48,8 @@
     "Games": [
         {
             "Player": "Guest",
-            "PlayerID": -1,
-            "GameId": 3587428493635300783,
+            "PlayerID": "ffffffffffffffff",
+            "GameID": "b569bd36dbf98e3f",
             "EasyMode": false,
             "Preset": "S",
             "Version": {
@@ -42,7 +59,28 @@
             },
             "Time": {
                 "Date": "2025-03-27",
-                "Time": "18:51:09",
+                "Time": "21:20:19",
+                "Zone": "America/Los_Angeles"
+            },
+            "Result": {
+                "Score": 2862,
+                "Turn": 139
+            }
+        },
+        {
+            "Player": "Guest",
+            "PlayerID": "ffffffffffffffff",
+            "GameID": "c83df27701fe164d",
+            "EasyMode": false,
+            "Preset": "S",
+            "Version": {
+                "Major": 0,
+                "Minor": 3,
+                "Patch": 1
+            },
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "21:09:37",
                 "Zone": "America/Los_Angeles"
             },
             "Result": {
