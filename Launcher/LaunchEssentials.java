@@ -17,16 +17,20 @@ public final class LaunchEssentials {
 
     // Game info
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0);
-    private static GameInfo currentGameInfo = new GameInfo(GameMode.Medium);
+    private static GameInfo currentGameInfo;
 
     public static PlayerInfo currentPlayerInfo(){
         return currentPlayerInfo;
     }
     public static void setCurrentPlayer(String currentPlayer, long currentPlayerID) {
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
+        LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
+    }
+    public static void initializeCurrentGame(GameMode mode){
+        currentGameInfo = new GameInfo(mode);
     }
     public static void fetchGameInfo(){
-        currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, GameMode.Medium, currentGameVersion);
+        currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, currentGameInfo.getGameMode(), currentGameVersion);
     }
     public static void updateRecent(){
         currentPlayerInfo.setRecentTurn(currentGameInfo.getTurn());

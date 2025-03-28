@@ -6,6 +6,7 @@ import Hex.Queue;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class HappyHexGUI{
     public static void play(int size, int queueSize, int delay) {
@@ -14,12 +15,23 @@ public class HappyHexGUI{
     }
     public static void play(int size, int queueSize, int delay, boolean easy) {
         // Frame
-        JFrame frame = new JFrame("HappyHex Version " + GameEssentials.version);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JFrame frame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setBackground(Color.WHITE);
         frame.setSize(new Dimension(800, 800));
         frame.setMinimumSize(new Dimension(200, 200));
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                // Custom code to execute when the window is closing
+                // Log and reset
+                GameEssentials.logGame();
+                GameEssentials.resetGame();
+                // Close
+                frame.dispose();
+            }
+        });
+
 
         // Engine
         if(easy) {

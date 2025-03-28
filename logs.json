@@ -1,54 +1,92 @@
 
 {
-  "Game": "HappyHex",
-  "Environment": "java",
-  "Generator": "LaunchLogger",
-  "GeneratorID": 5748164,
-  "Version": {
-    "Major": 0,
-    "Minor": 3,
-    "Patch": 2
-  },
-  "Scores": [
-    {
-      "Player": "Guest",
-      "PlayerID": "ffffffffffffffff",
-      "Time": {
-        "Date": "2025-03-27",
-        "Time": "21:09:37",
-        "Zone": "America/Los_Angeles"
-      },
-      "Highest": {
-        "Score": 2862,
-        "Turn": 139
-      },
-      "Recent": {
-        "Score": 1429,
-        "Turn": 70
-      }
-    }
-  ],
-  "Games": [
-    {
-      "Player": "Guest",
-      "PlayerID": "ffffffffffffffff",
-      "GameID": "c83df27701fe164d",
-      "EasyMode": false,
-      "Preset": "S",
-      "Version": {
+    "Game": "HappyHex",
+    "Environment": "java",
+    "Generator": "LaunchLogger",
+    "GeneratorID": 5748164,
+    "Version": {
         "Major": 0,
         "Minor": 3,
-        "Patch": 1
-      },
-      "Time": {
-        "Date": "2025-03-27",
-        "Time": "21:09:37",
-        "Zone": "America/Los_Angeles"
-      },
-      "Result": {
-        "Score": 2862,
-        "Turn": 139
-      }
-    }
-  ]
+        "Patch": 2
+    },
+    "Scores": [
+        {
+            "Player": "Guest",
+            "PlayerID": "ffffffffffffffff",
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "22:21:59",
+                "Zone": "America/Los_Angeles"
+            },
+            "Highest": {
+                "Score": 38,
+                "Turn": 4
+            },
+            "Recent": {
+                "Score": 38,
+                "Turn": 4
+            }
+        },
+        {
+            "Player": "Guest",
+            "PlayerID": "ffffffffffffffff",
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "22:26:07",
+                "Zone": "America/Los_Angeles"
+            },
+            "Highest": {
+                "Score": 997,
+                "Turn": 62
+            },
+            "Recent": {
+                "Score": 997,
+                "Turn": 62
+            }
+        }
+    ],
+    "Games": [
+        {
+            "Player": "Guest",
+            "PlayerID": "ffffffffffffffff",
+            "GameID": "ebcef06aa0508066",
+            "EasyMode": false,
+            "Preset": "M",
+            "Version": {
+                "Major": 0,
+                "Minor": 3,
+                "Patch": 2
+            },
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "22:21:59",
+                "Zone": "America/Los_Angeles"
+            },
+            "Result": {
+                "Score": 38,
+                "Turn": 4
+            }
+        },
+        {
+            "Player": "Guest",
+            "PlayerID": "ffffffffffffffff",
+            "GameID": "bf27a0a7d985b575",
+            "EasyMode": true,
+            "Preset": "S",
+            "Version": {
+                "Major": 0,
+                "Minor": 3,
+                "Patch": 2
+            },
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "22:26:07",
+                "Zone": "America/Los_Angeles"
+            },
+            "Result": {
+                "Score": 997,
+                "Turn": 62
+            }
+        }
+    ]
 }

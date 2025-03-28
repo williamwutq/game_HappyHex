@@ -1,3 +1,6 @@
+import Launcher.IO.GameMode;
+import Launcher.LaunchEssentials;
+
 /**
  * Main file of the game
  * Run main
@@ -6,21 +9,6 @@
 
 public class Main{
     public static void main(String[] args){
-        // Scores of Dev and his friends
-        // Dev -size 8 -queue 5 -> turn 860 point 18019
-        // Dev -size 8 -queue 5 -> turn 297 point 5912
-        // Dev -size 5 -queue 3 -> turn 270 point 5824
-        // Dev -size 5 -queue 3 -> turn 220 point 4547
-        // Dev -size 5 -queue 3 -> turn 140 point 2911
-        // Dev -size 5 -queue 3 -> turn 139 point 2862
-        // Dev -size 5 -queue 3 -> turn 135 point 2759
-        // Dev -size 5 -queue 3 -> turn 99 point 2018
-        // Dev -size 5 -queue 3 -> turn 70 point 1429
-        // Dev -size 5 -queue 3 -> turn 66 point 1200
-        // Emily -size 5 -queue 3
-        // Yiguo -size 5 -queue 3 -> turn 130 point 2707
-        // Mate -size 5 -queue 3 -> turn 37 point 590
-
         int size = 2;
         int queueSize = 1;
         int delay = 100;
@@ -99,6 +87,23 @@ public class Main{
         if(preset == -1) {
             GUI.HappyHexGUI.play(size, queueSize, delay, easy);
         } else {
+            if(easy) {
+                if (preset == 1) {
+                    LaunchEssentials.initializeCurrentGame(GameMode.SmallEasy);
+                } else if (preset == 3) {
+                    LaunchEssentials.initializeCurrentGame(GameMode.LargeEasy);
+                } else {
+                    LaunchEssentials.initializeCurrentGame(GameMode.MediumEasy);
+                }
+            } else {
+                if (preset == 1) {
+                    LaunchEssentials.initializeCurrentGame(GameMode.Small);
+                } else if (preset == 3) {
+                    LaunchEssentials.initializeCurrentGame(GameMode.Large);
+                } else {
+                    LaunchEssentials.initializeCurrentGame(GameMode.Medium);
+                }
+            }
             GUI.HappyHexGUI.play(3*preset + 2, 2*preset + 1, delay, easy);
         }
     }

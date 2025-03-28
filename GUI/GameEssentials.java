@@ -171,7 +171,7 @@ public final class GameEssentials {
     }
 
     // Logging at the end
-    private static void logGame(){
+    public static void logGame(){
         // Temporary implementation: Print to console
         System.out.println("---------- Game Over ----------");
         System.out.println("This game lasted for " + GameEssentials.turn + " turns.");

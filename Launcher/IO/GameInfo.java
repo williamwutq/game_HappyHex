@@ -73,7 +73,7 @@ public final class GameInfo implements JsonConvertible{
         builder.add("PlayerID", Long.toHexString(playerID));
         builder.add("GameID", Long.toHexString(gameID));
         builder.add("EasyMode", GameMode.isEasy(gameMode));
-        builder.add("Preset", GameMode.getChar(gameMode));
+        builder.add("Preset", GameMode.getChar(gameMode) + "");
         builder.add("Version", gameVersion.toJsonObject());
         builder.add("Time", time.toJsonObject());
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();
