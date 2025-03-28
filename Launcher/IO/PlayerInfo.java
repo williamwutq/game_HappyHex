@@ -75,7 +75,7 @@ public final class PlayerInfo implements JsonConvertible{
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Player", player);
         builder.add("PlayerID", playerID);
-        // builder.add(time) add time to be implemented
+        builder.add("Time", LaunchLogger.fetchCurrentTimeJson());
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", highScore).add("Turn", highTurn).build();
         builder.add("Highest", scoreElement);
         scoreElement = Json.createObjectBuilder().add("Score", recentScore).add("Turn", recentTurn).build();

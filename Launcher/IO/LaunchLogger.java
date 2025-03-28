@@ -6,7 +6,8 @@ import javax.json.*;
 import javax.json.stream.*;
 import java.io.*;
 import java.nio.file.*;
-import java.time.Instant;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public final class LaunchLogger {
@@ -27,7 +28,6 @@ public final class LaunchLogger {
         long time = Instant.now().toEpochMilli(); // Get current time
         time = obfuscate(time);
         long root = ((long) ID << 32) | (value & 0xFFFFFFFFL);
-        System.out.println(time ^ root);
         return obfuscate(time ^ root);
     }
     public static long obfuscate(long input) {
@@ -42,6 +42,20 @@ public final class LaunchLogger {
     }
     public static int getID(){
         return ID;
+    }
+
+    // Time
+    public static JsonObject fetchCurrentTimeJson(){
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        // Fetch current date, time, and time zone
+        String date = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+        String zone = ZoneId.systemDefault().toString();
+        // Add to JSON
+        builder.add("Date", date);
+        builder.add("Time", time);
+        builder.add("Zone", zone);
+        return builder.build();
     }
 
     // Try to read json log
@@ -159,6 +173,10 @@ public final class LaunchLogger {
 
         // Write scores
         JsonArrayBuilder scoresJsonArray = Json.createArrayBuilder();
+        if(IODebug){
+            PlayerInfo debugTest = new PlayerInfo(139, 2862, 70, 1429);
+            scoresJsonArray.add(debugTest.toJsonObject());
+        }
         for (PlayerInfo info : scores) {
             scoresJsonArray.add(info.toJsonObject());
         }
@@ -166,6 +184,10 @@ public final class LaunchLogger {
 
         // Write games
         JsonArrayBuilder gamesJsonArray = Json.createArrayBuilder();
+        if(IODebug){
+            GameInfo debugTest = new GameInfo(139, 2862, GameMode.Small);
+            gamesJsonArray.add(debugTest.toJsonObject());
+        }
         for (GameInfo info : games) {
             gamesJsonArray.add(info.toJsonObject());
         }

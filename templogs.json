@@ -10,7 +10,40 @@
         "Patch": 2
     },
     "Scores": [
+        {
+            "Player": "Guest",
+            "PlayerID": -1,
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "18:23:44",
+                "Zone": "America/Los_Angeles"
+            },
+            "Highest": {
+                "Score": 2862,
+                "Turn": 139
+            },
+            "Recent": {
+                "Score": 1429,
+                "Turn": 70
+            }
+        }
     ],
     "Games": [
+        {
+            "Player": "Guest",
+            "PlayerID": -1,
+            "GameId": -7472738696230108891,
+            "EasyMode": false,
+            "Preset": "S",
+            "Time": {
+                "Date": "2025-03-27",
+                "Time": "18:23:44",
+                "Zone": "America/Los_Angeles"
+            },
+            "Result": {
+                "Score": 2862,
+                "Turn": 139
+            }
+        }
     ]
 }

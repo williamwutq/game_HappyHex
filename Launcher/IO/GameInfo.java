@@ -84,7 +84,7 @@ public final class GameInfo implements JsonConvertible{
             builder.add("Preset", "L");
         }
         //builder.add(version.toJsonObject()); version to be implemented
-        // builder.add(time) add time to be implemented
+        builder.add("Time", LaunchLogger.fetchCurrentTimeJson());
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();
         builder.add("Result", scoreElement);
         return builder;
