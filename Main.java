@@ -89,7 +89,7 @@ public class Main{
         }
         // Preset is not enabled
         if(preset == -1) {
-            LaunchEssentials.initializeCurrentGame(GameMode.Medium); // Placeholder
+            LaunchEssentials.initializeCurrentGame(GameMode.Unspecified);
             GUI.HappyHexGUI.play(size, queueSize, delay, easy);
             LaunchEssentials.setCurrentPlayer(player, player.hashCode());
         } else {
