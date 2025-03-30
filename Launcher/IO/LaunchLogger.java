@@ -76,7 +76,7 @@ public final class LaunchLogger {
 
         for (String path : possiblePaths) {
             Path filePath = Paths.get(path);
-            if (Files.exists(filePath) && filePath.getParent() != null) {
+            if (Files.exists(filePath)) {
                 try {
                     Files.write(filePath, jsonString.getBytes());
                     System.out.println("JSON data written to " + path + " successfully.");
