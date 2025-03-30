@@ -111,8 +111,14 @@ public final class GameEssentials {
     public static Color whitenColor(Color origin){
         return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
     }
+    public static Color darkenColor(Color origin){
+        return new Color((origin.getRed())/2, (origin.getGreen())/2, (origin.getBlue())/2);
+    }
     public static Color dimColor(Color origin){
         return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * dim));
+    }
+    public static Color interpolate(Color base, Color target, int degree){
+        return new Color((base.getRed()*degree + target.getRed())/(1 + degree),(base.getGreen()*degree + target.getGreen())/(1 + degree),(base.getBlue()*degree + target.getBlue())/(1 + degree));
     }
     /**
      * Paints a hexagon at the origin (0,0) with a specified color and size.
