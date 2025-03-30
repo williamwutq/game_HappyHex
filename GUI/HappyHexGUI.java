@@ -9,10 +9,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class HappyHexGUI{
-    public static void play(int size, int queueSize, int delay) {
-        // Legacy method
-        play(size, queueSize, delay, false);
-    }
     public static void play(int size, int queueSize, int delay, boolean easy) {
         // Frame
         JFrame frame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion);
@@ -33,8 +29,6 @@ public class HappyHexGUI{
                 frame.dispose();
             }
         });
-
-
         // Engine
         if(easy) {
             Piece.setEasy();
@@ -68,10 +62,10 @@ public class HappyHexGUI{
                 super.paintComponent(g);
             }
         };
-        scoreLabel.setForeground(Color.BLACK);
+        scoreLabel.setForeground(GameEssentials.gameDisplayFontColor);
         scoreLabel.setBounds(0, 0, 1, 1);
         scoreLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, 1));
-        turnLabel.setForeground(Color.BLACK);
+        turnLabel.setForeground(GameEssentials.gameDisplayFontColor);
         turnLabel.setBounds(0, 0, 1, 1);
         turnLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, 1));
         gamePanel.add(turnLabel);
