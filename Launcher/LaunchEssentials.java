@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(0, 3, 3);
+    public static final GameVersion currentGameVersion = new GameVersion(0, 4, 0);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
@@ -80,14 +80,19 @@ public final class LaunchEssentials {
     }
 
     public static boolean log(){
-        try{
+        try {
             LaunchLogger.read();
-            updateRecent();
-            updateHighest();
-            LaunchLogger.addGame(currentGameInfo);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+        updateRecent();
+        updateHighest();
+        LaunchLogger.addGame(currentGameInfo);
+        try {
             LaunchLogger.write();
             return true;
         } catch (IOException e) {
+            System.err.println(e.getMessage());
             return false;
         }
     }
