@@ -223,30 +223,19 @@ public final class LaunchLogger {
     }
     public static void addPlayer(PlayerInfo playerInfo){
         if(playerInfo.getPlayerID() != -1 && !playerInfo.getPlayer().equals("Guest")){
-            scores.add(playerInfo);
-        } else for (PlayerInfo info : scores){
-            if(info.getPlayerID() != -1 && !info.getPlayer().equals("Guest")){
-                // Skip guests
-                if(info.getPlayerID() == playerInfo.getPlayerID()){
-                    info.setRecentTurn(playerInfo.getRecentTurn());
-                    info.setRecentScore(playerInfo.getRecentScore());
-                    info.updateHigh();
-                    return;
+            for (PlayerInfo info : scores){
+                if(info.getPlayerID() != -1 && !info.getPlayer().equals("Guest")){
+                    // Skip guests
+                    if(info.getPlayerID() == playerInfo.getPlayerID()) {
+                        info.setRecentTurn(playerInfo.getRecentTurn());
+                        info.setRecentScore(playerInfo.getRecentScore());
+                        info.updateHigh();
+                        return;
+                    }
                 }
             }
         }
         // If not found
         scores.add(playerInfo);
-    }
-
-    // Getters
-
-    public static void main(String[] args){
-        try {
-            read();
-            write();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
