@@ -28,11 +28,10 @@ public class PieceButton extends HexButton {
     }
     protected Color fetchColor() {
         if(isTarget()){
-            return Color.WHITE;
+            return GameEssentials.gamePieceSelectedColor;
         } else if(GameEssentials.getSelectedPieceIndex() == pieceIndex){
             // One in the piece is selected
-            Color color = GameEssentials.queue().get(pieceIndex).getColor();
-            return GameEssentials.whitenColor(color);
+            return GameEssentials.whitenColor(GameEssentials.queue().get(pieceIndex).getColor());
         } else return GameEssentials.queue().get(pieceIndex).getColor();
     }
     protected void clicked() {

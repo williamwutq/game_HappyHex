@@ -39,7 +39,7 @@ public final class GameEssentials {
     public static final String gameTitleFont = "Futuro";
     public static final Color gameBackGroundColor = new Color(213, 236, 230);
     public static final Color gamePiecePanelColor = new Color(113, 129, 122);
-    public static final Color gamePieceHoveredColor = gameBackGroundColor;
+    public static final Color gamePieceSelectedColor = gameBackGroundColor;
     public static final Color gameDisplayFontColor = new Color(5, 34, 24);
 
     /**
