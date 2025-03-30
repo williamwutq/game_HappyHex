@@ -29,7 +29,7 @@ public final class LaunchEssentials {
     public static final Color launchAuthorFontColor = new Color(0, 73, 54);
     public static final Color launchWWFontColor = Color.BLACK;
     public static final Color launchVersionFontColor = Color.BLACK;
-    public static final Color launchStartButtonFontColor = Color.WHITE;
+    public static final Color launchStartButtonFontColor = launchBackgroundColor;
     public static final Color launchStartButtonBackgroundColor = Color.BLACK;
     public static final String launchTitleFont = "Courier";
     public static final String launchVersionFont = "Comic Sans MS";
