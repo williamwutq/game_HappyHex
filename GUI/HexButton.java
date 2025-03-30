@@ -9,7 +9,6 @@ import java.awt.event.*;
 
 abstract class HexButton extends JButton implements ActionListener, MouseListener {
     private static final double extended = 1.1;
-    private static final int alphaHide = 200;
     private static double size;
     private final int index;
     private boolean hover;
@@ -45,7 +44,7 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
             this.setPreferredSize(minDimension);
             this.setBounds(new Rectangle(minDimension));
         } else {
-            int width = (int) Math.round(4 * size * GameEssentials.sinOf60);
+            int width = (int) Math.round(2 * size * GameEssentials.sinOf60);
             int height = (int) Math.round(2 * size);
             Dimension dimension = new Dimension(width, height);
             this.setSize(dimension);
@@ -53,11 +52,11 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
             this.setMaximumSize(dimension);
             this.setPreferredSize(dimension);
             if (hover) {
-                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * GameEssentials.sinOf60) + (1 - extended) * size);
+                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5 * GameEssentials.sinOf60) + (1 - extended) * size);
                 int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75) + (1 - extended) * size);
-                this.setBounds(x, y, (int) Math.round(extended * 4 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
+                this.setBounds(x, y, (int) Math.round(extended * 2 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
             } else {
-                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * GameEssentials.sinOf60));
+                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5 * GameEssentials.sinOf60));
                 int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75));
                 this.setBounds(x, y, width, height);
             }
@@ -93,8 +92,7 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         // Fetch block color
         Color blockColor = fetchColor();
         if (hover) {
-            Color color = new Color(blockColor.getRed(), blockColor.getGreen(), blockColor.getBlue(), alphaHide);
-            GameEssentials.paintHexagon(g, color, (extended - 1) / 2, (extended - 1) / 2, size, extended);
+            GameEssentials.paintHexagon(g, GameEssentials.dimColor(blockColor), (extended - 1) / 2, (extended - 1) / 2, size, extended);
         } else {
             GameEssentials.paintHexagon(g, blockColor, size);
         }

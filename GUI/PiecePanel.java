@@ -9,9 +9,9 @@ import java.awt.*;
 public class PiecePanel extends JPanel{
     public PiecePanel() {
         super();
-        this.setBackground(Color.GRAY);
+        this.setBackground(GameEssentials.gamePiecePanelColor);
         this.setLayout(null); // Use absolute
-        int width = (int) Math.round(10 * HexButton.getActiveSize() * GameEssentials.sinOf60);
+        int width = (int) Math.round(5 * HexButton.getActiveSize() * GameEssentials.sinOf60);
         int height = (int) Math.round(5 * HexButton.getActiveSize());
         this.setPreferredSize(new Dimension(width, height));
         // Construct buttons
@@ -22,7 +22,7 @@ public class PiecePanel extends JPanel{
         }
     }
     public void paint(java.awt.Graphics g) {
-        int width = (int) Math.round(10 * HexButton.getActiveSize() * GameEssentials.sinOf60);
+        int width = (int) Math.round(5 * HexButton.getActiveSize() * GameEssentials.sinOf60);
         int height = (int) Math.round(5 * HexButton.getActiveSize());
         this.setPreferredSize(new Dimension(width, height));
         g.setColor(this.getBackground());

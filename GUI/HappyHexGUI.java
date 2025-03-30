@@ -18,7 +18,7 @@ public class HappyHexGUI{
         JFrame frame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        frame.setBackground(Color.WHITE);
+        frame.setBackground(GameEssentials.gameBackGroundColor);
         frame.setSize(new Dimension(800, 800));
         frame.setMinimumSize(new Dimension(200, 200));
         frame.addWindowListener(new WindowAdapter() {
@@ -52,7 +52,8 @@ public class HappyHexGUI{
             @Override
             public void paint(java.awt.Graphics g){
                 this.setText("SCORE " + GameEssentials.score);
-                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/2)));
+                this.setForeground(GameEssentials.gameDisplayFontColor);
+                this.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, (int)(HexButton.getActiveSize()/2)));
                 this.setBounds(gamePanel.getWidth() - (int)((GameEssentials.engine().getRadius()-0.5) * HexButton.getActiveSize()), 5, (int)((GameEssentials.engine().getRadius()-0.5) * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
                 super.paintComponent(g);
             }
@@ -61,17 +62,18 @@ public class HappyHexGUI{
             @Override
             public void paint(java.awt.Graphics g){
                 this.setText("TURN " + GameEssentials.turn);
-                this.setFont(new Font("Source Code Pro", Font.BOLD, (int)(HexButton.getActiveSize()/2)));
+                this.setForeground(GameEssentials.gameDisplayFontColor);
+                this.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, (int)(HexButton.getActiveSize()/2)));
                 this.setBounds(0, 5, (int)((GameEssentials.engine().getRadius()-0.5) * HexButton.getActiveSize()), (int)(HexButton.getActiveSize()));
                 super.paintComponent(g);
             }
         };
         scoreLabel.setForeground(Color.BLACK);
         scoreLabel.setBounds(0, 0, 1, 1);
-        scoreLabel.setFont(new Font("Source Code Pro", Font.BOLD, 1));
+        scoreLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, 1));
         turnLabel.setForeground(Color.BLACK);
         turnLabel.setBounds(0, 0, 1, 1);
-        turnLabel.setFont(new Font("Source Code Pro", Font.BOLD, 1));
+        turnLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, 1));
         gamePanel.add(turnLabel);
         gamePanel.add(scoreLabel);
         frame.add(gamePanel, BorderLayout.CENTER);

@@ -14,9 +14,11 @@ import java.awt.*;
  */
 public final class GameEssentials {
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
-    public static final double sinOf60 = Math.sqrt(3) / 4;
+    public static final double sinOf60 = Math.sqrt(3) / 2;
     /** A scaling factor used for filling hexagons, ranging between 0.0 and 1.0. */
     private static double fill = 0.9;
+    /** A scaling factor used for dimming color of hovered over blocks, ranging between 0.0 and 1.0. */
+    private static double dim = 0.8;
     /** The delay to a typical action of the game, in ms*/
     private static int actionDelay = 80;
     /** The main game engine object. */
@@ -33,6 +35,13 @@ public final class GameEssentials {
     public static int turn = 0;
     public static int score = 0;
 
+    public static final String gameDisplayFont = "Source Code Pro";
+    public static final String gameTitleFont = "Futuro";
+    public static final Color gameBackGroundColor = new Color(213, 236, 230);
+    public static final Color gamePiecePanelColor = new Color(113, 129, 122);
+    public static final Color gamePieceHoveredColor = gameBackGroundColor;
+    public static final Color gameDisplayFontColor = new Color(5, 34, 24);
+
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
      *
@@ -41,6 +50,16 @@ public final class GameEssentials {
     public static void setFill(double newFill) {
         if (newFill <= 1.0 && newFill > 0.0) {
             fill = newFill;
+        }
+    }
+    /**
+     * Sets the dimming ratio for hovered blocks, ensuring it remains within the valid range (0.0, 1.0].
+     *
+     * @param newDim the new dimming ratio to set; must be between 0.0 (exclusive) and 1.0 (inclusive).
+     */
+    public static void setDim(double newDim) {
+        if (newDim <= 1.0 && newDim > 0.0) {
+            dim = newDim;
         }
     }
     /**
@@ -81,6 +100,12 @@ public final class GameEssentials {
         colors[10] = new Color(180, 0, 180);
         colors[11] = new Color(100, 0, 200);
         return colors[(int) (Math.random() * 12)];
+    }
+    public static Color whitenColor(Color origin){
+        return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
+    }
+    public static Color dimColor(Color origin){
+        return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * dim));
     }
     /**
      * Paints a hexagon at the origin (0,0) with a specified color and size.
@@ -126,7 +151,7 @@ public final class GameEssentials {
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
             double angle = Math.toRadians(60 * i);
-            xPoints[i] = (int) Math.round(size * (x * 2 + sinOf60 * 2 + Math.sin(angle) * fill));
+            xPoints[i] = (int) Math.round(size * (x * 2 + sinOf60 + Math.sin(angle) * fill));
             yPoints[i] = (int) Math.round(size * (y * 2 + 1.0 + Math.cos(angle) * fill));
         }
         // Paint
@@ -141,7 +166,7 @@ public final class GameEssentials {
         // Calculate minimum size
         double horizontalCount = engine().getRadius() * 4 - 2;
         double verticalCount = engine().getRadius() * 3 + 4;
-        double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60 / 2);
+        double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60);
         HexButton.setSize(minSize);
     }
     // End checking
