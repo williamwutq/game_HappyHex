@@ -9,17 +9,20 @@ import java.time.*;
 import java.util.*;
 
 public final class LaunchLogger {
-    // Debug
-    private static final boolean IODebug = false;
-
     // Hashing
     private static final int[] SHIFTS = {31, 37, 41, 27, 23, 29, 33, 43};
     private static final long PRIME = 0x9E4739E97F4A7C15L;
     private static final int ID = (int)obfuscate(PRIME);
 
     // JSON
-    private static ArrayList<PlayerInfo> scores = new ArrayList<PlayerInfo>();
-    private static ArrayList<GameInfo> games = new ArrayList<GameInfo>();
+    private static final ArrayList<PlayerInfo> scores = new ArrayList<PlayerInfo>();
+    private static final ArrayList<GameInfo> games = new ArrayList<GameInfo>();
+    private static final String[] possiblePaths = {
+            "logs.json",
+            "log/logs.json",
+            "Game/logs.json",
+            "Launcher/logs.json"
+    };
 
     // Hashing
     public static long generateHash(int value) {
@@ -43,24 +46,23 @@ public final class LaunchLogger {
     }
 
     // Try to read json log
-    private static String readJsonFile() throws IOException {
-        String[] possiblePaths = {
-                "logs.json",
-                "log/logs.json",
-                "Game/logs.json",
-                "Launcher/logs.json"
-        };
-
+    private static String readJsonFile(){
         for (String path : possiblePaths) {
             File file = new File(path);
             if (file.exists()) {
-                return new String(Files.readAllBytes(file.toPath()));
+                String result;
+                try{
+                    result = new String(Files.readAllBytes(file.toPath()));
+                } catch (IOException e) {
+                    continue;
+                }
+                return result;
             }
         }
-        throw new IOException("No valid logs.json file is found");
+        return null;
     }
 
-    private static void writeJsonToFile(JsonObject jsonObject) throws IOException {
+    public static void writeJsonToFile(JsonObject jsonObject) {
         StringWriter stringWriter = new StringWriter();
         JsonWriterFactory writerFactory = Json.createWriterFactory(
                 Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
@@ -70,9 +72,33 @@ public final class LaunchLogger {
         }
 
         String jsonString = stringWriter.toString();
-        String logsPath = IODebug? "templogs.json" : "logs.json";
-        Files.write(Paths.get(logsPath), jsonString.getBytes());
-        System.out.println("JSON data written to " + logsPath + " successfully.");
+        boolean success = false;
+
+        for (String path : possiblePaths) {
+            Path filePath = Paths.get(path);
+            if (Files.exists(filePath) && filePath.getParent() != null) {
+                try {
+                    Files.write(filePath, jsonString.getBytes());
+                    System.out.println("JSON data written to " + path + " successfully.");
+                    success = true;
+                    break;
+                } catch (IOException e) {
+                    // Continue trying
+                }
+            }
+        }
+
+        if (!success) {
+            String fallbackPath = possiblePaths[0];
+            System.out.println("JSON game log not found, " + fallbackPath + " created successfully.");
+            try {
+                Files.write(Paths.get(fallbackPath), jsonString.getBytes());
+            } catch (IOException e) {
+                System.err.println("JSON data written to " + fallbackPath + " failed.");
+                System.err.println("LaunchLogger: Logging failed");
+            }
+            System.out.println("JSON data written to " + fallbackPath + " successfully.");
+        }
     }
 
     public static void resetLoggerInfo(){
@@ -81,12 +107,7 @@ public final class LaunchLogger {
     }
 
     public static void read() throws IOException {
-        String jsonString;
-        try {
-            jsonString = readJsonFile(); // Read JSON
-        } catch (Exception e) {
-            throw new IOException("Failed to read JSON file", e);
-        }
+        String jsonString = readJsonFile();
         if (jsonString == null) {
             throw new IOException("Failed to read JSON file because it is null");
         }
@@ -176,10 +197,6 @@ public final class LaunchLogger {
 
         // Write scores
         JsonArrayBuilder scoresJsonArray = Json.createArrayBuilder();
-        if(IODebug){
-            PlayerInfo debugTest = new PlayerInfo(139, 2862, 70, 1429);
-            scoresJsonArray.add(debugTest.toJsonObject());
-        }
         for (PlayerInfo info : scores) {
             scoresJsonArray.add(info.toJsonObject());
         }
@@ -187,10 +204,6 @@ public final class LaunchLogger {
 
         // Write games
         JsonArrayBuilder gamesJsonArray = Json.createArrayBuilder();
-        if(IODebug){
-            GameInfo debugTest = new GameInfo(139, 2862, GameMode.Small, new GameVersion(0,3,1));
-            gamesJsonArray.add(debugTest.toJsonObject());
-        }
         for (GameInfo info : games) {
             gamesJsonArray.add(info.toJsonObject());
         }
