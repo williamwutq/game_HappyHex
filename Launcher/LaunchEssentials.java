@@ -3,6 +3,7 @@ package Launcher;
 import GUI.GameEssentials;
 import Launcher.IO.*;
 
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -18,7 +19,30 @@ public final class LaunchEssentials {
     // Game info
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0);
     private static GameInfo currentGameInfo;
+    private static boolean gameStarted = false;
 
+    //GUI
+    // Launcher
+    public static final Color launchBackgroundColor = GameEssentials.gameBackGroundColor;
+    public static final Color launchTitleFontColor = new Color(0, 73, 54);
+    public static final Color launchAuthorFontColor = new Color(0, 73, 54);
+    public static final Color launchStartButtonFontColor = Color.WHITE;
+    public static final Color launchStartButtonBackgroundColor = Color.BLACK;
+    public static final String launchTitleFont = "Courier";
+    public static final String launchVersionFont = "Times New Roman";
+    public static final String launchAuthorFont = "Times New Roman";
+    public static final String launchStartButtonFont = "Times New Roman";
+
+    public static boolean isGameStarted(){
+        return gameStarted;
+    }
+    public static void startGame(){
+        gameStarted = true;
+        // Do game starting
+    }
+    public static void endGame(){
+        gameStarted = false;
+    }
     public static PlayerInfo currentPlayerInfo(){
         return currentPlayerInfo;
     }
@@ -28,6 +52,7 @@ public final class LaunchEssentials {
     }
     public static void initializeCurrentGame(GameMode mode){
         currentGameInfo = new GameInfo(mode);
+        gameStarted = false;
     }
     public static void fetchGameInfo(){
         currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
