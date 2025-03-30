@@ -35,8 +35,23 @@ public final class GameEssentials {
     public static int turn = 0;
     public static int score = 0;
 
+    // Random Piece
+    private static final Color[] pieceColors = {
+        new Color(0, 0, 240),
+        new Color(0, 100, 190),
+        new Color(0, 180, 180),
+        new Color(0, 180, 120),
+        new Color(0, 210, 0),
+        new Color(100, 180, 0),
+        new Color(180, 180, 0),
+        new Color(200, 90, 0),
+        new Color(210, 0, 0),
+        new Color(200, 0, 120),
+        new Color(180, 0, 180),
+        new Color(100, 0, 200),
+    };
+
     public static final String gameDisplayFont = "Source Code Pro";
-    public static final String gameTitleFont = "Futuro";
     public static final Color gameBackGroundColor = new Color(213, 236, 230);
     public static final Color gamePiecePanelColor = new Color(113, 129, 122);
     public static final Color gamePieceSelectedColor = gameBackGroundColor;
@@ -86,20 +101,12 @@ public final class GameEssentials {
      * @return a randomly selected {@code Color} object.
      */
     public static Color generateColor() {
-        Color[] colors = new Color[12];
-        colors[0] = new Color(0, 0, 240);
-        colors[1] = new Color(0, 100, 190);
-        colors[2] = new Color(0, 180, 180);
-        colors[3] = new Color(0, 180, 120);
-        colors[4] = new Color(0, 210, 0);
-        colors[5] = new Color(100, 180, 0);
-        colors[6] = new Color(180, 180, 0);
-        colors[7] = new Color(200, 90, 0);
-        colors[8] = new Color(210, 0, 0);
-        colors[9] = new Color(200, 0, 120);
-        colors[10] = new Color(180, 0, 180);
-        colors[11] = new Color(100, 0, 200);
-        return colors[(int) (Math.random() * 12)];
+        return pieceColors[(int) (Math.random() * 12)];
+    }
+    public static Color getIndexedPieceColor(int index){
+        if(index < 12 && index >= 0){
+            return pieceColors[index];
+        } else return null;
     }
     public static Color whitenColor(Color origin){
         return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
