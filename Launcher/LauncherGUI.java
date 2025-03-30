@@ -3,6 +3,7 @@ package Launcher;
 import GUI.GameEssentials;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class LauncherGUI {
@@ -48,23 +49,24 @@ public class LauncherGUI {
 
         JPanel launchAuthorPanel = new JPanel();
         launchAuthorPanel.setLayout(new BoxLayout(launchAuthorPanel, BoxLayout.X_AXIS));
+        launchAuthorPanel.setBorder(new EmptyBorder(5,5,5,5));
         launchAuthorPanel.setBackground(new Color(0,0,0,0));
-        JLabel launchAuthorLabelA = new JLabel("A ");
+        JLabel launchAuthorLabelA = new JLabel("  A ");
         launchAuthorLabelA.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, 20));
         launchAuthorLabelA.setForeground(LaunchEssentials.launchAuthorFontColor);
         launchAuthorLabelA.setHorizontalAlignment(SwingConstants.LEFT);
         launchAuthorLabelA.setAlignmentY(Component.CENTER_ALIGNMENT);
         JLabel launchAuthorLabelWW = new JLabel("W.W");
-        launchAuthorLabelWW.setFont(new Font(LaunchEssentials.launchWWFont, Font.PLAIN, 24));
+        launchAuthorLabelWW.setFont(new Font(LaunchEssentials.launchWWFont, Font.PLAIN, 28));
         launchAuthorLabelWW.setForeground(LaunchEssentials.launchWWFontColor);
         launchAuthorLabelWW.setHorizontalAlignment(SwingConstants.CENTER);
         launchAuthorLabelWW.setAlignmentY(Component.CENTER_ALIGNMENT);
-        JLabel launchAuthorLabelGame = new JLabel(" Game");
+        JLabel launchAuthorLabelGame = new JLabel(" Game  ");
         launchAuthorLabelGame.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, 20));
         launchAuthorLabelGame.setForeground(LaunchEssentials.launchAuthorFontColor);
         launchAuthorLabelGame.setHorizontalAlignment(SwingConstants.RIGHT);
         launchAuthorLabelGame.setAlignmentY(Component.CENTER_ALIGNMENT);
-        JLabel launchCopyrightLabel = new JLabel("©2025 William Wu");
+        JLabel launchCopyrightLabel = new JLabel("  ©2025 William Wu  ");
         launchCopyrightLabel.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, 20));
         launchCopyrightLabel.setForeground(LaunchEssentials.launchAuthorFontColor);
         launchCopyrightLabel.setHorizontalAlignment(SwingConstants.RIGHT);
