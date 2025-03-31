@@ -7,7 +7,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-abstract class HexButton extends JButton implements ActionListener, MouseListener {
+public abstract class HexButton extends JButton implements ActionListener, MouseListener {
     private static final double extended = 1.1;
     private static double size;
     private final int index;
@@ -113,5 +113,8 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     }
     public final void actionPerformed(ActionEvent e){
         clicked();
+    }
+    public String toString(){
+        return "HexButton[Index = " + index + " , Block = " + fetchBlock().toString() + " , Size = " + size + " , " + (hover ? "Hovered" : "No hover");
     }
 }
