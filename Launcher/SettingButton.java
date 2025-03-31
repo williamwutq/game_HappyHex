@@ -1,5 +1,6 @@
 package Launcher;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class SettingButton extends LaunchButton {
@@ -7,6 +8,11 @@ public class SettingButton extends LaunchButton {
         super("LOG IN");
     }
 
-    public void actionPerformed(ActionEvent e) {
+    protected void clicked() {
+
+    }
+
+    protected Color fetchColor() {
+        return LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }

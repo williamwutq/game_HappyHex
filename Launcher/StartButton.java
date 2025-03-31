@@ -1,13 +1,18 @@
 package Launcher;
 
-import java.awt.event.ActionEvent;
+import java.awt.*;
 
 public class StartButton extends LaunchButton{
     public StartButton() {
         super("START");
     }
 
-    public void actionPerformed(ActionEvent e) {
+    @Override
+    protected void clicked() {
         LaunchEssentials.startGame();
+    }
+
+    protected Color fetchColor() {
+        return LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }

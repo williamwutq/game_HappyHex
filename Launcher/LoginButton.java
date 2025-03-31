@@ -1,12 +1,17 @@
 package Launcher;
 
-import java.awt.event.*;
+import java.awt.*;
 
 public class LoginButton extends LaunchButton{
     public LoginButton() {
         super("LOG IN");
     }
 
-    public void actionPerformed(ActionEvent e) {
+    public void clicked() {
+    }
+
+    @Override
+    protected Color fetchColor() {
+        return LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }
