@@ -12,8 +12,8 @@ public class LauncherGUI {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setBackground(LaunchEssentials.launchBackgroundColor);
-        frame.setSize(new Dimension(1, 1));
-        frame.setMinimumSize(new Dimension(200, 200));
+        frame.setSize(new Dimension(400, 400));
+        frame.setMinimumSize(new Dimension(400, 400));
 
         JPanel launchPanel = new LaunchPanel();
 
