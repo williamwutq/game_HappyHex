@@ -17,7 +17,7 @@ public abstract class LaunchButton extends JButton implements ActionListener {
         this.setOpaque(false);
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
-        this.setBorder(new EmptyBorder(sizeConstant, sizeConstant * 2, sizeConstant, sizeConstant * 2));
+        this.setBorder(new EmptyBorder(sizeConstant * 2, sizeConstant * 3, sizeConstant * 2, sizeConstant * 3));
 
         this.setLayout(null);
         this.setBounds(0,0,this.getWidth(),this.getHeight());
@@ -29,12 +29,12 @@ public abstract class LaunchButton extends JButton implements ActionListener {
         this.addActionListener(this);
     }
     public final void paint(Graphics g) {
-        this.setBorder(new EmptyBorder(sizeConstant, sizeConstant * 2, sizeConstant, sizeConstant * 2));
+        this.setBorder(new EmptyBorder(sizeConstant * 2, sizeConstant * 3, sizeConstant * 2, sizeConstant * 3));
         this.setFont(new Font(LaunchEssentials.launchButtonFont, Font.BOLD, sizeConstant * 5));
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(getBackground());
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), sizeConstant * 6, sizeConstant * 6);
+        g2.fillRoundRect(sizeConstant, sizeConstant, getWidth()-2*sizeConstant, getHeight()-2*sizeConstant, sizeConstant * 6, sizeConstant * 6);
         g2.dispose();
         super.paintComponent(g);
     }
