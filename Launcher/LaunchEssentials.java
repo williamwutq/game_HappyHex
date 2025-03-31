@@ -45,18 +45,15 @@ public final class LaunchEssentials {
     public static void startGame(){
         gameStarted = true;
 
-        // Remove
-        LauncherGUI.mainFrame.getContentPane().removeAll();
-        LauncherGUI.mainFrame.getContentPane().revalidate();
-
+        // Initialization
+        LauncherGUI.removeAllFromFrame();
         LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
         HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+        LaunchEssentials.initializeCurrentGame(GameMode.Unspecified);
 
-        // Add to frame
+        // Add to frame and repaint
         LauncherGUI.mainFrame.add(HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
         LauncherGUI.mainFrame.add(HappyHexGUI.fetchPiecePanel(), BorderLayout.SOUTH);
-
-        // Repaint
         LauncherGUI.mainFrame.repaint();
     }
     public static void endGame(){
@@ -71,7 +68,7 @@ public final class LaunchEssentials {
     }
     public static void initializeCurrentGame(GameMode mode){
         currentGameInfo = new GameInfo(mode);
-        gameStarted = false;
+        gameStarted = true;
     }
     public static void fetchGameInfo(){
         currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
