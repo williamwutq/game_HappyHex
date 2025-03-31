@@ -1,6 +1,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import GUI.HappyHexGUI;
 import Launcher.IO.*;
 
 import java.awt.*;
@@ -43,6 +44,14 @@ public final class LaunchEssentials {
     public static void startGame(){
         gameStarted = true;
         // Do game starting
+        LauncherGUI.removeAllFromFrame();
+        LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
+        HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+//        LauncherGUI.mainFrame.add(HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
+//        LauncherGUI.mainFrame.add(HappyHexGUI.fetchPiecePanel(), BorderLayout.SOUTH);
+        LauncherGUI.mainFrame.add(LauncherGUI.fetchLaunchPanel());
+        LauncherGUI.mainFrame.validate();
+        LauncherGUI.mainFrame.repaint();
     }
     public static void endGame(){
         gameStarted = false;
