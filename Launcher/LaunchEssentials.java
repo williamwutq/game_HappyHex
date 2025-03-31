@@ -4,7 +4,6 @@ import GUI.GameEssentials;
 import GUI.HappyHexGUI;
 import Launcher.IO.*;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
@@ -62,7 +61,7 @@ public final class LaunchEssentials {
     public static PlayerInfo currentPlayerInfo(){
         return currentPlayerInfo;
     }
-    public static void setCurrentPlayer(String currentPlayer, long currentPlayerID) {
+    public static void setCurrentPlayer(Username currentPlayer, long currentPlayerID) {
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
     }

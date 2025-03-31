@@ -1,4 +1,5 @@
 import Launcher.IO.GameMode;
+import Launcher.IO.Username;
 import Launcher.LaunchEssentials;
 
 /**
@@ -87,11 +88,16 @@ public class Main{
             }
             else i++;
         }
+        Launcher.IO.Username username;
+        username = Username.getUsername(player);
+        if(username == null){
+            username = Username.getUsername("Guest");
+        }
         // Preset is not enabled
         if(preset == -1) {
             LaunchEssentials.initializeCurrentGame(GameMode.Unspecified);
             GUI.HappyHexGUI.play(size, queueSize, delay, easy);
-            LaunchEssentials.setCurrentPlayer(player, player.hashCode());
+            LaunchEssentials.setCurrentPlayer(username, username.toHash());
         } else {
             if(easy) {
                 if (preset == 1) {
@@ -110,7 +116,7 @@ public class Main{
                     LaunchEssentials.initializeCurrentGame(GameMode.Medium);
                 }
             }
-            LaunchEssentials.setCurrentPlayer(player, player.hashCode());
+            LaunchEssentials.setCurrentPlayer(username, username.toHash());
             GUI.HappyHexGUI.play(3*preset + 2, 2*preset + 1, delay, easy);
         }
     }
