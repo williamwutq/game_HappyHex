@@ -145,7 +145,7 @@ public final class LaunchLogger {
                                 score.getJsonObject("Time").getString("Zone")
                         ),
                         score.getString("PlayerID"),
-                        score.getString("Player")
+                        Username.getUsername(score.getString("Player"))
                 );
                 scores.add(info);
             }
@@ -162,7 +162,7 @@ public final class LaunchLogger {
                         gameObj.getJsonObject("Result").getInt("Turn"),
                         gameObj.getJsonObject("Result").getInt("Score"),
                         gameObj.getString("PlayerID"),
-                        gameObj.getString("Player"),
+                        Username.getUsername(gameObj.getString("Player")),
                         new GameTime(
                                 gameObj.getJsonObject("Time").getString("Date"),
                                 gameObj.getJsonObject("Time").getString("Time"),

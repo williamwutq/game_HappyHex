@@ -3,7 +3,7 @@ package Launcher.IO;
 import javax.json.*;
 
 public final class PlayerInfo implements JsonConvertible{
-    private String player;
+    private Username player;
     private int highTurn;
     private int highScore;
     private int recentTurn;
@@ -17,7 +17,7 @@ public final class PlayerInfo implements JsonConvertible{
         this.recentTurn = 0;
         this.recentScore = 0;
         this.playerID = -1;
-        this.player = "Guest";
+        this.player = Username.getUsername("Guest");
         this.time = new GameTime();
     }
     public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore){
@@ -26,10 +26,10 @@ public final class PlayerInfo implements JsonConvertible{
         this.recentTurn = recentTurn;
         this.recentScore = recentScore;
         this.playerID = -1;
-        this.player = "Guest";
+        this.player = Username.getUsername("Guest");
         this.time = new GameTime();
     }
-    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, long playerID, String player){
+    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, long playerID, Username player){
         this.setPlayer(player, playerID);
         this.highTurn = highTurn;
         this.highScore = highScore;
@@ -37,7 +37,7 @@ public final class PlayerInfo implements JsonConvertible{
         this.recentScore = recentScore;
         this.time = new GameTime();
     }
-    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, GameTime time, String playerID, String player){
+    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, GameTime time, String playerID, Username player){
         long ID = Long.parseUnsignedLong(playerID, 16);
         this.setPlayer(player, ID);
         this.highTurn = highTurn;
@@ -47,12 +47,12 @@ public final class PlayerInfo implements JsonConvertible{
         this.time = time;
     }
 
-    public String getPlayer() {return player;}
+    public Username getPlayer() {return player;}
     public long getPlayerID(){return playerID;}
 
-    public void setPlayer(String player, long ID) {
+    public void setPlayer(Username player, long ID) {
         if(player == null || player.equals("") || player.equals("Guest") || ID == 0 || ID == -1){
-            this.player = "Guest";
+            this.player = Username.getUsername("Guest");
             this.playerID = -1;
         } else {
             this.player = player;
@@ -87,7 +87,7 @@ public final class PlayerInfo implements JsonConvertible{
     @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("Player", player);
+        builder.add("Player", player.toString());
         builder.add("PlayerID", Long.toHexString(playerID));
         builder.add("Time", time.toJsonObject());
         JsonObject scoreElement = Json.createObjectBuilder().add("Score", highScore).add("Turn", highTurn).build();

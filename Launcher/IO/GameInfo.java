@@ -5,7 +5,7 @@ import Launcher.LaunchEssentials;
 import javax.json.*;
 
 public final class GameInfo implements JsonConvertible{
-    private String player;
+    private Username player;
     private int turn;
     private int score;
     private long playerID;
@@ -18,7 +18,7 @@ public final class GameInfo implements JsonConvertible{
         this.turn = 0;
         this.score = 0;
         this.playerID = -1;
-        this.player = "Guest";
+        this.player = Username.getUsername("Guest");
         this.time = new GameTime();
         this.gameID = LaunchLogger.generateHash(0);
         this.gameMode = mode;
@@ -28,13 +28,13 @@ public final class GameInfo implements JsonConvertible{
         this.turn = turn;
         this.score = score;
         this.playerID = -1;
-        this.player = "Guest";
+        this.player = Username.getUsername("Guest");
         this.time = new GameTime();
         this.gameID = LaunchLogger.generateHash(~(turn * score));
         this.gameMode = mode;
         this.gameVersion = version;
     }
-    public GameInfo(int turn, int score, String playerID, String player, GameTime time, String gameID, GameMode mode, GameVersion version){
+    public GameInfo(int turn, int score, String playerID, Username player, GameTime time, String gameID, GameMode mode, GameVersion version){
         long ID = Long.parseUnsignedLong(playerID, 16);
         this.setPlayer(player, ID);
         this.turn = turn;
@@ -45,14 +45,14 @@ public final class GameInfo implements JsonConvertible{
         this.gameVersion = version;
     }
 
-    public String getPlayer() {return player;}
+    public Username getPlayer() {return player;}
     public long getPlayerID(){return playerID;}
     public long getGameID(){return gameID;}
     public GameMode getGameMode(){return gameMode;}
 
-    public void setPlayer(String player, long ID) {
+    public void setPlayer(Username player, long ID) {
         if(player == null || player.equals("") || player.equals("Guest") || ID == 0 || ID == -1){
-            this.player = "Guest";
+            this.player = Username.getUsername("Guest");
             this.playerID = -1;
         } else {
             this.player = player;
@@ -69,7 +69,7 @@ public final class GameInfo implements JsonConvertible{
     @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("Player", player);
+        builder.add("Player", player.toString());
         builder.add("PlayerID", Long.toHexString(playerID));
         builder.add("GameID", Long.toHexString(gameID));
         builder.add("EasyMode", GameMode.isEasy(gameMode));
