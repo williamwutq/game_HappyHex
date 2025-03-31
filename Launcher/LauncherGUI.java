@@ -3,10 +3,8 @@ package Launcher;
 import GUI.GameEssentials;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 public class LauncherGUI {
     public static JFrame mainFrame;
@@ -42,8 +40,9 @@ public class LauncherGUI {
         });
     }
     public static void removeAllFromFrame(){
-        mainFrame.removeAll();
+        mainFrame.getContentPane().removeAll();
         mainFrame.setLayout(new BorderLayout());
+        mainFrame.getContentPane().revalidate();
     }
     public static void setBackgroundColor(Color color){
         mainFrame.setBackground(color);
