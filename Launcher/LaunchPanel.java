@@ -85,7 +85,7 @@ public class LaunchPanel extends JPanel implements ComponentListener {
         launchAuthorPanel.add(Box.createHorizontalGlue());
         launchAuthorPanel.add(launchCopyrightLabel);
 
-        launchButton = new LaunchButton();
+        launchButton = new StartButton();
 
         this.add(Box.createVerticalGlue());
         this.add(launchButton);

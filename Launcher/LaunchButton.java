@@ -7,10 +7,10 @@ import javax.swing.border.*;
 import java.awt.event.*;
 
 public class LaunchButton extends JButton implements ActionListener {
-    private int sizeConstant = 6;
-    public LaunchButton(){
+    private static int sizeConstant = 6;
+    public LaunchButton(String text){
         super();
-        this.setText("START");
+        this.setText(text);
         this.setForeground(LaunchEssentials.launchStartButtonFontColor);
         this.setBackground(LaunchEssentials.launchStartButtonBackgroundColor);
         this.setOpaque(false);
@@ -28,6 +28,8 @@ public class LaunchButton extends JButton implements ActionListener {
         this.addActionListener(this);
     }
     public void paint(Graphics g) {
+        this.setBorder(new EmptyBorder(sizeConstant, sizeConstant * 2, sizeConstant, sizeConstant * 2));
+        this.setFont(new Font(LaunchEssentials.launchStartButtonFont, Font.BOLD, sizeConstant * 5));
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(getBackground());
@@ -35,13 +37,9 @@ public class LaunchButton extends JButton implements ActionListener {
         g2.dispose();
         super.paintComponent(g);
     }
-    public void setSizeConstant(int size){
-        this.sizeConstant = size;
-        this.setBorder(new EmptyBorder(sizeConstant, sizeConstant * 2, sizeConstant, sizeConstant * 2));
-        this.setFont(new Font(LaunchEssentials.launchStartButtonFont, Font.BOLD, sizeConstant * 5));
-        this.repaint();
+    public static void setSizeConstant(int size){
+        sizeConstant = size;
     }
     public void actionPerformed(ActionEvent e) {
-        LaunchEssentials.startGame();
     }
 }
