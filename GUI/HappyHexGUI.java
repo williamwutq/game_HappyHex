@@ -3,7 +3,6 @@ package GUI;
 import Hex.HexEngine;
 import Hex.Piece;
 import Hex.Queue;
-import Launcher.LauncherGUI;
 
 import javax.swing.*;
 import java.awt.*;

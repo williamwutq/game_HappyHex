@@ -4,11 +4,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Username {
+public final class Username {
     private char[] arr = new char[24];
     private int actualLength;
     private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
-            "player", "default", "dev", "guest", "host", "user", "harmony", "game", "gamer"
+            "player", "default", "dev", "guest", "host", "user", "harmony", "game", "gamer",
+            "happyhex", "hex", "name"
     ));
 
     public Username(String string) throws IllegalArgumentException {
