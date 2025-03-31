@@ -57,6 +57,16 @@ public class Username {
         return new String(arr, 0, actualLength);
     }
 
+    public boolean equals(Username other) {
+        if (other == null) return false;
+        return this.toString().equals(other.toString());
+    }
+
+    public boolean equals(String str) {
+        if (str == null) return false;
+        return this.toString().equals(str);
+    }
+
     private static boolean isValidFormat(char[] characters) {
         if (characters.length < 3 || characters.length > 24) return false;
         if (characters[0] == '-' || characters[0] == '_' || characters[0] == ' ' ||
