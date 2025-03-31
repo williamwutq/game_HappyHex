@@ -17,7 +17,7 @@ public class LaunchPanel extends JPanel implements ComponentListener {
     private final JLabel launchAuthorLabelWW;
     private final JLabel launchAuthorLabelGame;
     private final JLabel launchCopyrightLabel;
-    private final LaunchButton launchButton;
+    private final LaunchButton startButton;
 
     public LaunchPanel(){
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -85,10 +85,13 @@ public class LaunchPanel extends JPanel implements ComponentListener {
         launchAuthorPanel.add(Box.createHorizontalGlue());
         launchAuthorPanel.add(launchCopyrightLabel);
 
-        launchButton = new StartButton();
+        LaunchButton.setSizeConstant(6);
+        LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
+        startButton = new StartButton();
+        System.out.println(startButton);
 
         this.add(Box.createVerticalGlue());
-        this.add(launchButton);
+        this.add(startButton);
         this.add(Box.createVerticalGlue());
         this.add(launchAuthorPanel);
         this.addComponentListener(this);
@@ -105,7 +108,7 @@ public class LaunchPanel extends JPanel implements ComponentListener {
         launchVersionLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/150.0)*2, 0, (int)Math.round(referenceGameNameSize/150.0), 0));
 
         double referenceStartButtonSize = Math.min(referenceHeight, referenceWidth);
-        launchButton.setSizeConstant((int)Math.round(referenceStartButtonSize*0.0125));
+        LaunchButton.setSizeConstant((int)Math.round(referenceStartButtonSize*0.0125));
 
         double referenceLaunchAuthorSize = Math.min(referenceHeight, referenceWidth*2.25);
         int referenceLaunchAuthorPanelBorderSize = (int)Math.round(referenceLaunchAuthorSize / 160.0);

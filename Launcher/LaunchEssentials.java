@@ -30,13 +30,12 @@ public final class LaunchEssentials {
     public static final Color launchAuthorFontColor = new Color(0, 73, 54);
     public static final Color launchWWFontColor = Color.BLACK;
     public static final Color launchVersionFontColor = Color.BLACK;
-    public static final Color launchStartButtonFontColor = launchBackgroundColor;
     public static final Color launchStartButtonBackgroundColor = Color.BLACK;
     public static final String launchTitleFont = "Courier";
     public static final String launchVersionFont = "Comic Sans MS";
     public static final String launchAuthorFont = "Helvetica";
     public static final String launchWWFont = "Georgia";
-    public static final String launchStartButtonFont = "Times New Roman";
+    public static final String launchButtonFont = "Times New Roman";
 
     public static boolean isGameStarted(){
         return gameStarted;
