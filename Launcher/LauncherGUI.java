@@ -29,11 +29,13 @@ public class LauncherGUI {
         mainFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 // Custom code to execute when the window is closing
-                // Log if it has score and reset
-                if(GameEssentials.turn != 0) {
-                    GameEssentials.logGame();
+                if(LaunchEssentials.isGameStarted()) {
+                    // Log if it has score and reset
+                    if (GameEssentials.turn != 0) {
+                        GameEssentials.logGame();
+                    }
+                    GameEssentials.resetGame();
                 }
-                GameEssentials.resetGame();
                 // Close
                 mainFrame.dispose();
             }
