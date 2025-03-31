@@ -3,6 +3,7 @@ package GUI;
 import Hex.HexEngine;
 import Hex.Piece;
 import Hex.Queue;
+import Launcher.LauncherGUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +17,7 @@ public class HappyHexGUI{
         frame.setLayout(new BorderLayout());
         frame.setBackground(GameEssentials.gameBackGroundColor);
         frame.setSize(new Dimension(800, 800));
-        frame.setMinimumSize(new Dimension(200, 200));
+        frame.setMinimumSize(new Dimension(400, 400));
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 // Custom code to execute when the window is closing
@@ -29,7 +30,13 @@ public class HappyHexGUI{
                 frame.dispose();
             }
         });
-        // Engine
+        initialize(size, queueSize, delay, easy, frame);
+        frame.add(fetchGamePanel(), BorderLayout.CENTER);
+        frame.add(fetchPiecePanel(), BorderLayout.SOUTH);
+        frame.setVisible(true);
+        frame.repaint();
+    }
+    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame){
         if(easy) {
             Piece.setEasy();
         }
@@ -40,8 +47,9 @@ public class HappyHexGUI{
         GameEssentials.setWindow(frame);
         GameEssentials.setDelay(delay);
         GameEssentials.calculateButtonSize();
+    }
+    public static JPanel fetchGamePanel(){
         GamePanel gamePanel = new GamePanel();
-        PiecePanel piecePanel = new PiecePanel();
         JLabel scoreLabel = new JLabel("SCORE 0", SwingConstants.CENTER){
             @Override
             public void paint(java.awt.Graphics g){
@@ -70,9 +78,9 @@ public class HappyHexGUI{
         turnLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, 1));
         gamePanel.add(turnLabel);
         gamePanel.add(scoreLabel);
-        frame.add(gamePanel, BorderLayout.CENTER);
-        frame.add(piecePanel, BorderLayout.SOUTH);
-        frame.setVisible(true);
-        frame.repaint();
+        return gamePanel;
+    }
+    public static JPanel fetchPiecePanel(){
+        return new PiecePanel();
     }
 }
