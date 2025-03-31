@@ -61,4 +61,11 @@ public class Queue{
     public int length() {
         return pieces.length;
     }
+    public String toString(){
+        StringBuilder result = new StringBuilder("Queue[");
+        for (int i = 0; i < length(); i ++){
+            result.append(pieces[i].toString());
+        }
+        return result + "]";
+    }
 }
