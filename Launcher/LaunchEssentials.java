@@ -4,6 +4,7 @@ import GUI.GameEssentials;
 import GUI.HappyHexGUI;
 import Launcher.IO.*;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
@@ -44,12 +45,25 @@ public final class LaunchEssentials {
     public static void startGame(){
         gameStarted = true;
         // Do game starting
-        LauncherGUI.removeAllFromFrame();
+        LauncherGUI.mainFrame.remove(0);
+        LauncherGUI.mainFrame.revalidate();
+        LauncherGUI.mainFrame.repaint();
         LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
         HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
-//        LauncherGUI.mainFrame.add(HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
-//        LauncherGUI.mainFrame.add(HappyHexGUI.fetchPiecePanel(), BorderLayout.SOUTH);
-        LauncherGUI.mainFrame.add(LauncherGUI.fetchLaunchPanel());
+        JPanel gamePanel = HappyHexGUI.fetchGamePanel();
+        gamePanel.setVisible(true);
+        gamePanel.revalidate();
+        JPanel piecePanel = HappyHexGUI.fetchPiecePanel();
+        piecePanel.setVisible(true);
+        piecePanel.revalidate();
+        LauncherGUI.mainFrame.add(gamePanel, BorderLayout.CENTER);
+        LauncherGUI.mainFrame.add(piecePanel, BorderLayout.SOUTH);
+        LauncherGUI.mainFrame.validate();
+        System.out.println(LauncherGUI.mainFrame);
+        System.out.println("Main frame components:");
+        for (Component c : LauncherGUI.mainFrame.getContentPane().getComponents()) {
+            System.out.println(c.toString());
+        }
         LauncherGUI.mainFrame.validate();
         LauncherGUI.mainFrame.repaint();
     }
