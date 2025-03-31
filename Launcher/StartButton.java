@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class StartButton extends LaunchButton{
     public StartButton() {
-        super("START");
+        super(" START ");
     }
 
     @Override

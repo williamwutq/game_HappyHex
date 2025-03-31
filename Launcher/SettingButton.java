@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 
 public class SettingButton extends LaunchButton {
     public SettingButton() {
-        super("LOG IN");
+        super("SETTING");
     }
 
     protected void clicked() {

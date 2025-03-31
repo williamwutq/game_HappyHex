@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class LoginButton extends LaunchButton{
     public LoginButton() {
-        super("LOG IN");
+        super("LOG  IN");
     }
 
     public void clicked() {
