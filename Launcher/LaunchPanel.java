@@ -23,7 +23,6 @@ public class LaunchPanel extends UniversalPanel {
         JComponent[] components = {fetchLaunchVersionLabel(), (JComponent) Box.createVerticalGlue(), new LoginButton(), new SettingButton(), new StartButton(), (JComponent) Box.createVerticalGlue()};
         return components;
     }
-
     protected JComponent[] fetchHeader() {
         return new JComponent[]{(JComponent) Box.createVerticalGlue()};
     }
@@ -41,6 +40,8 @@ public class LaunchPanel extends UniversalPanel {
 
     public void recalculate(){
         super.recalculate();
+        double referenceStartButtonSize = Math.min(getReferenceHeight(), getReferenceWidth());
+        LaunchButton.setSizeConstant((int) Math.round(referenceStartButtonSize * 0.0100));
         double referenceGameNameSize = Math.min(getReferenceHeight()*2.5, getReferenceWidth());
         launchVersionLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.ITALIC, (int)Math.round(referenceGameNameSize/24.0)));
         launchVersionLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/150.0)*2, 0, (int)Math.round(referenceGameNameSize/150.0), 0));

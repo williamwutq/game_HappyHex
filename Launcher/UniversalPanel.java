@@ -96,8 +96,6 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
         for (JLabel label : gameNameLabels) {
             label.setFont(new Font(LaunchEssentials.launchTitleFont, Font.BOLD, (int) Math.round(referenceGameNameSize / 10)));
         }
-        double referenceStartButtonSize = Math.min(getReferenceHeight(), getReferenceWidth());
-        LaunchButton.setSizeConstant((int) Math.round(referenceStartButtonSize * 0.0100));
         double referenceLaunchAuthorSize = Math.min(getReferenceHeight(), getReferenceWidth() * 2.25);
         int borderSize = (int) Math.round(referenceLaunchAuthorSize / 160.0);
         launchAuthorPanel.setBorder(new EmptyBorder(borderSize, borderSize, borderSize, borderSize));
