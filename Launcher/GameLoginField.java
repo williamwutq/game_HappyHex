@@ -4,14 +4,32 @@ import Launcher.IO.Username;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class GameLoginField extends JTextField implements ActionListener {
+public class GameLoginField extends JTextField implements ActionListener{
     public GameLoginField(){
-        super(Username.MAX_LENGTH);
-        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(12,6,12,6)));
-        Dimension dimension = new Dimension(100,100);
+        super("ENTER YOUR USERNAME HERE", Username.MAX_LENGTH);
+        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(6,0,6,0)));
+        Dimension dimension = new Dimension(300,50);
+
+        // Limit length
+        ((AbstractDocument) this.getDocument()).setDocumentFilter(new DocumentFilter() {
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string == null) return;
+                if ((fb.getDocument().getLength() + string.length()) <= Username.MAX_LENGTH) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text == null) return;
+                if ((fb.getDocument().getLength() - length + text.length()) <= Username.MAX_LENGTH) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
         this.setMaximumSize(dimension);
         this.setMinimumSize(dimension);
         this.setPreferredSize(dimension);
@@ -22,8 +40,8 @@ public class GameLoginField extends JTextField implements ActionListener {
     }
 
     public void setDimension(int size){
-        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(size * 2, size,size *2 , size)));
-        Dimension dimension = new Dimension(size * Username.MAX_LENGTH + size * 2, size * 6);
+        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(size, 0, size, 0)));
+        Dimension dimension = new Dimension(size * Username.MAX_LENGTH - size * 6, size * 3);
         this.setMaximumSize(dimension);
         this.setMinimumSize(dimension);
         this.setPreferredSize(dimension);
