@@ -19,6 +19,12 @@ public class LauncherGUI {
     public static JPanel fetchLaunchPanel(){
         return new LaunchPanel();
     }
+    public static JPanel fetchLoginPanel(){
+        return new LoginPanel();
+    }
+    public static JPanel fetchSettingPanel(){
+        return new SettingPanel();
+    }
     private static void setupMainFrame(){
         mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion);
         mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
