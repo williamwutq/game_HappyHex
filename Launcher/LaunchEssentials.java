@@ -93,11 +93,11 @@ public final class LaunchEssentials {
     }
     public static void initialize(GameMode mode){
         currentGameInfo = new GameInfo(mode);
-        gameStarted = true;
+        gameStarted = false;
     }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Unspecified);
-        gameStarted = true;
+        gameStarted = false;
     }
     public static void fetchGameInfo(){
         currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
