@@ -21,12 +21,18 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBackground(LaunchEssentials.launchBackgroundColor);
         gameNameLabelPanel = fetchGameNameLabelPanel();
-        this.add(fetchHeaderPanel());
+        JPanel headerPanel = fetchHeaderPanel();
+        if(headerPanel != null) {
+            this.add(headerPanel);
+        }
         this.add(gameNameLabelPanel);
 
         launchAuthorPanel = fetchLaunchAuthorPanel();
         this.add(Box.createVerticalGlue());
-        this.add(fetchContentPanel());
+        JPanel contentPanel = fetchContentPanel();
+        if(contentPanel != null) {
+            this.add(contentPanel);
+        }
         this.add(Box.createVerticalGlue());
         this.add(launchAuthorPanel);
         this.addComponentListener(this);
