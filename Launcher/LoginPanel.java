@@ -7,7 +7,8 @@ import java.awt.*;
 public class LoginPanel extends UniversalPanel {
     private JLabel launchEnterTextPrompt;
     private JLabel[] launchEnterTextRequirements;
-    private GameLoginField textField;
+    private GameLoginField launchEnterTextField;
+    private JPanel launchEnterTextPanel;
     public LoginPanel(){
         super();
     }
@@ -43,19 +44,32 @@ public class LoginPanel extends UniversalPanel {
         launchEnterTextRequirements[0].setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 20));
 
         // Text field
-        textField = new GameLoginField();
-        textField.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 20));
+        launchEnterTextPanel = new JPanel();
+        launchEnterTextPanel.setLayout(new BoxLayout(launchEnterTextPanel, BoxLayout.X_AXIS));
+        launchEnterTextPanel.setBackground(this.getBackground());
+        launchEnterTextField = new GameLoginField();
+        launchEnterTextField.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 20));
+        launchEnterTextPanel.add(Box.createHorizontalGlue());
+        launchEnterTextPanel.add(new QuitButton());
+        launchEnterTextPanel.add(Box.createHorizontalGlue());
+        launchEnterTextPanel.add(launchEnterTextField);
+        launchEnterTextPanel.add(Box.createHorizontalGlue());
+        launchEnterTextPanel.add(new ConfirmButton());
+        launchEnterTextPanel.add(Box.createHorizontalGlue());
         return new JComponent[]{(JComponent) Box.createVerticalGlue(), launchEnterTextPrompt, launchEnterTextRequirements[0],
                 launchEnterTextRequirements[1], launchEnterTextRequirements[2], launchEnterTextRequirements[3],
                 launchEnterTextRequirements[4], launchEnterTextRequirements[5], launchEnterTextRequirements[6],
-                (JComponent) Box.createVerticalGlue(), textField, (JComponent) Box.createVerticalGlue()};
+                (JComponent) Box.createVerticalGlue(), launchEnterTextPanel, (JComponent) Box.createVerticalGlue()};
     }
     protected JComponent[] fetchHeader() {
         return null;
     }
     public void recalculate(){
         super.recalculate();
+
         double referenceEnterTextSize = Math.min(getReferenceHeight()*2, getReferenceWidth());
+        LaunchButton.setSizeConstant((int) Math.round(referenceEnterTextSize/144.0));
+
         launchEnterTextPrompt.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.ITALIC, (int)Math.round(referenceEnterTextSize/24.0)));
         launchEnterTextPrompt.setBorder(new EmptyBorder((int)Math.round(referenceEnterTextSize/150.0)*2, 0, (int)Math.round(referenceEnterTextSize/150.0), 0));
 
@@ -64,7 +78,7 @@ public class LoginPanel extends UniversalPanel {
             launchEnterTextRequirements[i].setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.PLAIN, (int)Math.round(referenceEnterTextSize/48.0)));
         }
 
-        textField.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, (int)Math.round(referenceEnterTextSize/48.0)));
-        textField.setDimension((int)Math.round(referenceEnterTextSize/48.0));
+        launchEnterTextField.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, (int)Math.round(referenceEnterTextSize/48.0)));
+        launchEnterTextField.setDimension((int)Math.round(referenceEnterTextSize/48.0));
     }
 }

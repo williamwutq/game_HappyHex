@@ -30,6 +30,8 @@ public final class LaunchEssentials {
     public static final Color launchWWFontColor = Color.BLACK;
     public static final Color launchVersionFontColor = Color.BLACK;
     public static final Color launchStartButtonBackgroundColor = Color.BLACK;
+    public static final Color launchQuitButtonBackgroundColor = Color.RED;
+    public static final Color launchConfirmButtonBackgroundColor = new Color(0, 223, 39);
     public static final String launchTitleFont = "Courier";
     public static final String launchVersionFont = "Comic Sans MS";
     public static final String launchAuthorFont = "Helvetica";
