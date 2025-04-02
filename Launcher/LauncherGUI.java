@@ -1,6 +1,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import Launcher.panel.*;
 
 import javax.swing.*;
 import java.awt.*;

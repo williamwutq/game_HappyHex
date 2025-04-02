@@ -1,8 +1,10 @@
-package Launcher;
+package Launcher.interactive;
+
+import Launcher.LaunchEssentials;
 
 import java.awt.*;
 
-public class LoginButton extends LaunchButton{
+public class LoginButton extends LaunchButton {
     public LoginButton() {
         super("LOG  IN");
     }

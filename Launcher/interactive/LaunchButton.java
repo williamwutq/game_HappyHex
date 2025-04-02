@@ -1,4 +1,6 @@
-package Launcher;
+package Launcher.interactive;
+
+import Launcher.LaunchEssentials;
 
 import java.awt.*;
 import javax.swing.*;

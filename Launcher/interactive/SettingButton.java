@@ -1,7 +1,8 @@
-package Launcher;
+package Launcher.interactive;
+
+import Launcher.LaunchEssentials;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 
 public class SettingButton extends LaunchButton {
     public SettingButton() {

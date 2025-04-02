@@ -1,8 +1,10 @@
-package Launcher;
+package Launcher.interactive;
+
+import Launcher.LaunchEssentials;
 
 import java.awt.*;
 
-public class QuitButton extends LaunchButton{
+public class QuitButton extends LaunchButton {
     public QuitButton() {
         super(" QUIT ");
     }

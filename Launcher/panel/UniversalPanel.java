@@ -1,6 +1,7 @@
-package Launcher;
+package Launcher.panel;
 
 import GUI.GameEssentials;
+import Launcher.LaunchEssentials;
 
 import javax.swing.*;
 import javax.swing.border.*;

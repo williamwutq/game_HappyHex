@@ -1,4 +1,7 @@
-package Launcher;
+package Launcher.panel;
+
+import Launcher.LaunchEssentials;
+import Launcher.interactive.*;
 
 import javax.swing.*;
 import javax.swing.border.*;

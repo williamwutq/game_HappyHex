@@ -1,8 +1,10 @@
-package Launcher;
+package Launcher.interactive;
+
+import Launcher.LaunchEssentials;
 
 import java.awt.*;
 
-public class ConfirmButton extends LaunchButton{
+public class ConfirmButton extends LaunchButton {
     public ConfirmButton() {
         super("ENTER");
     }

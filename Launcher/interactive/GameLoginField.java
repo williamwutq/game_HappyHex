@@ -1,4 +1,4 @@
-package Launcher;
+package Launcher.interactive;
 
 import Launcher.IO.Username;
 
