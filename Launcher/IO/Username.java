@@ -5,7 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class Username {
-    private char[] arr = new char[24];
+    public static final int MAX_LENGTH = 24;
+    public static final int MIN_LENGTH = 3;
+    private char[] arr = new char[MAX_LENGTH];
     private int actualLength;
     private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
             "player", "default", "dev", "guest", "host", "user", "harmony", "game", "gamer",
@@ -69,7 +71,7 @@ public final class Username {
     }
 
     private static boolean isValidFormat(char[] characters) {
-        if (characters.length < 3 || characters.length > 24) return false;
+        if (characters.length < MIN_LENGTH || characters.length > MAX_LENGTH) return false;
         if (characters[0] == '-' || characters[0] == '_' || characters[0] == ' ' ||
                 characters[characters.length - 1] == '-' || characters[characters.length - 1] == '_' || characters[characters.length - 1] == ' ') {
             return false;
