@@ -11,10 +11,10 @@ public class LoginPanel extends UniversalPanel {
     public LoginPanel(){
         super();
     }
-    protected JPanel fetchContentPanel() {
-        return null;
+    protected JComponent[] fetchContent() {
+        return new JComponent[]{(JComponent) Box.createVerticalGlue()};
     }
-    protected JPanel fetchHeaderPanel() {
+    protected JComponent[] fetchHeader() {
         return null;
     }
 }
