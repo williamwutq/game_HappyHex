@@ -39,8 +39,8 @@ public class GameLoginField extends JTextField implements ActionListener{
     }
 
     public void setDimension(int size){
-        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(size, 0, size, 0)));
-        Dimension dimension = new Dimension(size * Username.MAX_LENGTH - size * 2, size * 3);
+        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(size, size*2, size, size*2)));
+        Dimension dimension = new Dimension(size * Username.MAX_LENGTH, size * 3);
         this.setMaximumSize(dimension);
         this.setMinimumSize(dimension);
         this.setPreferredSize(dimension);
