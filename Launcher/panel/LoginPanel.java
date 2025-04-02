@@ -57,7 +57,7 @@ public class LoginPanel extends UniversalPanel {
         launchEnterTextPanel.add(Box.createHorizontalGlue());
         launchEnterTextPanel.add(launchEnterTextField);
         launchEnterTextPanel.add(Box.createHorizontalGlue());
-        launchEnterTextPanel.add(new ConfirmButton());
+        launchEnterTextPanel.add(new ConfirmButton(launchEnterTextField));
         launchEnterTextPanel.add(Box.createHorizontalGlue());
         return new JComponent[]{(JComponent) Box.createVerticalGlue(), launchEnterTextPrompt, launchEnterTextRequirements[0],
                 launchEnterTextRequirements[1], launchEnterTextRequirements[2], launchEnterTextRequirements[3],
