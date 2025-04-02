@@ -8,6 +8,7 @@ public class LoginButton extends LaunchButton{
     }
 
     public void clicked() {
+        LaunchEssentials.toLogInPage();
     }
 
     @Override
