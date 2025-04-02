@@ -95,7 +95,7 @@ public class Main{
         }
         // Preset is not enabled
         if(preset == -1) {
-            LaunchEssentials.initializeCurrentGame(GameMode.Unspecified);
+            LaunchEssentials.initializeCurrentGame();
             GUI.HappyHexGUI.play(size, queueSize, delay, easy);
             LaunchEssentials.setCurrentPlayer(username, username.toHash());
         } else {

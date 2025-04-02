@@ -11,6 +11,7 @@ public class LauncherGUI {
     public static JFrame mainFrame;
     public static void launch(){
         setupMainFrame();
+        LaunchEssentials.initializeCurrentGame();
         mainFrame.add(fetchLaunchPanel());
         mainFrame.validate();
         mainFrame.setVisible(true);

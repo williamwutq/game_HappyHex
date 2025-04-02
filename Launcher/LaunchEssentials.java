@@ -49,7 +49,6 @@ public final class LaunchEssentials {
         LauncherGUI.removeAllFromFrame();
         LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
         HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
-        LaunchEssentials.initializeCurrentGame(GameMode.Unspecified);
 
         // Add to frame and repaint
         LauncherGUI.mainFrame.add(HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
@@ -94,6 +93,10 @@ public final class LaunchEssentials {
     }
     public static void initializeCurrentGame(GameMode mode){
         currentGameInfo = new GameInfo(mode);
+        gameStarted = true;
+    }
+    public static void initializeCurrentGame(){
+        currentGameInfo = new GameInfo(GameMode.Unspecified);
         gameStarted = true;
     }
     public static void fetchGameInfo(){
