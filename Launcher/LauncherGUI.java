@@ -11,7 +11,7 @@ public class LauncherGUI {
     public static JFrame mainFrame;
     public static void launch(){
         setupMainFrame();
-        LaunchEssentials.initializeCurrentGame();
+        LaunchEssentials.initialize();
         mainFrame.add(fetchLaunchPanel());
         mainFrame.validate();
         mainFrame.setVisible(true);
@@ -56,8 +56,5 @@ public class LauncherGUI {
     }
     public static void setBackgroundColor(Color color){
         mainFrame.setBackground(color);
-    }
-    public static void main(String[] args){
-        launch();
     }
 }

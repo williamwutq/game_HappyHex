@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(0, 4, 0);
+    public static final GameVersion currentGameVersion = new GameVersion(0, 4, 1);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
@@ -63,7 +63,7 @@ public final class LaunchEssentials {
 
         LauncherGUI.mainFrame.add(LauncherGUI.fetchLoginPanel(), BorderLayout.CENTER);
     }
-    public static void toLSettings(){
+    public static void toSettings(){
         gameStarted = false;
 
         // Initialization
@@ -91,11 +91,11 @@ public final class LaunchEssentials {
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
     }
-    public static void initializeCurrentGame(GameMode mode){
+    public static void initialize(GameMode mode){
         currentGameInfo = new GameInfo(mode);
         gameStarted = true;
     }
-    public static void initializeCurrentGame(){
+    public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Unspecified);
         gameStarted = true;
     }

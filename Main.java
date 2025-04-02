@@ -1,6 +1,7 @@
 import Launcher.IO.GameMode;
 import Launcher.IO.Username;
 import Launcher.LaunchEssentials;
+import Launcher.LauncherGUI;
 
 /**
  * Main file of the game
@@ -9,7 +10,7 @@ import Launcher.LaunchEssentials;
  */
 
 public class Main{
-    public static void main(String[] args){
+    public static void legacyMain(String[] args){
         int size = 2;
         int queueSize = 1;
         int delay = 100;
@@ -95,29 +96,32 @@ public class Main{
         }
         // Preset is not enabled
         if(preset == -1) {
-            LaunchEssentials.initializeCurrentGame();
+            LaunchEssentials.initialize();
             GUI.HappyHexGUI.play(size, queueSize, delay, easy);
             LaunchEssentials.setCurrentPlayer(username, username.toHash());
         } else {
             if(easy) {
                 if (preset == 1) {
-                    LaunchEssentials.initializeCurrentGame(GameMode.SmallEasy);
+                    LaunchEssentials.initialize(GameMode.SmallEasy);
                 } else if (preset == 3) {
-                    LaunchEssentials.initializeCurrentGame(GameMode.LargeEasy);
+                    LaunchEssentials.initialize(GameMode.LargeEasy);
                 } else {
-                    LaunchEssentials.initializeCurrentGame(GameMode.MediumEasy);
+                    LaunchEssentials.initialize(GameMode.MediumEasy);
                 }
             } else {
                 if (preset == 1) {
-                    LaunchEssentials.initializeCurrentGame(GameMode.Small);
+                    LaunchEssentials.initialize(GameMode.Small);
                 } else if (preset == 3) {
-                    LaunchEssentials.initializeCurrentGame(GameMode.Large);
+                    LaunchEssentials.initialize(GameMode.Large);
                 } else {
-                    LaunchEssentials.initializeCurrentGame(GameMode.Medium);
+                    LaunchEssentials.initialize(GameMode.Medium);
                 }
             }
             LaunchEssentials.setCurrentPlayer(username, username.toHash());
             GUI.HappyHexGUI.play(3*preset + 2, 2*preset + 1, delay, easy);
         }
+    }
+    public static void main(String[] args){
+        LauncherGUI.launch();
     }
 }

@@ -10,7 +10,7 @@ public class SettingButton extends LaunchButton {
     }
 
     protected void clicked() {
-        LaunchEssentials.toLSettings();
+        LaunchEssentials.toSettings();
     }
 
     protected Color fetchColor() {
