@@ -26,7 +26,6 @@ public final class LaunchEssentials {
     // Launcher
     public static final Color launchBackgroundColor = new Color(241, 243, 213);
     public static final Color launchTitlePanelBackgroundColor = new Color(219, 223, 151);
-    public static final Color launchTitleFontColor = new Color(0, 73, 54);
     public static final Color launchAuthorFontColor = new Color(0, 73, 54);
     public static final Color launchWWFontColor = Color.BLACK;
     public static final Color launchVersionFontColor = Color.BLACK;
@@ -36,6 +35,7 @@ public final class LaunchEssentials {
     public static final String launchAuthorFont = "Helvetica";
     public static final String launchWWFont = "Georgia";
     public static final String launchButtonFont = "Times New Roman";
+    public static final String launchEnterUsernameFont = "Courier";
 
     public static boolean isGameStarted(){
         return gameStarted;
