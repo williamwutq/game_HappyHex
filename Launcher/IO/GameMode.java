@@ -1,7 +1,9 @@
 package Launcher.IO;
 
 public enum GameMode {
-    Unspecified, Small, Medium, Large, SmallEasy, MediumEasy, LargeEasy;
+    @Deprecated
+    Unspecified,
+    Small, Medium, Large, SmallEasy, MediumEasy, LargeEasy;
     public static GameMode determineGameMode(boolean easyMode, String preset) {
         if (easyMode) {
             if (preset.equals("S")) {

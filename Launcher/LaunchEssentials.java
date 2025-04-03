@@ -98,7 +98,7 @@ public final class LaunchEssentials {
         gameStarted = false;
     }
     public static void initialize(){
-        currentGameInfo = new GameInfo(GameMode.Unspecified);
+        currentGameInfo = new GameInfo(GameMode.Small);
         gameStarted = false;
     }
     public static void fetchGameInfo(){
