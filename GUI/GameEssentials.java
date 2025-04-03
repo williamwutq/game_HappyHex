@@ -182,6 +182,11 @@ public final class GameEssentials {
         double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60);
         HexButton.setSize(minSize);
     }
+    public static int getWidthExtension(){
+        int half = window.getWidth()/2;
+        double length = queue.length() * 3;
+        return half - (int)Math.round(length * HexButton.getActiveSize() * sinOf60);
+    }
     // End checking
     public static void checkEnd(){
         // If the game should end, log and reset
