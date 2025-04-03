@@ -76,7 +76,21 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameSmallLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingGameSmallLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingGameSmallLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingGameSmallButton = new SlidingButtonPanel();
+        launchSettingGameSmallButton = new SlidingButtonPanel(){
+            @Override
+            protected void turnedOn() {
+                super.turnedOn();
+                LaunchEssentials.setSmallMode();
+                setThreeStates();
+            }
+            @Override
+            protected void turnedOff(){
+                super.turnedOff();
+                LaunchEssentials.setMediumMode();
+                setThreeStates();
+            }
+        };
+        launchSettingGameSmallButton.setState(LaunchEssentials.isSmallMode());
 
         JPanel launchSettingGameSmallPanel = new JPanel();
         launchSettingGameSmallPanel.setBackground(this.getBackground());
@@ -92,8 +106,21 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameMediumLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingGameMediumLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingGameMediumLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingGameMediumButton = new SlidingButtonPanel();
-        launchSettingGameMediumButton.setState(true);
+        launchSettingGameMediumButton = new SlidingButtonPanel(){
+            @Override
+            protected void turnedOn() {
+                super.turnedOn();
+                LaunchEssentials.setMediumMode();
+                setThreeStates();
+            }
+            @Override
+            protected void turnedOff(){
+                super.turnedOff();
+                LaunchEssentials.setSmallMode();
+                setThreeStates();
+            }
+        };
+        launchSettingGameMediumButton.setState(LaunchEssentials.isMediumMode());
 
         JPanel launchSettingGameMediumPanel = new JPanel();
         launchSettingGameMediumPanel.setBackground(this.getBackground());
@@ -109,7 +136,21 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingGameLargeLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingGameLargeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingGameLargeButton = new SlidingButtonPanel();
+        launchSettingGameLargeButton = new SlidingButtonPanel(){
+            @Override
+            protected void turnedOn() {
+                super.turnedOn();
+                LaunchEssentials.setLargeMode();
+                setThreeStates();
+            }
+            @Override
+            protected void turnedOff(){
+                super.turnedOff();
+                LaunchEssentials.setSmallMode();
+                setThreeStates();
+            }
+        };
+        launchSettingGameLargeButton.setState(LaunchEssentials.isLargeMode());
 
         JPanel launchSettingGameLargePanel = new JPanel();
         launchSettingGameLargePanel.setBackground(this.getBackground());
@@ -119,10 +160,12 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargePanel.add(launchSettingGameLargeButton);
         launchSettingGameLargePanel.add(Box.createHorizontalGlue());
 
-        // Logic
-
-
         return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(), launchSettingEasyModePanel, launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel, (JComponent) Box.createVerticalGlue()};
+    }
+    private void setThreeStates(){
+        launchSettingGameSmallButton.setState(LaunchEssentials.isSmallMode());
+        launchSettingGameMediumButton.setState(LaunchEssentials.isMediumMode());
+        launchSettingGameLargeButton.setState(LaunchEssentials.isLargeMode());
     }
     protected JComponent[] fetchHeader() {
         return null;

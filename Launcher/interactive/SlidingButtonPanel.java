@@ -79,13 +79,21 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, size));
     }
     public void setState(boolean state){
-        this.state = state;
-        if(state){
-            button.setText(onText);
-            turnedOn();
-        } else {
-            button.setText(offText);
-            turnedOff();
+        if(this.state != state) {
+            this.state = state;
+            if (state) {
+                button.setText(onText);
+                this.setBackground(onColor);
+                this.remove(1);
+                this.add(Box.createHorizontalGlue(), 0);
+                this.revalidate();
+            } else {
+                button.setText(offText);
+                this.setBackground(offColor);
+                this.remove(0);
+                this.add(Box.createHorizontalGlue(), 1);
+                this.revalidate();
+            }
         }
     }
 

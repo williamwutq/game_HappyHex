@@ -119,6 +119,33 @@ public final class LaunchEssentials {
             currentGameInfo.setGameMode(GameMode.Large);
         }
     }
+    public static void setSmallMode(){
+        GameMode mode = currentGameInfo.getGameMode();
+        if (mode == GameMode.SmallEasy || mode == GameMode.MediumEasy || mode == GameMode.LargeEasy){
+            currentGameInfo.setGameMode(GameMode.SmallEasy);
+        } else currentGameInfo.setGameMode(GameMode.Small);
+    }
+    public static void setMediumMode(){
+        GameMode mode = currentGameInfo.getGameMode();
+        if (mode == GameMode.SmallEasy || mode == GameMode.MediumEasy || mode == GameMode.LargeEasy){
+            currentGameInfo.setGameMode(GameMode.MediumEasy);
+        } else currentGameInfo.setGameMode(GameMode.Medium);
+    }
+    public static void setLargeMode(){
+        GameMode mode = currentGameInfo.getGameMode();
+        if (mode == GameMode.SmallEasy || mode == GameMode.MediumEasy || mode == GameMode.LargeEasy){
+            currentGameInfo.setGameMode(GameMode.LargeEasy);
+        } else currentGameInfo.setGameMode(GameMode.Large);
+    }
+    public static boolean isSmallMode(){
+        return currentGameInfo.getGameMode() == GameMode.Small || currentGameInfo.getGameMode() == GameMode.SmallEasy;
+    }
+    public static boolean isMediumMode(){
+        return currentGameInfo.getGameMode() == GameMode.Medium || currentGameInfo.getGameMode() == GameMode.MediumEasy;
+    }
+    public static boolean isLargeMode(){
+        return currentGameInfo.getGameMode() == GameMode.Large || currentGameInfo.getGameMode() == GameMode.LargeEasy;
+    }
     public static void fetchGameInfo(){
         currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
     }
