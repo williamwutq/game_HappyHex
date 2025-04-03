@@ -160,7 +160,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargePanel.add(launchSettingGameLargeButton);
         launchSettingGameLargePanel.add(Box.createHorizontalGlue());
 
-        return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(), launchSettingEasyModePanel, launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel, (JComponent) Box.createVerticalGlue()};
+        return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(), launchSettingEasyModePanel, launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel, new QuitButton(), (JComponent) Box.createVerticalGlue()};
     }
     private void setThreeStates(){
         launchSettingGameSmallButton.setState(LaunchEssentials.isSmallMode());
@@ -171,7 +171,8 @@ public class SettingPanel extends UniversalPanel {
         return null;
     }
     public void recalculate(){
-        double referenceGameNameSize = Math.min(getReferenceHeight()*2.5, getReferenceWidth());
+        super.recalculate();
+        double referenceGameNameSize = Math.min(getReferenceHeight()*1.5, getReferenceWidth());
         double referenceStartButtonSize = Math.min(getReferenceHeight(), getReferenceWidth());
         LaunchButton.setSizeConstant((int)Math.round(referenceStartButtonSize*0.0100));
         launchSettingTitleLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, (int)Math.round(referenceGameNameSize/24.0)));
