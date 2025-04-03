@@ -18,7 +18,7 @@ public class PieceButton extends HexButton {
         return 2 + 6 * pieceIndex;
     }
     protected int fetchRawWidthExtension(){
-        return GameEssentials.getWidthExtension();
+        return GameEssentials.getPiecePanelWidthExtension();
     }
 
     protected Block fetchBlock() {

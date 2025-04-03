@@ -182,9 +182,14 @@ public final class GameEssentials {
         double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60);
         HexButton.setSize(minSize);
     }
-    public static int getWidthExtension(){
+    public static int getPiecePanelWidthExtension(){
         int half = window.getWidth()/2;
-        double length = queue.length() * 3;
+        int length = queue.length() * 3;
+        return half - (int)Math.round(length * HexButton.getActiveSize() * sinOf60);
+    }
+    public static int getGamePanelWidthExtension(){
+        int half = window.getWidth()/2;
+        int length = engine.getRadius() * 2 - 1;
         return half - (int)Math.round(length * HexButton.getActiveSize() * sinOf60);
     }
     // End checking
