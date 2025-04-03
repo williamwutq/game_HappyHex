@@ -9,6 +9,16 @@ import java.awt.*;
 
 public class SettingPanel extends UniversalPanel {
     private JLabel launchSettingTitleLabel;
+    private JLabel launchSettingEasyModeLabel;
+    private JLabel launchSettingGameSizeLabel;
+    private JLabel launchSettingGameSmallLabel;
+    private JLabel launchSettingGameMediumLabel;
+    private JLabel launchSettingGameLargeLabel;
+    private SlidingButtonPanel launchSettingEasyModeButton;
+    private SlidingButtonPanel launchSettingGameSmallButton;
+    private SlidingButtonPanel launchSettingGameMediumButton;
+    private SlidingButtonPanel launchSettingGameLargeButton;
+
     public SettingPanel(){
         super();
         LaunchButton.setSizeConstant(6);
@@ -23,7 +33,81 @@ public class SettingPanel extends UniversalPanel {
         launchSettingTitleLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         launchSettingTitleLabel.setBorder(new EmptyBorder(12, 0, 6, 0));
-        return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue()};
+
+        launchSettingEasyModeLabel = new JLabel("Easy Mode | ");
+        launchSettingEasyModeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchSettingEasyModeLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        launchSettingEasyModeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        launchSettingEasyModeLabel.setVerticalAlignment(SwingConstants.CENTER);
+        launchSettingEasyModeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        launchSettingEasyModeButton = new SlidingButtonPanel();
+
+        JPanel launchSettingEasyModePanel = new JPanel();
+        launchSettingEasyModePanel.setBackground(this.getBackground());
+        launchSettingEasyModePanel.setLayout(new BoxLayout(launchSettingEasyModePanel, BoxLayout.X_AXIS));
+        launchSettingEasyModePanel.add(Box.createHorizontalGlue());
+        launchSettingEasyModePanel.add(launchSettingEasyModeLabel);
+        launchSettingEasyModePanel.add(launchSettingEasyModeButton);
+        launchSettingEasyModePanel.add(Box.createHorizontalGlue());
+
+        launchSettingGameSizeLabel = new JLabel("- Game Size -");
+        launchSettingGameSizeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchSettingGameSizeLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        launchSettingGameSizeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        launchSettingGameSizeLabel.setVerticalAlignment(SwingConstants.CENTER);
+        launchSettingGameSizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        launchSettingGameSizeLabel.setBorder(new EmptyBorder(16, 0, 16, 0));
+
+        launchSettingGameSmallLabel = new JLabel("Small  | ");
+        launchSettingGameSmallLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchSettingGameSmallLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        launchSettingGameSmallLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        launchSettingGameSmallLabel.setVerticalAlignment(SwingConstants.CENTER);
+        launchSettingGameSmallLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        launchSettingGameSmallButton = new SlidingButtonPanel();
+
+        JPanel launchSettingGameSmallPanel = new JPanel();
+        launchSettingGameSmallPanel.setBackground(this.getBackground());
+        launchSettingGameSmallPanel.setLayout(new BoxLayout(launchSettingGameSmallPanel, BoxLayout.X_AXIS));
+        launchSettingGameSmallPanel.add(Box.createHorizontalGlue());
+        launchSettingGameSmallPanel.add(launchSettingGameSmallLabel);
+        launchSettingGameSmallPanel.add(launchSettingGameSmallButton);
+        launchSettingGameSmallPanel.add(Box.createHorizontalGlue());
+
+        launchSettingGameMediumLabel = new JLabel("Medium | ");
+        launchSettingGameMediumLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchSettingGameMediumLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        launchSettingGameMediumLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        launchSettingGameMediumLabel.setVerticalAlignment(SwingConstants.CENTER);
+        launchSettingGameMediumLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        launchSettingGameMediumButton = new SlidingButtonPanel();
+        launchSettingGameMediumButton.setState(true);
+
+        JPanel launchSettingGameMediumPanel = new JPanel();
+        launchSettingGameMediumPanel.setBackground(this.getBackground());
+        launchSettingGameMediumPanel.setLayout(new BoxLayout(launchSettingGameMediumPanel, BoxLayout.X_AXIS));
+        launchSettingGameMediumPanel.add(Box.createHorizontalGlue());
+        launchSettingGameMediumPanel.add(launchSettingGameMediumLabel);
+        launchSettingGameMediumPanel.add(launchSettingGameMediumButton);
+        launchSettingGameMediumPanel.add(Box.createHorizontalGlue());
+
+        launchSettingGameLargeLabel = new JLabel("Large  | ");
+        launchSettingGameLargeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchSettingGameLargeLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        launchSettingGameLargeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        launchSettingGameLargeLabel.setVerticalAlignment(SwingConstants.CENTER);
+        launchSettingGameLargeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        launchSettingGameLargeButton = new SlidingButtonPanel();
+
+        JPanel launchSettingGameLargePanel = new JPanel();
+        launchSettingGameLargePanel.setBackground(this.getBackground());
+        launchSettingGameLargePanel.setLayout(new BoxLayout(launchSettingGameLargePanel, BoxLayout.X_AXIS));
+        launchSettingGameLargePanel.add(Box.createHorizontalGlue());
+        launchSettingGameLargePanel.add(launchSettingGameLargeLabel);
+        launchSettingGameLargePanel.add(launchSettingGameLargeButton);
+        launchSettingGameLargePanel.add(Box.createHorizontalGlue());
+
+        return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(), launchSettingEasyModePanel, launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel, (JComponent) Box.createVerticalGlue()};
     }
     protected JComponent[] fetchHeader() {
         return null;
@@ -34,5 +118,18 @@ public class SettingPanel extends UniversalPanel {
         LaunchButton.setSizeConstant((int)Math.round(referenceStartButtonSize*0.0100));
         launchSettingTitleLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, (int)Math.round(referenceGameNameSize/24.0)));
         launchSettingTitleLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/150.0)*2, 0, (int)Math.round(referenceGameNameSize/150.0), 0));
+        Font labelFont = new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/24.0));
+        launchSettingEasyModeLabel.setFont(labelFont);
+        launchSettingGameSizeLabel.setFont(labelFont);
+        launchSettingGameSmallLabel.setFont(labelFont);
+        launchSettingGameMediumLabel.setFont(labelFont);
+        launchSettingGameLargeLabel.setFont(labelFont);
+        launchSettingGameSizeLabel.setBorder(new EmptyBorder((int)Math.round(referenceStartButtonSize/120.0), 0, (int)Math.round(referenceStartButtonSize/120.0), 0));
+
+        Dimension buttonSize = new Dimension((int)Math.round(referenceStartButtonSize/4), (int)Math.round(referenceStartButtonSize/12));
+        launchSettingEasyModeButton.mandateSize(buttonSize);
+        launchSettingGameSmallButton.mandateSize(buttonSize);
+        launchSettingGameMediumButton.mandateSize(buttonSize);
+        launchSettingGameLargeButton.mandateSize(buttonSize);
     }
 }

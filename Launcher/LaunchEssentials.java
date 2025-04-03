@@ -38,6 +38,7 @@ public final class LaunchEssentials {
     public static final String launchWWFont = "Georgia";
     public static final String launchButtonFont = "Times New Roman";
     public static final String launchEnterUsernameFont = "Courier";
+    public static final String launchSettingsFont = "Courier";
     public static final String launchSettingsSlidingButtonFont = "Helvetica";
 
     public static boolean isGameStarted(){
