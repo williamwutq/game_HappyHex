@@ -31,6 +31,7 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         this.add(button);
         this.add(Box.createHorizontalGlue());
         this.addComponentListener(this);
+        this.mandateSize(new Dimension(1,1));
     }
     public void setTexts(String onText, String offText){
         this.onText = onText;
@@ -71,7 +72,7 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         button.setPreferredSize(dimension);
         button.setMinimumSize(dimension);
         button.setMaximumSize(dimension);
-        int size = Math.min(this.getWidth()*2/3, this.getHeight())/3;
+        int size = Math.min(this.getWidth()*2/3, this.getHeight())/2;
         button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, size));
     }
 
@@ -117,14 +118,28 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
     }
     public static void main (String[] args){
         JFrame frame = new JFrame();
+        frame.setBackground(Color.BLACK);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(400,400);
         frame.setTitle("SlidingButtonPanel Tests");
         frame.setLayout(new BorderLayout());
 
-        JPanel buttonPanel = new SlidingButtonPanel();
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+        JLabel label = new JLabel("Switch");
+        label.setVerticalAlignment(SwingConstants.CENTER);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        label.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        frame.add(buttonPanel, BorderLayout.CENTER);
+        SlidingButtonPanel buttonPanel = new SlidingButtonPanel();
+        buttonPanel.mandateSize(new Dimension(60,20));
+
+        mainPanel.add(Box.createHorizontalGlue());
+        mainPanel.add(label);
+        mainPanel.add(buttonPanel);
+        mainPanel.add(Box.createHorizontalGlue());
+        frame.add(mainPanel, BorderLayout.CENTER);
         frame.setVisible(true);
     }
 }
