@@ -50,7 +50,25 @@ public final class LaunchEssentials {
         // Initialization
         LauncherGUI.removeAllFromFrame();
         LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
-        HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+        if (currentGameInfo.getGameMode() == GameMode.Small){
+            HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+        } else if (currentGameInfo.getGameMode() == GameMode.Medium){
+            HappyHexGUI.initialize(8, 5, 100, false, LauncherGUI.mainFrame);
+        } else if (currentGameInfo.getGameMode() == GameMode.Large){
+            HappyHexGUI.initialize(11, 7, 100, false, LauncherGUI.mainFrame);
+        } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
+            HappyHexGUI.initialize(5, 3, 100, true, LauncherGUI.mainFrame);
+        } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
+            HappyHexGUI.initialize(8, 5, 100, true, LauncherGUI.mainFrame);
+        } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
+            HappyHexGUI.initialize(11, 7, 100, true, LauncherGUI.mainFrame);
+        } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
+            System.err.println("Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
+            HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+        } else {
+            System.err.println("Unknown GameMode detected.");
+            HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+        }
 
         // Add to frame and repaint
         LauncherGUI.mainFrame.add(HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
