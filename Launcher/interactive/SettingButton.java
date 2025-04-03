@@ -8,7 +8,7 @@ public class SettingButton extends LaunchButton {
     }
 
     protected void clicked() {
-        Launcher.LaunchEssentials.toSettings();
+        Launcher.LauncherGUI.toSettings();
     }
 
     protected Color fetchColor() {

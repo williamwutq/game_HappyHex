@@ -9,7 +9,7 @@ public class QuitButton extends LaunchButton {
 
     @Override
     protected void clicked() {
-        Launcher.LaunchEssentials.returnHome();
+        Launcher.LauncherGUI.returnHome();
     }
 
     protected Color fetchColor() {

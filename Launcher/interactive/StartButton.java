@@ -9,7 +9,7 @@ public class StartButton extends LaunchButton {
 
     @Override
     protected void clicked() {
-        Launcher.LaunchEssentials.startGame();
+        Launcher.LauncherGUI.startGame();
     }
 
     protected Color fetchColor() {

@@ -46,10 +46,6 @@ public final class LaunchEssentials {
     }
     public static void startGame(){
         gameStarted = true;
-
-        // Initialization
-        LauncherGUI.removeAllFromFrame();
-        LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
         if (currentGameInfo.getGameMode() == GameMode.Small){
             HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
@@ -69,51 +65,13 @@ public final class LaunchEssentials {
             System.err.println("Unknown GameMode detected.");
             HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
         }
-
-        // Add to frame and repaint
-        LauncherGUI.mainFrame.add(HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
-        LauncherGUI.mainFrame.add(HappyHexGUI.fetchPiecePanel(), BorderLayout.SOUTH);
-    }
-    public static void toLogInPage(){
-        gameStarted = false;
-
-        // Initialization
-        LauncherGUI.removeAllFromFrame();
-        LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
-
-        LauncherGUI.mainFrame.add(LauncherGUI.fetchLoginPanel(), BorderLayout.CENTER);
-    }
-    public static void toSettings(){
-        gameStarted = false;
-
-        // Initialization
-        LauncherGUI.removeAllFromFrame();
-        LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
-
-        LauncherGUI.mainFrame.add(LauncherGUI.fetchSettingPanel(), BorderLayout.CENTER);
-    }
-    public static void returnHome(){
-        gameStarted = false;
-
-        // Initialization
-        LauncherGUI.removeAllFromFrame();
-        LauncherGUI.setBackgroundColor(GameEssentials.gameBackGroundColor);
-
-        LauncherGUI.mainFrame.add(LauncherGUI.fetchLaunchPanel());
     }
     public static void endGame(){
         gameStarted = false;
     }
-    public static PlayerInfo currentPlayerInfo(){
-        return currentPlayerInfo;
-    }
     public static void setCurrentPlayer(Username currentPlayer, long currentPlayerID) {
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
-    }
-    public static void initialize(GameMode mode){
-        currentGameInfo = new GameInfo(mode);
-        gameStarted = false;
     }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small);

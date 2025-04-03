@@ -57,4 +57,37 @@ public class LauncherGUI {
     public static void setBackgroundColor(Color color){
         mainFrame.setBackground(color);
     }
+    public static void startGame(){
+        LaunchEssentials.startGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        mainFrame.add(GUI.HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
+        mainFrame.add(GUI.HappyHexGUI.fetchPiecePanel(), BorderLayout.SOUTH);
+    }
+    public static void toLogInPage(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        mainFrame.add(fetchLoginPanel(), BorderLayout.CENTER);
+    }
+    public static void toSettings(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
+    }
+    public static void returnHome(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
+    }
 }
