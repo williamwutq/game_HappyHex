@@ -1,8 +1,5 @@
 package GUI;
 
-import Hex.HexEngine;
-import Hex.Queue;
-
 import javax.swing.*;
 import java.awt.*;
 
