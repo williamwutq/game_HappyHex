@@ -33,15 +33,15 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         this.addComponentListener(this);
         this.mandateSize(new Dimension(1,1));
     }
-    public void setTexts(String onText, String offText){
+    public final void setTexts(String onText, String offText){
         this.onText = onText;
         this.offText = offText;
     }
-    public void setBackground(Color on, Color off){
+    public final void setBackground(Color on, Color off){
         this.onColor = on;
         this.offColor = off;
     }
-    public void setBackground(Color color){
+    public final void setBackground(Color color){
         super.setBackground(color);
         if(button != null) {
             button.setForeground(color);
@@ -60,6 +60,9 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         this.add(Box.createHorizontalGlue(), 1);
         this.revalidate();
     }
+    public boolean getState(){
+        return state;
+    }
     public void mandateSize(Dimension size) {
         this.setPreferredSize(size);
         this.setMinimumSize(size);
@@ -76,21 +79,21 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, size));
     }
 
-    public void componentResized(ComponentEvent e) {
+    public final void componentResized(ComponentEvent e) {
         recalculate();
         repaint();
     }
-    public void componentMoved(ComponentEvent e) {
+    public final void componentMoved(ComponentEvent e) {
         recalculate();
         repaint();
     }
-    public void componentShown(ComponentEvent e) {
+    public final void componentShown(ComponentEvent e) {
         recalculate();
         repaint();
     }
-    public void componentHidden(ComponentEvent e) {}
+    public final void componentHidden(ComponentEvent e) {}
 
-    private class SlidingButton extends JButton implements ActionListener{
+    private final class SlidingButton extends JButton implements ActionListener{
         private SlidingButton(){
             this.setText(offText);
             this.setBackground(Color.WHITE);
@@ -102,7 +105,7 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
             this.addActionListener(this);
         }
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public final void actionPerformed(ActionEvent e) {
             if(state){
                 state = false;
                 this.setText(offText);
@@ -115,31 +118,5 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
                 turnedOn();
             }
         }
-    }
-    public static void main (String[] args){
-        JFrame frame = new JFrame();
-        frame.setBackground(Color.BLACK);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setSize(400,400);
-        frame.setTitle("SlidingButtonPanel Tests");
-        frame.setLayout(new BorderLayout());
-
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
-        JLabel label = new JLabel("Switch");
-        label.setVerticalAlignment(SwingConstants.CENTER);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        label.setAlignmentY(Component.CENTER_ALIGNMENT);
-
-        SlidingButtonPanel buttonPanel = new SlidingButtonPanel();
-        buttonPanel.mandateSize(new Dimension(60,20));
-
-        mainPanel.add(Box.createHorizontalGlue());
-        mainPanel.add(label);
-        mainPanel.add(buttonPanel);
-        mainPanel.add(Box.createHorizontalGlue());
-        frame.add(mainPanel, BorderLayout.CENTER);
-        frame.setVisible(true);
     }
 }
