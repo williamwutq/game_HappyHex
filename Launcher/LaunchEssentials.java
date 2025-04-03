@@ -155,6 +155,9 @@ public final class LaunchEssentials {
             currentGameInfo.setGameMode(GameMode.LargeEasy);
         } else currentGameInfo.setGameMode(GameMode.Large);
     }
+    public static boolean isEasyMode(){
+        return GameMode.isEasy(currentGameInfo.getGameMode());
+    }
     public static boolean isSmallMode(){
         return currentGameInfo.getGameMode() == GameMode.Small || currentGameInfo.getGameMode() == GameMode.SmallEasy;
     }

@@ -52,6 +52,7 @@ public class SettingPanel extends UniversalPanel {
                 LaunchEssentials.setNormalMode();
             }
         };
+        launchSettingEasyModeButton.setState(LaunchEssentials.isEasyMode());
 
         JPanel launchSettingEasyModePanel = new JPanel();
         launchSettingEasyModePanel.setBackground(this.getBackground());
