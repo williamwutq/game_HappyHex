@@ -1,5 +1,6 @@
 package Launcher.panel;
 
+import GUI.GameEssentials;
 import Launcher.LaunchEssentials;
 import Launcher.interactive.*;
 
@@ -40,7 +41,18 @@ public class SettingPanel extends UniversalPanel {
         launchSettingEasyModeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingEasyModeLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingEasyModeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingEasyModeButton = new SlidingButtonPanel();
+        launchSettingEasyModeButton = new SlidingButtonPanel(){
+            @Override
+            protected void turnedOn() {
+                super.turnedOn();
+                LaunchEssentials.setEasyMode();
+            }
+            @Override
+            protected void turnedOff(){
+                super.turnedOff();
+                LaunchEssentials.setNormalMode();
+            }
+        };
 
         JPanel launchSettingEasyModePanel = new JPanel();
         launchSettingEasyModePanel.setBackground(this.getBackground());
@@ -106,6 +118,9 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargePanel.add(launchSettingGameLargeLabel);
         launchSettingGameLargePanel.add(launchSettingGameLargeButton);
         launchSettingGameLargePanel.add(Box.createHorizontalGlue());
+
+        // Logic
+
 
         return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(), launchSettingEasyModePanel, launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel, (JComponent) Box.createVerticalGlue()};
     }

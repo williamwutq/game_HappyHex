@@ -2,7 +2,7 @@ package Launcher.IO;
 
 public enum GameMode {
     @Deprecated
-    Unspecified,
+    Unspecified, // Still need to support v0.3, do NOT delete
     Small, Medium, Large, SmallEasy, MediumEasy, LargeEasy;
     public static GameMode determineGameMode(boolean easyMode, String preset) {
         if (easyMode) {

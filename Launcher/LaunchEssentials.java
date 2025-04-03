@@ -101,6 +101,24 @@ public final class LaunchEssentials {
         currentGameInfo = new GameInfo(GameMode.Small);
         gameStarted = false;
     }
+    public static void setEasyMode(){
+        if (currentGameInfo.getGameMode() == GameMode.Small){
+            currentGameInfo.setGameMode(GameMode.SmallEasy);
+        } else if (currentGameInfo.getGameMode() == GameMode.Medium){
+            currentGameInfo.setGameMode(GameMode.MediumEasy);
+        } else if (currentGameInfo.getGameMode() == GameMode.Large){
+            currentGameInfo.setGameMode(GameMode.LargeEasy);
+        }
+    }
+    public static void setNormalMode(){
+        if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
+            currentGameInfo.setGameMode(GameMode.Small);
+        } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
+            currentGameInfo.setGameMode(GameMode.Medium);
+        } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
+            currentGameInfo.setGameMode(GameMode.Large);
+        }
+    }
     public static void fetchGameInfo(){
         currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
     }
