@@ -11,7 +11,7 @@ public final class GameInfo implements JsonConvertible{
     private long playerID;
     private final GameTime time;
     private final long gameID;
-    private final GameMode gameMode;
+    private GameMode gameMode;
     private final GameVersion gameVersion;
 
     public GameInfo(GameMode mode) {
@@ -58,6 +58,9 @@ public final class GameInfo implements JsonConvertible{
             this.player = player;
             this.playerID = ID;
         }
+    }
+    public void setGameMode(GameMode gameMode){
+        this.gameMode = gameMode;
     }
 
     public int getTurn() {return turn;}
