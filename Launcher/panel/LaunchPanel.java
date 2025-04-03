@@ -4,24 +4,17 @@ import Launcher.LaunchEssentials;
 import Launcher.interactive.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 import java.awt.*;
 
 public class LaunchPanel extends UniversalPanel {
     private JLabel launchVersionLabel;
-    private final LaunchButton startButton;
-    private final LaunchButton loginButton;
-    private final LaunchButton settingButton;
 
     public LaunchPanel(){
         super();
         LaunchButton.setSizeConstant(6);
         LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
-        startButton = new StartButton();
-        loginButton = new LoginButton();
-        settingButton = new SettingButton();
     }
-
     protected JComponent[] fetchContent() {
         JComponent[] components = {fetchLaunchVersionLabel(), (JComponent) Box.createVerticalGlue(), new LoginButton(), new SettingButton(), new StartButton(), (JComponent) Box.createVerticalGlue()};
         return components;

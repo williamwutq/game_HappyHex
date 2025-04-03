@@ -1,7 +1,5 @@
 package Launcher.interactive;
 
-import Launcher.LaunchEssentials;
-
 import java.awt.*;
 
 public class LoginButton extends LaunchButton {
@@ -10,11 +8,11 @@ public class LoginButton extends LaunchButton {
     }
 
     public void clicked() {
-        LaunchEssentials.toLogInPage();
+        Launcher.LaunchEssentials.toLogInPage();
     }
 
     @Override
     protected Color fetchColor() {
-        return LaunchEssentials.launchStartButtonBackgroundColor;
+        return Launcher.LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }

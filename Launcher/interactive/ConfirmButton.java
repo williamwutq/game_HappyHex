@@ -1,7 +1,5 @@
 package Launcher.interactive;
 
-import GUI.GameEssentials;
-import Launcher.LaunchEssentials;
 import Launcher.IO.Username;
 
 import javax.swing.*;
@@ -31,13 +29,13 @@ public class ConfirmButton extends LaunchButton {
             System.err.println("Attempted login failed.");
         } else {
             // Validate user input
-            LaunchEssentials.setCurrentPlayer(player, player.toHash());
+            Launcher.LaunchEssentials.setCurrentPlayer(player, player.toHash());
             textField.setText("SUCCESSFUL PLAYER LOGIN!");
             System.out.println("Logged in as " + player + ".");
         }
     }
 
     protected Color fetchColor() {
-        return LaunchEssentials.launchConfirmButtonBackgroundColor;
+        return Launcher.LaunchEssentials.launchConfirmButtonBackgroundColor;
     }
 }

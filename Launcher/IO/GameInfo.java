@@ -24,16 +24,6 @@ public final class GameInfo implements JsonConvertible{
         this.gameMode = mode;
         this.gameVersion = LaunchEssentials.currentGameVersion;
     }
-    public GameInfo(int turn, int score, GameMode mode, GameVersion version){
-        this.turn = turn;
-        this.score = score;
-        this.playerID = -1;
-        this.player = Username.getUsername("Guest");
-        this.time = new GameTime();
-        this.gameID = LaunchLogger.generateHash(~(turn * score));
-        this.gameMode = mode;
-        this.gameVersion = version;
-    }
     public GameInfo(int turn, int score, String playerID, Username player, GameTime time, String gameID, GameMode mode, GameVersion version){
         long ID = Long.parseUnsignedLong(playerID, 16);
         this.setPlayer(player, ID);

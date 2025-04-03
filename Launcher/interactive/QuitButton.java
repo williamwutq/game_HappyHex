@@ -1,7 +1,5 @@
 package Launcher.interactive;
 
-import Launcher.LaunchEssentials;
-
 import java.awt.*;
 
 public class QuitButton extends LaunchButton {
@@ -11,10 +9,10 @@ public class QuitButton extends LaunchButton {
 
     @Override
     protected void clicked() {
-        LaunchEssentials.returnHome();
+        Launcher.LaunchEssentials.returnHome();
     }
 
     protected Color fetchColor() {
-        return LaunchEssentials.launchQuitButtonBackgroundColor;
+        return Launcher.LaunchEssentials.launchQuitButtonBackgroundColor;
     }
 }

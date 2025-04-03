@@ -7,7 +7,6 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
 public class SlidingButtonPanel extends JPanel implements ComponentListener {
     private boolean state;
     private String onText;

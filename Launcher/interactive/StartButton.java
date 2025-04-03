@@ -1,7 +1,5 @@
 package Launcher.interactive;
 
-import Launcher.LaunchEssentials;
-
 import java.awt.*;
 
 public class StartButton extends LaunchButton {
@@ -11,10 +9,10 @@ public class StartButton extends LaunchButton {
 
     @Override
     protected void clicked() {
-        LaunchEssentials.startGame();
+        Launcher.LaunchEssentials.startGame();
     }
 
     protected Color fetchColor() {
-        return LaunchEssentials.launchStartButtonBackgroundColor;
+        return Launcher.LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }

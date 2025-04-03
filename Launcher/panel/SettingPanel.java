@@ -1,6 +1,5 @@
 package Launcher.panel;
 
-import GUI.GameEssentials;
 import Launcher.LaunchEssentials;
 import Launcher.interactive.*;
 

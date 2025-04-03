@@ -85,6 +85,17 @@ public final class PlayerInfo implements JsonConvertible{
     }
 
     @Override
+    public String toString() {
+        return "PlayerInfo[Player = " + player +
+                ", Highest Turn = " + highTurn +
+                ", Highest Score = " + highScore +
+                ", Recent Turn = " + recentTurn +
+                ", Recent Score = " + recentScore +
+                ", Player ID = " + playerID +
+                ", Time = " + time + "]";
+    }
+
+    @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Player", player.toString());

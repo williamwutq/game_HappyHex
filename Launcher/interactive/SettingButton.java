@@ -1,7 +1,5 @@
 package Launcher.interactive;
 
-import Launcher.LaunchEssentials;
-
 import java.awt.*;
 
 public class SettingButton extends LaunchButton {
@@ -10,10 +8,10 @@ public class SettingButton extends LaunchButton {
     }
 
     protected void clicked() {
-        LaunchEssentials.toSettings();
+        Launcher.LaunchEssentials.toSettings();
     }
 
     protected Color fetchColor() {
-        return LaunchEssentials.launchStartButtonBackgroundColor;
+        return Launcher.LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }

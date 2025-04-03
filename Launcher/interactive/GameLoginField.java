@@ -8,7 +8,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class GameLoginField extends JTextField implements ActionListener{
+public class GameLoginField extends JTextField{
     public GameLoginField(){
         super("ENTER YOUR USERNAME HERE", Username.MAX_LENGTH);
         this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(6,0,6,0)));
@@ -35,7 +35,6 @@ public class GameLoginField extends JTextField implements ActionListener{
         this.setHorizontalAlignment(SwingConstants.CENTER);
         this.setAlignmentY(Component.CENTER_ALIGNMENT);
         this.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.addActionListener(this);
     }
 
     public void setDimension(int size){
@@ -44,9 +43,5 @@ public class GameLoginField extends JTextField implements ActionListener{
         this.setMaximumSize(dimension);
         this.setMinimumSize(dimension);
         this.setPreferredSize(dimension);
-    }
-
-    public void actionPerformed(ActionEvent e) {
-
     }
 }
