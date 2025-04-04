@@ -34,7 +34,8 @@ import java.awt.event.*;
  *
  * <p>The animation runs for a specified number of frames, each separated by a given delay in milliseconds.
  * The animation progresses linearly, and each frame is rendered via the abstract {@code paintFrame()} method.
- * Once the animation finishes, the component removes itself from its parent container.</p>
+ * Once the animation finishes, the component removes itself from its parent container. This component is
+ * disposable and will not be able to run again once start is triggered.</p>
  *
  * <p>Designed for simple temporary effects such as fading, expanding, or progress animations.</p>
  *
