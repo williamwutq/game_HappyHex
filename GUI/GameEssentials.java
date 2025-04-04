@@ -225,6 +225,10 @@ public final class GameEssentials {
         int length = engine.getRadius() * 2 - 1;
         return half - (int)Math.round(length * HexButton.getActiveSize() * sinOf60);
     }
+    public static int getGamePanelHeightExtension(){
+        int half = (int)Math.round((window.getHeight() - 33.0 - HexButton.getActiveSize() * 5.0)/2.0);
+        return half - (int)Math.round((engine.getRadius() * 1.5 - 0.5) * HexButton.getActiveSize());
+    }
     // Initializing
     public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player){
         if(easy) {

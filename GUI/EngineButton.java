@@ -11,6 +11,9 @@ public class EngineButton extends HexButton {
     protected int fetchHeightExtension(){
         return GameEssentials.engine().getRadius() - 1;
     }
+    protected int fetchRawHeightExtension(){
+        return GameEssentials.getGamePanelHeightExtension();
+    }
     protected int fetchRawWidthExtension(){
         return GameEssentials.getGamePanelWidthExtension();
     }
