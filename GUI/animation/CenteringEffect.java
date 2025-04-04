@@ -1,23 +1,45 @@
 package GUI.animation;
 
-
 import GUI.GameEssentials;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Arrays;
 
 public class CenteringEffect extends Animation {
-    public CenteringEffect(int totalFrames, int frameTime){
-        super(totalFrames, frameTime);
+    private Hex.Block block;
+    public CenteringEffect(Hex.Block block){
+        super(2000, 1);
+        this.block = block;
+        resetSize();
+        GameEssentials.window().revalidate();
+    }
+    public final void resetSize(){
+        if(block == null) {
+            Dimension minDimension = new Dimension(1,1);
+            this.setSize(minDimension);
+            this.setMinimumSize(minDimension);
+            this.setMaximumSize(minDimension);
+            this.setPreferredSize(minDimension);
+            this.setBounds(new Rectangle(minDimension));
+        } else {
+            double size = GUI.HexButton.getActiveSize();
+            int width = (int) Math.round(2 * size * GameEssentials.sinOf60);
+            int height = (int) Math.round(2 * size);
+            Dimension dimension = new Dimension(width, height);
+            this.setSize(dimension);
+            this.setMinimumSize(dimension);
+            this.setMaximumSize(dimension);
+            this.setPreferredSize(dimension);
+            int x = (int) Math.round(size * 2 * block.X());
+            int y = (int) Math.round(size * 2 * (block.Y() + (GameEssentials.engine().getRadius() - 1) * 0.75));
+            this.setBounds(x + GameEssentials.getGamePanelWidthExtension(), y + GameEssentials.getGamePanelHeightExtension(), width, height);
+        }
     }
     @Override
     protected void paintFrame(java.awt.Graphics g, double progress){
+        resetSize();
         int x = 0;
         int y = 0;
-        int size = 40;
+        double size = GUI.HexButton.getActiveSize();
         double fill = 1.1 - (progress*0.2);
         int[] xPoints = new int[14];
         int[] yPoints = new int[14];
@@ -31,25 +53,7 @@ public class CenteringEffect extends Animation {
             xPoints[i + 7] = (int) Math.round(size * (x * 2 + GameEssentials.sinOf60 + Math.sin(angle) * fill));
             yPoints[i + 7] = (int) Math.round(size * (y * 2 + 1.0 + Math.cos(angle) * fill));
         }
-        g.setColor(Color.RED);
+        g.setColor(GameEssentials.darkenColor(block.color()));
         g.fillPolygon(xPoints, yPoints, 14);
-    }
-    public static void main(String[] args){
-        JFrame mainFrame = new JFrame("CenteringEffectTest");
-        JPanel mainPanel = new JPanel(null);
-        mainFrame.setLayout(new BorderLayout());
-        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        mainFrame.setSize(400, 400);
-        mainFrame.setBackground(Color.CYAN);
-        mainPanel.setBackground(Color.CYAN);
-        Animation effect = new CenteringEffect(300, 1);
-        effect.setPreferredSize(new Dimension(400, 400));
-        effect.setSize(new Dimension(400, 400));
-        effect.setBounds(new Rectangle(0, 0, 400, 400));
-
-        mainPanel.add(effect);
-        mainFrame.add(mainPanel);
-        mainFrame.setVisible(true);
-        effect.start();
     }
 }
