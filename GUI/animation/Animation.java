@@ -50,7 +50,7 @@ abstract class Animation extends JComponent implements ActionListener{
     /** ActionListener that starts animation. */
     private final ActionListener startListener;
     /** ActionListener to be completed after animation. */
-    private final ActionListener endListener;
+    private ActionListener endListener;
 
     /**
      * Constructs an Animation object with a given number of total frames and frame time.
@@ -191,6 +191,15 @@ abstract class Animation extends JComponent implements ActionListener{
      */
     public ActionListener getStartListener(){
         return startListener;
+    }
+
+    /**
+     * Sets the actionLister that will be triggered after this animation.
+     *
+     * @param listener the end actionListener to be completed after animation.
+     */
+    public void setEndListener(ActionListener listener){
+        this.endListener = listener;
     }
 
     /**
