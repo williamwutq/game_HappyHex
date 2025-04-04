@@ -63,8 +63,8 @@ public class LauncherGUI {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackGroundColor);
-        mainFrame.add(GUI.HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
-        mainFrame.add(GUI.HappyHexGUI.fetchPiecePanel(), BorderLayout.SOUTH);
+        mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
+        mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
     }
     public static void toLogInPage(){
         LaunchEssentials.endGame();

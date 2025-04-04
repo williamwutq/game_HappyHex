@@ -192,6 +192,24 @@ public final class GameEssentials {
         int length = engine.getRadius() * 2 - 1;
         return half - (int)Math.round(length * HexButton.getActiveSize() * sinOf60);
     }
+    // Initializing
+    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame){
+        if(easy) {
+            Hex.Piece.setEasy();
+        }
+        setEngine(new HexEngine(size));
+        setQueue(new Queue(queueSize));
+        setWindow(frame);
+        setDelay(delay);
+        calculateButtonSize();
+    }
+    public static JPanel fetchGamePanel(){
+        return new GamePanel();
+    }
+    public static JPanel fetchPiecePanel(){
+        return new PiecePanel();
+    }
+
     // End checking
     public static void checkEnd(){
         // If the game should end, log and reset
