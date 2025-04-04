@@ -14,6 +14,7 @@ public class GamePanel extends JPanel {
     }
     public void paint(java.awt.Graphics g) {
         GameEssentials.calculateButtonSize();
+        GameEssentials.calculateLabelSize();
         // print component and children
         g.setColor(this.getBackground());
         g.fillRect(0, 0, this.getWidth(), this.getHeight());

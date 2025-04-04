@@ -27,13 +27,17 @@ public final class GameEssentials {
     private static Queue queue;
     /** The main window of the game. */
     private static JFrame window;
+    // Info panels
+    private static GameInfoPanel turnLabel;
+    private static GameInfoPanel scoreLabel;
+    private static GameInfoPanel playerLabel;
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
 
-    public static int turn = 0;
-    public static int score = 0;
+    private static int turn = 0;
+    private static int score = 0;
 
     // Random Piece
     private static final Color[] pieceColors = {
@@ -182,6 +186,31 @@ public final class GameEssentials {
         double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60);
         HexButton.setSize(minSize);
     }
+    public static void calculateLabelSize() {
+        int height = window().getHeight();
+        int width = window().getWidth();
+        int gamePanelExtension = getGamePanelWidthExtension();
+
+        double minSize = Math.min(height - 33, width - 5);
+        int labelWidth = (int) Math.round(minSize / 6.0);
+        int labelHeight = (int) Math.round(minSize / 12.0);
+        Dimension dimension = new Dimension(labelWidth, labelHeight);
+
+        int margin = 3;
+        int piecePanelSize = (int) Math.round(5 * HexButton.getActiveSize());
+        int bottomOffset = labelHeight + 28 + margin;
+
+        int right = width - gamePanelExtension - labelWidth - margin;
+        int bottom = height - piecePanelSize - bottomOffset;
+
+        turnLabel.setPreferredSize(dimension);
+        scoreLabel.setPreferredSize(dimension);
+        playerLabel.setPreferredSize(dimension);
+
+        turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
+        scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
+        playerLabel.setBounds(new Rectangle(new Point(right, bottom), dimension));
+    }
     public static int getPiecePanelWidthExtension(){
         int half = window.getWidth()/2;
         int length = queue.length() * 3;
@@ -192,6 +221,43 @@ public final class GameEssentials {
         int length = engine.getRadius() * 2 - 1;
         return half - (int)Math.round(length * HexButton.getActiveSize() * sinOf60);
     }
+    // Initializing
+    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player){
+        if(easy) {
+            Hex.Piece.setEasy();
+        }
+        engine = new HexEngine(size);
+        queue = new Queue(queueSize);
+        window = frame;
+        // Construct labels
+        turnLabel = new GameInfoPanel();
+        scoreLabel = new GameInfoPanel();
+        playerLabel = new GameInfoPanel();
+        turnLabel.setTitle("TURN");
+        scoreLabel.setTitle("SCORE");
+        playerLabel.setTitle("PLAYER");
+        turnLabel.setInfo("0");
+        scoreLabel.setInfo("0");
+        playerLabel.setInfo(player);
+        turnLabel.setBounds(0, 0, 100, 100);
+        scoreLabel.setBounds(300, 0, 100, 100);
+        playerLabel.setBounds(300, 300, 100, 100);
+        // Calculations
+        setDelay(delay);
+        calculateButtonSize();
+        calculateLabelSize();
+    }
+    public static JPanel fetchGamePanel(){
+        JPanel panel = new GamePanel();
+        panel.add(turnLabel);
+        panel.add(scoreLabel);
+        panel.add(playerLabel);
+        return panel;
+    }
+    public static JPanel fetchPiecePanel(){
+        return new PiecePanel();
+    }
+
     // End checking
     public static void checkEnd(){
         // If the game should end, log and reset
@@ -230,16 +296,23 @@ public final class GameEssentials {
         Launcher.LaunchEssentials.log();
     }
 
+    // Scoring
+    public static int getTurn(){
+        return turn;
+    }
+    public static int getScore(){
+        return score;
+    }
+    public static void incrementTurn(){
+        turn ++;
+        turnLabel.setInfo(turn + "");
+    }
+    public static void incrementScore(int addedScore){
+        score += addedScore;
+        scoreLabel.setInfo(score + "");
+    }
+
     // Setters
-    public static void setEngine(HexEngine engine){
-        GameEssentials.engine = engine;
-    }
-    public static void setQueue(Queue queue){
-        GameEssentials.queue = queue;
-    }
-    public static void setWindow(JFrame window){
-        GameEssentials.window = window;
-    }
     public static void setSelectedPieceIndex(int index){
         if(index == -1 || (index >= 0 && index < queue.length())){
             GameEssentials.selectedPieceIndex = index;

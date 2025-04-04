@@ -1,7 +1,6 @@
 package Launcher;
 
 import GUI.GameEssentials;
-import GUI.HappyHexGUI;
 import Launcher.IO.*;
 
 import java.awt.*;
@@ -47,23 +46,23 @@ public final class LaunchEssentials {
     public static void startGame(){
         gameStarted = true;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+            GameEssentials.initialize(5, 3, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            HappyHexGUI.initialize(8, 5, 100, false, LauncherGUI.mainFrame);
+            GameEssentials.initialize(8, 5, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            HappyHexGUI.initialize(11, 7, 100, false, LauncherGUI.mainFrame);
+            GameEssentials.initialize(11, 7, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            HappyHexGUI.initialize(5, 3, 100, true, LauncherGUI.mainFrame);
+            GameEssentials.initialize(5, 3, 100, true, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            HappyHexGUI.initialize(8, 5, 100, true, LauncherGUI.mainFrame);
+            GameEssentials.initialize(8, 5, 100, true, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            HappyHexGUI.initialize(11, 7, 100, true, LauncherGUI.mainFrame);
+            GameEssentials.initialize(11, 7, 100, true, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
             System.err.println("Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+            GameEssentials.initialize(5, 3, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else {
             System.err.println("Unknown GameMode detected.");
-            HappyHexGUI.initialize(5, 3, 100, false, LauncherGUI.mainFrame);
+            GameEssentials.initialize(5, 3, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
         }
     }
     public static void endGame(){
@@ -129,7 +128,7 @@ public final class LaunchEssentials {
         return currentGameInfo.getGameMode() == GameMode.Large || currentGameInfo.getGameMode() == GameMode.LargeEasy;
     }
     public static void fetchGameInfo(){
-        currentGameInfo = new GameInfo(GameEssentials.turn, GameEssentials.score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
+        currentGameInfo = new GameInfo(GameEssentials.getTurn(), GameEssentials.getScore(), Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
     }
     public static void updateRecent(){
         currentPlayerInfo.setRecentTurn(currentGameInfo.getTurn());

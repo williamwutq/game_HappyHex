@@ -42,7 +42,7 @@ public class EngineButton extends HexButton {
     }
     protected void clicked(){
         if(GameEssentials.getSelectedBlockIndex() != -1) {
-            GameEssentials.turn++;
+            GameEssentials.incrementTurn();
             // Fetch position
             Hex position = fetchBlock().thisHex();
             // Get index and reset index
@@ -55,7 +55,7 @@ public class EngineButton extends HexButton {
             position = position.subtract(piece.getBlock(blockIndex));
             // Check this position, if good then add
             if (GameEssentials.engine().checkAdd(position, piece)) {
-                GameEssentials.score += piece.length();
+                GameEssentials.incrementScore(piece.length());
                 GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
             }
             // Paint and eliminate

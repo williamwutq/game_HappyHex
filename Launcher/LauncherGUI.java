@@ -39,7 +39,7 @@ public class LauncherGUI {
                 // Custom code to execute when the window is closing
                 if(LaunchEssentials.isGameStarted()) {
                     // Log if it has score and reset
-                    if (GameEssentials.turn != 0) {
+                    if (GameEssentials.getTurn() != 0) {
                         GameEssentials.logGame();
                     }
                     GameEssentials.resetGame();
@@ -63,8 +63,8 @@ public class LauncherGUI {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackGroundColor);
-        mainFrame.add(GUI.HappyHexGUI.fetchGamePanel(), BorderLayout.CENTER);
-        mainFrame.add(GUI.HappyHexGUI.fetchPiecePanel(), BorderLayout.SOUTH);
+        mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
+        mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
     }
     public static void toLogInPage(){
         LaunchEssentials.endGame();
