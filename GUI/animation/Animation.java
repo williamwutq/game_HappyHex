@@ -65,7 +65,7 @@ abstract class Animation extends JComponent implements ActionListener{
     public void paint(java.awt.Graphics graphics){
         paintFrame(graphics, progress/(double)totalFrames);
     }
-    protected void paintFrame(java.awt.Graphics graphics, double progress){}
+    abstract void paintFrame(java.awt.Graphics graphics, double progress);
     // Prevent Overrides
     public final java.awt.Component add(java.awt.Component comp) {return comp;}
     protected final void addImpl(java.awt.Component comp, Object constraints, int index) {}
