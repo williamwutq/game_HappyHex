@@ -32,8 +32,8 @@ public final class GameEssentials {
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
 
-    public static int turn = 0;
-    public static int score = 0;
+    private static int turn = 0;
+    private static int score = 0;
 
     // Random Piece
     private static final Color[] pieceColors = {
@@ -228,6 +228,20 @@ public final class GameEssentials {
         // Logs
         Launcher.LaunchEssentials.fetchGameInfo();
         Launcher.LaunchEssentials.log();
+    }
+
+    // Scoring
+    public static int getTurn(){
+        return turn;
+    }
+    public static int getScore(){
+        return score;
+    }
+    public static void incrementTurn(){
+        GameEssentials.turn ++;
+    }
+    public static void incrementScore(int score){
+        GameEssentials.score += score;
     }
 
     // Setters

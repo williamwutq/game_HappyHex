@@ -39,7 +39,7 @@ public class LauncherGUI {
                 // Custom code to execute when the window is closing
                 if(LaunchEssentials.isGameStarted()) {
                     // Log if it has score and reset
-                    if (GameEssentials.turn != 0) {
+                    if (GameEssentials.getTurn() != 0) {
                         GameEssentials.logGame();
                     }
                     GameEssentials.resetGame();

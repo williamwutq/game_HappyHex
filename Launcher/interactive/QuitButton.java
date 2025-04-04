@@ -10,7 +10,7 @@ public class QuitButton extends LaunchButton {
     @Override
     protected void clicked() {
         // Log if there exist game and score
-        if(Launcher.LaunchEssentials.isGameStarted() && GUI.GameEssentials.turn != 0){
+        if(Launcher.LaunchEssentials.isGameStarted() && GUI.GameEssentials.getTurn() != 0){
             GUI.GameEssentials.logGame();
         }
         Launcher.LauncherGUI.returnHome();
