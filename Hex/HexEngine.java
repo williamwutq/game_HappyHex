@@ -208,6 +208,7 @@ public class HexEngine implements HexGrid{
             block.setColor(Color.BLACK);
             block.setState(false);
             setBlock(block.getLineI(), block.getLineK(), block);
+            GameEssentials.addAnimation(GameEssentials.createAnimation(block));
         }
         return eliminate.size(); // Number of blocks being eliminated
     }
