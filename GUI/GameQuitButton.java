@@ -19,10 +19,18 @@ public final class GameQuitButton extends JButton implements ActionListener, Com
     }
 
     public void actionPerformed(ActionEvent e) {
-
+        // Custom code to execute when the frame is closing
+        if(Launcher.LaunchEssentials.isGameStarted()) {
+            // Log if it has score and reset
+            if (GameEssentials.getTurn() != 0) {
+                GameEssentials.logGame();
+            }
+            GameEssentials.resetGame();
+        }
+        Launcher.LauncherGUI.returnHome();
     }
     public void recalculate(){
-        int size = (int)Math.round(Math.min(this.getHeight()*0.4, this.getWidth()*0.2));
+        int size = (int)Math.round(Math.min(this.getHeight()*0.6, this.getWidth()*0.3));
         this.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, size));
     }
     public final void componentResized(ComponentEvent e) {
