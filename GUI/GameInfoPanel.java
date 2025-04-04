@@ -74,16 +74,4 @@ public final class GameInfoPanel extends JPanel implements ComponentListener {
         this.repaint();
     }
     public final void componentHidden(ComponentEvent e) {}
-
-    public static void main(String[] args){
-        JFrame frame = new JFrame();
-        frame.setBackground(Color.CYAN);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.setTitle("GameInfoPanel Test");
-        frame.setSize(400, 400);
-        GameInfoPanel panel = new GameInfoPanel();
-        frame.add(panel);
-        frame.setVisible(true);
-    }
 }
