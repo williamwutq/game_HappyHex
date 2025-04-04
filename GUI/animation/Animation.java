@@ -5,25 +5,23 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-abstract class HexEffect extends JComponent implements ActionListener{
+abstract class Animation extends JComponent implements ActionListener{
     private int progress;
     private int totalFrames;
     private int frameTime;
-    private JComponent targetComponent;
-    public HexEffect(){
+    public Animation(int totalFrames, int frameTime){
         super();
-        this.targetComponent = null;
         this.progress = 0;
-        this.totalFrames = 0;
+        this.totalFrames = totalFrames;
         this.frameTime = 100;
+        if (frameTime <= 100000 && frameTime >= 10) {
+            this.frameTime = frameTime;
+        }
         super.setLayout(null);
         super.setBackground(new Color(0,0,0,0));
         super.setBounds(new Rectangle(0, 0, 1, 1));
         super.setBorder(new EmptyBorder(0,0,0,0));
         super.setOpaque(false);
-    }
-    public void setTargetComponent(JComponent component){
-        this.targetComponent = component;
     }
     private void nextFrame(){
         if(progress < totalFrames){
@@ -40,7 +38,7 @@ abstract class HexEffect extends JComponent implements ActionListener{
                 parent.revalidate();
                 parent.repaint();
             } catch (Exception e) {
-                System.out.println("failed");
+                this.repaint();
             }
         }
     }
@@ -76,7 +74,6 @@ abstract class HexEffect extends JComponent implements ActionListener{
     public final void setBackground(Color color){}
     public final void setBorder(Border border){}
 
-    // Inner Timer
     @Override
     public void actionPerformed(ActionEvent e) {
         nextFrame();
