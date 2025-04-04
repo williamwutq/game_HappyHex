@@ -34,7 +34,14 @@ abstract class HexEffect extends JComponent implements ActionListener{
             timer.setRepeats(false);
             timer.start();
         } else {
-            this.repaint();
+            try{
+                Container parent = this.getParent();
+                parent.remove(this);
+                parent.revalidate();
+                parent.repaint();
+            } catch (Exception e) {
+                System.out.println("failed");
+            }
         }
     }
     public int getTotalTime(){

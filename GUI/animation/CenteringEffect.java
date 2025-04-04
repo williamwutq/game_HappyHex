@@ -1,6 +1,5 @@
 package GUI.animation;
 
-import GUI.GameEssentials;
 
 import javax.swing.*;
 import java.awt.*;
