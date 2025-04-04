@@ -24,10 +24,9 @@ package GUI.animation;
   SOFTWARE.
  */
 
-import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 /**
  * An abstract class for creating a simple linear, finite-duration animation in Swing.
@@ -41,7 +40,7 @@ import java.awt.event.*;
  *
  * <p>Note: This component does not allow adding child components and ignores layout, background, opacity, and border settings.</p>
  */
-abstract class Animation extends JComponent implements ActionListener{
+abstract class Animation extends Component{
     /** Current frame progress of the animation. */
     private int progress;
     /** Total number of frames in the animation. */
@@ -54,6 +53,8 @@ abstract class Animation extends JComponent implements ActionListener{
     private final ActionListener startListener;
     /** ActionListener to be completed after animation. */
     private ActionListener endListener;
+    /** The Timer used to execute actions. */
+    private final Timer timer = new Timer(true);
 
     /**
      * Constructs an Animation object with a given number of total frames and frame time.
@@ -78,11 +79,8 @@ abstract class Animation extends JComponent implements ActionListener{
         };
         this.endListener = null;
         // Set minimal properties to prevent layout/painting conflicts
-        super.setLayout(null);
         super.setBackground(new Color(0,0,0,0));
         super.setBounds(new Rectangle(0, 0, 1, 1));
-        super.setBorder(new EmptyBorder(0,0,0,0));
-        super.setOpaque(false);
     }
 
     /**
@@ -104,20 +102,13 @@ abstract class Animation extends JComponent implements ActionListener{
         this.startListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                Object source = e.getSource();
-//                if(source instanceof Animation){
-//                    ((Animation)source).start();
-//                }
                 start();
             }
         };
         this.endListener = endListener;
         // Set minimal properties to prevent layout/painting conflicts
-        super.setLayout(null);
         super.setBackground(new Color(0,0,0,0));
         super.setBounds(new Rectangle(0, 0, 1, 1));
-        super.setBorder(new EmptyBorder(0,0,0,0));
-        super.setOpaque(false);
     }
 
     /**
@@ -128,9 +119,10 @@ abstract class Animation extends JComponent implements ActionListener{
         if(progress < totalFrames){
             progress ++;
             this.repaint();
-            Timer timer = new Timer(frameTime, this);
-            timer.setRepeats(false);
-            timer.start();
+            TimerTask task = new TimerTask() {
+                public void run(){nextFrame();}
+            };
+            timer.schedule(task, frameTime);
         } else {
             this.active = false;
             try{
@@ -185,9 +177,11 @@ abstract class Animation extends JComponent implements ActionListener{
     public void start(){
         if(totalFrames != 0 && progress < totalFrames && !this.active){
             this.active = true;
-            Timer timer = new Timer(frameTime, this);
-            timer.setRepeats(false);
-            timer.start();
+            this.repaint();
+            TimerTask task = new TimerTask() {
+                public void run(){nextFrame();}
+            };
+            timer.schedule(task, frameTime);
         }
     }
 
@@ -230,30 +224,10 @@ abstract class Animation extends JComponent implements ActionListener{
      */
     abstract void paintFrame(java.awt.Graphics graphics, double progress);
 
-    /**
-     * Called by Timer to advance the animation.
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        nextFrame();
-    }
-
     // --- Disabled functions for lightweight rendering ---
     /** Disabled: This component does not support child components. */
     public final Component add(Component comp) { return comp; }
 
-    /** Disabled: Prevents adding components internally. */
-    protected final void addImpl(Component comp, Object constraints, int index) {}
-
-    /** Disabled: Prevents adding container listeners. */
-    public final void addContainerListener(ContainerListener l) {}
-
-    /** Disabled: Prevents changing opacity. */
-    public final void setOpaque(boolean opaque) {}
-
     /** Disabled: Prevents changing background color. */
     public final void setBackground(Color color) {}
-
-    /** Disabled: Prevents changing border. */
-    public final void setBorder(Border border) {}
 }
