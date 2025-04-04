@@ -6,11 +6,10 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class GameLoginField extends JTextField{
     public GameLoginField(){
-        super("ENTER YOUR USERNAME HERE", Username.MAX_LENGTH);
+        super("ENTER THE USERNAME HERE!", Username.MAX_LENGTH);
         this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(6,0,6,0)));
         Dimension dimension = new Dimension(375,50);
 

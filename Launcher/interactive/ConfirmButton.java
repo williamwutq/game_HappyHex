@@ -25,7 +25,7 @@ public class ConfirmButton extends LaunchButton {
             System.err.println("Attempted login failed.");
         } else if (player.isKeyword()){
             // Get angry
-            textField.setText("GAME KEYWORDS PROHIBITED");
+            textField.setText("GAME KEYWORD PROHIBITED!");
             System.err.println("Attempted login failed.");
         } else {
             // Validate user input
