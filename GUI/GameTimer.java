@@ -6,6 +6,7 @@ import java.awt.event.*;
 public class GameTimer extends Timer implements ActionListener {
     public GameTimer() {
         super(GameEssentials.getDelay(), null);
+        this.setRepeats(false);
         this.addActionListener(this);
     }
     @Override
