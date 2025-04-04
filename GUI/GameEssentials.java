@@ -197,9 +197,9 @@ public final class GameEssentials {
         if(easy) {
             Hex.Piece.setEasy();
         }
-        setEngine(new HexEngine(size));
-        setQueue(new Queue(queueSize));
-        setWindow(frame);
+        engine = new HexEngine(size);
+        queue = new Queue(queueSize);
+        window = frame;
         setDelay(delay);
         calculateButtonSize();
     }
@@ -263,15 +263,6 @@ public final class GameEssentials {
     }
 
     // Setters
-    public static void setEngine(HexEngine engine){
-        GameEssentials.engine = engine;
-    }
-    public static void setQueue(Queue queue){
-        GameEssentials.queue = queue;
-    }
-    public static void setWindow(JFrame window){
-        GameEssentials.window = window;
-    }
     public static void setSelectedPieceIndex(int index){
         if(index == -1 || (index >= 0 && index < queue.length())){
             GameEssentials.selectedPieceIndex = index;
