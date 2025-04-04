@@ -40,7 +40,7 @@ import java.util.*;
  *
  * <p>Note: This component does not allow adding child components and ignores layout, background, opacity, and border settings.</p>
  */
-abstract class Animation extends Component{
+public abstract class Animation extends Component{
     /** Current frame progress of the animation. */
     private int progress;
     /** Total number of frames in the animation. */
