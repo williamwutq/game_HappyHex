@@ -27,6 +27,10 @@ public final class GameEssentials {
     private static Queue queue;
     /** The main window of the game. */
     private static JFrame window;
+    // Info panels
+    private static GameInfoPanel turnLabel;
+    private static GameInfoPanel scoreLabel;
+    private static GameInfoPanel playerLabel;
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
@@ -193,18 +197,36 @@ public final class GameEssentials {
         return half - (int)Math.round(length * HexButton.getActiveSize() * sinOf60);
     }
     // Initializing
-    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame){
+    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player){
         if(easy) {
             Hex.Piece.setEasy();
         }
         engine = new HexEngine(size);
         queue = new Queue(queueSize);
         window = frame;
+        // Construct labels
+        turnLabel = new GameInfoPanel();
+        scoreLabel = new GameInfoPanel();
+        playerLabel = new GameInfoPanel();
+        turnLabel.setTitle("TURN");
+        scoreLabel.setTitle("SCORE");
+        playerLabel.setTitle("PLAYER");
+        turnLabel.setInfo("0");
+        scoreLabel.setInfo("0");
+        playerLabel.setInfo(player);
+        turnLabel.setBounds(0, 0, 100, 100);
+        scoreLabel.setBounds(300, 0, 100, 100);
+        playerLabel.setBounds(300, 300, 100, 100);
+        // Calculations
         setDelay(delay);
         calculateButtonSize();
     }
     public static JPanel fetchGamePanel(){
-        return new GamePanel();
+        JPanel panel = new GamePanel();
+        panel.add(turnLabel);
+        panel.add(scoreLabel);
+        panel.add(playerLabel);
+        return panel;
     }
     public static JPanel fetchPiecePanel(){
         return new PiecePanel();
@@ -256,10 +278,12 @@ public final class GameEssentials {
         return score;
     }
     public static void incrementTurn(){
-        GameEssentials.turn ++;
+        turn ++;
+        turnLabel.setInfo(turn + "");
     }
-    public static void incrementScore(int score){
-        GameEssentials.score += score;
+    public static void incrementScore(int addedScore){
+        score += addedScore;
+        scoreLabel.setInfo(score + "");
     }
 
     // Setters
