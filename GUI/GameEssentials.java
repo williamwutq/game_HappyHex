@@ -290,6 +290,8 @@ public final class GameEssentials {
         // Reset
         score = 0;
         turn = 0;
+        turnLabel.setInfo(turn + "");
+        scoreLabel.setInfo(score + "");
         engine.reset();
         queue.reset();
         window.repaint();
