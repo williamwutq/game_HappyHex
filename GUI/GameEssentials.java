@@ -186,6 +186,31 @@ public final class GameEssentials {
         double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60);
         HexButton.setSize(minSize);
     }
+    public static void calculateLabelSize() {
+        int height = window().getHeight();
+        int width = window().getWidth();
+        int gamePanelExtension = getGamePanelWidthExtension();
+
+        double minSize = Math.min(height - 33, width - 5);
+        int labelWidth = (int) Math.round(minSize / 6.0);
+        int labelHeight = (int) Math.round(minSize / 12.0);
+        Dimension dimension = new Dimension(labelWidth, labelHeight);
+
+        int margin = 3;
+        int piecePanelSize = (int) Math.round(5 * HexButton.getActiveSize());
+        int bottomOffset = labelHeight + 28 + margin;
+
+        int right = width - gamePanelExtension - labelWidth - margin;
+        int bottom = height - piecePanelSize - bottomOffset;
+
+        turnLabel.setPreferredSize(dimension);
+        scoreLabel.setPreferredSize(dimension);
+        playerLabel.setPreferredSize(dimension);
+
+        turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
+        scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
+        playerLabel.setBounds(new Rectangle(new Point(right, bottom), dimension));
+    }
     public static int getPiecePanelWidthExtension(){
         int half = window.getWidth()/2;
         int length = queue.length() * 3;
@@ -220,6 +245,7 @@ public final class GameEssentials {
         // Calculations
         setDelay(delay);
         calculateButtonSize();
+        calculateLabelSize();
     }
     public static JPanel fetchGamePanel(){
         JPanel panel = new GamePanel();
