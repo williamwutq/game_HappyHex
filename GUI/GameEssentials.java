@@ -27,10 +27,11 @@ public final class GameEssentials {
     private static Queue queue;
     /** The main window of the game. */
     private static JFrame window;
-    // Info panels
+    // Info panels and quit button
     private static GameInfoPanel turnLabel;
     private static GameInfoPanel scoreLabel;
     private static GameInfoPanel playerLabel;
+    private static GameQuitButton quitButton;
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
@@ -60,6 +61,7 @@ public final class GameEssentials {
     public static final Color gamePiecePanelColor = new Color(113, 129, 122);
     public static final Color gamePieceSelectedColor = gameBackGroundColor;
     public static final Color gameDisplayFontColor = new Color(5, 34, 24);
+    public static final Color gameQuitFontColor = new Color(136, 7, 7);
 
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
@@ -206,10 +208,12 @@ public final class GameEssentials {
         turnLabel.setPreferredSize(dimension);
         scoreLabel.setPreferredSize(dimension);
         playerLabel.setPreferredSize(dimension);
+        quitButton.setPreferredSize(dimension);
 
         turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
         scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
         playerLabel.setBounds(new Rectangle(new Point(right, bottom), dimension));
+        quitButton.setBounds(new Rectangle(new Point(margin + gamePanelExtension, bottom), dimension));
     }
     public static int getPiecePanelWidthExtension(){
         int half = window.getWidth()/2;
@@ -233,6 +237,7 @@ public final class GameEssentials {
         turnLabel = new GameInfoPanel();
         scoreLabel = new GameInfoPanel();
         playerLabel = new GameInfoPanel();
+        quitButton = new GameQuitButton();
         turnLabel.setTitle("TURN");
         scoreLabel.setTitle("SCORE");
         playerLabel.setTitle("PLAYER");
@@ -252,6 +257,7 @@ public final class GameEssentials {
         panel.add(turnLabel);
         panel.add(scoreLabel);
         panel.add(playerLabel);
+        panel.add(quitButton);
         return panel;
     }
     public static JPanel fetchPiecePanel(){
