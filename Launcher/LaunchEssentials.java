@@ -73,6 +73,9 @@ public final class LaunchEssentials {
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
     }
+    public static String getCurrentPlayer(){
+        return currentGameInfo.getPlayer().toString();
+    }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small);
         gameStarted = false;
