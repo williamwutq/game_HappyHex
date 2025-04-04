@@ -47,6 +47,8 @@ abstract class Animation extends JComponent implements ActionListener{
     private int totalFrames;
     /** Time between frames in milliseconds. */
     private int frameTime;
+    /** Whether this animation is active. */
+    private boolean active;
     /** ActionListener that starts animation. */
     private final ActionListener startListener;
     /** ActionListener to be completed after animation. */
@@ -66,6 +68,7 @@ abstract class Animation extends JComponent implements ActionListener{
         if (frameTime > 0) {
             this.frameTime = frameTime;
         }
+        this.active = false;
         this.startListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -96,6 +99,7 @@ abstract class Animation extends JComponent implements ActionListener{
         if (frameTime > 0) {
             this.frameTime = frameTime;
         }
+        this.active = false;
         this.startListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -127,6 +131,7 @@ abstract class Animation extends JComponent implements ActionListener{
             timer.setRepeats(false);
             timer.start();
         } else {
+            this.active = false;
             try{
                 Container parent = this.getParent();
                 parent.remove(this);
@@ -177,7 +182,8 @@ abstract class Animation extends JComponent implements ActionListener{
      * Starts the animation if it has frames to render.
      */
     public void start(){
-        if(totalFrames == 0 || progress < totalFrames){
+        if(totalFrames != 0 && progress < totalFrames && !this.active){
+            this.active = true;
             Timer timer = new Timer(frameTime, this);
             timer.setRepeats(false);
             timer.start();
@@ -209,7 +215,9 @@ abstract class Animation extends JComponent implements ActionListener{
      * @param graphics the Graphics context in which to paint.
      */
     public void paint(java.awt.Graphics graphics){
-        paintFrame(graphics, progress / (double) totalFrames);
+        if(active) {
+            paintFrame(graphics, progress / (double) totalFrames);
+        }
     }
 
     /**
