@@ -3,20 +3,16 @@ package GUI;
 import Hex.HexEngine;
 import Hex.Piece;
 import Hex.Queue;
-import Launcher.LaunchEssentials;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class HappyHexGUI{
     public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame){
         if(easy) {
             Piece.setEasy();
         }
-        HexEngine engine = new HexEngine(size);
-        Queue queue = new Queue(queueSize);
-        GameEssentials.setEngine(engine);
-        GameEssentials.setQueue(queue);
+        GameEssentials.setEngine(new HexEngine(size));
+        GameEssentials.setQueue(new Queue(queueSize));
         GameEssentials.setWindow(frame);
         GameEssentials.setDelay(delay);
         GameEssentials.calculateButtonSize();
