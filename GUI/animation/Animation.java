@@ -43,12 +43,14 @@ import java.awt.event.*;
 abstract class Animation extends JComponent implements ActionListener{
     /** Current frame progress of the animation. */
     private int progress;
-
     /** Total number of frames in the animation. */
     private int totalFrames;
-
     /** Time between frames in milliseconds. */
     private int frameTime;
+    /** ActionListener that starts animation. */
+    private final ActionListener startListener;
+    /** ActionListener to be completed after animation. */
+    private final ActionListener endListener;
 
     /**
      * Constructs an Animation object with a given number of total frames and frame time.
@@ -64,6 +66,47 @@ abstract class Animation extends JComponent implements ActionListener{
         if (frameTime > 0) {
             this.frameTime = frameTime;
         }
+        this.startListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                start();
+            }
+        };
+        this.endListener = null;
+        // Set minimal properties to prevent layout/painting conflicts
+        super.setLayout(null);
+        super.setBackground(new Color(0,0,0,0));
+        super.setBounds(new Rectangle(0, 0, 1, 1));
+        super.setBorder(new EmptyBorder(0,0,0,0));
+        super.setOpaque(false);
+    }
+
+    /**
+     * Constructs an Animation object with a given number of total frames, frame time, start and end actions
+     *
+     * @param totalFrames the total number of frames to render.
+     * @param frameTime   the delay between each frame in milliseconds (default to 1 millisecond, must be greater than 0).
+     * @param endListener   the actionListener that will be trigger at the end of the animation.
+     */
+    public Animation(int totalFrames, int frameTime, ActionListener endListener){
+        super();
+        this.progress = 0;
+        this.totalFrames = totalFrames;
+        this.frameTime = 1;
+        if (frameTime > 0) {
+            this.frameTime = frameTime;
+        }
+        this.startListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+//                Object source = e.getSource();
+//                if(source instanceof Animation){
+//                    ((Animation)source).start();
+//                }
+                start();
+            }
+        };
+        this.endListener = endListener;
         // Set minimal properties to prevent layout/painting conflicts
         super.setLayout(null);
         super.setBackground(new Color(0,0,0,0));
@@ -91,6 +134,10 @@ abstract class Animation extends JComponent implements ActionListener{
                 parent.repaint();
             } catch (Exception e) {
                 this.repaint(); // Fallback if parent is null or removal fails
+            }
+            if(endListener != null){
+                // Trigger endListener
+                endListener.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
             }
         }
     }
@@ -135,6 +182,15 @@ abstract class Animation extends JComponent implements ActionListener{
             timer.setRepeats(false);
             timer.start();
         }
+    }
+
+    /**
+     * Gets the actionLister that will trigger this animation.
+     *
+     * @return the start actionListener, which will start this animation.
+     */
+    public ActionListener getStartListener(){
+        return startListener;
     }
 
     /**
