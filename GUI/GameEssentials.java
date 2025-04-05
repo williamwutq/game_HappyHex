@@ -1,5 +1,6 @@
 package GUI;
 
+import GUI.animation.CenteringEffect;
 import Hex.HexEngine;
 import Hex.Queue;
 
@@ -255,6 +256,17 @@ public final class GameEssentials {
         setDelay(delay);
         calculateButtonSize();
         calculateLabelSize();
+    }
+    public static CenteringEffect createAnimation(Hex.Block block){
+        CenteringEffect animation = new CenteringEffect(block);
+        animation.start();
+        return animation;
+    }
+    public static void addAnimation(GUI.animation.Animation animation){
+        Component component = window().getContentPane().getComponent(0);
+        if(component instanceof JPanel){
+            ((JPanel)component).add(animation);
+        }
     }
     public static JPanel fetchGamePanel(){
         JPanel panel = new GamePanel();
