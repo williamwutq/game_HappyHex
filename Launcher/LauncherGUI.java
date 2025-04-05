@@ -6,7 +6,6 @@ import Launcher.panel.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 
 public class LauncherGUI {
     public static JFrame mainFrame;
@@ -39,6 +38,7 @@ public class LauncherGUI {
         mainFrame.setLayout(new BorderLayout());
         mainFrame.setBackground(LaunchEssentials.launchBackgroundColor);
         mainFrame.setIconImage(fetchIconImage());
+        Taskbar.getTaskbar().setIconImage(fetchIconImage());
         mainFrame.setSize(new Dimension(400, 400));
         mainFrame.setMinimumSize(new Dimension(400, 400));
         mainFrame.addWindowListener(new WindowAdapter() {
