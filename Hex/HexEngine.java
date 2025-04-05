@@ -1,5 +1,7 @@
 package Hex;
 
+import GUI.GameEssentials;
+
 import java.awt.Color;
 import java.util.ArrayList;
 
@@ -211,54 +213,62 @@ public class HexEngine implements HexGrid{
     public boolean checkEliminate(){
         // Check I
         for(int i = 0; i < radius*2 - 1; i ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineI() == i){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
-                }
-            }
-            if(!line.isEmpty()) return true; // If one line is to be eliminated
+            if(checkEliminateI(i)) return true;
         }
         // Check J
         for(int j = 1 - radius; j < radius; j ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineJ() == j){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
-                }
-            }
-            if(!line.isEmpty()) return true; // If one line is to be eliminated
+            if(checkEliminateJ(j)) return true;
         }
         // Check K
         for(int k = 0; k < radius*2 - 1; k ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineK() == k){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
+            if(checkEliminateK(k)) return true;
+        }
+        return false;
+    }
+    public boolean checkEliminateI(int i){
+        for(int index = 0; index < length(); index ++){
+            if(blocks[index].getLineI() == i){
+                // Found block
+                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
+                    return false;
                 }
             }
-            if(!line.isEmpty()) return true; // If one line is to be eliminated
+        }
+        return true;
+    }
+    public boolean checkEliminateJ(int j){
+        for(int index = 0; index < length(); index ++){
+            if(blocks[index].getLineJ() == j){
+                // Found block
+                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    public boolean checkEliminateK(int k){
+        for(int index = 0; index < length(); index ++){
+            if(blocks[index].getLineK() == k){
+                // Found block
+                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    public boolean isPotentialPieceBlock(int index){
+        if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
+            Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
+            Piece piece = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex());
+            hoverBlock = hoverBlock.subtract(piece.getBlock(GameEssentials.getSelectedBlockIndex()));
+            for (int i = 0; i < piece.length(); i++) {
+                Hex position = piece.getBlock(i).thisHex();
+                if (blocks[index].thisHex().equals(hoverBlock.add(position))) {
+                    return true;
+                }
+            }
         }
         return false;
     }

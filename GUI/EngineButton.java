@@ -40,6 +40,9 @@ public class EngineButton extends HexButton {
                 // If addition is possible
                 return Color.GRAY;
             }
+            if (isPotentialEliminationTarget()){
+                return GameEssentials.whitenColor(super.fetchColor());
+            }
         }
         return super.fetchColor();
     }
@@ -88,15 +91,20 @@ public class EngineButton extends HexButton {
         GameEssentials.setHoveredOverIndex(-1);
     }
     private boolean isPotentialPieceBlock(){
+        return GameEssentials.engine().isPotentialPieceBlock(getIndex());
+    }
+    private boolean isPotentialEliminationTarget(){
         if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
             Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
             Piece piece = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex());
             hoverBlock = hoverBlock.subtract(piece.getBlock(GameEssentials.getSelectedBlockIndex()));
             for (int i = 0; i < piece.length(); i++) {
-                Hex position = piece.getBlock(i).thisHex();
-                if (fetchBlock().thisHex().equals(hoverBlock.add(position))) {
-                    return true;
-                }
+                Hex position = hoverBlock.add(piece.getBlock(i).thisHex());
+                Hex current = fetchBlock().thisHex();
+                if(GameEssentials.engine().checkEliminateI(position.getLineI()) && current.inLineI(position) ||
+                   GameEssentials.engine().checkEliminateJ(position.getLineJ()) && current.inLineJ(position) ||
+                   GameEssentials.engine().checkEliminateK(position.getLineK()) && current.inLineK(position)
+                ) return true;
             }
         }
         return false;
