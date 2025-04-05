@@ -28,7 +28,7 @@ public class LauncherGUI {
         return new SettingPanel();
     }
     private static Image fetchIconImage(){
-        String path = "icon.png";
+        String path = "icon_512.png";
         ImageIcon icon = new ImageIcon(LauncherGUI.class.getResource(path));
         return icon.getImage();
     }
