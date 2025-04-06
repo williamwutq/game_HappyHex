@@ -24,18 +24,19 @@ public class DisappearEffect extends Animation {
             double size = GUI.HexButton.getActiveSize();
             int width = (int) Math.round(2 * size * GameEssentials.sinOf60);
             int height = (int) Math.round(2 * size);
+            double extended = 1.9;
             Dimension dimension = new Dimension(width, height);
             this.setSize(dimension);
             this.setMinimumSize(dimension);
             this.setMaximumSize(dimension);
             this.setPreferredSize(dimension);
-            int x = (int) Math.round(size * 2 * block.X());
-            int y = (int) Math.round(size * 2 * (block.Y() + (GameEssentials.engine().getRadius() - 1) * 0.75));
-            this.setBounds(x + GameEssentials.getGamePanelWidthExtension(), y + GameEssentials.getGamePanelHeightExtension(), (int) Math.round(2 * size * GameEssentials.sinOf60), (int) Math.round(2 * size));
+            int x = (int) Math.round(size * 2 * block.X() + (1 - extended) * size);
+            int y = (int) Math.round(size * 2 * (block.Y() + (GameEssentials.engine().getRadius() - 1) * 0.75) + (1 - extended) * size);
+            this.setBounds(x + GameEssentials.getGamePanelWidthExtension(), y + GameEssentials.getGamePanelHeightExtension(), (int) Math.round(extended * 2 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
         }
     }
     @Override
-    void paintFrame(Graphics graphics, double progress) {
+    void paintFrame(Graphics g, double progress) {
         resetSize();
         double size = GUI.HexButton.getActiveSize();
         int[] xPoints = new int[40];
@@ -43,8 +44,10 @@ public class DisappearEffect extends Animation {
         for (int i = 0; i < 20; i++) {
             double angle = Math.toRadians(18 * i);
             double radius = size * progress * (8 + Math.sin(20 * (angle - progress)) - Math.sin(20 * (angle + progress)));
-            xPoints[i] = (int) Math.round(Math.cos(angle) * radius);
-            yPoints[i] = (int) Math.round(Math.sin(angle) * radius);
+            xPoints[i] = (int) Math.round(GameEssentials.sinOf60 * size + Math.cos(angle) * radius * 0.1);
+            yPoints[i] = (int) Math.round(size + Math.sin(angle) * radius * 0.1);
         }
+        g.setColor(Color.BLUE);
+        g.fillPolygon(xPoints, yPoints, 40);
     }
 }
