@@ -93,7 +93,7 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
     public final void paint(java.awt.Graphics g) {
         resetSize();
         // Fetch block color
-        Color blockColor = fetchColor();
+        Color blockColor = GameEssentials.processColor(fetchColor());
         if (hover) {
             GameEssentials.paintHexagon(g, GameEssentials.dimColor(blockColor), (extended - 1) / 2, (extended - 1) / 2, size, extended);
         } else {

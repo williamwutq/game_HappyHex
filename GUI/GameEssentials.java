@@ -62,11 +62,11 @@ public final class GameEssentials {
     };
 
     public static final String gameDisplayFont = "Source Code Pro";
-    public static final Color gameBackGroundColor = new Color(213, 236, 230);
-    public static final Color gamePiecePanelColor = new Color(113, 129, 122);
+    public static final Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230));
+    public static final Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122));
     public static final Color gamePieceSelectedColor = gameBackGroundColor;
-    public static final Color gameDisplayFontColor = new Color(5, 34, 24);
-    public static final Color gameQuitFontColor = new Color(136, 7, 7);
+    public static final Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24));
+    public static final Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7));
 
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
