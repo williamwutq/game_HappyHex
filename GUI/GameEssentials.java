@@ -46,7 +46,7 @@ public final class GameEssentials {
     private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
 
     // Random Piece
-    private static final Color[] pieceColors = {
+    private static final Color[] pieceColors = (Color[]) colorProcessor.process(new Color[]{
         new Color(0, 0, 240),
         new Color(0, 100, 190),
         new Color(0, 180, 180),
@@ -59,7 +59,7 @@ public final class GameEssentials {
         new Color(200, 0, 120),
         new Color(180, 0, 180),
         new Color(100, 0, 200),
-    };
+    });
 
     public static final String gameDisplayFont = "Source Code Pro";
     public static final Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230));

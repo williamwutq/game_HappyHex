@@ -56,16 +56,27 @@ public class Grayscale implements SpecialFeature {
     public Object[] process(Object[] objects) {
         if(isActive()) {
             if (objects == null || objects.length == 0) return null;
-            for (int i = 0; i < objects.length; i++) {
+            boolean isColorBaseArray = objects.length == 6 || objects.length == 12;
+            int k = 0;
+            while (k < objects.length && isColorBaseArray) {
+                if (!(objects[k] instanceof Color)) {
+                    isColorBaseArray = false;
+                } else k++;
+            }
+            if(isColorBaseArray){
+                for (int i = 0; i < objects.length; i++) {
+                    objects[i] = (Object) new Color(160, 160, 160);
+                }
+            } else for (int i = 0; i < objects.length; i++) {
                 if (objects[i] instanceof Color) {
                     Color color = (Color) objects[i];
-                    int gray = (int) Math.round(color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114);
+                    int gray = (int) Math.round((color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114)*1.5) - 64;
                     if (gray > 255) {
                         gray = 255;
                     } else if (gray < 0) {
                         gray = 0;
                     }
-                    color = new Color(gray, gray, gray);
+                    color = new Color(gray, gray, gray, color.getAlpha());
                     objects[i] = (Object) color;
                 }
             }
