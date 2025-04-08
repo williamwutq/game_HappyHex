@@ -37,10 +37,10 @@ public class Grayscale implements SpecialFeature {
         return 0;
     }
     public boolean validate() {
-        if(special.special.getCurrentVersionMajor() > getSupportVersionMajor()){
+        if(special.Special.getCurrentVersionMajor() > getSupportVersionMajor()){
             valid = true;
-        } else if (special.special.getCurrentVersionMajor() == getSupportVersionMajor()){
-            valid = special.special.getCurrentVersionMinor() >= getSupportVersionMinor();
+        } else if (special.Special.getCurrentVersionMajor() == getSupportVersionMajor()){
+            valid = special.Special.getCurrentVersionMinor() >= getSupportVersionMinor();
         } else valid = false;
         return valid;
     }

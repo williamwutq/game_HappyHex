@@ -1,8 +1,9 @@
 package GUI;
 
-import GUI.animation.CenteringEffect;
+import GUI.animation.*;
 import Hex.HexEngine;
 import Hex.Queue;
+import special.FeatureFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,6 +41,9 @@ public final class GameEssentials {
 
     private static int turn = 0;
     private static int score = 0;
+
+    // Special Features
+    private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
 
     // Random Piece
     private static final Color[] pieceColors = {
@@ -123,6 +127,9 @@ public final class GameEssentials {
     }
     public static Color dimColor(Color origin){
         return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * dim));
+    }
+    public static Color processColor(Color origin){
+        return (Color) colorProcessor.process(origin);
     }
     public static Color interpolate(Color base, Color target, int degree){
         return new Color((base.getRed()*degree + target.getRed())/(1 + degree),(base.getGreen()*degree + target.getGreen())/(1 + degree),(base.getBlue()*degree + target.getBlue())/(1 + degree));

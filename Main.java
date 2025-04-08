@@ -5,7 +5,7 @@
 
 public class Main{
     public static void main(String[] args){
-        special.special.validate();
+        special.Special.validate();
         Launcher.LauncherGUI.launch();
     }
 }

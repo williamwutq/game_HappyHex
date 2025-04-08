@@ -3,9 +3,9 @@ package special;
 import java.io.File;
 import java.net.URL;
 
-public final class special {
+public final class Special {
     private static boolean enable = true;
-    private static boolean valid = special.validate();
+    private static boolean valid = Special.validate();
     public static final int SUPPORT_VERSION_MAJOR_SAFE = 1;
     public static final int SUPPORT_VERSION_MAJOR_LOW = 1;
     public static final int SUPPORT_VERSION_MINOR = 0;
@@ -14,13 +14,13 @@ public final class special {
 
     public static boolean validate(){
         // Valid Main
-        URL main = special.class.getResource("/Main.class");
+        URL main = Special.class.getResource("/Main.class");
         if (main == null || !(new File(main.getPath()).exists())) return false;
         // Valid Launcher
-        URL launchEssentials = special.class.getResource("/Launcher/LaunchEssentials.class");
+        URL launchEssentials = Special.class.getResource("/Launcher/LaunchEssentials.class");
         if (launchEssentials == null || !(new File(launchEssentials.getPath()).exists())) return false;
         // Valid GUI
-        URL GameEssentials = special.class.getResource("/GUI/GameEssentials.class");
+        URL GameEssentials = Special.class.getResource("/GUI/GameEssentials.class");
         if (GameEssentials == null || !(new File(GameEssentials.getPath()).exists())) return false;
         // Fetch version
         try{
@@ -41,7 +41,7 @@ public final class special {
         return enable && valid;
     }
     public static boolean activate(){
-        valid = special.validate();
+        valid = Special.validate();
         return valid;
     }
     public static void enable(){
