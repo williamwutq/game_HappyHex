@@ -1,5 +1,3 @@
-import Launcher.LauncherGUI;
-
 /**
  * Main file of the game
  * Run main
@@ -7,6 +5,7 @@ import Launcher.LauncherGUI;
 
 public class Main{
     public static void main(String[] args){
-        LauncherGUI.launch();
+        special.special.validate();
+        Launcher.LauncherGUI.launch();
     }
 }

@@ -9,6 +9,8 @@ public final class special {
     public static final int SUPPORT_VERSION_MAJOR_SAFE = 1;
     public static final int SUPPORT_VERSION_MAJOR_LOW = 1;
     public static final int SUPPORT_VERSION_MINOR = 0;
+    private static int CURRENT_VERSION_MAJOR = -1;
+    private static int CURRENT_VERSION_MINOR = -1;
 
     public static boolean validate(){
         // Valid Main
@@ -21,17 +23,16 @@ public final class special {
         URL GameEssentials = special.class.getResource("/GUI/GameEssentials.class");
         if (GameEssentials == null || !(new File(GameEssentials.getPath()).exists())) return false;
         // Fetch version
-        int major = -1; int minor = -1;
         try{
-            major = Launcher.LaunchEssentials.currentGameVersion.major();
+            CURRENT_VERSION_MAJOR = Launcher.LaunchEssentials.currentGameVersion.major();
         } catch (Exception e){return false;}
         try{
-            minor = Launcher.LaunchEssentials.currentGameVersion.minor();
+            CURRENT_VERSION_MINOR = Launcher.LaunchEssentials.currentGameVersion.minor();
         } catch (Exception e){return false;}
         // Check version support
-        if (major < SUPPORT_VERSION_MAJOR_LOW){
+        if (CURRENT_VERSION_MAJOR < SUPPORT_VERSION_MAJOR_LOW){
             return false;
-        } else if (major < SUPPORT_VERSION_MAJOR_SAFE && minor < SUPPORT_VERSION_MINOR){
+        } else if (CURRENT_VERSION_MINOR < SUPPORT_VERSION_MAJOR_SAFE && CURRENT_VERSION_MINOR < SUPPORT_VERSION_MINOR){
             return false;
         }
         return true;
@@ -48,5 +49,11 @@ public final class special {
     }
     public static void disable(){
         enable = false;
+    }
+    public static int getCurrentVersionMajor(){
+        return CURRENT_VERSION_MAJOR;
+    }
+    public static int getCurrentVersionMinor(){
+        return CURRENT_VERSION_MINOR;
     }
 }
