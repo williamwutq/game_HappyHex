@@ -51,9 +51,11 @@ public final class Special {
         enable = false;
     }
     public static int getCurrentVersionMajor(){
+        validate();
         return CURRENT_VERSION_MAJOR;
     }
     public static int getCurrentVersionMinor(){
+        validate();
         return CURRENT_VERSION_MINOR;
     }
 }
