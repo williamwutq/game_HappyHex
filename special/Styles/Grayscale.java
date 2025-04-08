@@ -36,7 +36,11 @@ public class Grayscale implements SpecialFeature {
         return 0;
     }
     public boolean validate() {
-        return true; // no need for validation
+        if(special.special.getCurrentVersionMajor() > getSupportVersionMajor()){
+            return true;
+        } else if (special.special.getCurrentVersionMajor() == getSupportVersionMajor()){
+            return special.special.getCurrentVersionMinor() >= getSupportVersionMinor();
+        } else return false;
     }
     public void enable() {
         enable = true;
@@ -48,19 +52,22 @@ public class Grayscale implements SpecialFeature {
         return enable && valid;
     }
     public Object[] process(Object[] objects) {
-        if(objects == null || objects.length == 0) return null;
-        for (int i = 0; i < objects.length; i++) {
-            if (objects[i] instanceof Color) {
-                Color color = (Color) objects[i];
-                int gray = (int) Math.round(color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114);
-                if (gray > 255) {
-                    gray = 255;
-                } else if (gray < 0) {
-                    gray = 0;
+        if(isActive()) {
+            if (objects == null || objects.length == 0) return null;
+            for (int i = 0; i < objects.length; i++) {
+                if (objects[i] instanceof Color) {
+                    Color color = (Color) objects[i];
+                    int gray = (int) Math.round(color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114);
+                    if (gray > 255) {
+                        gray = 255;
+                    } else if (gray < 0) {
+                        gray = 0;
+                    }
+                    color = new Color(gray, gray, gray);
+                    objects[i] = (Object) color;
                 }
-                color = new Color(gray, gray, gray);
-                objects[i] = (Object) color;
             }
-        } return objects;
+        }
+        return objects;
     }
 }
