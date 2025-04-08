@@ -11,4 +11,7 @@ public class FeatureFactory {
             return grayscale;
         } else return new DefaultFeature(); // Default feature do nothing
     }
+    public static SpecialFeature createFeature(){
+        return new DefaultFeature(); // Default feature do nothing
+    }
 }
