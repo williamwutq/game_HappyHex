@@ -8,8 +8,9 @@ public class Grayscale implements SpecialFeature {
     private boolean enable;
     private boolean valid;
     public Grayscale(){
-        this.enable = false;
-        this.valid = validate();
+        this.enable = true;
+        this.valid = false;
+        validate();
     }
     public int getFeatureID() {
         return 3;
@@ -37,10 +38,11 @@ public class Grayscale implements SpecialFeature {
     }
     public boolean validate() {
         if(special.special.getCurrentVersionMajor() > getSupportVersionMajor()){
-            return true;
+            valid = true;
         } else if (special.special.getCurrentVersionMajor() == getSupportVersionMajor()){
-            return special.special.getCurrentVersionMinor() >= getSupportVersionMinor();
-        } else return false;
+            valid = special.special.getCurrentVersionMinor() >= getSupportVersionMinor();
+        } else valid = false;
+        return valid;
     }
     public void enable() {
         enable = true;

@@ -2,10 +2,8 @@ package special;
 
 public class DefaultFeature implements SpecialFeature{
     private boolean enable;
-    private boolean valid;
     public DefaultFeature(){
-        this.enable = false;
-        this.valid = validate();
+        this.enable = true;
     }
     public int getFeatureID() {
         return 0;
@@ -32,7 +30,7 @@ public class DefaultFeature implements SpecialFeature{
         return 0;
     }
     public boolean validate() {
-        return true; // no need for validation
+        return true; // Always valid
     }
     public void enable() {
         enable = true;
@@ -41,7 +39,7 @@ public class DefaultFeature implements SpecialFeature{
         enable = false;
     }
     public boolean isActive() {
-        return enable && valid;
+        return enable;
     }
     public Object[] process(Object[] objects) {
         return objects;
