@@ -39,13 +39,14 @@ public class DisappearEffect extends Animation {
     void paintFrame(Graphics g, double progress) {
         resetSize();
         double size = GUI.HexButton.getActiveSize();
+        double extended = 1.9;
         int[] xPoints = new int[40];
         int[] yPoints = new int[40];
-        for (int i = 0; i < 20; i++) {
-            double angle = Math.toRadians(18 * i);
+        for (int i = 0; i < 40; i++) {
+            double angle = Math.toRadians(9 * i);
             double radius = size * progress * (8 + Math.sin(20 * (angle - progress)) - Math.sin(20 * (angle + progress)));
-            xPoints[i] = (int) Math.round(GameEssentials.sinOf60 * size + Math.cos(angle) * radius * 0.1);
-            yPoints[i] = (int) Math.round(size + Math.sin(angle) * radius * 0.1);
+            xPoints[i] = (int) Math.round(GameEssentials.sinOf60 * size + Math.cos(angle) * radius * 0.1 + size * (extended - 1));
+            yPoints[i] = (int) Math.round(size + Math.sin(angle) * radius * 0.1 + size * (extended - 1));
         }
         g.setColor(Color.BLUE);
         g.fillPolygon(xPoints, yPoints, 40);
