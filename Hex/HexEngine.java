@@ -130,7 +130,7 @@ public class HexEngine implements HexGrid{
                 } else {
                     // If all checks, proceed to add block
                     setBlock(current.getLineI(), current.getLineK(), current);
-                    GameEssentials.addAnimation(GameEssentials.createAnimation(current));
+                    GameEssentials.addAnimation(GameEssentials.createCenterEffect(current));
                 }
             }
         }
@@ -205,10 +205,11 @@ public class HexEngine implements HexGrid{
         }
         // Eliminate
         for(Block block : eliminate){
+            GameEssentials.addAnimation(GameEssentials.createDisappearEffect(block));
             block.setColor(Color.BLACK);
             block.setState(false);
             setBlock(block.getLineI(), block.getLineK(), block);
-            GameEssentials.addAnimation(GameEssentials.createAnimation(block));
+            GameEssentials.addAnimation(GameEssentials.createCenterEffect(block));
         }
         return eliminate.size(); // Number of blocks being eliminated
     }

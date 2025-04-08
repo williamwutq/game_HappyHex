@@ -5,6 +5,7 @@ import Hex.HexEngine;
 import Hex.Queue;
 import special.FeatureFactory;
 
+import GUI.animation.*;
 import javax.swing.*;
 import java.awt.*;
 
@@ -264,15 +265,20 @@ public final class GameEssentials {
         calculateButtonSize();
         calculateLabelSize();
     }
-    public static CenteringEffect createAnimation(Hex.Block block){
+    public static Animation createCenterEffect(Hex.Block block){
         CenteringEffect animation = new CenteringEffect(block);
         animation.start();
         return animation;
     }
-    public static void addAnimation(GUI.animation.Animation animation){
+    public static Animation createDisappearEffect(Hex.Block block){
+        DisappearEffect animation = new DisappearEffect(block);
+        animation.start();
+        return animation;
+    }
+    public static void addAnimation(Animation animation){
         Component component = window().getContentPane().getComponent(0);
         if(component instanceof JPanel){
-            ((JPanel)component).add(animation);
+            ((JPanel)component).add(animation, 0);
         }
     }
     public static JPanel fetchGamePanel(){
