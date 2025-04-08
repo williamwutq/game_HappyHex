@@ -19,8 +19,8 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         this.state = false;
         this.onText = "ON";
         this.offText = "OFF";
-        this.onColor = Color.GREEN;
-        this.offColor = Color.RED;
+        this.onColor = LaunchEssentials.launchSlidingButtonOnColor;
+        this.offColor = LaunchEssentials.launchSlidingButtonOffColor;
         this.button = new SlidingButton();
         this.setBackground(offColor);
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));

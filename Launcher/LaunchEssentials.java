@@ -2,6 +2,7 @@ package Launcher;
 
 import GUI.GameEssentials;
 import Launcher.IO.*;
+import special.FeatureFactory;
 
 import java.awt.*;
 import java.io.IOException;
@@ -12,7 +13,7 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 0, 0);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 0, 1);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
@@ -21,16 +22,21 @@ public final class LaunchEssentials {
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
 
+    // Special Features
+    private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
+
     //GUI
     // Launcher
-    public static final Color launchBackgroundColor = new Color(241, 243, 213);
-    public static final Color launchTitlePanelBackgroundColor = new Color(219, 223, 151);
-    public static final Color launchAuthorFontColor = new Color(0, 73, 54);
-    public static final Color launchWWFontColor = Color.BLACK;
-    public static final Color launchVersionFontColor = Color.BLACK;
-    public static final Color launchStartButtonBackgroundColor = Color.BLACK;
-    public static final Color launchQuitButtonBackgroundColor = Color.RED;
-    public static final Color launchConfirmButtonBackgroundColor = new Color(0, 223, 39);
+    public static final Color launchBackgroundColor = (Color) colorProcessor.process(new Color(241, 243, 213));
+    public static final Color launchTitlePanelBackgroundColor = (Color) colorProcessor.process(new Color(219, 223, 151));
+    public static final Color launchAuthorFontColor = (Color) colorProcessor.process(new Color(0, 73, 54));
+    public static final Color launchWWFontColor = (Color) colorProcessor.process(Color.BLACK);
+    public static final Color launchVersionFontColor = (Color) colorProcessor.process(Color.BLACK);
+    public static final Color launchStartButtonBackgroundColor = (Color) colorProcessor.process(Color.BLACK);
+    public static final Color launchQuitButtonBackgroundColor = (Color) colorProcessor.process(Color.RED);
+    public static final Color launchConfirmButtonBackgroundColor = (Color) colorProcessor.process(new Color(0, 223, 39));
+    public static final Color launchSlidingButtonOnColor = (Color) colorProcessor.process(Color.GREEN);
+    public static final Color launchSlidingButtonOffColor = (Color) colorProcessor.process(Color.RED);
     public static final String launchTitleFont = "Courier";
     public static final String launchVersionFont = "Comic Sans MS";
     public static final String launchAuthorFont = "Helvetica";
@@ -45,24 +51,25 @@ public final class LaunchEssentials {
     }
     public static void startGame(){
         gameStarted = true;
+        int delay = 250;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            GameEssentials.initialize(5, 3, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            GameEssentials.initialize(8, 5, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            GameEssentials.initialize(11, 7, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            GameEssentials.initialize(5, 3, 100, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            GameEssentials.initialize(8, 5, 100, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            GameEssentials.initialize(11, 7, 100, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
             System.err.println("Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            GameEssentials.initialize(5, 3, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
         } else {
             System.err.println("Unknown GameMode detected.");
-            GameEssentials.initialize(5, 3, 100, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
         }
     }
     public static void endGame(){

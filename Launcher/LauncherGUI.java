@@ -27,11 +27,18 @@ public class LauncherGUI {
     public static JPanel fetchSettingPanel(){
         return new SettingPanel();
     }
+    private static Image fetchIconImage(){
+        String path = "icon_512.png";
+        ImageIcon icon = new ImageIcon(LauncherGUI.class.getResource(path));
+        return icon.getImage();
+    }
     private static void setupMainFrame(){
         mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion);
         mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setLayout(new BorderLayout());
         mainFrame.setBackground(LaunchEssentials.launchBackgroundColor);
+        mainFrame.setIconImage(fetchIconImage());
+        Taskbar.getTaskbar().setIconImage(fetchIconImage());
         mainFrame.setSize(new Dimension(400, 400));
         mainFrame.setMinimumSize(new Dimension(400, 400));
         mainFrame.addWindowListener(new WindowAdapter() {

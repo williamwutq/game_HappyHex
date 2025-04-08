@@ -1,7 +1,9 @@
 package GUI;
 
+import GUI.animation.*;
 import Hex.HexEngine;
 import Hex.Queue;
+import special.FeatureFactory;
 
 import GUI.animation.*;
 import javax.swing.*;
@@ -41,8 +43,11 @@ public final class GameEssentials {
     private static int turn = 0;
     private static int score = 0;
 
+    // Special Features
+    private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
+
     // Random Piece
-    private static final Color[] pieceColors = {
+    private static final Color[] pieceColors = (Color[]) colorProcessor.process(new Color[]{
         new Color(0, 0, 240),
         new Color(0, 100, 190),
         new Color(0, 180, 180),
@@ -55,14 +60,14 @@ public final class GameEssentials {
         new Color(200, 0, 120),
         new Color(180, 0, 180),
         new Color(100, 0, 200),
-    };
+    });
 
     public static final String gameDisplayFont = "Source Code Pro";
-    public static final Color gameBackGroundColor = new Color(213, 236, 230);
-    public static final Color gamePiecePanelColor = new Color(113, 129, 122);
+    public static final Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230));
+    public static final Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122));
     public static final Color gamePieceSelectedColor = gameBackGroundColor;
-    public static final Color gameDisplayFontColor = new Color(5, 34, 24);
-    public static final Color gameQuitFontColor = new Color(136, 7, 7);
+    public static final Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24));
+    public static final Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7));
 
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
@@ -123,6 +128,9 @@ public final class GameEssentials {
     }
     public static Color dimColor(Color origin){
         return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * dim));
+    }
+    public static Color processColor(Color origin){
+        return (Color) colorProcessor.process(origin);
     }
     public static Color interpolate(Color base, Color target, int degree){
         return new Color((base.getRed()*degree + target.getRed())/(1 + degree),(base.getGreen()*degree + target.getGreen())/(1 + degree),(base.getBlue()*degree + target.getBlue())/(1 + degree));
