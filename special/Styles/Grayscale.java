@@ -70,7 +70,7 @@ public class Grayscale implements SpecialFeature {
             } else for (int i = 0; i < objects.length; i++) {
                 if (objects[i] instanceof Color) {
                     Color color = (Color) objects[i];
-                    int gray = (int) Math.round((color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114)*1.5) - 64;
+                    int gray = (int) Math.round((color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114)*1.2) - 25;
                     if (gray > 255) {
                         gray = 255;
                     } else if (gray < 0) {
