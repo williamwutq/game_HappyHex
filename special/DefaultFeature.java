@@ -1,9 +1,9 @@
 package special;
 
-public class defaultFeature {
+public class DefaultFeature implements SpecialFeature{
     private boolean enable;
     private boolean valid;
-    public defaultFeature(){
+    public DefaultFeature(){
         this.enable = false;
         this.valid = validate();
     }
