@@ -270,7 +270,7 @@ public final class GameEssentials {
     public static void addAnimation(Animation animation){
         Component component = window().getContentPane().getComponent(0);
         if(component instanceof JPanel){
-            ((JPanel)component).add(animation);
+            ((JPanel)component).add(animation, 0);
         }
     }
     public static JPanel fetchGamePanel(){
