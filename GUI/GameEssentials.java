@@ -5,7 +5,6 @@ import Hex.HexEngine;
 import Hex.Queue;
 import special.FeatureFactory;
 
-import GUI.animation.*;
 import javax.swing.*;
 import java.awt.*;
 
