@@ -5,7 +5,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 
-abstract class SimpleButton extends JButton implements ActionListener, ComponentListener {
+abstract class SimpleButton extends JButton implements ActionListener{
     private static int size = 1;
     public SimpleButton(String text, Color color){
         super(text);
@@ -16,14 +16,13 @@ abstract class SimpleButton extends JButton implements ActionListener, Component
         this.setVerticalAlignment(SwingConstants.CENTER);
         this.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.addActionListener(this);
-        this.addComponentListener(this);
     }
 
     public void actionPerformed(ActionEvent e) {
         this.clicked();
     }
     abstract void clicked();
-    private void resetSize(){
+    public void resetSize(){
         this.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, size));
     }
     public static void setSize(int size){
@@ -32,17 +31,4 @@ abstract class SimpleButton extends JButton implements ActionListener, Component
     public static int getActiveSize(){
         return size;
     }
-    public final void componentResized(ComponentEvent e) {
-        this.resetSize();
-        this.repaint();
-    }
-    public final void componentMoved(ComponentEvent e) {
-        this.resetSize();
-        this.repaint();
-    }
-    public final void componentShown(ComponentEvent e) {
-        this.resetSize();
-        this.repaint();
-    }
-    public final void componentHidden(ComponentEvent e) {}
 }

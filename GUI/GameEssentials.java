@@ -218,6 +218,7 @@ public final class GameEssentials {
         scoreLabel.setPreferredSize(dimension);
         playerLabel.setPreferredSize(dimension);
         quitButton.setPreferredSize(dimension);
+        quitButton.resetSize();
 
         turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
         scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
