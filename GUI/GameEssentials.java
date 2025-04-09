@@ -205,6 +205,7 @@ public final class GameEssentials {
         int labelWidth = (int) Math.round(minSize / 6.0);
         int labelHeight = (int) Math.round(minSize / 12.0);
         Dimension dimension = new Dimension(labelWidth, labelHeight);
+        SimpleButton.setSize((int)Math.round(labelHeight*0.6));
 
         int margin = 3;
         int piecePanelSize = (int) Math.round(5 * HexButton.getActiveSize());
