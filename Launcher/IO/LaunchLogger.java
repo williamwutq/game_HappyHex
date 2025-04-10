@@ -212,7 +212,8 @@ public final class LaunchLogger {
     }
 
     public static PlayerInfo[] fetchPlayerStats(){
-        return new PlayerInfo[0]; // Placeholder
+        System.out.println(scores);
+        return scores.toArray(new PlayerInfo[0]);
     }
 
     public static void addGame(GameInfo gameInfo){

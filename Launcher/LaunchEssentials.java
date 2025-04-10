@@ -148,7 +148,7 @@ public final class LaunchEssentials {
                         currentPlayerInfo.setHighScore(info.getHighScore());
                     }
                     if (info.getHighTurn() > currentPlayerInfo.getHighTurn()) {
-                        currentPlayerInfo.setHighTurn(info.getHighScore());
+                        currentPlayerInfo.setHighTurn(info.getHighTurn());
                     }
                 }
             }
