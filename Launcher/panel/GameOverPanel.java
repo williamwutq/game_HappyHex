@@ -20,7 +20,6 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         this.add(gameNameLabelPanel);
         gameQuitButton = fetchGameQuitButton();
         this.add(Box.createVerticalGlue());
-        this.add(new JLabel("677"));
         this.add(gameQuitButton);
         this.add(Box.createVerticalGlue());
         this.addComponentListener(this);
@@ -53,14 +52,15 @@ public class GameOverPanel extends JPanel implements ComponentListener {
     }
 
     public void recalculate() {
-        double referenceGameNameSize = Math.min(getReferenceHeight() * 2.5, getReferenceWidth());
+        double referenceGameNameSize = Math.min(getReferenceHeight() * 1.5, getReferenceWidth());
         for (JLabel label : gameNameLabels) {
             label.setFont(new Font(LaunchEssentials.launchTitleFont, Font.BOLD, (int) Math.round(referenceGameNameSize / 10)));
         }
-        Dimension size = new Dimension(1000, (int) Math.round(referenceGameNameSize / 10));
-        System.out.println(size);
+        double buttonSize = Math.min(getReferenceHeight(), getReferenceWidth());
+        GUI.SimpleButton.setSize((int) Math.round(buttonSize * 0.1));
+        Dimension size = new Dimension((int) Math.round(buttonSize / 4), (int) Math.round(buttonSize / 8));
         gameQuitButton.setPreferredSize(size);
-        //gameQuitButton.setBounds(new Rectangle((int) Math.round(referenceGameNameSize / 10), (int) Math.round(referenceGameNameSize / 10), (int) Math.round(referenceGameNameSize / 10), (int) Math.round(referenceGameNameSize / 10)));
+        gameQuitButton.resetSize();
     }
 
     private double getReferenceHeight() {
