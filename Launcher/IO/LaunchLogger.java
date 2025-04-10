@@ -212,7 +212,6 @@ public final class LaunchLogger {
     }
 
     public static PlayerInfo[] fetchPlayerStats(){
-        System.out.println(scores);
         return scores.toArray(new PlayerInfo[0]);
     }
 
