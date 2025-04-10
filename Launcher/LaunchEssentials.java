@@ -155,6 +155,18 @@ public final class LaunchEssentials {
         }
         currentPlayerInfo.updateHigh();
     }
+    public static int getLastScore(){
+        return currentGameInfo.getScore();
+    }
+    public static int getLastTurn(){
+        return currentGameInfo.getTurn();
+    }
+    public static int getHighestScore(){
+        return currentPlayerInfo.getHighScore();
+    }
+    public static int getHighestTurn(){
+        return currentPlayerInfo.getHighTurn();
+    }
 
     public static boolean log(){
         try {

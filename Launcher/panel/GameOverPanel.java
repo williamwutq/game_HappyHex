@@ -2,6 +2,7 @@ package Launcher.panel;
 
 import GUI.GameEssentials;
 import GUI.SimpleButton;
+import GUI.InlineInfoPanel;
 import Launcher.LaunchEssentials;
 
 import javax.swing.*;
@@ -17,11 +18,11 @@ public class GameOverPanel extends JPanel implements ComponentListener {
     private JLabel scoreTitle;
     private JLabel settingEasyMode;
     private JLabel settingGameSize;
-    private JLabel scoreUser;
-    private JLabel scoreTurns;
-    private JLabel scorePoints;
-    private JLabel highestTurns;
-    private JLabel highestPoints;
+    private InlineInfoPanel scoreUser;
+    private InlineInfoPanel scoreTurns;
+    private InlineInfoPanel scorePoints;
+    private InlineInfoPanel highestTurns;
+    private InlineInfoPanel highestPoints;
     private SimpleButton gameQuitButton;
     private SimpleButton gameNextButton;
 
@@ -74,11 +75,22 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         settingGameSize.setVerticalAlignment(SwingConstants.CENTER);
         settingGameSize.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        scoreUser = new JLabel("USER");
-        scoreTurns = new JLabel("TURNS");
-        scorePoints = new JLabel("POINTS");
-        highestTurns = new JLabel("TURNS");
-        highestPoints = new JLabel("POINTS");
+        scoreUser = new InlineInfoPanel();
+        scoreTurns = new InlineInfoPanel();
+        scorePoints = new InlineInfoPanel();
+        highestTurns = new InlineInfoPanel();
+        highestPoints = new InlineInfoPanel();
+
+        scoreUser.setTitle("    PLAYER ");
+        scoreUser.setInfo(" " + LaunchEssentials.getCurrentPlayer());
+        scoreTurns.setTitle("    LAST TURNS ");
+        scoreTurns.setInfo(" " + LaunchEssentials.getLastTurn() + "    ");
+        scorePoints.setTitle("    LAST SCORE ");
+        scorePoints.setInfo(" " + LaunchEssentials.getLastScore() + "    ");
+        highestTurns.setTitle("    HIGHEST TURNS ");
+        highestTurns.setInfo(" " + LaunchEssentials.getHighestTurn() + "    ");
+        highestPoints.setTitle("    HIGHEST SCORE ");
+        highestPoints.setInfo(" " + LaunchEssentials.getHighestScore() + "    ");
 
         gameQuitButton = new GUI.GameQuitButton();
         gameNextButton = new Launcher.interactive.NextGameButton();
