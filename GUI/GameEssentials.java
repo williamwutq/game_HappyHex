@@ -61,7 +61,7 @@ public final class GameEssentials {
         new Color(100, 0, 200),
     });
 
-    public static final String gameDisplayFont = "Source Code Pro";
+    public static final String gameDisplayFont = "Courier";
     public static final Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230));
     public static final Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122));
     public static final Color gamePieceSelectedColor = gameBackGroundColor;
