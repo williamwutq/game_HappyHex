@@ -21,7 +21,7 @@ public abstract class SimpleButton extends JButton implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         this.clicked();
     }
-    abstract void clicked();
+    protected abstract void clicked();
     public void resetSize(){
         this.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, size));
     }
