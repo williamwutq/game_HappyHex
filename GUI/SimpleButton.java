@@ -5,7 +5,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 
-abstract class SimpleButton extends JButton implements ActionListener{
+public abstract class SimpleButton extends JButton implements ActionListener{
     private static int size = 1;
     public SimpleButton(String text, Color color){
         super(text);
