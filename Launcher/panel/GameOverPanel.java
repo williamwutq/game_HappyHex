@@ -16,8 +16,8 @@ public class GameOverPanel extends JPanel implements ComponentListener {
     private JLabel[] spacers;
     private JLabel settingTitle;
     private JLabel scoreTitle;
-    private JLabel settingEasyMode;
-    private JLabel settingGameSize;
+    private InlineInfoPanel settingEasyMode;
+    private InlineInfoPanel settingGameSize;
     private InlineInfoPanel scoreUser;
     private InlineInfoPanel scoreTurns;
     private InlineInfoPanel scorePoints;
@@ -54,26 +54,21 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         scoreTitle.setVerticalAlignment(SwingConstants.CENTER);
         scoreTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        settingEasyMode = new JLabel("EASY MODE:    " + (LaunchEssentials.isEasyMode()? " ON" : "OFF"));
-        settingEasyMode.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, 32));
-        settingEasyMode.setForeground(GUI.GameEssentials.gameDisplayFontColor);
-        settingEasyMode.setHorizontalAlignment(SwingConstants.CENTER);
-        settingEasyMode.setVerticalAlignment(SwingConstants.CENTER);
-        settingEasyMode.setAlignmentX(Component.CENTER_ALIGNMENT);
-        String gameSizeString = "GAME SIZE: ";
+        String gameSizeString = " ";
         if (LaunchEssentials.isSmallMode()){
-            gameSizeString += " SMALL";
+            gameSizeString += "SMALL";
         } else if (LaunchEssentials.isMediumMode()){
             gameSizeString += "MEDIUM";
         } else if (LaunchEssentials.isLargeMode()){
-            gameSizeString += " LARGE";
+            gameSizeString += "LARGE";
         } else gameSizeString += "CUSTOM";
-        settingGameSize = new JLabel(gameSizeString);
-        settingGameSize.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, 32));
-        settingGameSize.setForeground(GUI.GameEssentials.gameDisplayFontColor);
-        settingGameSize.setHorizontalAlignment(SwingConstants.CENTER);
-        settingGameSize.setVerticalAlignment(SwingConstants.CENTER);
-        settingGameSize.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        settingEasyMode = new InlineInfoPanel();
+        settingEasyMode.setTitle("    EASY MODE ");
+        settingEasyMode.setInfo((LaunchEssentials.isEasyMode()? " ON" : " OFF") + "    ");
+        settingGameSize = new InlineInfoPanel();
+        settingGameSize.setTitle("    GAME SIZE ");
+        settingGameSize.setInfo(gameSizeString + "    ");
 
         scoreUser = new InlineInfoPanel();
         scoreTurns = new InlineInfoPanel();
@@ -164,8 +159,8 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         }
         settingTitle.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.BOLD, fontSize));
         scoreTitle.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.BOLD, fontSize));
-        settingEasyMode.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
-        settingGameSize.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
+        settingEasyMode.setSize(fontSize);
+        settingGameSize.setSize(fontSize);
         scoreUser.setSize(fontSize);
         scoreTurns.setSize(fontSize);
         scorePoints.setSize(fontSize);
