@@ -10,11 +10,13 @@ public final class InlineInfoPanel extends JComponent implements ComponentListen
     private JLabel titleLabel;
     private JLabel infoLabel;
     private JPanel linePanel;
+    private int size;
 
     public InlineInfoPanel(){
         super();
         this.title = "TITLE";
         this.info = "INFO";
+        this.size = 1;
         this.titleLabel = new JLabel(title);
         this.infoLabel = new JLabel(info);
         this.linePanel = new JPanel(null);
@@ -55,13 +57,16 @@ public final class InlineInfoPanel extends JComponent implements ComponentListen
         this.repaint();
     }
     public void recalculate(){
-        int size = (int)Math.round(Math.min(this.getHeight()*0.2, this.getWidth()*0.2));
         titleLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, size));
         infoLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.PLAIN, size));
-        Dimension lineSize = new Dimension(this.getWidth() - titleLabel.getWidth() - infoLabel.getWidth(),size/16);
+        Dimension lineSize = new Dimension(this.getWidth() - titleLabel.getWidth() - infoLabel.getWidth(),size/8);
         linePanel.setPreferredSize(lineSize);
         linePanel.setMinimumSize(lineSize);
         linePanel.setMaximumSize(lineSize);
+    }
+    public void setSize(int newSize){
+        size = newSize;
+        recalculate();
     }
     public final void componentResized(ComponentEvent e) {
         this.recalculate();

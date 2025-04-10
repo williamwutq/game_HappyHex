@@ -30,7 +30,7 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBackground(GUI.GameEssentials.gameBackGroundColor);
         gameNameLabelPanel = fetchGameNameLabelPanel();
-        spacers = new JLabel[6];
+        spacers = new JLabel[7];
         for (int i = 0; i < spacers.length; i++) {
             spacers[i] = new JLabel("  ");
             spacers[i].setFont(new Font(GameEssentials.gameDisplayFont, Font.PLAIN, 16));
@@ -82,7 +82,7 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         highestPoints = new InlineInfoPanel();
 
         scoreUser.setTitle("    PLAYER ");
-        scoreUser.setInfo(" " + LaunchEssentials.getCurrentPlayer());
+        scoreUser.setInfo(" " + LaunchEssentials.getCurrentPlayer() + "    ");
         scoreTurns.setTitle("    LAST TURNS ");
         scoreTurns.setInfo(" " + LaunchEssentials.getLastTurn() + "    ");
         scorePoints.setTitle("    LAST SCORE ");
@@ -99,22 +99,23 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         this.add(Box.createVerticalGlue());
         this.add(Box.createVerticalGlue());
         this.add(Box.createVerticalGlue());
-        this.add(settingTitle);
         this.add(spacers[0]);
+        this.add(settingTitle);
+        this.add(spacers[1]);
         this.add(settingEasyMode);
         this.add(settingGameSize);
         this.add(Box.createVerticalGlue());
-        this.add(spacers[1]);
-        this.add(scoreTitle);
         this.add(spacers[2]);
-        this.add(scoreUser);
+        this.add(scoreTitle);
         this.add(spacers[3]);
+        this.add(scoreUser);
+        this.add(spacers[4]);
         this.add(scoreTurns);
         this.add(scorePoints);
-        this.add(spacers[4]);
+        this.add(spacers[5]);
         this.add(highestTurns);
         this.add(highestPoints);
-        this.add(spacers[5]);
+        this.add(spacers[6]);
         this.add(Box.createVerticalGlue());
         this.add(gameNextButton);
         this.add(gameQuitButton);
@@ -165,11 +166,11 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         scoreTitle.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.BOLD, fontSize));
         settingEasyMode.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
         settingGameSize.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
-        scoreUser.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
-        scoreTurns.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
-        scorePoints.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
-        highestTurns.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
-        highestPoints.setFont(new Font(GUI.GameEssentials.gameDisplayFont, Font.PLAIN, fontSize));
+        scoreUser.setSize(fontSize);
+        scoreTurns.setSize(fontSize);
+        scorePoints.setSize(fontSize);
+        highestTurns.setSize(fontSize);
+        highestPoints.setSize(fontSize);
         gameNextButton.resetSize();
         gameQuitButton.resetSize();
     }
