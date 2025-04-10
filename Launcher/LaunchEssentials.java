@@ -30,6 +30,7 @@ public final class LaunchEssentials {
     public static final Color launchVersionFontColor = GameEssentials.processColor(Color.BLACK);
     public static final Color launchStartButtonBackgroundColor = GameEssentials.processColor(Color.BLACK);
     public static final Color launchQuitButtonBackgroundColor = GameEssentials.processColor(Color.RED);
+    public static final Color launchNewButtonBackgroundColor = GameEssentials.processColor(new Color(0, 193, 211));
     public static final Color launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39));
     public static final Color launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN);
     public static final Color launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED);

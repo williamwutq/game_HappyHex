@@ -1,6 +1,6 @@
 package Launcher.panel;
 
-import GUI.GameQuitButton;
+import GUI.SimpleButton;
 import Launcher.LaunchEssentials;
 
 import javax.swing.*;
@@ -11,15 +11,18 @@ public class GameOverPanel extends JPanel implements ComponentListener {
     private JPanel gameNameLabelPanel;
     private String gameNameString = "GAME OVER";
     private JLabel[] gameNameLabels;
-    private GameQuitButton gameQuitButton;
+    private SimpleButton gameQuitButton;
+    private SimpleButton gameNextButton;
 
     public GameOverPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBackground(GUI.GameEssentials.gameBackGroundColor);
         gameNameLabelPanel = fetchGameNameLabelPanel();
         this.add(gameNameLabelPanel);
-        gameQuitButton = fetchGameQuitButton();
+        gameQuitButton = new GUI.GameQuitButton();
+        gameNextButton = new Launcher.interactive.NextGameButton();
         this.add(Box.createVerticalGlue());
+        this.add(gameNextButton);
         this.add(gameQuitButton);
         this.add(Box.createVerticalGlue());
         this.addComponentListener(this);
@@ -47,9 +50,6 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         panel.add(Box.createHorizontalGlue());
         return panel;
     }
-    private GameQuitButton fetchGameQuitButton(){
-        return new GameQuitButton();
-    }
 
     public void recalculate() {
         double referenceGameNameSize = Math.min(getReferenceHeight() * 1.5, getReferenceWidth());
@@ -59,7 +59,9 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         double buttonSize = Math.min(getReferenceHeight(), getReferenceWidth());
         GUI.SimpleButton.setSize((int) Math.round(buttonSize * 0.1));
         Dimension size = new Dimension((int) Math.round(buttonSize / 4), (int) Math.round(buttonSize / 8));
+        gameNextButton.setPreferredSize(size);
         gameQuitButton.setPreferredSize(size);
+        gameNextButton.resetSize();
         gameQuitButton.resetSize();
     }
 
