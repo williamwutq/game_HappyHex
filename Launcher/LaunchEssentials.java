@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 0, 2);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 1, 0);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
