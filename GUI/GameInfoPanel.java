@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public final class GameInfoPanel extends JPanel implements ComponentListener {
+public final class GameInfoPanel extends JComponent implements ComponentListener {
     private String title;
     private String info;
     private JLabel titleLabel;
