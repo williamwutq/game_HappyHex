@@ -267,12 +267,12 @@ public final class GameEssentials {
         calculateLabelSize();
     }
     public static Animation createCenterEffect(Hex.Block block){
-        CenteringEffect animation = new CenteringEffect(block);
+        Animation animation = new CenteringEffect(block);
         animation.start();
         return animation;
     }
     public static Animation createDisappearEffect(Hex.Block block){
-        DisappearEffect animation = new DisappearEffect(block);
+        Animation animation = new DisappearEffect(block);
         animation.start();
         return animation;
     }
