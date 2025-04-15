@@ -53,23 +53,23 @@ public final class LaunchEssentials {
         gameStarted = true;
         int delay = 250;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
             System.err.println("Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else {
             System.err.println("Unknown GameMode detected.");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         }
     }
     public static void endGame(){
