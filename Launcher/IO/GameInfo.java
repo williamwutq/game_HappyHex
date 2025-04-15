@@ -149,6 +149,24 @@ public final class GameInfo implements JsonConvertible{
     public void setScore(int score) {this.score = score;}
 
     /**
+     * Returns a human-readable String representation of this game.
+     *
+     * @return string representation of this object
+     * @see Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "GameInfo[Player = " + player +
+                ", Player ID = " + playerID +
+                ", Turn = " + turn +
+                ", Score = " + score +
+                ", Game ID = " + gameID +
+                ", Game Mode = " + gameMode.toString() +
+                ", Game Version = " + gameVersion.toString() +
+                ", Time = " + time + "]";
+    }
+
+    /**
      * Converts this {@code GameInfo} object into a {@link JsonObjectBuilder},
      * including all game metadata and nested objects.
      * <p>
