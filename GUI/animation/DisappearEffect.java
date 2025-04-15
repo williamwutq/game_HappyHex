@@ -12,7 +12,6 @@ public class DisappearEffect extends Animation {
         this.hex = block.thisHex();
         this.color = new Color(block.color().getRed(), block.color().getGreen(), block.color().getBlue());
         resetSize();
-        GameEssentials.window().revalidate();
     }
     public final void resetSize(){
         if(hex == null) {
@@ -38,7 +37,7 @@ public class DisappearEffect extends Animation {
         }
     }
     @Override
-    void paintFrame(Graphics g, double progress) {
+    protected void paintFrame(Graphics g, double progress) {
         resetSize();
         double size = GUI.HexButton.getActiveSize();
         double extended = 1.9;
