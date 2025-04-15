@@ -47,14 +47,14 @@ public class HeartAnimation extends Animation {
         Graphics2D graphics = (Graphics2D) g.create();
         graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(progress*255)));
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 
-        int centerX = getWidth() / 2;
-        int centerY = getHeight() / 2;
-        double radius = size * 2;
+
+        double radius = size * 0.8;
 
         // Formula: x^2+y^2 <= k*x^{4/9}*y*(ln(r))^2+r^2
         int coordinateX = (int) Math.round(size * (extended + GameEssentials.sinOf60 - 1));
-        int coordinateY = 0;// (int) Math.round(size * extended);
+        int coordinateY = (int) Math.round(size * extended);
         int limitX = (int) Math.round(radius * 1.6);
         int limitY = (int) Math.round(radius * 2.025);
         for (int x = 0; x <= limitX; x++) {
@@ -63,8 +63,8 @@ public class HeartAnimation extends Animation {
                 double rightSide = Math.pow(x, 4.0 / 9) * y * Math.pow(Math.log(radius), 2) + radius * radius;
                 if (leftSide <= rightSide) {
                     // Use symmetry over the y-axis
-                    graphics.fillRect(centerX + x + coordinateX, centerY - y + coordinateX, 1, 1);
-                    graphics.fillRect(centerX - x + coordinateY, centerY - y + coordinateY, 1, 1);
+                    graphics.fillRect(coordinateX + x, coordinateY - y, 1, 1);
+                    graphics.fillRect(coordinateX - x, coordinateY - y, 1, 1);
                 }
             }
         }
