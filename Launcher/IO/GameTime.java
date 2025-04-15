@@ -4,27 +4,85 @@ import javax.json.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Represents a snapshot of the current game time, including the date, time, and time zone.
+ * <p>
+ * This class is immutable and thread-safe, with fields initialized either to the system's
+ * current time or via explicit values passed to the constructor.
+ * <p>
+ * Implements {@link JsonConvertible}, enabling the conversion of the object into
+ * a {@link JsonObject} or {@link JsonObjectBuilder} for use in JSON serialization.
+ *
+ * @see JsonConvertible
+ * @see LocalDate
+ * @see LocalTime
+ * @see ZoneId
+ * @see DateTimeFormatter
+ */
 public final class GameTime implements JsonConvertible{
+    /** The date in ISO-8601 format (yyyy-MM-dd). */
     private final String date;
+    /** The time in 24-hour format (HH:mm:ss). */
     private final String time;
+    /** The system's default time zone ID (e.g., "America/New_York"). */
     private final String zone;
 
+    /**
+     * Constructs a new {@code GameTime} object using the current system date, time, and time zone.
+     * <ul>
+     *     <li>The date is formatted using {@link DateTimeFormatter#ISO_LOCAL_DATE}.</li>
+     *     <li>The time is formatted using {@link DateTimeFormatter#ofPattern(String)} with "HH:mm:ss".</li>
+     *     <li>The time zone is retrieved using {@link ZoneId#systemDefault()}.</li>
+     * </ul>
+     */
     public GameTime(){
         this.date = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         this.time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         this.zone = ZoneId.systemDefault().toString();
     }
+    /**
+     * Constructs a new {@code GameTime} object with the specified date, time, and zone.
+     *
+     * @param date the date string (expected format: yyyy-MM-dd)
+     * @param time the time string (expected format: HH:mm:ss)
+     * @param zone the time zone ID (e.g., "UTC", "America/Los_Angeles")
+     */
     public GameTime(String date, String time, String zone){
         this.date = date;
         this.time = time;
         this.zone = zone;
     }
 
+    /**
+     * Returns a string representation of the {@code GameTime}, including the date, time, and zone.
+     * @return a formatted string separated by space in the form {@code "date time zone"}
+     */
     public String toString(){return date + " " + time + " " + zone;}
+    /**
+     * The date portion of this {@code GameTime}.
+     * @return the date as a string (format: yyyy-MM-dd)
+     */
     public String getDate(){return date;}
+    /**
+     * The time portion of this {@code GameTime}.
+     * @return the time as a string (format: HH:mm:ss)
+     */
     public String getTime(){return time;}
+    /**
+     * The time zone ID of this {@code GameTime}.
+     * @return the time zone as a string (e.g., "America/Los Angeles")
+     */
     public String getZone(){return zone;}
 
+    /**
+     * Converts this {@code GameTime} object into a {@link JsonObjectBuilder}, with keys:
+     * <ul>
+     *     <li>{@code "Date"} - the ISO-8601 date</li>
+     *     <li>{@code "Time"} - the formatted time</li>
+     *     <li>{@code "Zone"} - the time zone ID</li>
+     * </ul>
+     * @return a JSON object builder representing this game time
+     */
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Date", date);
