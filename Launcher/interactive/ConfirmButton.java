@@ -22,15 +22,18 @@ public class ConfirmButton extends LaunchButton {
         if(player == null){
             // Get angry
             textField.setText("INCORRECT NAMING FORMAT!");
+            textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
             System.err.println("Attempted login failed.");
         } else if (player.isKeyword()){
             // Get angry
             textField.setText("GAME KEYWORD PROHIBITED!");
+            textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
             System.err.println("Attempted login failed.");
         } else {
             // Validate user input
             Launcher.LaunchEssentials.setCurrentPlayer(player, player.toHash());
             textField.setText("SUCCESSFUL PLAYER LOGIN!");
+            textField.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
             System.out.println("Logged in as " + player + ".");
         }
     }
