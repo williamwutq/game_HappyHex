@@ -11,24 +11,6 @@ public final class PlayerInfo implements JsonConvertible{
     private long playerID;
     private GameTime time;
 
-    public PlayerInfo() {
-        this.highTurn = 0;
-        this.highScore = 0;
-        this.recentTurn = 0;
-        this.recentScore = 0;
-        this.playerID = -1;
-        this.player = Username.getUsername("Guest");
-        this.time = new GameTime();
-    }
-    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore){
-        this.highTurn = highTurn;
-        this.highScore = highScore;
-        this.recentTurn = recentTurn;
-        this.recentScore = recentScore;
-        this.playerID = -1;
-        this.player = Username.getUsername("Guest");
-        this.time = new GameTime();
-    }
     public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, long playerID, Username player){
         this.setPlayer(player, playerID);
         this.highTurn = highTurn;
