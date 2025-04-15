@@ -2,6 +2,9 @@ package Hex;
 
 public class Queue{
     private Piece[] pieces;
+    // Special
+    private static final special.SpecialFeature pieceProcessor = special.FeatureFactory.createFeature("Hex.Piece");
+
     public Queue(int size){
         if (size < 1){
             size = 1;
@@ -41,7 +44,7 @@ public class Queue{
         }
     }
     protected Piece generate(){
-        return Piece.generatePiece();
+        return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode()})[0];
     }
     public Piece getFirst(){
         return get(0);
