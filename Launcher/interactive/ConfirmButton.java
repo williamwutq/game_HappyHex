@@ -36,6 +36,19 @@ public class ConfirmButton extends LaunchButton {
             textField.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
             System.out.println("Logged in as " + player + ".");
         }
+        // Start a timer to move text back to normal
+        Timer timer = new Timer(1000, e -> {
+            String name = Launcher.LaunchEssentials.getCurrentPlayer();
+            if(name.equals("Guest")) {
+                textField.setText("ENTER THE USERNAME HERE!");
+                textField.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
+            } else {
+                textField.setText(name);
+                textField.setForeground(Launcher.LaunchEssentials.launchPlayerNameFontColor);
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
     }
 
     protected Color fetchColor() {
