@@ -14,6 +14,9 @@ import javax.json.*;
  *     <li>{@code highScore} - the highest score the player has obtained in a game</li>
  *     <li>{@code recentTurn} - the total turns in the most recent game</li>
  *     <li>{@code recentScore} - the total score as a result of the player's most recent game</li>
+ *     <li>{@code totalTurn} - the total turns in all games of the player, not stored in JSON</li>
+ *     <li>{@code totalScore} - the total score in all games of the player, not stored in JSON</li>
+ *     <li>{@code numberOfGames} - the number of games the player has played, not stored in JSON</li>
  *     <li>{@link GameTime time} - the timestamp of the player's last game</li>
  * </ul>
  * <p>
@@ -145,13 +148,13 @@ public final class PlayerInfo implements JsonConvertible{
     public void setRecentTurn(int turns) {this.recentTurn = turns;}
     /** @param score set the most recent game's score */
     public void setRecentScore(int score) {this.recentScore = score;}
-    /** @param turns set the average game turns */
-    public void setTotalTurn(int turns) {this.totalTurn = turns;}
-    /** @param score set the average game score */
-    public void setTotalScore(int score) {this.totalScore = score;}
+    /** @param turns add the average game turns */
+    public void addTotalTurn(int turns) {this.totalTurn += turns;}
+    /** @param score add the average game score */
+    public void addTotalScore(int score) {this.totalScore += score;}
 
     /**
-     * Updates the high score and high turn based on recent results.
+     * Updates the high score and high turn, number of games, and average stats based on recent results.
      * This method is intended to be called after a game session ends.
      * This method will automatically update the timestamp.
      */
@@ -162,6 +165,9 @@ public final class PlayerInfo implements JsonConvertible{
         if(highScore < recentScore){
             highScore = recentScore;
         }
+        numberOfGames ++;
+        totalTurn += recentTurn;
+        totalScore += recentScore;
         this.time = new GameTime();
     }
 

@@ -187,9 +187,9 @@ public final class LaunchEssentials {
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
+        LaunchLogger.addGame(currentGameInfo);
         updateRecent();
         updateHighest();
-        LaunchLogger.addGame(currentGameInfo);
         try {
             LaunchLogger.write();
             return true;
