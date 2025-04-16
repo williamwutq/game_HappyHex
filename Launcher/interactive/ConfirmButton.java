@@ -55,8 +55,8 @@ public class ConfirmButton extends LaunchButton {
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
                 System.err.println("Attempted login failed.");
             }
-        } else if (player.equals("God") && LaunchEssentials.isEasyMode()){
-            if(Hex.Queue.getPieceProcessorID() != 5){
+        } else if (player.equals("God")){
+            if(Hex.Queue.getPieceProcessorID() != 5 && LaunchEssentials.isEasyMode()){
                 textField.setText("THE DIVINE INTERVENTION!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
                 Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "God"));
