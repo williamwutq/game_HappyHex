@@ -159,6 +159,12 @@ public final class LaunchEssentials {
                     }
                 }
             }
+        } else {
+            currentPlayerInfo.incrementGameNumber();
+            currentPlayerInfo.addTotalTurn(currentGameInfo.getTurn());
+            currentPlayerInfo.addTotalScore(currentGameInfo.getScore());
+            currentPlayerInfo.setHighTurn(currentGameInfo.getTurn());
+            currentPlayerInfo.setHighScore(currentGameInfo.getScore());
         }
     }
     public static void updateOnGame(){
@@ -207,6 +213,7 @@ public final class LaunchEssentials {
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
+        currentPlayerInfo.eraseStats();
         LaunchLogger.addGame(currentGameInfo);
         updateRecent();
         updateHighest();
