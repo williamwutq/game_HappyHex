@@ -44,7 +44,7 @@ public class Queue{
         }
     }
     protected Piece generate(){
-        return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode()})[0];
+        return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine()})[0];
     }
     public Piece getFirst(){
         return get(0);

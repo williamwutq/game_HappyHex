@@ -8,6 +8,8 @@ public class FeatureFactory {
             if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || Math.random() >= 0.94) {
                 return grayscale;
             }
+        } else if (className.equals("Piece") || className.equals("Hex.Piece")){
+            return new special.Logic.HardMode();
         }
         return new DefaultFeature(); // Default feature do nothing
     }
