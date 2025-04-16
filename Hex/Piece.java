@@ -376,6 +376,80 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    public static int getMaxPieceIndex(){return 36;}
+    public static Piece getIndexedPiece(int index){
+        if (index == 0){
+            return uno();
+        } else if (index == 1){
+            return triangle3A();
+        } else if (index == 2){
+            return triangle3B();
+        } else if (index == 3){
+            return line3I();
+        } else if (index == 4){
+            return line3J();
+        } else if (index == 5){
+            return line3K();
+        } else if (index == 6){
+            return corner3Il();
+        } else if (index == 7){
+            return corner3Jl();
+        } else if (index == 8){
+            return corner3Kl();
+        } else if (index == 9){
+            return corner3Ir();
+        } else if (index == 10){
+            return corner3Jr();
+        } else if (index == 11){
+            return corner3Kr();
+        } else if (index == 12){
+            return rhombus4I();
+        } else if (index == 13){
+            return rhombus4J();
+        } else if (index == 14){
+            return rhombus4K();
+        } else if (index == 15){
+            return fan4A();
+        } else if (index == 16){
+            return fan4B();
+        } else if (index == 17){
+            return corner4Ir();
+        } else if (index == 18){
+            return corner4Il();
+        } else if (index == 19){
+            return corner4Jr();
+        } else if (index == 20){
+            return corner4Jl();
+        } else if (index == 21){
+            return corner4Kr();
+        } else if (index == 22){
+            return corner4Kl();
+        } else if (index == 23){
+            return asymmetrical4Ia();
+        } else if (index == 24){
+            return asymmetrical4Ib();
+        } else if (index == 25){
+            return asymmetrical4Ic();
+        } else if (index == 26){
+            return asymmetrical4Id();
+        } else if (index == 27){
+            return asymmetrical4Ja();
+        } else if (index == 28){
+            return asymmetrical4Jb();
+        } else if (index == 29){
+            return asymmetrical4Jc();
+        } else if (index == 30){
+            return asymmetrical4Jd();
+        } else if (index == 31){
+            return asymmetrical4Ka();
+        } else if (index == 32){
+            return asymmetrical4Kb();
+        } else if (index == 33){
+            return asymmetrical4Kc();
+        } else if (index == 34){
+            return asymmetrical4Kd();
+        } else return bigBlock();
+    }
     public static Piece generatePiece() {
         if(easy) {
             // Easier generation

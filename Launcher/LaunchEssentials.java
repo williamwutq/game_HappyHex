@@ -21,6 +21,9 @@ public final class LaunchEssentials {
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
 
+    // Special
+    private static final special.SpecialFeature fontStyle = special.FeatureFactory.createFeature(Font.class.getName());
+
     //GUI
     // Launcher
     public static final Color launchBackgroundColor = GameEssentials.processColor(new Color(241, 243, 213));
@@ -31,20 +34,21 @@ public final class LaunchEssentials {
     public static final Color launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0));
     public static final Color launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0));
     public static final Color launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0));
+    public static final Color launchPlayerSpecialFontColor = GameEssentials.processColor(new Color(0, 136, 136));
     public static final Color launchStartButtonBackgroundColor = GameEssentials.processColor(Color.BLACK);
     public static final Color launchQuitButtonBackgroundColor = GameEssentials.processColor(Color.RED);
     public static final Color launchNewButtonBackgroundColor = GameEssentials.processColor(new Color(0, 193, 211));
     public static final Color launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39));
     public static final Color launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN);
     public static final Color launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED);
-    public static final String launchTitleFont = "Courier";
-    public static final String launchVersionFont = "Comic Sans MS";
+    public static final String launchTitleFont = (String) fontStyle.process(new Object[]{"Courier", "TitleFont"})[0];
+    public static final String launchVersionFont = (String) fontStyle.process(new Object[]{"Comic Sans MS", "VersionFont"})[0];
     public static final String launchAuthorFont = "Helvetica";
     public static final String launchWWFont = "Georgia";
-    public static final String launchButtonFont = "Times New Roman";
-    public static final String launchEnterUsernameFont = "Courier";
-    public static final String launchSettingsFont = "Courier";
-    public static final String launchSettingsSlidingButtonFont = "Helvetica";
+    public static final String launchButtonFont = (String) fontStyle.process(new Object[]{"Times New Roman", "ButtonFont"})[0];
+    public static final String launchEnterUsernameFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
+    public static final String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
+    public static final String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
 
     public static boolean isGameStarted(){
         return gameStarted;

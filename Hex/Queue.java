@@ -16,6 +16,38 @@ package Hex;
 public class Queue{
     /** Internal fixed-size array of Piece elements. */
     private Piece[] pieces;
+
+    // Special
+    /**
+     * The current {@link special.SpecialFeature} instance responsible for modifying the piece generation logic.
+     * The default feature will allow piece to be generated directly via the {@link #generate()} method.
+     * This can be replaced dynamically at runtime to alter how pieces are generated in the system.
+     * @see special.SpecialFeature
+     * @see special.FeatureFactory
+     */
+    private static special.SpecialFeature pieceProcessor = special.FeatureFactory.createFeature();
+    /**
+     * Replaces the current piece generation logic handler with a new {@code SpecialFeature}.
+     * <p>
+     * This method allows dynamic modification of how pieces are generated or processed
+     * during the application's execution by injecting a new implementation of {@code SpecialFeature}.
+     *
+     * @param feature the new {@link special.SpecialFeature} to use for piece generation logic
+     */
+    public static void changePieceProcessor(special.SpecialFeature feature){
+        pieceProcessor = feature;
+    }
+    /**
+     * Retrieves the unique identifier of the currently active piece generation feature.
+     * This identifier can be used to distinguish between different {@code SpecialFeature} implementations or configurations at runtime.
+     *
+     * @return the feature ID of the current {@code pieceProcessor}
+     * @see special.SpecialFeature
+     */
+    public static int getPieceProcessorID(){
+        return pieceProcessor.getFeatureID();
+    }
+
     /**
      * Constructs a new {@code Queue} with a given size. If the size is less than 1, it defaults to 1.
      * @param size the number of elements to hold in the queue.
@@ -82,7 +114,7 @@ public class Queue{
      * @see Piece#generatePiece()
      */
     protected Piece generate(){
-        return Piece.generatePiece();
+        return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine()})[0];
     }
     /**
      * Returns the first {@link Piece} in the queue without removing it.

@@ -222,7 +222,7 @@ public abstract class Animation extends Component{
      * @param graphics the Graphics context to draw on.
      * @param progress a double between 0 and 1 indicating animation progress.
      */
-    abstract void paintFrame(java.awt.Graphics graphics, double progress);
+    abstract protected void paintFrame(java.awt.Graphics graphics, double progress);
 
     // --- Disabled functions for lightweight rendering ---
     /** Disabled: This component does not support child components. */

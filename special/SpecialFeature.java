@@ -82,6 +82,19 @@ public interface SpecialFeature {
         } return result[0];
     }
     /**
+     * Processes a single object with a description according to the feature's logic.
+     *
+     * @param object      the input object to process
+     * @param description the description of the object to be processed
+     * @return the processed object, or {@code null} if the feature does not or fails to produce output
+     */
+    default Object process(Object object, String description){
+        Object[] result = process(new Object[]{object, description});
+        if(result == null || result.length == 0){
+            return null;
+        } return result[0];
+    }
+    /**
      * An automatic generated human-readable description string for this feature, including ID, name, group,
      * target, description, required version, and active status.
      *
