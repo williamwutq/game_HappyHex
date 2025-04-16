@@ -3,21 +3,68 @@ package Hex;
 import GUI.GameEssentials;
 import java.awt.*;
 
+/**
+ * Represents a shape or unit made up of multiple {@link Block} instances,
+ * typically forming a logical structure such as a game piece.
+ *
+ * <p>A {@code Piece} implements the {@link HexGrid} interface and behaves like
+ * a small, self-contained hexagonal grid. It holds a fixed-size array of
+ * {@link Block} elements and supports block addition, color management,
+ * coordinate lookup, and comparison.</p>
+ *
+ * <p>Coordinate access uses the "line" system (I, K), defined in {@link Hex},
+ * which simplifies hex grid navigation by avoiding raw (I, J, K) coordinates.</p>
+ *
+ * <p>A typical creation sequence might look like:</p>
+ * <pre>{@code
+ * Piece p = new Piece(3, Color.BLUE);
+ * p.add(Block.block(0, 0));
+ * p.add(Block.block(0, 1));
+ * p.add(Block.block(1, 1));
+ * }</pre>
+ * This produces a shape containing blocks at line coordinates (0,0), (0,1), and (1,1).
+ *
+ * @see Block
+ * @see Color
+ * @see Hex
+ * @see HexGrid
+ * @see Hex#getLines()
+ * @author William Wu
+ * @version 1.1
+ */
 public class Piece implements HexGrid{
     private static boolean easy = false;
     private Block[] blocks;
     private Color color;
 
     // Static
+    /**
+     * Returns whether the game or context is currently set to "easy" mode.
+     * Easy mode affects game piece generation and is usually respected by {@link special.SpecialFeature}.
+     * @return {@code true} if in easy mode, {@code false} otherwise.
+     */
     public static boolean isEasy(){return easy;}
+    /** Sets the piece generation mode to "easy".*/
     public static void setEasy(){easy = true;}
-    public static void setHard(){easy = false;}
+    /** Sets the piece generation mode to "normal".*/
+    public static void setNormal(){easy = false;}
+
     // Constructor
+    /** Constructs a default {@code Piece} with a single {@link Block} at (0,0) and color black. */
     public Piece(){
         this.blocks = new Block[1];
         this.color = Color.BLACK;
         this.blocks[0] = new Block(0, 0, color);
     }
+    /**
+     * Constructs an empty {@code Piece} with the specified capacity and color.
+     * The piece can later be filled using {@link #add(Block)}.
+     *
+     * @param length the number of blocks this piece can hold; must be greater or equal to 1.
+     * @param color  the {@link Color} for this piece's blocks.
+     * @see #length()
+     * @see HexGrid
+     */
     public Piece(int length, Color color){
         if(length < 1){
             length = 1;
@@ -27,6 +74,10 @@ public class Piece implements HexGrid{
     }
 
     // Color
+    /**
+     * Sets the color of this piece and applies it to all current blocks.
+     * @param color the new {@link Color} to assign.
+     */
     public void setColor(Color color){
         this.color = color;
         // write to all
@@ -36,10 +87,22 @@ public class Piece implements HexGrid{
             }
         }
     }
+    /**
+     * Returns the current {@link Color} of this piece.
+     * The color applies for all {@link Block} in this piece.
+     * @return the color of the piece.
+     */
     public Color getColor(){
         return color;
     }
 
+    /**
+     * Adds a {@link Block} to the first available slot in this piece.
+     * Automatically applies the current color and marks the block as occupied.
+     * If the piece is full, the block is not added and the method return false.
+     * @param block the block to add.
+     * @return {@code true} if the block was added; {@code false} if the piece is full.
+     */
     public boolean add(Block block){
         for(int i = 0; i < length(); i ++){
             if(blocks[i] == null){
@@ -55,6 +118,7 @@ public class Piece implements HexGrid{
     }
 
     // Implements HexGrid
+    /** {@inheritDoc} */
     public int length(){
         if(blocks == null){
             return 0;
@@ -62,6 +126,12 @@ public class Piece implements HexGrid{
             return blocks.length;
         }
     }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns all {@link Block} elements in the piece. Null blocks are replaced
+     * with dummy placeholders at (-1, -1) to preserve order.
+     */
     public Block[] blocks(){
         // Remove null
         sort();
@@ -75,10 +145,21 @@ public class Piece implements HexGrid{
         }
         return result;
     }
+    /**
+     * {@inheritDoc}
+     * This implementation performs a linear search to check if a block exists at the given line coordinates.
+     * @see #getBlock(int, int)
+     */
     public boolean inRange(int i, int k){
         // Attempt to find it
         return this.getBlock(i, k) != null;
     }
+    /**
+     * Retrieves a {@link Block} at the specified line coordinates, if present.
+     * @param i the I-line coordinate of the target block
+     * @param k the K-line coordinate of the target block
+     * @return the block at the specified {@link Hex} line coordinate
+     */
     public Block getBlock(int i, int k){
         // Linear search
         for (int index = 0; index < length(); index ++){
@@ -91,19 +172,59 @@ public class Piece implements HexGrid{
         }
         return null;
     }
+    /**{@inheritDoc}*/
     public Block getBlock(int index){
         return blocks[index];
     }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Always throws an exception as pieces cannot be merged with other pieces.
+     * For adding {@link Piece} to {@link HexEngine}, use the {@link HexEngine#add} method.
+     * <p>
+     * For forcefully merging two pieces, when absolutely necessary, please add them block by block as implemented:
+     * <pre>{@code
+     *     Piece p; Piece q; // Assumptions
+     *     Piece newPiece = new Piece(p.length() + q.length(), p.getColor());
+     *     for (int i = 0; i < p.length(); i ++){
+     *         newPiece.add(p.getBlock(i));
+     *     }
+     *     for (int i = p.length(); i < newPiece.length(); i ++){
+     *         newPiece.add(q.getBlock(i));
+     *     }
+     * }</pre>
+     * @throws IllegalArgumentException always
+     */
     public void add(Hex origin, HexGrid other) throws IllegalArgumentException{
         throw new IllegalArgumentException("Adding Grid to piece prohibited. Please add block by block.");
     }
 
-// Static pieces
+    // Static pieces
+    /**
+     * Returns a single-block piece.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 1<br>
+     * Position: (0, 0)</p>
+     *
+     * @return a piece with a single block.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece uno() {
         Piece p = new Piece(1, GameEssentials.generateColor());
         p.add(Block.block(0, 0));
         return p;
     }
+    /**
+     * Returns a seven-block "big block" piece in the shape of a radius 2 hexagon.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 7<br>
+     * Positions: (-1,-1), (-1,0), (0,-1), (0,0), (0,1), (1,0), (1,1)</p>
+     *
+     * @return a large complex piece with 7 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece bigBlock() {
         Piece p = new Piece(7, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -115,6 +236,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns a triangle piece with 3 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (0,0), (0,1), (1,1)</p>
+     *
+     * @return a triangular piece made of 3 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece triangle3A() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(0, 0));
@@ -122,6 +253,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns a triangle piece with 3 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (-1,-1), (0,-1), (0,0)</p>
+     *
+     * @return a triangular piece made of 3 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece triangle3B() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -129,6 +270,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 0));
         return p;
     }
+    /**
+     * Returns a line piece with 3 blocks along the I-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (0,-1), (0,0), (0,1)</p>
+     *
+     * @return a line piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece line3I() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(0, -1));
@@ -136,6 +287,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 1));
         return p;
     }
+    /**
+     * Returns a line piece with 3 blocks along the J-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (-1,-1), (0,0), (1,1)</p>
+     *
+     * @return a line piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece line3J() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -143,6 +304,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns a line piece with 3 blocks along the K-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (-1,0), (0,0), (1,0)</p>
+     *
+     * @return a line piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece line3K() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -150,6 +321,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns an L-shape corner piece with 3 blocks symmetrical along the I-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (-1,-1), (0,0), (1,0)</p>
+     *
+     * @return an L-shape corner piece with length of 3.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner3Il() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -157,6 +338,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns an L-shape corner piece with 3 blocks symmetrical along the J-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (-1,0), (0,-1), (0,0)</p>
+     *
+     * @return an L-shape corner piece with length of 3.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner3Jl() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -164,6 +355,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 0));
         return p;
     }
+    /**
+     * Returns an L-shape corner piece with 3 blocks symmetrical along the K-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (-1,-1), (0,0), (0,1)</p>
+     *
+     * @return an L-shape corner piece with length of 3.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner3Kl() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -171,6 +372,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 1));
         return p;
     }
+    /**
+     * Returns an L-shape corner piece with 3 blocks symmetrical along the I-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (-1,0), (0,0), (1,1)</p>
+     *
+     * @return an L-shape corner piece with length of 3.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner3Ir() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -178,6 +389,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an L-shape corner piece with 3 blocks symmetrical along the J-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (0,0), (0,1), (1,0)</p>
+     *
+     * @return an L-shape corner piece with length of 3.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner3Jr() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(0, 0));
@@ -185,6 +406,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns an L-shape corner piece with 3 blocks symmetrical along the K-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 3<br>
+     * Positions: (0,-1), (0,0), (1,1)</p>
+     *
+     * @return an L-shape corner piece with length of 3.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner3Kr() {
         Piece p = new Piece(3, GameEssentials.generateColor());
         p.add(Block.block(0, -1));
@@ -192,6 +423,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns fan shaped piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (0,0), (0,1), (1,0)</p>
+     *
+     * @return a fan shaped piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece fan4A() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -200,6 +441,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns fan shaped piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,0), (0,-1), (0,0), (1,1)</p>
+     *
+     * @return a fan shaped piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece fan4B() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -208,6 +459,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns a rhombus shape piece with 4 blocks symmetrical along the I-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (0,-1), (0,0), (1,0), (1,1)</p>
+     *
+     * @return a rhombus shape piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece rhombus4I() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(0, -1));
@@ -216,6 +477,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns a rhombus shape piece with 4 blocks symmetrical along the J-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (-1,0), (0,-1), (0,0)</p>
+     *
+     * @return a rhombus shape piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece rhombus4J() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -224,6 +495,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 0));
         return p;
     }
+    /**
+     * Returns a rhombus shape piece with 4 blocks symmetrical along the K-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (0,-1), (0,0), (1,0)</p>
+     *
+     * @return a rhombus shape piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece rhombus4K() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -232,6 +513,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns a corner piece with 4 blocks symmetrical along the I-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (-1,0), (0,-1), (1,0)</p>
+     *
+     * @return a corner piece with 4 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner4Ir() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -240,14 +531,34 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns a corner piece with 4 blocks symmetrical along the I-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,0), (0,1), (1,0), (1,1)</p>
+     *
+     * @return a corner piece with 4 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner4Il() {
         Piece p = new Piece(4, GameEssentials.generateColor());
+        p.add(Block.block(-1, 0));
+        p.add(Block.block(0, 1));
         p.add(Block.block(1, 0));
         p.add(Block.block(1, 1));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(-1, 0));
         return p;
     }
+    /**
+     * Returns a corner piece with 4 blocks symmetrical along the J-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (0,-1), (1,0), (1,1)</p>
+     *
+     * @return a corner piece with 4 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner4Jr() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -256,6 +567,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns a corner piece with 4 blocks symmetrical along the J-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (-1,0), (0,1), (1,1)</p>
+     *
+     * @return a corner piece with 4 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner4Jl() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -264,6 +585,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns a corner piece with 4 blocks symmetrical along the K-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (-1,0), (0,-1), (0,1)</p>
+     *
+     * @return a corner piece with 4 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner4Kr() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -272,14 +603,34 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 1));
         return p;
     }
+    /**
+     * Returns a corner piece with 4 blocks symmetrical along the K-axis.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (0,-1), (0,1), (1,0), (1,1)</p>
+     *
+     * @return a corner piece with 4 blocks.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece corner4Kl() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
         p.add(Block.block(0, -1));
         p.add(Block.block(0, 1));
+        p.add(Block.block(1, 0));
+        p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (0,-1), (0,0), (0,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Ia() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -288,6 +639,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (0,-1), (0,0), (0,1), (1,0)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Ib() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(0, -1));
@@ -296,6 +657,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,0), (0,-1), (0,0), (0,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Ic() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -304,6 +675,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(0, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (0,-1), (0,0), (0,1), (1,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Id() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(0, -1));
@@ -312,6 +693,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (0,0), (1,0), (1,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Ja() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -320,6 +711,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (0,0), (0,1), (1,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Jb() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -328,6 +729,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (0,-1), (0,0), (1,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Jc() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -336,6 +747,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (-1,0), (0,0), (1,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Jd() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -344,6 +765,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,0), (0,0), (0,1), (1,0)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Ka() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -352,6 +783,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,-1), (-1,0), (0,0), (1,0)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Kb() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, -1));
@@ -360,6 +801,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,0), (0,0), (1,0), (1,1)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Kc() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -368,6 +819,16 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 1));
         return p;
     }
+    /**
+     * Returns an asymmetrical piece with 4 blocks.
+     * Color of this piece is randomly generated by {@link GameEssentials#generateColor()}
+     * <p>Length: 4<br>
+     * Positions: (-1,0), (0,-1), (0,0), (1,0)</p>
+     *
+     * @return an asymmetrical piece.
+     * @see #getIndexedPiece(int)
+     * @see #generatePiece()
+     */
     public static Piece asymmetrical4Kd() {
         Piece p = new Piece(4, GameEssentials.generateColor());
         p.add(Block.block(-1, 0));
@@ -376,7 +837,24 @@ public class Piece implements HexGrid{
         p.add(Block.block(1, 0));
         return p;
     }
+    /**
+     * Returns the total number of distinct piece types that can be retrieved using {@link #getIndexedPiece(int)}.
+     * @return the maximum index (exclusive) that can be used to retrieve a piece using {@code getIndexedPiece}.
+     *         For example, valid indices are in the range [0, getMaxPieceIndex()).
+     */
     public static int getMaxPieceIndex(){return 36;}
+    /**
+     * Returns a specific {@link Piece} corresponding to the provided index.
+     * <p>
+     * This method maps a given index in the range [0, {@link #getMaxPieceIndex()}) to a unique game piece.
+     * Each index corresponds to a distinct piece configuration.
+     * <p>
+     * If the provided index is outside the expected range, a default piece (usually the largest or most general)
+     * is returned as a fallback. This method does not throw an exception.
+     *
+     * @param index the index of the desired piece, in the range [0, {@link #getMaxPieceIndex()}).
+     * @return the {@link Piece} instance corresponding to the index, or a fallback piece for invalid indices.
+     */
     public static Piece getIndexedPiece(int index){
         if (index == 0){
             return uno();
@@ -450,6 +928,32 @@ public class Piece implements HexGrid{
             return asymmetrical4Kd();
         } else return bigBlock();
     }
+    /**
+     * Generates a random {@link Piece} based on the current difficulty mode.
+     * <p>
+     * The method uses {@link Math#random()} to randomly select and return a specific
+     * piece instance. The distribution and pool of possible pieces differ depending
+     * on whether the application is in easy mode or not.
+     *
+     * <p><b>Easy Mode:</b><br>
+     * Generates a limited and more beginner-friendly set of pieces with higher
+     * probability for simpler shapes. This generation mode tends to generate
+     * pieces with length of three and easy to place under most conditions. The
+     * special piece {@link #uno()} is only available in this mode.</p>
+     *
+     * <p><b>Normal Mode:</b><br>
+     * Includes a wider range of more complex pieces, with different frequency
+     * distributions. This mode contains more unfriendly pieces such as corners
+     * and unsymmetrical pieces. Generally, it will generate pieces with more
+     * {@link Block}. The special piece {@link #bigBlock()} is only available
+     * in this mode.</p>
+     *
+     * <p>
+     * The detailed frequencies of pieces generated is not disclosed and may vary
+     * based on game version.
+     *
+     * @return a randomly selected {@link Piece} appropriate to the current difficulty mode
+     */
     public static Piece generatePiece() {
         if(easy) {
             // Easier generation
@@ -598,10 +1102,21 @@ public class Piece implements HexGrid{
             } else return bigBlock();
         }
     }
+    /**
+     * Checks if a given value is within the half-open interval [start, end).
+     *
+     * @param value the value to test
+     * @param start the inclusive lower bound
+     * @param end the exclusive upper bound
+     * @return {@code true} if {@code value} is in the range [start, end); {@code false} otherwise
+     */
     private static boolean between(int value, int start, int end) {
         return value >= start && value < end;
     }
-    
+
+    /**
+     * Sorts the {@link Block} contained in-place using insertion sort based on {@link Hex} line-coordinates (I, K).
+     */
     private void sort() {
         int n = blocks.length;
         for (int i = 1; i < n; i++) {
@@ -615,6 +1130,11 @@ public class Piece implements HexGrid{
             blocks[j + 1] = key;
         }
     }
+    /**
+     * Returns a string representation of the piece and its block line coordinates.
+     * @return a string describing this piece.
+     * @see Block#toString()
+     */
     public String toString(){
         StringBuilder str = new StringBuilder("{Piece: ");
         for (Block block : blocks) {
@@ -622,6 +1142,13 @@ public class Piece implements HexGrid{
         }
         return str + "}";
     }
+    /**
+     * Compares this piece to another for equality.
+     * Two pieces are equal if they have the same {@link #length()} and identical {@link Block} positions.
+     * {@link Color} is not involved in this comparison.
+     * @param piece the other piece to compare to.
+     * @return {@code true} if both pieces are structurally equal; {@code false} otherwise.
+     */
     public boolean equals(Piece piece) {
         if(piece.length() != this.length()) {return false;}
         this.sort();

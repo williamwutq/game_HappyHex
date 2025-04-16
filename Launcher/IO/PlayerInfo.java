@@ -27,6 +27,8 @@ import javax.json.*;
  * @see java.time.LocalDateTime
  * @see Username
  * @see GameTime
+ * @author William Wu
+ * @version 1.1
  */
 public final class PlayerInfo implements JsonConvertible{
     private Username player;

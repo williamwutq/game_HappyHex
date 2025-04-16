@@ -28,6 +28,8 @@ import javax.json.*;
  *
  * @see JsonConvertible
  * @see JsonObjectBuilder
+ * @author William Wu
+ * @version 1.1
  */
 public final class GameInfo implements JsonConvertible{
     private Username player;

@@ -5,9 +5,59 @@ import GUI.GameEssentials;
 import java.awt.Color;
 import java.util.ArrayList;
 
+/**
+ * The {@code HexEngine} class implements the {@link HexGrid} interface and provides a
+ * complete engine for managing a two-dimensional hexagonal block grid. This grid is
+ * used for constructing and interacting with hex-based shapes the game.
+ * <p>
+ * The engine maintains an array of {@link Block} instances arranged in a hexagonal
+ * pattern with its leftmost {@code Block} at origin (0,0), and provides operations such as:
+ * <ul>
+ *     <li>Grid {@link #HexEngine initialization} and {@link #reset}</li>
+ *     <li>Efficient block {@link #getBlock(int) lookup} using {@link #search binary search}</li>
+ *     <li>Grid placement {@link #checkAdd validation} and piece {@link #add insertion}</li>
+ *     <li>Line detection and {@link #eliminate elimination} across I/J/K axes</li>
+ * </ul>
+ *
+ * <p><b>Grid Structure:</b><br>
+ * The hex grid uses an axial coordinate system (i, k), where i - j + k = 0, and j is
+ * implicitly derived as j = i + k. The coordinate system has three axes, I, J, K (not
+ * to be confused with 3D). I+ is 60 degree from J+, J+ is 60 degree from K+, and K+ is
+ * 60 degree from I-. Raw coordinate (or hex coordinate) refers to the distance of a
+ * point along one of the axes multiplied by 2. Line-coordinate (usually (I, K) is sufficient)
+ * refers to the perpendicular distance to those axes and are calculated based on raw coordinates.
+ * Blocks are constructed and stored in a sorted array by increasing raw coordinate i and then k.
+ * See {@link Hex} for more coordinate information.
+ *
+ * <p><b>Grid Size:</b><br>
+ * The total number of blocks in a hexagonal grid of radius {@code r} is calculated as:
+ * <pre>
+ *     Aₖ = 1 + 3(r)(r - 1)
+ * </pre>
+ * This is derived from the recursive pattern:
+ * <pre>
+ *     @code Aₖ = Aₖ₋₁ + 6(k - 1); A₁ = 1
+ * </pre>
+ * @author William Wu
+ * @version 1.1
+ */
 public class HexEngine implements HexGrid{
     private int radius;
     private Block[] blocks;
+    /**
+     * Constructs a {@code HexEngine} with the specified radius.
+     * Populates the hexagonal {@link HexGrid block grid} with valid blocks.
+     * <p>
+     * Each valid grid cell is tested via {@link Block#inRange(int)},
+     * and only valid (i, k) combinations are included.
+     * <p>
+     * The blocks are inserted in row-major order (i.e., by i, then by k).
+     * This property is used by the {@link #search binary search} for lookup efficiency.
+     *
+     * @param radius the radius of the hexagonal grid, where radius should be greater than 1.
+     * @see HexGrid
+     * @see Block
+     */
     public HexEngine(int radius){
         this.radius = radius;
         // Calculate array size
@@ -29,6 +79,10 @@ public class HexEngine implements HexGrid{
         }
         // Already sorted by first I then K
     }
+    /**
+     * Resets all blocks to their default state and color.
+     * This does not change reference of the blocks.
+     */
     public void reset(){
         // Set all to empty and default color
         for (Block block : blocks){
@@ -36,10 +90,19 @@ public class HexEngine implements HexGrid{
             block.setState(false);
         }
     }
+    /**
+     * Returns the radius of the grid.
+     * @return radius of the grid
+     */
     public int getRadius(){
         return radius;
     }
     // Implements HexGrid
+    /**
+     * Returns the number of blocks in the grid.
+     * @return length of the block array
+     * @see #getBlock(int)
+     */
     public int length(){
         if(blocks == null){
             return 0;
@@ -47,13 +110,36 @@ public class HexEngine implements HexGrid{
             return blocks.length;
         }
     }
+    /**
+     * Returns all blocks in the grid in an array
+     * @return array of blocks
+     * @see #getBlock(int)
+     * @see #length()
+     */
     public Block[] blocks(){
         return this.blocks;
     }
+    /**
+     * Checks if a hexagonal coordinate is within the bounds of the grid.
+     * This method delegate to {@link Hex#inRange(int)} for checking.
+     * @param i the I-coordinate
+     * @param k the K-coordinate
+     * @return true if the coordinate is in range
+     */
     public boolean inRange(int i, int k){
         // Use line
         return Hex.hex(i, k).inRange(radius);
     }
+    /**
+     * Retrieves a {@link Block} at the given (i, k) coordinate.
+     * This performs a {@link #search binary search} for efficient lookup.
+     *
+     * @param i the I-coordinate
+     * @param k the K-coordinate
+     * @return the {@code Block} if found, or null otherwise
+     * @see #getBlock(int)
+     * @see #setBlock(int, int, Block)
+     */
     public Block getBlock(int i, int k){
         if(inRange(i, k)){
             int index = search(i, k, 0, length()-1);
@@ -63,9 +149,24 @@ public class HexEngine implements HexGrid{
         }
         return null;
     }
+    /**
+     * Retrieves the {@link Block} at the specified array index.
+     * @param index the block array index
+     * @return the {@code Block} at the given index
+     * @see #getBlock(int, int)
+     * @see #length()
+     */
     public Block getBlock(int index){
         return blocks[index];
     }
+    /**
+     * Sets the {@link Block} at a specific grid coordinate.
+     * This performs a {@link #search binary search} to obtain the targeting block.
+     *
+     * @param i I coordinate
+     * @param k K coordinate
+     * @param block the new {@code Block} to place at this position
+     */
     public void setBlock(int i, int k, Block block){
         if(inRange(i, k)){
             int index = search(i, k, 0, length()-1);
@@ -74,6 +175,16 @@ public class HexEngine implements HexGrid{
             }
         }
     }
+    /**
+     * Performs a binary search to locate a block at (i, k).
+     * Assumes the array is sorted by I, then K.
+     *
+     * @param i I coordinate
+     * @param k K coordinate
+     * @param start search range start index
+     * @param end search range end index
+     * @return index of the block in the array, or -1 if not found
+     */
     private int search(int i, int k, int start, int end){
         if(start > end){return -1;}
         int middleIndex = (start + end)/2;
@@ -94,6 +205,16 @@ public class HexEngine implements HexGrid{
             return search(i, k, start, middleIndex-1);
         }
     }
+    /**
+     * Checks whether the {@code other} grid can be added to this grid
+     * at the given {@code origin} without overlap or out-of-bounds errors.
+     *
+     * @param origin origin offset for placement
+     * @param other the other hex grid to check
+     * @return true if placement is valid
+     * @see #add
+     * @see #checkPositions
+     */
     public boolean checkAdd(Hex origin, HexGrid other){
         // Iterate through other
         Block[] otherBlocks = other.blocks();
@@ -111,6 +232,21 @@ public class HexEngine implements HexGrid{
         }
         return true;
     }
+    /**
+     * {@inheritDoc}
+     * Throws exception if the operation would go out of bounds or overlap.
+     * <p>
+     * This method will directly modify the hexagonal grid and have access to all the {@link Block}
+     * contained in this {@code HexEngine}. This change is permanent. The addition process consumes
+     * processing power, so it is recommended to only call this method when addition can be ensured.
+     * <p>
+     * Use {@link #checkPositions} to check potential adding coordinates and {@link #checkAdd} to
+     * check the boolean possibility of addition. For elimination, use {@link #eliminate()}.
+     *
+     * @param origin the offset to place the new grid
+     * @param other the grid to add
+     * @throws IllegalArgumentException if the placement is invalid
+     */
     public void add(Hex origin, HexGrid other) throws IllegalArgumentException{
         // Iterate through other
         Block[] otherBlocks = other.blocks();
@@ -135,6 +271,13 @@ public class HexEngine implements HexGrid{
             }
         }
     }
+    /**
+     * Returns all valid positions where {@code other} grid can be added.
+     * If it is only needed to determine the possibility of addition, use {@link #checkAdd}.
+     * @param other the hex grid to place
+     * @return list of possible hex origins for valid placement
+     * @see #add
+     */
     public ArrayList<Hex> checkPositions(HexGrid other){
         ArrayList<Hex> positions = new ArrayList<Hex>();
         // Try to find positions by checking all available space
@@ -149,6 +292,19 @@ public class HexEngine implements HexGrid{
         // Return
         return positions;
     }
+    /**
+     * Eliminates fully occupied lines along I, J, or K axes then return how many blocks are being
+     * eliminated. This method also adds visual effects for disappearing blocks via
+     * {@link GameEssentials#addAnimation}.
+     * <p>
+     * This method will directly modify the hexagonal grid and have access to all the {@link Block}
+     * contained in this {@code HexEngine}. This change is permanent. The elimination process consumes
+     * processing power, so it is recommended to only call this method when elimination can be ensured.
+     * <p>
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminate()} method
+     * instead. For adding pieces into this {@code HexEngine}, see {@link #add}.
+     * @return the number of blocks eliminated
+     */
     public int eliminate(){
         // Eliminate according to I, J, K, then return how many blocks are being eliminated
         ArrayList<Block> eliminate = new ArrayList<Block>();
@@ -213,6 +369,13 @@ public class HexEngine implements HexGrid{
         }
         return eliminate.size(); // Number of blocks being eliminated
     }
+    /**
+     * Checks whether any full line can be eliminated in the hex grid.
+     * @return true if at least one line is full and able to be eliminated.
+     * @see #checkEliminateI(int)
+     * @see #checkEliminateJ(int)
+     * @see #checkEliminateK(int)
+     */
     public boolean checkEliminate(){
         // Check I
         for(int i = 0; i < radius*2 - 1; i ++){
@@ -228,6 +391,13 @@ public class HexEngine implements HexGrid{
         }
         return false;
     }
+    /**
+     * Checks if the entire line of constant I can be eliminated.
+     * @param i the I-line to check
+     * @return true if all blocks are filled and part of a valid piece
+     * @see Block#getLineI()
+     * @see #checkEliminate()
+     */
     public boolean checkEliminateI(int i){
         for(int index = 0; index < length(); index ++){
             if(blocks[index].getLineI() == i){
@@ -239,6 +409,13 @@ public class HexEngine implements HexGrid{
         }
         return true;
     }
+    /**
+     * Checks if the entire line of constant J can be eliminated.
+     * @param j the J-line to check
+     * @return true if all blocks are filled and part of a valid piece
+     * @see Block#getLineJ()
+     * @see #checkEliminate()
+     */
     public boolean checkEliminateJ(int j){
         for(int index = 0; index < length(); index ++){
             if(blocks[index].getLineJ() == j){
@@ -250,6 +427,13 @@ public class HexEngine implements HexGrid{
         }
         return true;
     }
+    /**
+     * Checks if the entire line of constant K can be eliminated.
+     * @param k the K-line to check
+     * @return true if all blocks are filled and part of a valid piece
+     * @see Block#getLineK()
+     * @see #checkEliminate()
+     */
     public boolean checkEliminateK(int k){
         for(int index = 0; index < length(); index ++){
             if(blocks[index].getLineK() == k){
@@ -261,6 +445,12 @@ public class HexEngine implements HexGrid{
         }
         return true;
     }
+    /**
+     * Checks if the block at a specific index is part of the currently hovered-over potential piece placement.
+     * @param index index of the block
+     * @return true if it is part of a candidate placement
+     * @see GameEssentials#getHoveredOverIndex()
+     */
     public boolean isPotentialPieceBlock(int index){
         if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
             Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
@@ -276,6 +466,11 @@ public class HexEngine implements HexGrid{
         return false;
     }
 
+    /**
+     * Returns a string representation of the grid and block states.
+     * @return string showing block positions and states
+     * @see Block#toString()
+     */
     public String toString(){
         StringBuilder str = new StringBuilder("{HexEngine: ");
         for (Block block : blocks) {

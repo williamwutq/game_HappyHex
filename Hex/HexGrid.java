@@ -1,6 +1,10 @@
 package Hex;
 
-/** Interface for a grid of {@link Block} objects */
+/**
+ * Interface for a grid of {@link Block} objects.
+ * @author William Wu
+ * @version 1.1
+ */
 public interface HexGrid {
     /**
      * The size of the grid. Use with {@link #getBlock(int)} to iterate through all blocks.
