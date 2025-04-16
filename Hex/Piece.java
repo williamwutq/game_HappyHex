@@ -29,6 +29,8 @@ import java.awt.*;
  * @see Hex
  * @see HexGrid
  * @see Hex#getLines()
+ * @author William Wu
+ * @version 1.1
  */
 public class Piece implements HexGrid{
     private static boolean easy = false;

@@ -75,6 +75,7 @@ package Hex;
  * as it provides hexes correctly shifted in line coordinates according to hexagonal grid logic.
  * </p>
  * @author William Wu
+ * @version 1.1
  */
 public class Hex{
     private final double halfSinOf60 = Math.sqrt(3) / 4;

@@ -38,6 +38,8 @@ import java.util.ArrayList;
  * <pre>
  *     @code Aₖ = Aₖ₋₁ + 6(k - 1); A₁ = 1
  * </pre>
+ * @author William Wu
+ * @version 1.1
  */
 public class HexEngine implements HexGrid{
     private int radius;

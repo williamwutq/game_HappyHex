@@ -12,6 +12,8 @@ package Hex;
  * at specific indices (with shifting), but does not allow adding
  * externally-defined elements. New pieces are created via an
  * internal {@link #generate()} method.
+ * @author William Wu
+ * @version 1.1
  */
 public class Queue{
     /** Internal fixed-size array of Piece elements. */
