@@ -27,6 +27,7 @@ public class LauncherGUI {
     public static JPanel fetchSettingPanel(){
         return new SettingPanel();
     }
+    public static JPanel fetchThemePanel(){return new ThemePanel();}
     private static Image fetchIconImage(){
         String path = "icon_512.png";
         ImageIcon icon = new ImageIcon(LauncherGUI.class.getResource(path));
@@ -88,6 +89,14 @@ public class LauncherGUI {
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackGroundColor);
         mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
+    }
+    public static void toThemes(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        mainFrame.add(fetchThemePanel(), BorderLayout.CENTER);
     }
     public static void returnHome(){
         LaunchEssentials.endGame();
