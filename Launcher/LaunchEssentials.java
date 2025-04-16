@@ -160,7 +160,7 @@ public final class LaunchEssentials {
                 }
             }
         }
-        currentPlayerInfo.updateHigh();
+        currentPlayerInfo.update();
     }
     public static int getLastScore(){
         return currentGameInfo.getScore();

@@ -226,7 +226,7 @@ public final class LaunchLogger {
                     if (info.getPlayerID() == gameInfo.getPlayerID()) {
                         info.setRecentTurn(gameInfo.getTurn());
                         info.setRecentScore(gameInfo.getScore());
-                        info.updateHigh();
+                        info.update();
                         return;
                     }
                 }
@@ -243,7 +243,7 @@ public final class LaunchLogger {
                     if(info.getPlayerID() == playerInfo.getPlayerID()) {
                         info.setRecentTurn(playerInfo.getRecentTurn());
                         info.setRecentScore(playerInfo.getRecentScore());
-                        info.updateHigh();
+                        info.update();
                         return;
                     }
                 }

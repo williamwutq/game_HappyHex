@@ -31,8 +31,9 @@ public final class PlayerInfo implements JsonConvertible{
     private int highScore;
     private int recentTurn;
     private int recentScore;
-    private double avgTurn;
-    private double avgScore;
+    private int totalTurn;
+    private int totalScore;
+    private int numberOfGames;
     private long playerID;
     private GameTime time;
 
@@ -43,20 +44,21 @@ public final class PlayerInfo implements JsonConvertible{
      * @param highScore   the highest score achieved
      * @param recentTurn  the number of turns in the most recent game
      * @param recentScore the score in the most recent game
-     * @param avgTurn     the average number of turns of the player
-     * @param avgScore    the average game score of the player
+     * @param totalTurn     the total number of turns of all the games of the player
+     * @param totalScore    the total game score of all the games of the player
      * @param playerID    the player's ID (long form)
      * @param player      the player's username
      * @see Username#getUsername(String)
      */
-    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, double avgTurn, double avgScore, long playerID, Username player){
+    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, int totalTurn, int totalScore, long playerID, Username player){
         this.setPlayer(player, playerID);
         this.highTurn = highTurn;
         this.highScore = highScore;
         this.recentTurn = recentTurn;
         this.recentScore = recentScore;
-        this.avgTurn = avgTurn;
-        this.avgScore = avgScore;
+        this.totalTurn = totalTurn;
+        this.totalScore = totalScore;
+        this.numberOfGames = 0;
         this.time = new GameTime();
     }
     /**
@@ -66,22 +68,23 @@ public final class PlayerInfo implements JsonConvertible{
      * @param highScore   the highest score achieved
      * @param recentTurn  the number of turns in the most recent game
      * @param recentScore the score in the most recent game
-     * @param avgTurn     the average number of turns of the player
-     * @param avgScore    the average game score of the player
+     * @param totalTurn     the total number of turns of all the games of the player
+     * @param totalScore    the total game score of all the games of the player
      * @param time        the time metadata
      * @param playerID    the player's ID in hex string format
      * @param player      the player's username
      * @see Long#parseUnsignedLong(String, int)
      */
-    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, int avgTurn, int avgScore, GameTime time, String playerID, Username player){
+    public PlayerInfo(int highTurn, int highScore, int recentTurn, int recentScore, int totalTurn, int totalScore, GameTime time, String playerID, Username player){
         long ID = Long.parseUnsignedLong(playerID, 16);
         this.setPlayer(player, ID);
         this.highTurn = highTurn;
         this.highScore = highScore;
         this.recentTurn = recentTurn;
         this.recentScore = recentScore;
-        this.avgTurn = avgTurn;
-        this.avgScore = avgScore;
+        this.totalTurn = totalTurn;
+        this.totalScore = totalScore;
+        this.numberOfGames = 0;
         this.time = time;
     }
 
@@ -122,9 +125,17 @@ public final class PlayerInfo implements JsonConvertible{
     /** @return the final score in the most recent game of the player*/
     public int getRecentScore() {return recentScore;}
     /** @return the average number of turns of the player*/
-    public double getAvgTurn() {return avgTurn;}
+    public double getAvgTurn() {
+        if(numberOfGames == 0)return totalTurn;
+        return (double) totalTurn / numberOfGames;
+    }
     /** @return the average score of the player*/
-    public double getAvgScore() {return avgScore;}
+    public double getAvgScore() {
+        if(numberOfGames == 0)return totalScore;
+        return (double) totalScore / numberOfGames;
+    }
+    /** @return the number of games played by player*/
+    public int getNumberOfGames() {return numberOfGames;}
 
     /** @param turns set the highest number of turns */
     public void setHighTurn(int turns) {this.highTurn = turns;}
@@ -135,16 +146,16 @@ public final class PlayerInfo implements JsonConvertible{
     /** @param score set the most recent game's score */
     public void setRecentScore(int score) {this.recentScore = score;}
     /** @param turns set the average game turns */
-    public void setAvgTurn(double turns) {this.avgTurn = turns;}
+    public void setTotalTurn(int turns) {this.totalTurn = turns;}
     /** @param score set the average game score */
-    public void setAvgScore(double score) {this.avgScore = score;}
+    public void setTotalScore(int score) {this.totalScore = score;}
 
     /**
      * Updates the high score and high turn based on recent results.
      * This method is intended to be called after a game session ends.
      * This method will automatically update the timestamp.
      */
-    public void updateHigh(){
+    public void update(){
         if(highTurn < recentTurn){
             highTurn = recentTurn;
         }
@@ -167,8 +178,9 @@ public final class PlayerInfo implements JsonConvertible{
                 ", Highest Score = " + highScore +
                 ", Recent Turn = " + recentTurn +
                 ", Recent Score = " + recentScore +
-                ", Average Turn = " + avgTurn +
-                ", Average Score = " + avgScore +
+                ", Total Turn = " + totalTurn +
+                ", Total Score = " + totalScore +
+                ", Number of Games = " + numberOfGames +
                 ", Player ID = " + playerID +
                 ", Time = " + time + "]";
     }
