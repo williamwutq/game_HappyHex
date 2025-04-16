@@ -174,6 +174,12 @@ public final class LaunchEssentials {
     public static int getHighestTurn(){
         return currentPlayerInfo.getHighTurn();
     }
+    public static int getAverageScore(){
+        return (int) Math.round(currentPlayerInfo.getAvgScore());
+    }
+    public static int getAverageTurn(){
+        return (int) Math.round(currentPlayerInfo.getAvgTurn());
+    }
 
     public static boolean log(){
         try {
