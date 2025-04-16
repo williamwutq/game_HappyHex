@@ -163,7 +163,7 @@ public final class LaunchEssentials {
         try {
             LaunchLogger.read();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
         }
         updateRecent();
         updateHighest();
@@ -172,7 +172,7 @@ public final class LaunchEssentials {
             LaunchLogger.write();
             return true;
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
             return false;
         }
     }

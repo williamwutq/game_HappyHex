@@ -22,16 +22,16 @@ public class ConfirmButton extends LaunchButton {
         if(player == null){
             // Get angry
             textField.setText("INCORRECT NAMING FORMAT!");
-            System.err.println("Attempted login failed.");
+            System.err.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Attempted login failed.");
         } else if (player.isKeyword()){
             // Get angry
             textField.setText("GAME KEYWORD PROHIBITED!");
-            System.err.println("Attempted login failed.");
+            System.err.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Attempted login failed.");
         } else {
             // Validate user input
             Launcher.LaunchEssentials.setCurrentPlayer(player, player.toHash());
             textField.setText("SUCCESSFUL PLAYER LOGIN!");
-            System.out.println("Logged in as " + player + ".");
+            System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Logged in as " + player + ".");
         }
     }
 

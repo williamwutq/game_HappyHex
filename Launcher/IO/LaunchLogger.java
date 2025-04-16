@@ -78,7 +78,7 @@ public final class LaunchLogger {
             if (Files.exists(filePath)) {
                 try {
                     Files.write(filePath, jsonString.getBytes());
-                    System.out.println("JSON data written to " + path + " successfully.");
+                    System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data written to " + path + " successfully.");
                     success = true;
                     break;
                 } catch (IOException e) {
@@ -89,14 +89,14 @@ public final class LaunchLogger {
 
         if (!success) {
             String fallbackPath = possiblePaths[0];
-            System.out.println("JSON game log not found, " + fallbackPath + " created successfully.");
+            System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON game log not found, " + fallbackPath + " created successfully.");
             try {
                 Files.write(Paths.get(fallbackPath), jsonString.getBytes());
             } catch (IOException e) {
-                System.err.println("JSON data written to " + fallbackPath + " failed.");
-                System.err.println("LaunchLogger: Logging failed");
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data written to " + fallbackPath + " failed.");
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: Logging failed");
             }
-            System.out.println("JSON data written to " + fallbackPath + " successfully.");
+            System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data written to " + fallbackPath + " successfully.");
         }
     }
 
