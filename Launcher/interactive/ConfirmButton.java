@@ -1,6 +1,7 @@
 package Launcher.interactive;
 
 import Launcher.IO.Username;
+import Launcher.LaunchEssentials;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,9 +46,22 @@ public class ConfirmButton extends LaunchButton {
             if(Hex.Queue.getPieceProcessorID() != 2){
                 textField.setText("RELEASING THE HARD MODE!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
-                Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece"));
+                Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "Hard"));
                 System.out.println("Game difficulty switched to hard.\nThis is only enabled if in settings," +
                         " easyMode is turned OFF.\nType \"Normal\" into this field to switch back to normal.");
+            } else {
+                // Get angry
+                textField.setText("GAME KEYWORD PROHIBITED!");
+                textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
+                System.err.println("Attempted login failed.");
+            }
+        } else if (player.equals("God") && LaunchEssentials.isEasyMode()){
+            if(Hex.Queue.getPieceProcessorID() != 5){
+                textField.setText("THE DIVINE INTERVENTION!");
+                textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
+                Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "God"));
+                System.out.println("You have unlocked God Mode.\nThis means the game will try to ensure that," +
+                        " your game will not end.\nType \"Normal\" into this field to switch back to normal.");
             } else {
                 // Get angry
                 textField.setText("GAME KEYWORD PROHIBITED!");
