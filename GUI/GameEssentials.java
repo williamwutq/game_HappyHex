@@ -300,7 +300,6 @@ public final class GameEssentials {
         if(gameEnds()){
             logGame();
             resetGame();
-            Launcher.IO.LaunchLogger.resetLoggerInfo();
             Launcher.LauncherGUI.toGameOver();
         }
     }

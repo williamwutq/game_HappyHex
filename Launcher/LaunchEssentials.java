@@ -192,9 +192,11 @@ public final class LaunchEssentials {
         updateHighest();
         try {
             LaunchLogger.write();
+            LaunchLogger.resetLoggerInfo();
             return true;
         } catch (IOException e) {
             System.err.println(e.getMessage());
+            LaunchLogger.resetLoggerInfo();
             return false;
         }
     }
