@@ -25,6 +25,22 @@ public final class GameTime implements JsonConvertible{
     public String getTime(){return time;}
     public String getZone(){return zone;}
 
+    /**
+     * Generates a string representing the current date and time in a simple format.
+     * <p>
+     * The format returned is: {@code yyyy-MM-dd HH:mm:ss.SSS}, where:
+     * <ul>
+     *   <li>{@code yyyy-MM-dd} is the current date in ISO-8601 format</li>
+     *   <li>{@code HH:mm:ss.SSS} is the current time in 24-hour format with milliseconds</li>
+     * </ul>
+     *
+     * @return a string representing the current date and time in the format {@code yyyy-MM-dd HH:mm:ss.SSS}
+     */
+    public static String generateSimpleTime(){
+        return LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + " " +
+               LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+    }
+
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("Date", date);
