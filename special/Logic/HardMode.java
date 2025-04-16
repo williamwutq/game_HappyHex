@@ -5,6 +5,8 @@ import Hex.HexEngine;
 import Hex.Piece;
 import special.SpecialFeature;
 
+import java.util.ArrayList;
+
 public class HardMode implements SpecialFeature{
     private boolean enable;
     private boolean valid;
@@ -79,12 +81,16 @@ public class HardMode implements SpecialFeature{
                 if (objects[0] instanceof Piece && objects[2] instanceof HexEngine) {
                     // Implementation: get the most difficult pne
                     HexEngine engine = (HexEngine) objects[2];
+                    ArrayList<Piece> candidates = new ArrayList<Piece>();
                     for (int index = 0; index < Piece.getMaxPieceIndex() - 2; index ++){
                         Piece candidate = Piece.getIndexedPiece(index);
                         int opportunities = calculateAdditionOpportunities(engine, candidate);
-                        if(opportunities > 0 && opportunities < 6){
-                            return new Object[]{candidate};
+                        if(opportunities < 6){
+                            candidates.add(candidate);
                         }
+                    }
+                    if(candidates.size() != 0){
+                        return new Piece[]{candidates.get((int) (candidates.size() * Math.random()))};
                     }
                     int rando = (int)(Math.random() * 13);
                     Piece result = (Piece) objects[0];
