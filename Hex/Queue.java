@@ -3,7 +3,13 @@ package Hex;
 public class Queue{
     private Piece[] pieces;
     // Special
-    private static final special.SpecialFeature pieceProcessor = special.FeatureFactory.createFeature("Hex.Piece");
+    private static special.SpecialFeature pieceProcessor = special.FeatureFactory.createFeature();
+    public static void changePieceProcessor(special.SpecialFeature feature){
+        pieceProcessor = feature;
+    }
+    public static int getPieceProcessorID(){
+        return pieceProcessor.getFeatureID();
+    }
 
     public Queue(int size){
         if (size < 1){
