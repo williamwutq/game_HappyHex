@@ -138,6 +138,8 @@ public final class LaunchLogger {
                         score.getJsonObject("Highest").getInt("Score"),
                         score.getJsonObject("Recent").getInt("Turn"),
                         score.getJsonObject("Recent").getInt("Score"),
+                        0,
+                        0,
                         new GameTime(
                                 score.getJsonObject("Time").getString("Date"),
                                 score.getJsonObject("Time").getString("Time"),
@@ -231,7 +233,7 @@ public final class LaunchLogger {
             }
         }
         // If not found
-        scores.add(new PlayerInfo(gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getPlayerID(), gameInfo.getPlayer()));
+        scores.add(new PlayerInfo(gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getPlayerID(), gameInfo.getPlayer()));
     }
     public static void addPlayer(PlayerInfo playerInfo){
         if(playerInfo.getPlayerID() != -1 && !playerInfo.getPlayer().equals("Guest")){

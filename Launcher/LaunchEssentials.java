@@ -17,7 +17,7 @@ public final class LaunchEssentials {
     public static final String currentEnvironment = "java";
 
     // Game info
-    private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, -1, Username.getUsername("Guest"));
+    private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
 
