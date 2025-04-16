@@ -65,23 +65,32 @@ public class GodMode implements SpecialFeature{
         return count;
     }
     public Object[] process(Object[] objects) {
-        if(objects.length > 2 && objects[1] instanceof Boolean){
-            if (!(Boolean) objects[1]) {
-                if (objects[0] instanceof Piece && objects[2] instanceof HexEngine) {
-                    // Implementation: get an easy one if the generated does not work
-                    HexEngine engine = (HexEngine) objects[2];
-                    if(calculateAdditionOpportunities(engine, (Piece)objects[0]) < 2){
-                        ArrayList<Piece> candidates = new ArrayList<Piece>();
-                        for (int index = 0; index < Piece.getMaxPieceIndex(); index ++){
-                            Piece candidate = Piece.getIndexedPiece(index);
-                            int opportunities = calculateAdditionOpportunities(engine, candidate);
-                            if(opportunities > 3){
-                                candidates.add(candidate);
-                            }
-                        }
-                        return new Piece[]{candidates.get((int) (candidates.size() * Math.random()))};
+        if(objects.length > 2 && objects[0] instanceof Piece && objects[1] instanceof Boolean && objects[2] instanceof HexEngine){
+            // Implementation: get an easy one if the generated does not work
+            HexEngine engine = (HexEngine) objects[2];
+            if (calculateAdditionOpportunities(engine, (Piece) objects[0]) < 2) {
+                System.out.print("Divine Intervention Activated with ");
+                ArrayList<Piece> candidates = new ArrayList<Piece>();
+                ArrayList<Integer> opportunityList = new ArrayList<Integer>();
+                for (int index = 0; index < Piece.getMaxPieceIndex(); index++) {
+                    Piece candidate = Piece.getIndexedPiece(index);
+                    int opportunities = calculateAdditionOpportunities(engine, candidate);
+                    if (opportunities > 0) {
+                        candidates.add(candidate);
+                        opportunityList.add(opportunities);
                     }
                 }
+                if(candidates.size() == 0) {
+                    System.out.println("minimum piece ");
+                    candidates.add(Piece.uno());
+                    opportunityList.add(calculateAdditionOpportunities(engine, Piece.uno()));
+                }
+                int index = (int) (candidates.size() * Math.random());
+                Piece piece = candidates.get(index);
+                System.out.print("of adding opportunity " + opportunityList.get(index) + " ");
+                System.out.println(piece);
+                System.out.println(candidates);
+                return new Piece[]{piece};
             }
         }
         return new Object[]{objects[0]};
