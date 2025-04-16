@@ -64,42 +64,66 @@ public class HardMode implements SpecialFeature{
         p.add(Block.block(1, 1));
         return p;
     }
+    private static int calculateAdditionOpportunities(HexEngine engine, Piece piece){
+        int count = 0;
+        for (int i = 0; i < engine.length(); i ++){
+            if(engine.checkAdd(engine.getBlock(i).thisHex(), piece)){
+                count++;
+            }
+        }
+        return count;
+    }
     public Object[] process(Object[] objects) {
         if(objects.length > 2 && objects[1] instanceof Boolean){
             if (!(Boolean) objects[1]) {
                 if (objects[0] instanceof Piece && objects[2] instanceof HexEngine) {
                     // Implementation: get the most difficult pne
                     HexEngine engine = (HexEngine) objects[2];
-                    for (int index = 0; index < Piece.getMaxPieceIndex(); index ++){
+                    for (int index = 0; index < Piece.getMaxPieceIndex() - 2; index ++){
                         Piece candidate = Piece.getIndexedPiece(index);
-                        boolean addable = false;
-                        for (int i = 0; i < engine.length(); i ++){
-                            if(engine.checkAdd(engine.getBlock(i).thisHex(), candidate)){
-                                addable = true; break;
-                            }
-                        }
-                        if(!addable){
+                        int opportunities = calculateAdditionOpportunities(engine, candidate);
+                        if(opportunities > 0 && opportunities < 6){
                             return new Object[]{candidate};
                         }
                     }
-                    int rando = (int)(Math.random() * 9);
-                    Piece result = hollow();
-                    if (rando == 1){
-                        result = Piece.fan4A();
-                    } else if (rando == 2){
-                        result = Piece.fan4A();
+                    int rando = (int)(Math.random() * 13);
+                    Piece result = (Piece) objects[0];
+                    if (rando == 0){
+                        if(calculateAdditionOpportunities(engine, hollow()) > 0) {
+                            result = hollow();
+                        }
+                    } if (rando == 1 || rando == 9){
+                        if(calculateAdditionOpportunities(engine, Piece.fan4A()) > 0) {
+                            result = Piece.fan4A();
+                        }
+                    } else if (rando == 2|| rando == 10){
+                        if(calculateAdditionOpportunities(engine, Piece.fan4B()) > 0) {
+                            result = Piece.fan4B();
+                        }
                     } else if (rando == 3){
-                        result = Piece.corner4Il();
+                        if(calculateAdditionOpportunities(engine, Piece.fan4A()) > 0) {
+                            result = Piece.corner4Il();
+                        }
                     } else if (rando == 4){
-                        result = Piece.corner4Ir();
+                        if(calculateAdditionOpportunities(engine, Piece.corner4Ir()) > 0) {
+                            result = Piece.corner4Ir();
+                        }
                     } else if (rando == 5){
-                        result = Piece.corner4Jl();
+                        if(calculateAdditionOpportunities(engine, Piece.corner4Jl()) > 0) {
+                            result = Piece.corner4Jl();
+                        }
                     } else if (rando == 6){
-                        result = Piece.corner4Jr();
+                        if(calculateAdditionOpportunities(engine, Piece.corner4Jr()) > 0) {
+                            result = Piece.corner4Jr();
+                        }
                     } else if (rando == 7){
-                        result = Piece.corner4Kl();
+                        if(calculateAdditionOpportunities(engine, Piece.corner4Kl()) > 0) {
+                            result = Piece.corner4Kl();
+                        }
                     } else if (rando == 8){
-                        result = Piece.corner4Kr();
+                        if(calculateAdditionOpportunities(engine, Piece.corner4Kr()) > 0) {
+                            result = Piece.corner4Kr();
+                        }
                     }
                     return new Object[]{result};
                 }
