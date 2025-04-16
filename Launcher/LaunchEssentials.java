@@ -46,6 +46,10 @@ public final class LaunchEssentials {
     public static final String launchSettingsFont = "Courier";
     public static final String launchSettingsSlidingButtonFont = "Helvetica";
 
+    public static void setTheme(int featureIndex){
+
+    }
+
     public static boolean isGameStarted(){
         return gameStarted;
     }
