@@ -284,6 +284,10 @@ public final class LaunchLogger {
     public static PlayerInfo[] fetchPlayerStats(){
         return scores.toArray(new PlayerInfo[0]);
     }
+    /**
+     * Returns an array of all current game statistics.
+     * @return An array of {@link GameInfo} objects.
+     */
     public static GameInfo[] fetchGameStats(){
         return games.toArray(new GameInfo[0]);
     }
