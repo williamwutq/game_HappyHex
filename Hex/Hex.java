@@ -15,7 +15,7 @@ package Hex;
  */
 
 public class Hex{
-    private final double sinOf60 = Math.sqrt(3) / 4;
+    private final double halfSinOf60 = Math.sqrt(3) / 4;
     private int x;
     private int y;
 
@@ -337,7 +337,7 @@ public class Hex{
      * @return The X-coordinate in rectangular space.
      */
     public double X(){
-        return sinOf60 * (x+y);
+        return halfSinOf60 * (x+y);
     }
     /**
      * Converts the hexagonal coordinates to a rectangular Y coordinate.
