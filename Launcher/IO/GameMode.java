@@ -8,6 +8,8 @@ package Launcher.IO;
  * <p>
  * This enum also provide methods to {@link #determineGameMode} from size and difficulty, and determine {@link #getChar size}
  * and {@link #isEasy difficulty} from an enum constant.
+ * @author William Wu
+ * @version 1.1
  */
 public enum GameMode {
     /**

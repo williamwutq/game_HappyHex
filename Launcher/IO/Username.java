@@ -18,6 +18,9 @@ import java.util.Set;
  * </ul>
  *
  * <p>The class is immutable after construction and ensures efficient comparison and hashing operations.
+ *
+ * @author William Wu
+ * @version 1.1
  */
 public final class Username {
     /** The maximum allowed length of a username, inclusive. */

@@ -18,6 +18,8 @@ import java.time.format.DateTimeFormatter;
  * @see LocalTime
  * @see ZoneId
  * @see DateTimeFormatter
+ * @author William Wu
+ * @version 1.1
  */
 public final class GameTime implements JsonConvertible{
     /** The date in ISO-8601 format (yyyy-MM-dd). */
