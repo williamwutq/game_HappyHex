@@ -216,6 +216,9 @@ public final class LaunchLogger {
     public static PlayerInfo[] fetchPlayerStats(){
         return scores.toArray(new PlayerInfo[0]);
     }
+    public static GameInfo[] fetchGameStats(){
+        return games.toArray(new GameInfo[0]);
+    }
 
     public static void addGame(GameInfo gameInfo){
         games.add(gameInfo);

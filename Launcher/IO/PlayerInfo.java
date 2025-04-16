@@ -152,6 +152,8 @@ public final class PlayerInfo implements JsonConvertible{
     public void addTotalTurn(int turns) {this.totalTurn += turns;}
     /** @param score add the average game score */
     public void addTotalScore(int score) {this.totalScore += score;}
+    /** Increment the number of games */
+    public void incrementGameNumber() {this.numberOfGames++;}
 
     /**
      * Updates the high score and high turn, number of games, and average stats based on recent results.

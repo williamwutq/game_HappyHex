@@ -160,7 +160,27 @@ public final class LaunchEssentials {
                 }
             }
         }
-        currentPlayerInfo.update();
+    }
+    public static void updateOnGame(){
+        // Update the average turn and score
+        if(currentPlayerInfo.getPlayerID() != -1) {
+            // Only if the player is logged in
+            for (GameInfo info : LaunchLogger.fetchGameStats()) {
+                if (info.getPlayerID() == currentPlayerInfo.getPlayerID()) {
+                    int turn = info.getTurn();
+                    int score = info.getScore();
+                    currentPlayerInfo.incrementGameNumber();
+                    currentPlayerInfo.addTotalTurn(turn);
+                    currentPlayerInfo.addTotalScore(score);
+                    if (score > currentPlayerInfo.getHighScore()) {
+                        currentPlayerInfo.setHighScore(score);
+                    }
+                    if (turn > currentPlayerInfo.getHighTurn()) {
+                        currentPlayerInfo.setHighTurn(turn);
+                    }
+                }
+            }
+        }
     }
     public static int getLastScore(){
         return currentGameInfo.getScore();
@@ -190,6 +210,8 @@ public final class LaunchEssentials {
         LaunchLogger.addGame(currentGameInfo);
         updateRecent();
         updateHighest();
+        updateOnGame();
+        System.out.println(LaunchEssentials.currentPlayerInfo);
         try {
             LaunchLogger.write();
             LaunchLogger.resetLoggerInfo();
