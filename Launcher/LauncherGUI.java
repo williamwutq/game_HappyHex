@@ -8,26 +8,37 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class LauncherGUI {
-    public static JFrame mainFrame;
+    private static JFrame mainFrame;
     public static void launch(){
         setupMainFrame();
         LaunchEssentials.initialize();
-        mainFrame.add(fetchLaunchPanel());
+        mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
         mainFrame.validate();
         mainFrame.setVisible(true);
         mainFrame.setSize(new Dimension(800, 800));
         mainFrame.repaint();
     }
-    public static JPanel fetchLaunchPanel(){
+    public static JFrame getMainFrame(){
+        if(mainFrame == null){
+            setupMainFrame();
+        }
+        return mainFrame;
+    }
+    private static JPanel fetchLaunchPanel(){
         return new LaunchPanel();
     }
-    public static JPanel fetchLoginPanel(){
+    private static JPanel fetchLoginPanel(){
         return new LoginPanel();
     }
-    public static JPanel fetchSettingPanel(){
+    private static JPanel fetchSettingPanel(){
         return new SettingPanel();
     }
-    public static JPanel fetchThemePanel(){return new ThemePanel();}
+    private static JPanel fetchGameOverPanel(){
+        return new GameOverPanel();
+    }
+    public static JPanel fetchThemePanel(){
+        return new ThemePanel();
+    }
     private static Image fetchIconImage(){
         String path = "icon_512.png";
         ImageIcon icon = new ImageIcon(LauncherGUI.class.getResource(path));
@@ -105,5 +116,13 @@ public class LauncherGUI {
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackGroundColor);
         mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
+    }
+    public static void toGameOver(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        mainFrame.add(fetchGameOverPanel(), BorderLayout.CENTER);
     }
 }

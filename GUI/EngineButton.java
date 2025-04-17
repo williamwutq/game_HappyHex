@@ -47,14 +47,15 @@ public class EngineButton extends HexButton {
         return super.fetchColor();
     }
     protected void clicked(){
+        // Communicate clicked index
+        GameEssentials.setClickedOnIndex(getIndex());
         if(GameEssentials.getSelectedBlockIndex() != -1) {
             GameEssentials.incrementTurn();
             // Fetch position
             Hex position = fetchBlock().thisHex();
-            // Get index and reset index
+            // Get index
             int pieceIndex = GameEssentials.getSelectedPieceIndex();
             int blockIndex = GameEssentials.getSelectedBlockIndex();
-            GameEssentials.setSelectedPieceIndex(-1);
             // Get piece
             Piece piece = GameEssentials.queue().get(pieceIndex);
             // Modify position relative to selected block
@@ -64,6 +65,9 @@ public class EngineButton extends HexButton {
                 GameEssentials.incrementScore(piece.length());
                 GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
             }
+            // Reset index
+            GameEssentials.setSelectedPieceIndex(-1);
+            GameEssentials.setClickedOnIndex(-1);
             // Paint and eliminate
             GameEssentials.window().repaint();
             if (GameEssentials.engine().checkEliminate()) {

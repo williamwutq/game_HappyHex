@@ -9,7 +9,15 @@ import java.awt.*;
 
 public class GameLoginField extends JTextField{
     public GameLoginField(){
-        super("ENTER THE USERNAME HERE!", Username.MAX_LENGTH);
+        super(Username.MAX_LENGTH);
+        String text = Launcher.LaunchEssentials.getCurrentPlayer();
+        if(text.equals("Guest")) {
+            this.setText("ENTER THE USERNAME HERE!");
+            this.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
+        } else {
+            this.setText(text);
+            this.setForeground(Launcher.LaunchEssentials.launchPlayerNameFontColor);
+        }
         this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(6,0,6,0)));
         Dimension dimension = new Dimension(375,50);
 

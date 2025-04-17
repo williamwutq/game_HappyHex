@@ -2,7 +2,27 @@ package Hex;
 
 import java.awt.*;
 
-// Please see Hex
+/**
+ * The {@code Block} class extends {@link Hex} and represents a colored block with an occupancy state
+ * within the hexagonal grid system.
+ * <p>
+ * Block inherits the coordinate system from {@link Hex}. See {@link Hex} for details on the hexagonal coordinate
+ * system, including both raw and line-based coordinates.
+ * <p>
+ * In addition to the coordinate functionality provided by {@link Hex}, each {@code Block} instance encapsulates:
+ * <ul>
+ *   <li>A {@link Color} indicating the block's color.</li>
+ *   <li>A boolean state representing whether the block is occupied (true) or unoccupied (false).</li>
+ * </ul>
+ * <p>
+ * The class provides various constructors and static factory methods for creating blocks using either
+ * standard (i, k) coordinates or line indices. It also includes methods for moving, shifting, adding, and
+ * subtracting coordinates, as well as modifying and retrieving the block's state and color.
+ *
+ * @see Hex
+ * @author William Wu
+ * @version 1.1
+ */
 public class Block extends Hex{
     private Color color;
     private boolean state;
@@ -156,6 +176,24 @@ public class Block extends Hex{
                 + "}; I,J,K = {" + I() + ", " + J() + ", " + K() +
                 "}; Line I,J,K = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
                 "}; X,Y = {" + X() + ", "+ Y() + "}; State = " + state + ";}";
+    }
+    /**
+     * {@inheritDoc}
+     * In addition, it also copies the state and color of this {@code Block}.
+     * @return a clone of the {@code Block}.
+     * @throws CloneNotSupportedException if the class of this object is not {@code Block}.
+     */
+    public Block clone() throws CloneNotSupportedException{
+        if (this.getClass() != Block.class) throw new CloneNotSupportedException("Clone only supported for Block");
+        Block block;
+        try{
+            block = (Block) super.clone();
+        } catch (CloneNotSupportedException e) {
+            block = new Block(this.thisHex());
+        }
+        block.color = new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue());
+        block.state = this.state;
+        return block;
     }
 
     // Setters

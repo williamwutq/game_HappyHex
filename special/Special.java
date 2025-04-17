@@ -51,11 +51,15 @@ public final class Special {
         enable = false;
     }
     public static int getCurrentVersionMajor(){
-        validate();
+        if(!validate()){
+            System.err.println("Special Features Validation failed, please relaunch program");
+        }
         return CURRENT_VERSION_MAJOR;
     }
     public static int getCurrentVersionMinor(){
-        validate();
+        if(!validate()){
+            System.err.println("Special Features Validation failed, please relaunch program");
+        }
         return CURRENT_VERSION_MINOR;
     }
 }

@@ -38,6 +38,7 @@ public final class GameEssentials {
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
+    private static int clickedOnIndex = -1;
 
     private static int turn = 0;
     private static int score = 0;
@@ -61,7 +62,7 @@ public final class GameEssentials {
         new Color(100, 0, 200),
     });
 
-    public static final String gameDisplayFont = "Source Code Pro";
+    public static final String gameDisplayFont = "Courier";
     public static final Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230));
     public static final Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122));
     public static final Color gamePieceSelectedColor = gameBackGroundColor;
@@ -205,6 +206,7 @@ public final class GameEssentials {
         int labelWidth = (int) Math.round(minSize / 6.0);
         int labelHeight = (int) Math.round(minSize / 12.0);
         Dimension dimension = new Dimension(labelWidth, labelHeight);
+        SimpleButton.setSize((int)Math.round(labelHeight*0.6));
 
         int margin = 3;
         int piecePanelSize = (int) Math.round(5 * HexButton.getActiveSize());
@@ -217,6 +219,7 @@ public final class GameEssentials {
         scoreLabel.setPreferredSize(dimension);
         playerLabel.setPreferredSize(dimension);
         quitButton.setPreferredSize(dimension);
+        quitButton.resetSize();
 
         turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
         scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
@@ -299,6 +302,7 @@ public final class GameEssentials {
             logGame();
             resetGame();
             Launcher.IO.LaunchLogger.resetLoggerInfo();
+            Launcher.LauncherGUI.toGameOver();
         }
     }
     private static boolean gameEnds(){
@@ -376,6 +380,12 @@ public final class GameEssentials {
             window.repaint();
         } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + engine.length());
     }
+    public static void setClickedOnIndex(int index) {
+        if(index == -1 || (index >= 0 && index < engine.length())){
+            GameEssentials.clickedOnIndex = index;
+            window.repaint();
+        } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + engine.length());
+    }
 
     // Getters
     public static HexEngine engine(){return engine;}
@@ -384,4 +394,5 @@ public final class GameEssentials {
     public static int getSelectedPieceIndex(){return selectedPieceIndex;}
     public static int getSelectedBlockIndex(){return selectedBlockIndex;}
     public static int getHoveredOverIndex() {return hoveredOverIndex;}
+    public static int getClickedOnIndex() {return clickedOnIndex;}
 }

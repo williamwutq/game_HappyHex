@@ -1,20 +1,85 @@
 package Hex;
 
-/*
- Coordinate system: (2i, 2j, 2k)
-    I
-   / * (5, 4, -1)
-  /     * (5, 7, 2)
- o - - J
-  \ * (0, 3, 3)
-   \
-    K
- Coordinates: dimension along the line I, J, or K.
- Line distances: distances to I or K, which are perpendicular to the coordinates.
+/**
+ * The {@code Hex} class represents a 2D coordinate in a hexagonal grid system using
+ * a specialized integer coordinate model. It supports both raw coordinate access
+ * and derived line-based computations across three axes: I, J, and K.
+ * <p>
+ * <h2>Coordinate System</h2>
+ * <pre>designed by William Wu.</pre>
+ * <p>In this system: </p>
+ * <ul>
+ *   <li>The axes I, J, and K run diagonally through the hexagonal grid.</li>
+ *   <li>I+ is 60 degrees to J+, J+ is 60 degrees to K+, and K+ is 60 degrees to J-.</li>
+ *   <li>Coordinates (i, k) correspond to a basis for representing any hexagon.</li>
+ *   <li>Raw coordinate (or hex coordinate) refers to the distance of a point along one of the axes multiplied by 2.</li>
+ *   <li>For raw coordinates, the relationships between the axes are defined such that {@code i - j + k = 0}.</li>
+ *   <li>Line coordinate (or line-distance based coordinate) are based on the distance perpendicular to the axes.</li>
+ *   <li>For line coordinates, the relationships between the axes are defined such that {@code I + J - K = 0}.</li>
+ *   <li>All line coordinates corresponds to some raw coordinate, but the inverse is not true. Concerning the complexities
+ *   with dealing with raw coordinates, it is preferable to use line coordinates.</li>
+ * </ul>
+ *
+ * <h2>Coordinate System Visualization</h2>
+ * <p>Three example points are provided with raw coordinates:</p>
+ * <pre>
+ * Hex Coordinates (2i, 2j, 2k)
+ *    I
+ *   / * (5, 4, -1)
+ *  /     * (5, 7, 2)
+ * o - - J
+ *  \ * (0, 3, 3)
+ *   \
+ *    K
+ * </pre>
+ * <p>Three example points are provided with line coordinates:</p>
+ * <pre>
+ * Line Coordinates (I, J, K)
+ *    I
+ *   / * (1, 2, 3)
+ *  /     * (3, 1, 4)
+ * o - - J
+ *  \ * (2, -1, 1)
+ *   \
+ *    K
+ * </pre>
+ *
+ * <h2>Coordinate System Implementation</h2>
+ * <ul>
+ *   <li>{@code x} and {@code y} are the base values stored in each {@code Hex} instance.</li>
+ *   <li>{@code I = x}, {@code K = y}, and {@code J = x + y}.</li>
+ *   <li>Line indices are derived as follows:
+ *     <ul>
+ *       <li>{@link #getLineI()} is {@code (2y + x) / 3}</li>
+ *       <li>{@link #getLineJ()} is {@code (x - y) / 3}</li>
+ *       <li>{@link #getLineK()} is {@code (2x + y) / 3}</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * <h2>Functionality</h2>
+ * The class provides functionality to:
+ * <ul>
+ *   <li>Access and compute raw coordinates: {@link #I()}, {@link #J()}, {@link #K()}.</li>
+ *   <li>Access and compute line-distance based coordinates: {@link #getLineI()}, {@link #getLineJ()}, {@link #getLineK()}.</li>
+ *   <li>Create hex objects through constructors or factory methods: {@link #Hex()}, {@link #Hex(int, int)}, {@link #hex()}, {@link #hex(int, int)}.</li>
+ *   <li>Move hex object along I, J, or K axes (increment line coordinates): {@link #moveI(int)}, {@link #moveJ(int)}, {@link #moveK(int)}.</li>
+ *   <li>Addition and subtraction of coordinates: {@link #add(Hex)} and {@link #subtract(Hex)}.</li>
+ *   <li>Check for line alignment and adjacency between hexes: {@link #inLineI(Hex)}, {@link #adjacent(Hex)}, etc.</li>
+ *   <li>Determine relative orientation in the grid: {@link #front(Hex)}, {@link #back(Hex)}, and axis-specific versions.</li>
+ *   <li>Cloning any instance of its subclasses using {@link Cloneable} interface.</li>
+ * </ul>
+ *
+ * <h2>Usage Notes</h2>
+ * <p>
+ * It is recommended to use the factory method {@link #hex(int, int)} instead of direct constructors,
+ * as it provides hexes correctly shifted in line coordinates according to hexagonal grid logic.
+ * </p>
+ * @author William Wu
+ * @version 1.1
  */
-
 public class Hex{
-    private final double sinOf60 = Math.sqrt(3) / 4;
+    private final double halfSinOf60 = Math.sqrt(3) / 4;
     private int x;
     private int y;
 
@@ -336,7 +401,7 @@ public class Hex{
      * @return The X-coordinate in rectangular space.
      */
     public double X(){
-        return sinOf60 * (x+y);
+        return halfSinOf60 * (x+y);
     }
     /**
      * Converts the hexagonal coordinates to a rectangular Y coordinate.
@@ -447,10 +512,23 @@ public class Hex{
     // Get
     /**
      * This hex coordinate
-     *
-     * @return this hex coordinate object
+     * @return this hex coordinate object.
      */
     public Hex thisHex(){
         return Hex.hex(this.getLineI(), this.getLineK());
+    }
+    /**
+     * {@inheritDoc}
+     * A clone of this {@code Hex} object, with its hexagonal coordinates copied.
+     * @return a clone of the Hex object.
+     * @throws CloneNotSupportedException if the class of this object is not {@code Hex}.
+     */
+    public Hex clone() throws CloneNotSupportedException{
+        if (this.getClass() != Hex.class) throw new CloneNotSupportedException("Clone only supported for Hex");
+        try {
+            return (Hex) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return new Hex(this.x, this.y);
+        }
     }
 }

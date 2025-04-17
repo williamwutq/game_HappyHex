@@ -2,7 +2,6 @@ package Launcher;
 
 import GUI.GameEssentials;
 import Launcher.IO.*;
-import special.FeatureFactory;
 
 import java.awt.*;
 import java.io.IOException;
@@ -13,41 +12,46 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 0, 1);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 1, 1);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
     // Game info
-    private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0);
+    private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
 
-    // Special Features
-    private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
+    // Special
+    private static final special.SpecialFeature fontStyle = special.FeatureFactory.createFeature(Font.class.getName());
 
     // Graphics Theme
     private static int themeIndex = 2;
 
     //GUI
     // Launcher
-    public static final Color launchBackgroundColor = (Color) colorProcessor.process(new Color(241, 243, 213));
-    public static final Color launchTitlePanelBackgroundColor = (Color) colorProcessor.process(new Color(219, 223, 151));
-    public static final Color launchAuthorFontColor = (Color) colorProcessor.process(new Color(0, 73, 54));
-    public static final Color launchWWFontColor = (Color) colorProcessor.process(Color.BLACK);
-    public static final Color launchVersionFontColor = (Color) colorProcessor.process(Color.BLACK);
-    public static final Color launchStartButtonBackgroundColor = (Color) colorProcessor.process(Color.BLACK);
-    public static final Color launchQuitButtonBackgroundColor = (Color) colorProcessor.process(Color.RED);
-    public static final Color launchConfirmButtonBackgroundColor = (Color) colorProcessor.process(new Color(0, 223, 39));
-    public static final Color launchSlidingButtonOnColor = (Color) colorProcessor.process(Color.GREEN);
-    public static final Color launchSlidingButtonOffColor = (Color) colorProcessor.process(Color.RED);
-    public static final String launchTitleFont = "Courier";
-    public static final String launchVersionFont = "Comic Sans MS";
+    public static final Color launchBackgroundColor = GameEssentials.processColor(new Color(241, 243, 213));
+    public static final Color launchTitlePanelBackgroundColor = GameEssentials.processColor(new Color(219, 223, 151));
+    public static final Color launchAuthorFontColor = GameEssentials.processColor(new Color(0, 73, 54));
+    public static final Color launchWWFontColor = GameEssentials.processColor(Color.BLACK);
+    public static final Color launchVersionFontColor = GameEssentials.processColor(Color.BLACK);
+    public static final Color launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0));
+    public static final Color launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0));
+    public static final Color launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0));
+    public static final Color launchPlayerSpecialFontColor = GameEssentials.processColor(new Color(0, 136, 136));
+    public static final Color launchStartButtonBackgroundColor = GameEssentials.processColor(Color.BLACK);
+    public static final Color launchQuitButtonBackgroundColor = GameEssentials.processColor(Color.RED);
+    public static final Color launchNewButtonBackgroundColor = GameEssentials.processColor(new Color(0, 193, 211));
+    public static final Color launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39));
+    public static final Color launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN);
+    public static final Color launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED);
+    public static final String launchTitleFont = (String) fontStyle.process(new Object[]{"Courier", "TitleFont"})[0];
+    public static final String launchVersionFont = (String) fontStyle.process(new Object[]{"Comic Sans MS", "VersionFont"})[0];
     public static final String launchAuthorFont = "Helvetica";
     public static final String launchWWFont = "Georgia";
-    public static final String launchButtonFont = "Times New Roman";
-    public static final String launchEnterUsernameFont = "Courier";
-    public static final String launchSettingsFont = "Courier";
-    public static final String launchSettingsSlidingButtonFont = "Helvetica";
+    public static final String launchButtonFont = (String) fontStyle.process(new Object[]{"Times New Roman", "ButtonFont"})[0];
+    public static final String launchEnterUsernameFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
+    public static final String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
+    public static final String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
 
     public static void setTheme(int featureIndex){
         themeIndex = featureIndex;
@@ -63,23 +67,23 @@ public final class LaunchEssentials {
         gameStarted = true;
         int delay = 250;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
             System.err.println("Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         } else {
             System.err.println("Unknown GameMode detected.");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.mainFrame, getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
         }
     }
     public static void endGame(){
@@ -161,12 +165,24 @@ public final class LaunchEssentials {
                         currentPlayerInfo.setHighScore(info.getHighScore());
                     }
                     if (info.getHighTurn() > currentPlayerInfo.getHighTurn()) {
-                        currentPlayerInfo.setHighTurn(info.getHighScore());
+                        currentPlayerInfo.setHighTurn(info.getHighTurn());
                     }
                 }
             }
         }
         currentPlayerInfo.updateHigh();
+    }
+    public static int getLastScore(){
+        return currentGameInfo.getScore();
+    }
+    public static int getLastTurn(){
+        return currentGameInfo.getTurn();
+    }
+    public static int getHighestScore(){
+        return currentPlayerInfo.getHighScore();
+    }
+    public static int getHighestTurn(){
+        return currentPlayerInfo.getHighTurn();
     }
 
     public static boolean log(){
