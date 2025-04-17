@@ -51,7 +51,7 @@ public class ThemePanel extends UniversalPanel {
                 setAllStates();
             }
         };
-        launchThemeNormalButton.setState(LaunchEssentials.isSmallMode());
+        launchThemeNormalButton.setState(LaunchEssentials.getTheme() == 2);
 
         JPanel launchThemeNormalPanel = new JPanel();
         launchThemeNormalPanel.setBackground(this.getBackground());
@@ -81,7 +81,7 @@ public class ThemePanel extends UniversalPanel {
                 setAllStates();
             }
         };
-        launchThemeDarkButton.setState(LaunchEssentials.isMediumMode());
+        launchThemeDarkButton.setState(LaunchEssentials.getTheme() == 4);
 
         JPanel launchThemeDarkPanel = new JPanel();
         launchThemeDarkPanel.setBackground(this.getBackground());
@@ -111,7 +111,7 @@ public class ThemePanel extends UniversalPanel {
                 setAllStates();
             }
         };
-        launchThemeWhiteButton.setState(LaunchEssentials.isLargeMode());
+        launchThemeWhiteButton.setState(LaunchEssentials.getTheme() == 5);
 
         JPanel launchThemeWhitePanel = new JPanel();
         launchThemeWhitePanel.setBackground(this.getBackground());
