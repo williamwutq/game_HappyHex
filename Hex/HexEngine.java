@@ -490,10 +490,15 @@ public class HexEngine implements HexGrid{
      * @see Block#clone()
      */
     public Object clone() throws CloneNotSupportedException {
-        HexEngine newEngine = (HexEngine) super.clone();
-        newEngine.radius = this.radius;
+        HexEngine newEngine;
+        try{
+            newEngine = (HexEngine) super.clone();
+            newEngine.radius = this.radius;
+        } catch (CloneNotSupportedException e) {
+            newEngine = new HexEngine(this.radius);
+        }
         for(int i = 0; i < this.length(); i ++){
-            newEngine.blocks[i] = (Block) this.blocks[i].clone();
+            newEngine.blocks[i] = this.blocks[i].clone();
         }
         return newEngine;
     }

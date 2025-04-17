@@ -521,8 +521,14 @@ public class Hex{
      * {@inheritDoc}
      * A clone of this {@code Hex} object, with its hexagonal coordinates copied.
      * @return a clone of the Hex object.
+     * @throws CloneNotSupportedException if the class of this object is not {@code Hex}.
      */
-    public Object clone() throws CloneNotSupportedException{
-        return super.clone();
+    public Hex clone() throws CloneNotSupportedException{
+        if (this.getClass() != Hex.class) throw new CloneNotSupportedException("Clone only supported for Hex");
+        try {
+            return (Hex) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return new Hex(this.x, this.y);
+        }
     }
 }
