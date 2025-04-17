@@ -6,15 +6,13 @@ import Launcher.interactive.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.util.Arrays;
 
 public class ThemePanel extends UniversalPanel {
     private JLabel launchThemeMainLabel;
-    private JLabel launchThemeNormalLabel;
-    private JLabel launchThemeDarkLabel;
-    private JLabel launchThemeWhiteLabel;
-    private SlidingButtonPanel launchThemeNormalButton;
-    private SlidingButtonPanel launchThemeDarkButton;
-    private SlidingButtonPanel launchThemeWhiteButton;
+    private int totalThemes;
+    private JLabel[] launchThemeLabels;
+    private SlidingButtonPanel[] launchThemeButtons;
 
     public ThemePanel(){
         super();
@@ -31,103 +29,23 @@ public class ThemePanel extends UniversalPanel {
         launchThemeMainLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         launchThemeMainLabel.setBorder(new EmptyBorder(16, 0, 16, 0));
 
-        launchThemeNormalLabel = new JLabel("Normal | ");
-        launchThemeNormalLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
-        launchThemeNormalLabel.setForeground(LaunchEssentials.launchVersionFontColor);
-        launchThemeNormalLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        launchThemeNormalLabel.setVerticalAlignment(SwingConstants.CENTER);
-        launchThemeNormalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchThemeNormalButton = new SlidingButtonPanel(){
-            @Override
-            protected void turnedOn() {
-                super.turnedOn();
-                LaunchEssentials.setTheme(2);
-                setAllStates();
-            }
-            @Override
-            protected void turnedOff(){
-                super.turnedOff();
-                LaunchEssentials.setTheme(4);
-                setAllStates();
-            }
-        };
-        launchThemeNormalButton.setState(LaunchEssentials.getTheme() == 2);
+        // Create arrays
+        totalThemes = 3;
+        launchThemeLabels = new JLabel[totalThemes];
+        launchThemeButtons = new SlidingButtonPanel[totalThemes];
 
-        JPanel launchThemeNormalPanel = new JPanel();
-        launchThemeNormalPanel.setBackground(this.getBackground());
-        launchThemeNormalPanel.setLayout(new BoxLayout(launchThemeNormalPanel, BoxLayout.X_AXIS));
-        launchThemeNormalPanel.add(Box.createHorizontalGlue());
-        launchThemeNormalPanel.add(launchThemeNormalLabel);
-        launchThemeNormalPanel.add(launchThemeNormalButton);
-        launchThemeNormalPanel.add(Box.createHorizontalGlue());
-
-        launchThemeDarkLabel = new JLabel("Dark   | ");
-        launchThemeDarkLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
-        launchThemeDarkLabel.setForeground(LaunchEssentials.launchVersionFontColor);
-        launchThemeDarkLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        launchThemeDarkLabel.setVerticalAlignment(SwingConstants.CENTER);
-        launchThemeDarkLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchThemeDarkButton = new SlidingButtonPanel(){
-            @Override
-            protected void turnedOn() {
-                super.turnedOn();
-                LaunchEssentials.setTheme(4);
-                setAllStates();
-            }
-            @Override
-            protected void turnedOff(){
-                super.turnedOff();
-                LaunchEssentials.setTheme(2);
-                setAllStates();
-            }
-        };
-        launchThemeDarkButton.setState(LaunchEssentials.getTheme() == 4);
-
-        JPanel launchThemeDarkPanel = new JPanel();
-        launchThemeDarkPanel.setBackground(this.getBackground());
-        launchThemeDarkPanel.setLayout(new BoxLayout(launchThemeDarkPanel, BoxLayout.X_AXIS));
-        launchThemeDarkPanel.add(Box.createHorizontalGlue());
-        launchThemeDarkPanel.add(launchThemeDarkLabel);
-        launchThemeDarkPanel.add(launchThemeDarkButton);
-        launchThemeDarkPanel.add(Box.createHorizontalGlue());
-
-        launchThemeWhiteLabel = new JLabel("White  | ");
-        launchThemeWhiteLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
-        launchThemeWhiteLabel.setForeground(LaunchEssentials.launchVersionFontColor);
-        launchThemeWhiteLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        launchThemeWhiteLabel.setVerticalAlignment(SwingConstants.CENTER);
-        launchThemeWhiteLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchThemeWhiteButton = new SlidingButtonPanel(){
-            @Override
-            protected void turnedOn() {
-                super.turnedOn();
-                LaunchEssentials.setTheme(5);
-                setAllStates();
-            }
-            @Override
-            protected void turnedOff(){
-                super.turnedOff();
-                LaunchEssentials.setTheme(2);
-                setAllStates();
-            }
-        };
-        launchThemeWhiteButton.setState(LaunchEssentials.getTheme() == 5);
-
-        JPanel launchThemeWhitePanel = new JPanel();
-        launchThemeWhitePanel.setBackground(this.getBackground());
-        launchThemeWhitePanel.setLayout(new BoxLayout(launchThemeWhitePanel, BoxLayout.X_AXIS));
-        launchThemeWhitePanel.add(Box.createHorizontalGlue());
-        launchThemeWhitePanel.add(launchThemeWhiteLabel);
-        launchThemeWhitePanel.add(launchThemeWhiteButton);
-        launchThemeWhitePanel.add(Box.createHorizontalGlue());
+        // Create assembled panels
+        JPanel launchThemeNormalPanel = createThemeSelectorPanel(0,"Normal", 2, 4);
+        JPanel launchThemeDarkPanel = createThemeSelectorPanel(1, "Dark  ", 4, 2);
+        JPanel launchThemeWhitePanel = createThemeSelectorPanel(2, "White ", 5, 2);
 
         return new JComponent[]{(JComponent) Box.createVerticalGlue(), launchThemeMainLabel, launchThemeNormalPanel, launchThemeDarkPanel, launchThemeWhitePanel, new QuitButton(), (JComponent) Box.createVerticalGlue()};
     }
     private void setAllStates(){
         int theme = LaunchEssentials.getTheme();
-        launchThemeNormalButton.setState(theme == 2);
-        launchThemeDarkButton.setState(theme == 4);
-        launchThemeWhiteButton.setState(theme == 5);
+        launchThemeButtons[0].setState(theme == 2);
+        launchThemeButtons[1].setState(theme == 4);
+        launchThemeButtons[2].setState(theme == 5);
     }
     protected JComponent[] fetchHeader() {
         return null;
@@ -138,14 +56,53 @@ public class ThemePanel extends UniversalPanel {
         LaunchButton.setSizeConstant((int)Math.round(referenceStartButtonSize*0.0100));
         Font labelFont = new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/24.0));
         launchThemeMainLabel.setFont(labelFont);
-        launchThemeNormalLabel.setFont(labelFont);
-        launchThemeDarkLabel.setFont(labelFont);
-        launchThemeWhiteLabel.setFont(labelFont);
+        for(JLabel label : launchThemeLabels){
+            label.setFont(labelFont);
+        }
         launchThemeMainLabel.setBorder(new EmptyBorder((int)Math.round(referenceStartButtonSize/120.0), 0, (int)Math.round(referenceStartButtonSize/120.0), 0));
 
         Dimension buttonSize = new Dimension((int)Math.round(referenceStartButtonSize/4), (int)Math.round(referenceStartButtonSize/12));
-        launchThemeNormalButton.mandateSize(buttonSize);
-        launchThemeDarkButton.mandateSize(buttonSize);
-        launchThemeWhiteButton.mandateSize(buttonSize);
+        for(SlidingButtonPanel button : launchThemeButtons){
+            button.mandateSize(buttonSize);
+        }
+    }
+    public JPanel createThemeSelectorPanel(int index, String text, int targetThemeID, int defaultThemeID) {
+        // Create and set the visual properties of the theme label
+        launchThemeLabels[index] = new JLabel(text + " | ");
+        launchThemeLabels[index].setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchThemeLabels[index].setForeground(LaunchEssentials.launchVersionFontColor);
+        launchThemeLabels[index].setHorizontalAlignment(SwingConstants.CENTER);
+        launchThemeLabels[index].setVerticalAlignment(SwingConstants.CENTER);
+        launchThemeLabels[index].setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Create the toggle button and define behavior for ON and OFF states
+        launchThemeButtons[index] = new SlidingButtonPanel() {
+            @Override
+            protected void turnedOn() {
+                super.turnedOn();
+                LaunchEssentials.setTheme(targetThemeID); // Set to the selected theme
+                setAllStates();
+            }
+            @Override
+            protected void turnedOff() {
+                super.turnedOff();
+                LaunchEssentials.setTheme(defaultThemeID); // Revert to default theme
+                setAllStates();
+            }
+        };
+
+        // Set the initial button state based on current theme
+        launchThemeButtons[index].setState(LaunchEssentials.getTheme() == targetThemeID);
+
+        // Assemble the panel layout as a centered horizontal layout
+        JPanel panel = new JPanel();
+        panel.setBackground(this.getBackground());
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.add(Box.createHorizontalGlue());
+        panel.add(launchThemeLabels[index]);
+        panel.add(launchThemeButtons[index]);
+        panel.add(Box.createHorizontalGlue());
+
+        return panel; // Return the complete panel
     }
 }
