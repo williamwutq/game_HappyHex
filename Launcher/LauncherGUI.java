@@ -104,6 +104,7 @@ public class LauncherGUI {
                     GameEssentials.resetGame();
                 }
                 // Close
+                System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
             }
         });
