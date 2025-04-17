@@ -12,12 +12,12 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 1, 1);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 1, 2);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
     // Game info
-    private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, -1, Username.getUsername("Guest"));
+    private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
 
@@ -170,8 +170,34 @@ public final class LaunchEssentials {
                     }
                 }
             }
+        } else {
+            currentPlayerInfo.incrementGameNumber();
+            currentPlayerInfo.addTotalTurn(currentGameInfo.getTurn());
+            currentPlayerInfo.addTotalScore(currentGameInfo.getScore());
+            currentPlayerInfo.setHighTurn(currentGameInfo.getTurn());
+            currentPlayerInfo.setHighScore(currentGameInfo.getScore());
         }
-        currentPlayerInfo.updateHigh();
+    }
+    public static void updateOnGame(){
+        // Update the average turn and score
+        if(currentPlayerInfo.getPlayerID() != -1) {
+            // Only if the player is logged in
+            for (GameInfo info : LaunchLogger.fetchGameStats()) {
+                if (info.getPlayerID() == currentPlayerInfo.getPlayerID()) {
+                    int turn = info.getTurn();
+                    int score = info.getScore();
+                    currentPlayerInfo.incrementGameNumber();
+                    currentPlayerInfo.addTotalTurn(turn);
+                    currentPlayerInfo.addTotalScore(score);
+                    if (score > currentPlayerInfo.getHighScore()) {
+                        currentPlayerInfo.setHighScore(score);
+                    }
+                    if (turn > currentPlayerInfo.getHighTurn()) {
+                        currentPlayerInfo.setHighTurn(turn);
+                    }
+                }
+            }
+        }
     }
     public static int getLastScore(){
         return currentGameInfo.getScore();
@@ -185,6 +211,12 @@ public final class LaunchEssentials {
     public static int getHighestTurn(){
         return currentPlayerInfo.getHighTurn();
     }
+    public static int getAverageScore(){
+        return (int) Math.round(currentPlayerInfo.getAvgScore());
+    }
+    public static int getAverageTurn(){
+        return (int) Math.round(currentPlayerInfo.getAvgTurn());
+    }
 
     public static boolean log(){
         try {
@@ -192,14 +224,19 @@ public final class LaunchEssentials {
         } catch (IOException e) {
             System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
         }
+        currentPlayerInfo.eraseStats();
+        LaunchLogger.addGame(currentGameInfo);
         updateRecent();
         updateHighest();
-        LaunchLogger.addGame(currentGameInfo);
+        updateOnGame();
+        System.out.println(LaunchEssentials.currentPlayerInfo);
         try {
             LaunchLogger.write();
+            LaunchLogger.resetLoggerInfo();
             return true;
         } catch (IOException e) {
             System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
+            LaunchLogger.resetLoggerInfo();
             return false;
         }
     }

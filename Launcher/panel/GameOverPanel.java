@@ -23,6 +23,8 @@ public class GameOverPanel extends JPanel implements ComponentListener {
     private InlineInfoPanel scorePoints;
     private InlineInfoPanel highestTurns;
     private InlineInfoPanel highestPoints;
+    private InlineInfoPanel averageTurns;
+    private InlineInfoPanel averagePoints;
     private SimpleButton gameQuitButton;
     private SimpleButton gameNextButton;
 
@@ -30,7 +32,7 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBackground(GUI.GameEssentials.gameBackGroundColor);
         gameNameLabelPanel = fetchGameNameLabelPanel();
-        spacers = new JLabel[7];
+        spacers = new JLabel[8];
         for (int i = 0; i < spacers.length; i++) {
             spacers[i] = new JLabel("  ");
             spacers[i].setFont(new Font(GameEssentials.gameDisplayFont, Font.PLAIN, 16));
@@ -75,6 +77,8 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         scorePoints = new InlineInfoPanel();
         highestTurns = new InlineInfoPanel();
         highestPoints = new InlineInfoPanel();
+        averageTurns = new InlineInfoPanel();
+        averagePoints = new InlineInfoPanel();
 
         scoreUser.setTitle("    PLAYER ");
         scoreUser.setInfo(" " + LaunchEssentials.getCurrentPlayer() + "    ");
@@ -86,6 +90,10 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         highestTurns.setInfo(" " + LaunchEssentials.getHighestTurn() + "    ");
         highestPoints.setTitle("    HIGHEST SCORE ");
         highestPoints.setInfo(" " + LaunchEssentials.getHighestScore() + "    ");
+        averageTurns.setTitle("    AVERAGE TURNS ");
+        averageTurns.setInfo(" " + LaunchEssentials.getAverageTurn() + "    ");
+        averagePoints.setTitle("    AVERAGE SCORE ");
+        averagePoints.setInfo(" " + LaunchEssentials.getAverageScore() + "    ");
 
         gameQuitButton = new GUI.GameQuitButton();
         gameNextButton = new Launcher.interactive.NextGameButton();
@@ -111,6 +119,9 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         this.add(highestTurns);
         this.add(highestPoints);
         this.add(spacers[6]);
+        this.add(averageTurns);
+        this.add(averagePoints);
+        this.add(spacers[7]);
         this.add(Box.createVerticalGlue());
         this.add(gameNextButton);
         this.add(gameQuitButton);
@@ -149,7 +160,7 @@ public class GameOverPanel extends JPanel implements ComponentListener {
             label.setFont(new Font(LaunchEssentials.launchTitleFont, Font.BOLD, (int) Math.round(referenceGameNameSize / 10)));
         }
         double buttonSize = Math.min(getReferenceHeight(), getReferenceWidth());
-        int fontSize = (int) Math.round(buttonSize / 24);
+        int fontSize = (int) Math.round(buttonSize / 30);
         GUI.SimpleButton.setSize(fontSize * 2);
         Dimension size = new Dimension((int) Math.round(buttonSize / 4), (int) Math.round(buttonSize / 8));
         gameNextButton.setPreferredSize(size);
@@ -166,6 +177,8 @@ public class GameOverPanel extends JPanel implements ComponentListener {
         scorePoints.setSize(fontSize);
         highestTurns.setSize(fontSize);
         highestPoints.setSize(fontSize);
+        averageTurns.setSize(fontSize);
+        averagePoints.setSize(fontSize);
         gameNextButton.resetSize();
         gameQuitButton.resetSize();
     }

@@ -196,6 +196,8 @@ public final class LaunchLogger {
                         score.getJsonObject("Highest").getInt("Score"),
                         score.getJsonObject("Recent").getInt("Turn"),
                         score.getJsonObject("Recent").getInt("Score"),
+                        0,
+                        0,
                         new GameTime(
                                 score.getJsonObject("Time").getString("Date"),
                                 score.getJsonObject("Time").getString("Time"),
@@ -282,6 +284,13 @@ public final class LaunchLogger {
     public static PlayerInfo[] fetchPlayerStats(){
         return scores.toArray(new PlayerInfo[0]);
     }
+    /**
+     * Returns an array of all current game statistics.
+     * @return An array of {@link GameInfo} objects.
+     */
+    public static GameInfo[] fetchGameStats(){
+        return games.toArray(new GameInfo[0]);
+    }
 
     /**
      * Adds a new game record and updates the associated player's recent stats.
@@ -297,14 +306,14 @@ public final class LaunchLogger {
                     if (info.getPlayerID() == gameInfo.getPlayerID()) {
                         info.setRecentTurn(gameInfo.getTurn());
                         info.setRecentScore(gameInfo.getScore());
-                        info.updateHigh();
+                        info.update();
                         return;
                     }
                 }
             }
         }
         // If not found
-        scores.add(new PlayerInfo(gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getPlayerID(), gameInfo.getPlayer()));
+        scores.add(new PlayerInfo(gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getTurn(), gameInfo.getScore(), gameInfo.getPlayerID(), gameInfo.getPlayer()));
     }
     /**
      * Adds or updates a player's score record.
@@ -318,7 +327,7 @@ public final class LaunchLogger {
                     if(info.getPlayerID() == playerInfo.getPlayerID()) {
                         info.setRecentTurn(playerInfo.getRecentTurn());
                         info.setRecentScore(playerInfo.getRecentScore());
-                        info.updateHigh();
+                        info.update();
                         return;
                     }
                 }

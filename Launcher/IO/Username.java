@@ -42,17 +42,27 @@ public final class Username {
      *     <li>"guest"</li>
      *     <li>"host"</li>
      *     <li>"user"</li>
+     *     <li>"driver"</li>
+     *     <li>"god"</li>
+     *     <li>"evil"</li>
+     *     <li>"devil"</li>
+     *     <li>"hard"</li>
+     *     <li>"easy"</li>
      *     <li>"harmony"</li>
+     *     <li>"hash"</li>
+     *     <li>"code"</li>
      *     <li>"game"</li>
      *     <li>"gamer"</li>
      *     <li>"happyhex"</li>
      *     <li>"hex"</li>
      *     <li>"name"</li>
+     *     <li>"club"</li>
+     *     <li>"event"</li>
      * </ul>
      */
     private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
             "player", "default", "dev", "guest", "host", "user", "harmony", "game", "gamer",
-            "happyhex", "hex", "name"
+            "happyhex", "hex", "name", "club", "event", "driver", "hash", "code", "easy"
     ));
 
     /**

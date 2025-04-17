@@ -26,7 +26,7 @@ public class HeartAnimation extends Animation {
             double size = GUI.HexButton.getActiveSize();
             int width = (int) Math.round(2 * size * GameEssentials.sinOf60);
             int height = (int) Math.round(2 * size);
-            double extended = 1.2;
+            double extended = 1.5;
             Dimension dimension = new Dimension(width, height);
             this.setSize(dimension);
             this.setMinimumSize(dimension);
@@ -42,7 +42,7 @@ public class HeartAnimation extends Animation {
     protected void paintFrame(Graphics g, double progress) {
         resetSize();
         double size = GUI.HexButton.getActiveSize();
-        double extended = 1.2;
+        double extended = 1.5;
         progress = 1 - progress;
         Graphics2D graphics = (Graphics2D) g.create();
         graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(progress*255)));
