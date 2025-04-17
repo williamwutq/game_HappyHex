@@ -7,6 +7,7 @@ public class FeatureFactory {
             if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || Math.random() >= 0.94) {
                 return new special.Styles.Grayscale();
             }
+            // return new special.Styles.DarkTheme();
         } else if (className.equals("Piece") || className.equals("Hex.Piece")){
             if(hint.equals("God")){
                 return new special.Logic.GodMode();
