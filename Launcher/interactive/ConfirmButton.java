@@ -24,49 +24,39 @@ public class ConfirmButton extends LaunchButton {
             // Get angry
             textField.setText("INCORRECT NAMING FORMAT!");
             textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
-            System.err.println("Attempted login failed.");
+            System.err.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Attempted login failed.");
         } else if (player.isKeyword()){
-            // Get angry
-            textField.setText("GAME KEYWORD PROHIBITED!");
-            textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
-            System.err.println("Attempted login failed.");
+            failLogin();
         } else if (player.equals("Normal")){
             if(Hex.Queue.getPieceProcessorID() != 0){
                 textField.setText("USING NORMAL DIFFICULTY!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
                 Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature());
-                System.out.println("Game difficulty switched to normal.");
+                System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " SpecialFeature: Game difficulty switched to normal.");
             } else {
-                // Get angry
-                textField.setText("GAME KEYWORD PROHIBITED!");
-                textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
-                System.err.println("Attempted login failed.");
+                failLogin();
             }
         } else if (player.equals("Hard") || player.equals("Evil")){
             if(Hex.Queue.getPieceProcessorID() != 2){
                 textField.setText("RELEASING THE HARD MODE!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
                 Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "Hard"));
-                System.out.println("Game difficulty switched to hard.\nThis is only enabled if in settings," +
-                        " easyMode is turned OFF.\nType \"Normal\" into this field to switch back to normal.");
+                System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Special Feature: Game difficulty switched to hard.\n" +
+                        "                                         This is only enabled if in settings, easyMode is turned OFF.\n" +
+                        "                                         Type \"Normal\" into this field to switch back to normal.");
             } else {
-                // Get angry
-                textField.setText("GAME KEYWORD PROHIBITED!");
-                textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
-                System.err.println("Attempted login failed.");
+                failLogin();
             }
         } else if (player.equals("God")){
             if(Hex.Queue.getPieceProcessorID() != 5 && LaunchEssentials.isEasyMode()){
                 textField.setText("THE DIVINE INTERVENTION!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
                 Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "God"));
-                System.out.println("You have unlocked God Mode.\nThis means the game will try to ensure that," +
-                        " your game will not end.\nType \"Normal\" into this field to switch back to normal.");
+                System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Special Feature: You have unlocked God Mode.\n" +
+                        "                                         This means the game will try to ensure that, your game will not end.\n" +
+                        "                                         Type \"Normal\" into this field to switch back to normal.");
             } else {
-                // Get angry
-                textField.setText("GAME KEYWORD PROHIBITED!");
-                textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
-                System.err.println("Attempted login failed.");
+                failLogin();
             }
         } else {
             // Validate user input
@@ -88,6 +78,11 @@ public class ConfirmButton extends LaunchButton {
         });
         timer.setRepeats(false);
         timer.start();
+    }
+    private void failLogin(){
+        textField.setText("GAME KEYWORD PROHIBITED!");
+        textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
+        System.err.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Attempted login failed.");
     }
 
     protected Color fetchColor() {
