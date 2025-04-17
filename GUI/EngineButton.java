@@ -47,6 +47,8 @@ public class EngineButton extends HexButton {
         return super.fetchColor();
     }
     protected void clicked(){
+        // Communicate clicked index
+        GameEssentials.setClickedOnIndex(getIndex());
         if(GameEssentials.getSelectedBlockIndex() != -1) {
             GameEssentials.incrementTurn();
             // Fetch position

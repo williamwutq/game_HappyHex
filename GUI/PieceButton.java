@@ -41,6 +41,7 @@ public class PieceButton extends HexButton {
         if(isTarget()){
             // Unselect
             GameEssentials.setSelectedPieceIndex(-1);
+            GameEssentials.setClickedOnIndex(-1);
         } else {
             // Select
             GameEssentials.setSelectedPieceIndex(pieceIndex);

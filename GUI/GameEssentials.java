@@ -38,6 +38,7 @@ public final class GameEssentials {
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
+    private static int clickedOnIndex = -1;
 
     private static int turn = 0;
     private static int score = 0;
@@ -379,6 +380,12 @@ public final class GameEssentials {
             window.repaint();
         } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + engine.length());
     }
+    public static void setClickedOnIndex(int index) {
+        if(index == -1 || (index >= 0 && index < engine.length())){
+            GameEssentials.clickedOnIndex = index;
+            window.repaint();
+        } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + engine.length());
+    }
 
     // Getters
     public static HexEngine engine(){return engine;}
@@ -387,4 +394,5 @@ public final class GameEssentials {
     public static int getSelectedPieceIndex(){return selectedPieceIndex;}
     public static int getSelectedBlockIndex(){return selectedBlockIndex;}
     public static int getHoveredOverIndex() {return hoveredOverIndex;}
+    public static int getClickedOnIndex() {return clickedOnIndex;}
 }
