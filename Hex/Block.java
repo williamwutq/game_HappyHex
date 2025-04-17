@@ -177,6 +177,17 @@ public class Block extends Hex{
                 "}; Line I,J,K = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
                 "}; X,Y = {" + X() + ", "+ Y() + "}; State = " + state + ";}";
     }
+    /**
+     * {@inheritDoc}
+     * In addition, it also copies the state and color of this {@code Block}.
+     * @return a clone of the {@code Block}.
+     */
+    public Object clone() throws CloneNotSupportedException{
+        Block block = (Block) super.clone();
+        block.color = new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue());
+        block.state = this.state;
+        return block;
+    }
 
     // Setters
     /**
