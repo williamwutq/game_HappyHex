@@ -300,6 +300,7 @@ public final class GameEssentials {
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
+            System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();
@@ -327,7 +328,6 @@ public final class GameEssentials {
     // Logging at the end
     public static void logGame(){
         // Temporary implementation: Print to console
-        System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
         System.out.println("\n---------- Game Over ----------");
         System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
         System.out.println("The total score is " + GameEssentials.score + " points.\n");
