@@ -13,6 +13,7 @@ public class ThemePanel extends UniversalPanel {
     private ArrayList<JLabel> launchThemeLabels;
     private ArrayList<SlidingButtonPanel> launchThemeButtons;
     private ArrayList<Integer> targetThemeIDs;
+    private ArrayList<special.SpecialFeature> specialThemes;
 
     public ThemePanel(){
         super();
@@ -33,6 +34,11 @@ public class ThemePanel extends UniversalPanel {
         targetThemeIDs = new ArrayList<>();
         launchThemeLabels = new ArrayList<>();
         launchThemeButtons = new ArrayList<>();
+        specialThemes = new ArrayList<>();
+
+        // Create special Features
+        specialThemes.add(special.FeatureFactory.createFeature()); // Normal
+        // To be implemented
 
         // Add theme IDs
         targetThemeIDs.add(2); // Normal
@@ -40,11 +46,18 @@ public class ThemePanel extends UniversalPanel {
         targetThemeIDs.add(5); // White
 
         // Create assembled panels
-        JPanel launchThemeNormalPanel = createThemeSelectorPanel("Normal");
-        JPanel launchThemeDarkPanel = createThemeSelectorPanel("Dark  ");
-        JPanel launchThemeWhitePanel = createThemeSelectorPanel("White ");
+        String[] texts = new String[] {"Normal", "Dark  ", "White "};
 
-        return new JComponent[]{(JComponent) Box.createVerticalGlue(), launchThemeMainLabel, launchThemeNormalPanel, launchThemeDarkPanel, launchThemeWhitePanel, new QuitButton(), (JComponent) Box.createVerticalGlue()};
+        // Create array
+        JComponent[] result = new JComponent[4 + targetThemeIDs.size()];
+        result[0] = (JComponent) Box.createVerticalGlue();
+        result[1] = launchThemeMainLabel;
+        for(int i = 0; i < targetThemeIDs.size(); i ++){
+            result[i + 2] = createThemeSelectorPanel(texts[i]);
+        }
+        result[result.length - 2] = new QuitButton();
+        result[result.length - 1] = (JComponent) Box.createVerticalGlue();
+        return result;
     }
     private void setAllStates(){
         int theme = LaunchEssentials.getTheme();
