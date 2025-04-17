@@ -1,5 +1,6 @@
 package special.Logic;
 
+import GUI.GameEssentials;
 import Hex.HexEngine;
 import Hex.Piece;
 import special.SpecialFeature;
@@ -68,6 +69,14 @@ public class GodMode implements SpecialFeature{
         if(objects.length > 2 && objects[0] instanceof Piece && objects[1] instanceof Boolean && objects[2] instanceof HexEngine){
             // Implementation: get an easy one if the generated does not work
             HexEngine engine = (HexEngine) objects[2];
+            if (objects.length > 3 && objects[3] instanceof Piece) try {
+                engine = (HexEngine) engine.clone();
+                System.out.println("Have Piece");
+                if(GameEssentials.getClickedOnIndex() != -1){
+                    System.out.println("Get block");
+                    engine.add(engine.getBlock(GameEssentials.getClickedOnIndex()), (Piece) objects[3]);
+                }
+            } catch (CloneNotSupportedException e) {System.out.println("No cloning");}
             if (calculateAdditionOpportunities(engine, (Piece) objects[0]) < 2) {
                 System.out.print("Divine Intervention Activated with ");
                 ArrayList<Piece> candidates = new ArrayList<Piece>();
