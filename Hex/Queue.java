@@ -85,10 +85,11 @@ public class Queue{
      */
     public Piece next(){
         Piece next = getFirst();
+        Piece generated = generate(next);
         for(int i = 1; i < pieces.length; i ++){
             pieces[i - 1] = pieces[i];
         }
-        pieces[pieces.length - 1] = generate(next);
+        pieces[pieces.length - 1] = generated;
         return next;
     }
     /**
@@ -107,10 +108,11 @@ public class Queue{
             throw new IndexOutOfBoundsException("Index " + index + " out of bound for length " + pieces.length + ".");
         } else {
             Piece fetch = pieces[index];
+            Piece generated = generate(fetch);
             for(int i = index + 1; i < pieces.length; i ++){
                 pieces[i - 1] = pieces[i];
             }
-            pieces[pieces.length - 1] = generate(fetch);
+            pieces[pieces.length - 1] = generated;
             return fetch;
         }
     }
