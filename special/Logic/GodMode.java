@@ -72,9 +72,9 @@ public class GodMode implements SpecialFeature{
             if (objects.length > 3 && objects[3] instanceof Piece) try {
                 engine = (HexEngine) engine.clone();
                 System.out.println("Have Piece");
-                if(GameEssentials.getClickedOnIndex() != -1){
-                    System.out.println("Get block");
-                    engine.add(engine.getBlock(GameEssentials.getClickedOnIndex()), (Piece) objects[3]);
+                if(GameEssentials.getClickedOnIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1){
+                    Hex.Hex position = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex()).getBlock(GameEssentials.getSelectedBlockIndex());
+                    engine.add(engine.getBlock(GameEssentials.getClickedOnIndex()).subtract(position), (Piece) objects[3]);
                 }
             } catch (CloneNotSupportedException e) {System.out.println("No cloning");}
             if (calculateAdditionOpportunities(engine, (Piece) objects[0]) < 2) {
