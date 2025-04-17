@@ -22,43 +22,61 @@ public final class LaunchEssentials {
     private static boolean gameStarted = false;
 
     // Special
-    private static final special.SpecialFeature fontStyle = special.FeatureFactory.createFeature(Font.class.getName());
+    private static special.SpecialFeature fontStyle = special.FeatureFactory.createFeature(Font.class.getName());
 
     // Graphics Theme
     private static int themeIndex = 2;
 
     //GUI
     // Launcher
-    public static final Color launchBackgroundColor = GameEssentials.processColor(new Color(241, 243, 213));
-    public static final Color launchTitlePanelBackgroundColor = GameEssentials.processColor(new Color(219, 223, 151));
-    public static final Color launchAuthorFontColor = GameEssentials.processColor(new Color(0, 73, 54));
-    public static final Color launchWWFontColor = GameEssentials.processColor(Color.BLACK);
-    public static final Color launchVersionFontColor = GameEssentials.processColor(Color.BLACK);
-    public static final Color launchHintFontColor = GameEssentials.processColor(Color.GRAY);
-    public static final Color launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0));
-    public static final Color launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0));
-    public static final Color launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0));
-    public static final Color launchPlayerSpecialFontColor = GameEssentials.processColor(new Color(0, 136, 136));
-    public static final Color launchStartButtonBackgroundColor = GameEssentials.processColor(Color.BLACK);
-    public static final Color launchQuitButtonBackgroundColor = GameEssentials.processColor(Color.RED);
-    public static final Color launchNewButtonBackgroundColor = GameEssentials.processColor(new Color(0, 193, 211));
-    public static final Color launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39));
-    public static final Color launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN);
-    public static final Color launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED);
-    public static final String launchTitleFont = (String) fontStyle.process(new Object[]{"Courier", "TitleFont"})[0];
-    public static final String launchVersionFont = (String) fontStyle.process(new Object[]{"Comic Sans MS", "VersionFont"})[0];
-    public static final String launchAuthorFont = "Helvetica";
-    public static final String launchWWFont = "Georgia";
-    public static final String launchButtonFont = (String) fontStyle.process(new Object[]{"Times New Roman", "ButtonFont"})[0];
-    public static final String launchEnterUsernameFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
-    public static final String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
-    public static final String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
+    public static Color launchBackgroundColor = GameEssentials.processColor(new Color(241, 243, 213), "LaunchBackgroundColor");
+    public static Color launchTitlePanelBackgroundColor = GameEssentials.processColor(new Color(219, 223, 151), "LaunchTitlePanelBackgroundColor");
+    public static Color launchAuthorFontColor = GameEssentials.processColor(new Color(0, 73, 54), "LaunchAuthorFontColor");
+    public static Color launchWWFontColor = GameEssentials.processColor(Color.BLACK, "LaunchWWFontColor");
+    public static Color launchVersionFontColor = GameEssentials.processColor(Color.BLACK, "LaunchVersionFontColor");
+    public static Color launchHintFontColor = GameEssentials.processColor(Color.GRAY, "LaunchHintFontColor");
+    public static Color launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0), "LaunchPlayerNameFontColor");
+    public static Color launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0), "LaunchPlayerPromptFontColor");
+    public static Color launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0), "LaunchPlayerErrorFontColor");
+    public static Color launchPlayerSpecialFontColor = GameEssentials.processColor(new Color(0, 136, 136), "LaunchPlayerSpecialFontColor");
+    public static Color launchStartButtonBackgroundColor = GameEssentials.processColor(Color.BLACK, "LaunchStartButtonBackgroundColor");
+    public static Color launchQuitButtonBackgroundColor = GameEssentials.processColor(Color.RED, "LaunchQuitButtonBackgroundColor");
+    public static Color launchNewButtonBackgroundColor = GameEssentials.processColor(new Color(0, 193, 211), "LaunchNewButtonBackgroundColor");
+    public static Color launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39), "LaunchConfirmButtonBackgroundColor");
+    public static Color launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN, "LaunchSlidingButtonOnColor");
+    public static Color launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED, "LaunchSlidingButtonOffColor");
+    public static String launchTitleFont = (String) fontStyle.process(new Object[]{"Courier", "TitleFont"})[0];
+    public static String launchVersionFont = (String) fontStyle.process(new Object[]{"Comic Sans MS", "VersionFont"})[0];
+    public static String launchAuthorFont = "Helvetica";
+    public static String launchWWFont = "Georgia";
+    public static String launchButtonFont = (String) fontStyle.process(new Object[]{"Times New Roman", "ButtonFont"})[0];
+    public static String launchEnterUsernameFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
+    public static String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
+    public static String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
 
     public static void setTheme(int featureIndex){
         themeIndex = featureIndex;
     }
     public static int getTheme(){
         return themeIndex;
+    }
+    public static void recolorAll(){
+        launchBackgroundColor = GameEssentials.processColor(new Color(241, 243, 213), "LaunchBackgroundColor");
+        launchTitlePanelBackgroundColor = GameEssentials.processColor(new Color(219, 223, 151), "LaunchTitlePanelBackgroundColor");
+        launchAuthorFontColor = GameEssentials.processColor(new Color(0, 73, 54), "LaunchAuthorFontColor");
+        launchWWFontColor = GameEssentials.processColor(Color.BLACK, "LaunchWWFontColor");
+        launchVersionFontColor = GameEssentials.processColor(Color.BLACK, "LaunchVersionFontColor");
+        launchHintFontColor = GameEssentials.processColor(Color.GRAY, "LaunchHintFontColor");
+        launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0), "LaunchPlayerNameFontColor");
+        launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0), "LaunchPlayerPromptFontColor");
+        launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0), "LaunchPlayerErrorFontColor");
+        launchPlayerSpecialFontColor = GameEssentials.processColor(new Color(0, 136, 136), "LaunchPlayerSpecialFontColor");
+        launchStartButtonBackgroundColor = GameEssentials.processColor(Color.BLACK, "LaunchStartButtonBackgroundColor");
+        launchQuitButtonBackgroundColor = GameEssentials.processColor(Color.RED, "LaunchQuitButtonBackgroundColor");
+        launchNewButtonBackgroundColor = GameEssentials.processColor(new Color(0, 193, 211), "LaunchNewButtonBackgroundColor");
+        launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39), "LaunchConfirmButtonBackgroundColor");
+        launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN, "LaunchSlidingButtonOnColor");
+        launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED, "LaunchSlidingButtonOffColor");
     }
 
     public static boolean isGameStarted(){

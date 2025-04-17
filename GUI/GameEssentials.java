@@ -44,8 +44,8 @@ public final class GameEssentials {
     private static int score = 0;
 
     // Special Features
-    private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
-    private static final special.SpecialFeature effectProcessor = FeatureFactory.createFeature(Animation.class.getName());
+    private static special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
+    private static special.SpecialFeature effectProcessor = FeatureFactory.createFeature(Animation.class.getName());
 
     // Random Piece
     private static final Color[] pieceColors = (Color[]) colorProcessor.process(new Color[]{
@@ -64,12 +64,12 @@ public final class GameEssentials {
     });
 
     public static final String gameDisplayFont = "Courier";
-    public static final Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230));
-    public static final Color gameBlockDefaultColor = GameEssentials.processColor(Color.BLACK);
-    public static final Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122));
-    public static final Color gamePieceSelectedColor = gameBackGroundColor;
-    public static final Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24));
-    public static final Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7));
+    public static Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GameBackGroundColor");
+    public static Color gameBlockDefaultColor = GameEssentials.processColor(Color.BLACK, "GameBlockDefaultColor");
+    public static Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122), "GamePiecePanelColor");
+    public static Color gamePieceSelectedColor = GameEssentials.processColor(new Color(213, 236, 230), "GamePieceSelectedColor");;
+    public static Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24), "GameDisplayFontColor");
+    public static Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7), "GameQuitFontColor");
 
     /**
      * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
@@ -134,8 +134,22 @@ public final class GameEssentials {
     public static Color processColor(Color origin){
         return (Color) colorProcessor.process(origin);
     }
+    public static Color processColor(Color origin, String hint){
+        return (Color) colorProcessor.process(origin, hint);
+    }
     public static Color interpolate(Color base, Color target, int degree){
         return new Color((base.getRed()*degree + target.getRed())/(1 + degree),(base.getGreen()*degree + target.getGreen())/(1 + degree),(base.getBlue()*degree + target.getBlue())/(1 + degree));
+    }
+    public static void changeColorProcessor(special.SpecialFeature newProcessor){
+        colorProcessor = newProcessor;
+        gameBackGroundColor = processColor(new Color(213, 236, 230), "GameBackGroundColor");
+        gameBlockDefaultColor = processColor(Color.BLACK, "GameBlockDefaultColor");
+        gamePiecePanelColor = processColor(new Color(113, 129, 122), "GamePiecePanelColor");
+        gamePieceSelectedColor = processColor(new Color(213, 236, 230), "GamePieceSelectedColor");;
+        gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
+        gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
+        Launcher.LaunchEssentials.recolorAll();
+        Launcher.LauncherGUI.getMainFrame().repaint();
     }
     /**
      * Paints a hexagon at the origin (0,0) with a specified color and size.
