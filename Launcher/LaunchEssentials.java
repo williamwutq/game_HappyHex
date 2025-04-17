@@ -100,6 +100,7 @@ public final class LaunchEssentials {
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small);
         gameStarted = false;
+        System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }
     public static void setEasyMode(){
         if (currentGameInfo.getGameMode() == GameMode.Small){
@@ -222,20 +223,19 @@ public final class LaunchEssentials {
         try {
             LaunchLogger.read();
         } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
         }
         currentPlayerInfo.eraseStats();
         LaunchLogger.addGame(currentGameInfo);
         updateRecent();
         updateHighest();
         updateOnGame();
-        System.out.println(LaunchEssentials.currentPlayerInfo);
         try {
             LaunchLogger.write();
             LaunchLogger.resetLoggerInfo();
             return true;
         } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
             LaunchLogger.resetLoggerInfo();
             return false;
         }

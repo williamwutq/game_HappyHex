@@ -71,35 +71,22 @@ public class GodMode implements SpecialFeature{
             HexEngine engine = (HexEngine) objects[2];
             if (objects.length > 3 && objects[3] instanceof Piece) try {
                 engine = (HexEngine) engine.clone();
-                System.out.println("Have Piece");
                 if(GameEssentials.getClickedOnIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1){
                     Hex.Hex position = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex()).getBlock(GameEssentials.getSelectedBlockIndex());
                     engine.add(engine.getBlock(GameEssentials.getClickedOnIndex()).subtract(position), (Piece) objects[3]);
                 }
-            } catch (CloneNotSupportedException e) {System.out.println("No cloning");}
+            } catch (CloneNotSupportedException e) {}
             if (calculateAdditionOpportunities(engine, (Piece) objects[0]) < 2) {
-                System.out.print("Divine Intervention Activated with ");
                 ArrayList<Piece> candidates = new ArrayList<Piece>();
-                ArrayList<Integer> opportunityList = new ArrayList<Integer>();
                 for (int index = 0; index < Piece.getMaxPieceIndex(); index++) {
                     Piece candidate = Piece.getIndexedPiece(index);
                     int opportunities = calculateAdditionOpportunities(engine, candidate);
                     if (opportunities > 0) {
                         candidates.add(candidate);
-                        opportunityList.add(opportunities);
                     }
                 }
-                if(candidates.size() == 0) {
-                    System.out.println("minimum piece ");
-                    candidates.add(Piece.uno());
-                    opportunityList.add(calculateAdditionOpportunities(engine, Piece.uno()));
-                }
-                int index = (int) (candidates.size() * Math.random());
-                Piece piece = candidates.get(index);
-                System.out.print("of adding opportunity " + opportunityList.get(index) + " ");
-                System.out.println(piece);
-                System.out.println(candidates);
-                return new Piece[]{piece};
+                if(candidates.size() == 0) candidates.add(Piece.uno());
+                return new Piece[]{candidates.get((int) (candidates.size() * Math.random()))};
             }
         }
         return new Object[]{objects[0]};
