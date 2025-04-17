@@ -67,6 +67,7 @@ package Hex;
  *   <li>Addition and subtraction of coordinates: {@link #add(Hex)} and {@link #subtract(Hex)}.</li>
  *   <li>Check for line alignment and adjacency between hexes: {@link #inLineI(Hex)}, {@link #adjacent(Hex)}, etc.</li>
  *   <li>Determine relative orientation in the grid: {@link #front(Hex)}, {@link #back(Hex)}, and axis-specific versions.</li>
+ *   <li>Cloning any instance of its subclasses using {@link Cloneable} interface.</li>
  * </ul>
  *
  * <h2>Usage Notes</h2>
@@ -511,10 +512,23 @@ public class Hex{
     // Get
     /**
      * This hex coordinate
-     *
-     * @return this hex coordinate object
+     * @return this hex coordinate object.
      */
     public Hex thisHex(){
         return Hex.hex(this.getLineI(), this.getLineK());
+    }
+    /**
+     * {@inheritDoc}
+     * A clone of this {@code Hex} object, with its hexagonal coordinates copied.
+     * @return a clone of the Hex object.
+     * @throws CloneNotSupportedException if the class of this object is not {@code Hex}.
+     */
+    public Hex clone() throws CloneNotSupportedException{
+        if (this.getClass() != Hex.class) throw new CloneNotSupportedException("Clone only supported for Hex");
+        try {
+            return (Hex) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return new Hex(this.x, this.y);
+        }
     }
 }

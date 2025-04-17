@@ -8,6 +8,10 @@ package Hex;
  * an element is removed (via {@link #next()} or {@link #fetch(int)}),
  * a new element is immediately generated to fill the gap.
  * <p>
+ * {@link Piece} objects are always used as reference to static pieces,
+ * so practically the {@code Queue} only store an array of references.
+ * There is no differentiation between deep and shallow copies.
+ * <p>
  * It supports peeking and consuming elements from the front or
  * at specific indices (with shifting), but does not allow adding
  * externally-defined elements. New pieces are created via an
@@ -81,10 +85,11 @@ public class Queue{
      */
     public Piece next(){
         Piece next = getFirst();
+        Piece generated = generate(next);
         for(int i = 1; i < pieces.length; i ++){
             pieces[i - 1] = pieces[i];
         }
-        pieces[pieces.length - 1] = generate();
+        pieces[pieces.length - 1] = generated;
         return next;
     }
     /**
@@ -103,10 +108,11 @@ public class Queue{
             throw new IndexOutOfBoundsException("Index " + index + " out of bound for length " + pieces.length + ".");
         } else {
             Piece fetch = pieces[index];
+            Piece generated = generate(fetch);
             for(int i = index + 1; i < pieces.length; i ++){
                 pieces[i - 1] = pieces[i];
             }
-            pieces[pieces.length - 1] = generate();
+            pieces[pieces.length - 1] = generated;
             return fetch;
         }
     }
@@ -114,9 +120,20 @@ public class Queue{
      * Generates a new {@link Piece} according to piece generation logic.
      * @return a newly generated {@code Piece}.
      * @see Piece#generatePiece()
+     * @see #generate(Piece)
      */
     protected Piece generate(){
         return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine()})[0];
+    }
+    /**
+     * Generates a new {@link Piece} according to piece generation logic.
+     * @param dequeued the {@code Piece} that is dequeued from the queue.
+     * @return a newly generated {@code Piece}.
+     * @see Piece#generatePiece()
+     * @see #generate()
+     */
+    protected Piece generate(Piece dequeued){
+        return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine(), dequeued})[0];
     }
     /**
      * Returns the first {@link Piece} in the queue without removing it.
@@ -168,5 +185,14 @@ public class Queue{
             result.append(pieces[i].toString());
         }
         return result + "]";
+    }
+    /**
+     * Returns an identical clone of this {@code Queue}.
+     * Each {@link Piece} object contained in this instance is copied by reference.
+     * Since {@code Queue} change its pieces by modifying references, this does not affect any operations.
+     * @return a copy of this {@code Queue} object.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

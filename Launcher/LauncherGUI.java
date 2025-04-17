@@ -18,6 +18,45 @@ public class LauncherGUI {
         mainFrame.setSize(new Dimension(800, 800));
         mainFrame.repaint();
     }
+    public static String getGameHint(){
+        String[] hints = new String[]{
+                "Try log in as Player",
+                "Try log in as God",
+                "Try log in as Devil",
+                "Complain game is HARD",
+                "Complain game is EVIL",
+                "Login to preserve score",
+                "Toggle easy mode in settings",
+                "Set board size in settings",
+                "Whatever this is hard",
+                "How can I get up to 3000?",
+                "Turns and turns it ends",
+                "Keep easy pieces in queue",
+                "Keep weird pieces in queue",
+                "Search for gray blocks",
+                "Try hover over blocks",
+                "Click on piece to select",
+                "Try click on piece again",
+                "What is this version?",
+                "Don't know what to put here",
+                "What if HappyHex... was sad",
+                "What if HappyHex... was bad",
+                "What if HappyHex... was hard",
+                "What if HappyHex... was old",
+                "There are some special things",
+                "Why is there a queue there?",
+                "What's your favorite piece?",
+                "Color means nothing to me",
+                "What is done can't be undone",
+                "Color potential eliminations",
+                "Eliminate in any direction",
+                "Eliminate horizontal lines",
+                "Eliminate diagonal lines",
+                "Don't blame the developer",
+                "I made this... at what cost",
+        };
+        return hints[(int)(Math.random() * hints.length)];
+    }
     public static JFrame getMainFrame(){
         if(mainFrame == null){
             setupMainFrame();
@@ -35,6 +74,9 @@ public class LauncherGUI {
     }
     private static JPanel fetchGameOverPanel(){
         return new GameOverPanel();
+    }
+    public static JPanel fetchThemePanel(){
+        return new ThemePanel();
     }
     private static Image fetchIconImage(){
         String path = "icon_512.png";
@@ -97,6 +139,14 @@ public class LauncherGUI {
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackGroundColor);
         mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
+    }
+    public static void toThemes(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        mainFrame.add(fetchThemePanel(), BorderLayout.CENTER);
     }
     public static void returnHome(){
         LaunchEssentials.endGame();

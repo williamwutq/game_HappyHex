@@ -24,6 +24,9 @@ public final class LaunchEssentials {
     // Special
     private static final special.SpecialFeature fontStyle = special.FeatureFactory.createFeature(Font.class.getName());
 
+    // Graphics Theme
+    private static int themeIndex = 2;
+
     //GUI
     // Launcher
     public static final Color launchBackgroundColor = GameEssentials.processColor(new Color(241, 243, 213));
@@ -31,6 +34,7 @@ public final class LaunchEssentials {
     public static final Color launchAuthorFontColor = GameEssentials.processColor(new Color(0, 73, 54));
     public static final Color launchWWFontColor = GameEssentials.processColor(Color.BLACK);
     public static final Color launchVersionFontColor = GameEssentials.processColor(Color.BLACK);
+    public static final Color launchHintFontColor = GameEssentials.processColor(Color.GRAY);
     public static final Color launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0));
     public static final Color launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0));
     public static final Color launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0));
@@ -49,6 +53,13 @@ public final class LaunchEssentials {
     public static final String launchEnterUsernameFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
     public static final String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
     public static final String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
+
+    public static void setTheme(int featureIndex){
+        themeIndex = featureIndex;
+    }
+    public static int getTheme(){
+        return themeIndex;
+    }
 
     public static boolean isGameStarted(){
         return gameStarted;
@@ -211,7 +222,7 @@ public final class LaunchEssentials {
         try {
             LaunchLogger.read();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
         }
         currentPlayerInfo.eraseStats();
         LaunchLogger.addGame(currentGameInfo);
@@ -224,7 +235,7 @@ public final class LaunchEssentials {
             LaunchLogger.resetLoggerInfo();
             return true;
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
             LaunchLogger.resetLoggerInfo();
             return false;
         }
