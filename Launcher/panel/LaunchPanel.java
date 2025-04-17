@@ -47,10 +47,10 @@ public class LaunchPanel extends UniversalPanel {
     public void recalculate(){
         super.recalculate();
         double referenceStartButtonSize = Math.min(getReferenceHeight(), getReferenceWidth());
-        LaunchButton.setSizeConstant((int) Math.round(referenceStartButtonSize * 0.0080));
-        double referenceGameNameSize = Math.min(getReferenceHeight()*2.5, getReferenceWidth());
-        launchVersionLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.ITALIC, (int)Math.round(referenceGameNameSize/24.0)));
+        LaunchButton.setSizeConstant((int) Math.round(referenceStartButtonSize * 0.0100));
+        double referenceGameNameSize = Math.min(getReferenceHeight()*1.8, getReferenceWidth());
+        launchVersionLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.ITALIC, (int)Math.round(referenceGameNameSize/30.0)));
         launchVersionLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/150.0)*2, 0, (int)Math.round(referenceGameNameSize/150.0), 0));
-        launchHintLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/48.0 + referenceGameNameSize/80.0)));
+        launchHintLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/48.0 + referenceGameNameSize/90.0)));
     }
 }

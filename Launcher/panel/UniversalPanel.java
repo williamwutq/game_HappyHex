@@ -93,7 +93,7 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
     }
 
     public void recalculate() {
-        double referenceGameNameSize = Math.min(getReferenceHeight() * 2.5, getReferenceWidth());
+        double referenceGameNameSize = Math.min(getReferenceHeight() * 1.8, getReferenceWidth());
         for (JLabel label : gameNameLabels) {
             label.setFont(new Font(LaunchEssentials.launchTitleFont, Font.BOLD, (int) Math.round(referenceGameNameSize / 10)));
         }
