@@ -17,6 +17,7 @@ import java.util.ArrayList;
  *     <li>Efficient block {@link #getBlock(int) lookup} using {@link #search binary search}</li>
  *     <li>Grid placement {@link #checkAdd validation} and piece {@link #add insertion}</li>
  *     <li>Line detection and {@link #eliminate elimination} across I/J/K axes</li>
+ *     <li>Deep copy support through the {@link #clone} method</li>
  * </ul>
  *
  * <p><b>Grid Structure:</b><br>
@@ -480,5 +481,20 @@ public class HexEngine implements HexGrid{
             str.append("; ");
         }
         return str + "}";
+    }
+
+    /**
+     * Returns an identical deep clone of this {@code HexEngine}.
+     * Each {@link Block} object contained in this instance is cloned individually.
+     * @return a deep copy of this {@code HexEngine} object.
+     * @see Block#clone()
+     */
+    public Object clone() throws CloneNotSupportedException {
+        HexEngine newEngine = (HexEngine) super.clone();
+        newEngine.radius = this.radius;
+        for(int i = 0; i < this.length(); i ++){
+            newEngine.blocks[i] = (Block) this.blocks[i].clone();
+        }
+        return newEngine;
     }
 }
