@@ -84,7 +84,7 @@ public class Queue{
         for(int i = 1; i < pieces.length; i ++){
             pieces[i - 1] = pieces[i];
         }
-        pieces[pieces.length - 1] = generate();
+        pieces[pieces.length - 1] = generate(next);
         return next;
     }
     /**
@@ -106,7 +106,7 @@ public class Queue{
             for(int i = index + 1; i < pieces.length; i ++){
                 pieces[i - 1] = pieces[i];
             }
-            pieces[pieces.length - 1] = generate();
+            pieces[pieces.length - 1] = generate(fetch);
             return fetch;
         }
     }
@@ -114,9 +114,20 @@ public class Queue{
      * Generates a new {@link Piece} according to piece generation logic.
      * @return a newly generated {@code Piece}.
      * @see Piece#generatePiece()
+     * @see #generate(Piece)
      */
     protected Piece generate(){
         return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine()})[0];
+    }
+    /**
+     * Generates a new {@link Piece} according to piece generation logic.
+     * @param dequeued the {@code Piece} that is dequeued from the queue.
+     * @return a newly generated {@code Piece}.
+     * @see Piece#generatePiece()
+     * @see #generate()
+     */
+    protected Piece generate(Piece dequeued){
+        return (Piece) pieceProcessor.process(new Object[]{Piece.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine(), dequeued})[0];
     }
     /**
      * Returns the first {@link Piece} in the queue without removing it.
