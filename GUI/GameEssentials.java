@@ -44,6 +44,7 @@ public final class GameEssentials {
 
     // Special Features
     private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
+    private static final special.SpecialFeature effectProcessor = FeatureFactory.createFeature(Animation.class.getName());
 
     // Random Piece
     private static final Color[] pieceColors = (Color[]) colorProcessor.process(new Color[]{
@@ -267,12 +268,12 @@ public final class GameEssentials {
         calculateLabelSize();
     }
     public static Animation createCenterEffect(Hex.Block block){
-        Animation animation = new CenteringEffect(block);
+        Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
         animation.start();
         return animation;
     }
     public static Animation createDisappearEffect(Hex.Block block){
-        Animation animation = new DisappearEffect(block);
+        Animation animation = (Animation) effectProcessor.process(new Object[]{new DisappearEffect(block), block})[0];
         animation.start();
         return animation;
     }
