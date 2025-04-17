@@ -87,7 +87,7 @@ public class HexEngine implements HexGrid{
     public void reset(){
         // Set all to empty and default color
         for (Block block : blocks){
-            block.setColor(Color.BLACK);
+            block.setColor(GUI.GameEssentials.gameBlockDefaultColor);
             block.setState(false);
         }
     }
@@ -363,7 +363,7 @@ public class HexEngine implements HexGrid{
         // Eliminate
         for(Block block : eliminate){
             GameEssentials.addAnimation(GameEssentials.createDisappearEffect(block));
-            block.setColor(Color.BLACK);
+            block.setColor(GUI.GameEssentials.gameBlockDefaultColor);
             block.setState(false);
             setBlock(block.getLineI(), block.getLineK(), block);
             GameEssentials.addAnimation(GameEssentials.createCenterEffect(block));

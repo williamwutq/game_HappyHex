@@ -13,10 +13,10 @@ public class LaunchPanel extends UniversalPanel {
 
     public LaunchPanel(){
         super();
-        LaunchButton.setSizeConstant(6);
-        LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
     }
     protected JComponent[] fetchContent() {
+        LaunchButton.setSizeConstant(6);
+        LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
         JComponent[] components = {fetchLaunchVersionLabel(), fetchLaunchHintLabel(), (JComponent) Box.createVerticalGlue(), new LoginButton(), new SettingButton(), new ThemeButton(), new StartButton(), (JComponent) Box.createVerticalGlue()};
         return components;
     }

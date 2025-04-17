@@ -10,7 +10,7 @@ import java.awt.event.*;
 
 public abstract class LaunchButton extends JButton implements ActionListener {
     private static int sizeConstant = 1;
-    private static Color backGroundColor = Color.WHITE;
+    private static Color backGroundColor;
     public LaunchButton(String text){
         super();
         this.setText(text);

@@ -29,13 +29,13 @@ public class Block extends Hex{
 
     // Basic constructors
     /**
-     * Default constructor initializing the block at (0,0) with black color and unoccupied state.
+     * Default constructor initializing the block at (0,0) with default color and unoccupied state.
      */
     public Block(){
         // Basic constructor
         super();
         this.state = false;
-        this.color = Color.BLACK;
+        this.color = GUI.GameEssentials.gameBlockDefaultColor;
     }
     /**
      * Constructs a block at the specified (i, k) coordinates and unoccupied state.
@@ -47,7 +47,7 @@ public class Block extends Hex{
         // Coordinate constructor
         super(i, k);
         this.state = false;
-        this.color = Color.BLACK;
+        this.color = GUI.GameEssentials.gameBlockDefaultColor;
     }
     /**
      * Constructs a block at the specified (i, k) coordinates with a specified color and unoccupied state.
@@ -86,7 +86,7 @@ public class Block extends Hex{
         super();
         super.set(hex);
         this.state = false;
-        this.color = Color.BLACK;
+        this.color = GUI.GameEssentials.gameBlockDefaultColor;
     }
     /**
      * Constructs a block at the specified hex coordinates with a specified color and unoccupied state.

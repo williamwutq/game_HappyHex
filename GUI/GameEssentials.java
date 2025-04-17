@@ -65,6 +65,7 @@ public final class GameEssentials {
 
     public static final String gameDisplayFont = "Courier";
     public static final Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230));
+    public static final Color gameBlockDefaultColor = GameEssentials.processColor(Color.BLACK);
     public static final Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122));
     public static final Color gamePieceSelectedColor = gameBackGroundColor;
     public static final Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24));

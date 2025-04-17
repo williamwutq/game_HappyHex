@@ -53,7 +53,7 @@ public class CenteringEffect extends Animation {
             xPoints[i + 7] = (int) Math.round(size * ((extended - 1) + GameEssentials.sinOf60 + Math.sin(angle) * fill));
             yPoints[i + 7] = (int) Math.round(size * ((extended - 1) + 1.0 + Math.cos(angle) * fill));
         }
-        g.setColor(GameEssentials.processColor(GameEssentials.whitenColor(GameEssentials.dimColor(block.color()))));
+        g.setColor(GameEssentials.whitenColor(GameEssentials.dimColor(block.color())));
         g.fillPolygon(xPoints, yPoints, 14);
     }
 }
