@@ -34,6 +34,7 @@ public final class LaunchEssentials {
     public static final Color launchAuthorFontColor = GameEssentials.processColor(new Color(0, 73, 54));
     public static final Color launchWWFontColor = GameEssentials.processColor(Color.BLACK);
     public static final Color launchVersionFontColor = GameEssentials.processColor(Color.BLACK);
+    public static final Color launchHintFontColor = GameEssentials.processColor(Color.GRAY);
     public static final Color launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0));
     public static final Color launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0));
     public static final Color launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0));
