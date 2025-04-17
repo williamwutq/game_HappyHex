@@ -6,16 +6,21 @@ import java.awt.*;
 /**
  * Represents a shape or unit made up of multiple {@link Block} instances,
  * typically forming a logical structure such as a game piece.
- *
- * <p>A {@code Piece} implements the {@link HexGrid} interface and behaves like
+ * <p>
+ * A {@code Piece} implements the {@link HexGrid} interface and behaves like
  * a small, self-contained hexagonal grid. It holds a fixed-size array of
  * {@link Block} elements and supports block addition, color management,
- * coordinate lookup, and comparison.</p>
- *
- * <p>Coordinate access uses the "line" system (I, K), defined in {@link Hex},
- * which simplifies hex grid navigation by avoiding raw (I, J, K) coordinates.</p>
- *
- * <p>A typical creation sequence might look like:</p>
+ * coordinate lookup, and comparison.
+ * <p>
+ * It is recommended to not modify any {@code Piece} once they are created and
+ * properly filled with sufficient {@code Block}. If changes are needed, it is
+ * a good practice to copy the piece block by block. For efficiency reason, cloning
+ * is not supported and multiple reference to the same object is preferred.
+ * <p>
+ * Coordinate access uses the "line" system (I, K), defined in {@link Hex},
+ * which simplifies hex grid navigation by avoiding raw (I, J, K) coordinates.
+ * <p>
+ * A typical creation sequence might look like:
  * <pre>{@code
  * Piece p = new Piece(3, Color.BLUE);
  * p.add(Block.block(0, 0));
