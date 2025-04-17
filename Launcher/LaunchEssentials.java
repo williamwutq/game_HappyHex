@@ -25,6 +25,9 @@ public final class LaunchEssentials {
     // Special Features
     private static final special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
 
+    // Graphics Theme
+    private static int themeIndex = 2;
+
     //GUI
     // Launcher
     public static final Color launchBackgroundColor = (Color) colorProcessor.process(new Color(241, 243, 213));
@@ -47,7 +50,10 @@ public final class LaunchEssentials {
     public static final String launchSettingsSlidingButtonFont = "Helvetica";
 
     public static void setTheme(int featureIndex){
-
+        themeIndex = featureIndex;
+    }
+    public static int getTheme(){
+        return themeIndex;
     }
 
     public static boolean isGameStarted(){

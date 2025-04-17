@@ -31,7 +31,7 @@ public class ThemePanel extends UniversalPanel {
         launchThemeMainLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         launchThemeMainLabel.setBorder(new EmptyBorder(16, 0, 16, 0));
 
-        launchThemeNormalLabel = new JLabel("Normal  | ");
+        launchThemeNormalLabel = new JLabel("Normal | ");
         launchThemeNormalLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchThemeNormalLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         launchThemeNormalLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -61,7 +61,7 @@ public class ThemePanel extends UniversalPanel {
         launchThemeNormalPanel.add(launchThemeNormalButton);
         launchThemeNormalPanel.add(Box.createHorizontalGlue());
 
-        launchThemeDarkLabel = new JLabel("Dark | ");
+        launchThemeDarkLabel = new JLabel("Dark   | ");
         launchThemeDarkLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchThemeDarkLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         launchThemeDarkLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -124,9 +124,10 @@ public class ThemePanel extends UniversalPanel {
         return new JComponent[]{(JComponent) Box.createVerticalGlue(), launchThemeMainLabel, launchThemeNormalPanel, launchThemeDarkPanel, launchThemeWhitePanel, new QuitButton(), (JComponent) Box.createVerticalGlue()};
     }
     private void setAllStates(){
-        launchThemeNormalButton.setState(LaunchEssentials.isSmallMode());
-        launchThemeDarkButton.setState(LaunchEssentials.isMediumMode());
-        launchThemeWhiteButton.setState(LaunchEssentials.isLargeMode());
+        int theme = LaunchEssentials.getTheme();
+        launchThemeNormalButton.setState(theme == 2);
+        launchThemeDarkButton.setState(theme == 4);
+        launchThemeWhiteButton.setState(theme == 5);
     }
     protected JComponent[] fetchHeader() {
         return null;
