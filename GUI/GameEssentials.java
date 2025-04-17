@@ -315,7 +315,6 @@ public final class GameEssentials {
         return true;
     }
     public static void resetGame(){
-        // Reset
         score = 0;
         turn = 0;
         turnLabel.setInfo(turn + "");
@@ -328,9 +327,10 @@ public final class GameEssentials {
     // Logging at the end
     public static void logGame(){
         // Temporary implementation: Print to console
-        System.out.println("---------- Game Over ----------");
+        System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
+        System.out.println("\n---------- Game Over ----------");
         System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
-        System.out.println("The total score is " + GameEssentials.score + " points.");
+        System.out.println("The total score is " + GameEssentials.score + " points.\n");
         // Logs
         Launcher.LaunchEssentials.fetchGameInfo();
         Launcher.LaunchEssentials.log();

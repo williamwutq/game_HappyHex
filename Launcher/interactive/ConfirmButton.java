@@ -73,7 +73,7 @@ public class ConfirmButton extends LaunchButton {
             Launcher.LaunchEssentials.setCurrentPlayer(player, player.toHash());
             textField.setText("SUCCESSFUL PLAYER LOGIN!");
             textField.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
-            System.out.println("Logged in as " + player + ".");
+            System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Logged in as " + player + ".");
         }
         // Start a timer to move text back to normal
         Timer timer = new Timer(1000, e -> {

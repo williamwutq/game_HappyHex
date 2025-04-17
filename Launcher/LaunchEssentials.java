@@ -24,6 +24,9 @@ public final class LaunchEssentials {
     // Special
     private static final special.SpecialFeature fontStyle = special.FeatureFactory.createFeature(Font.class.getName());
 
+    // Graphics Theme
+    private static int themeIndex = 2;
+
     //GUI
     // Launcher
     public static final Color launchBackgroundColor = GameEssentials.processColor(new Color(241, 243, 213));
@@ -49,6 +52,13 @@ public final class LaunchEssentials {
     public static final String launchEnterUsernameFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
     public static final String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
     public static final String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
+
+    public static void setTheme(int featureIndex){
+        themeIndex = featureIndex;
+    }
+    public static int getTheme(){
+        return themeIndex;
+    }
 
     public static boolean isGameStarted(){
         return gameStarted;
@@ -179,7 +189,7 @@ public final class LaunchEssentials {
         try {
             LaunchLogger.read();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
         }
         updateRecent();
         updateHighest();
@@ -188,7 +198,7 @@ public final class LaunchEssentials {
             LaunchLogger.write();
             return true;
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " " + e.getMessage());
             return false;
         }
     }
