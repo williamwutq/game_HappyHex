@@ -6,11 +6,8 @@ import java.awt.*;
 
 public class WhiteTheme implements SpecialFeature {
     private String[] whiteList = new String[]{
-            "Button",
             "Author",
             "WW",
-            "GameQuitFontColor",
-            "GameDisplayFontColor"
     };
     private boolean enable;
     private boolean valid;
@@ -72,7 +69,13 @@ public class WhiteTheme implements SpecialFeature {
             }
             if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
                 String hint = (String) objects[1];
-                if(hint.contains("Background") && !inWhiteList(hint)){
+                if(hint.contains("SlidingButtonOn") || hint.contains("SlidingButtonOff")){
+                    objects[0] = GUI.GameEssentials.whitenColor(Color.BLACK);
+                } else if (hint.contains("GameQuitFontColor") || hint.contains("GameDisplayFontColor")) {
+                    objects[0] = Color.DARK_GRAY;
+                } else if (hint.contains("Button") && !hint.contains("SlidingButtonEmpty")) {
+                    objects[0] = Color.DARK_GRAY;
+                } else if (hint.contains("Background") && !inWhiteList(hint)) {
                     objects[0] = Color.WHITE;
                 } else if (!inWhiteList(hint)){
                     objects[0] = GUI.GameEssentials.whitenColor((Color) objects[0]);
