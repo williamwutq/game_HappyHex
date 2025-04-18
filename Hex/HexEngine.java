@@ -471,69 +471,84 @@ public class HexEngine implements HexGrid{
         int totalPopulated = 0;
         Block[] otherBlocks = other.blocks();
         for(int i = 0; i < other.length(); i ++){
-            Block current = otherBlocks[i];
+            Hex current = otherBlocks[i];
             // Null check and state check
-            if (current != null && current.getState()){
+            if (current != null && otherBlocks[i].getState()){
                 current = current.add(origin); // placement
                 Block selfTarget = this.getBlock(current.getLineI(), current.getLineK());
-                Hex position = new Hex();
                 if (selfTarget == null || selfTarget.getState()){
                     // Check for addition possibility
                     return 0;
                 } else {
-                    Block otherTarget = other.getBlock(position.getLineI(), position.getLineK());
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    Block otherTarget = other.getBlock(-1, -1);
+                    selfTarget = this.getBlock(current.getLineI()-1, current.getLineK()-1);
                     if (otherTarget == null || !otherTarget.getState()) {
                         totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                        if (selfTarget == null || selfTarget.getState()) {
+                            System.out.println(current);
+                            System.out.println("-1, -1");
+                            totalPopulated++;
+                        }
                     }
-                    position.moveI(1);
-                    current.moveI(1);
-                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    otherTarget = other.getBlock(-1, 0);
+                    selfTarget = this.getBlock(current.getLineI()-1, current.getLineK());
                     if (otherTarget == null || !otherTarget.getState()) {
                         totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                        if (selfTarget == null || selfTarget.getState()) {
+                            System.out.println(current);
+                            System.out.println("-1, 0");
+                            totalPopulated++;
+                        }
                     }
-                    position.moveK(1);
-                    current.moveK(1);
-                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    otherTarget = other.getBlock(0, -1);
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK()-1);
                     if (otherTarget == null || !otherTarget.getState()) {
                         totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                        if (selfTarget == null || selfTarget.getState()) {
+                            System.out.println(current);
+                            System.out.println("0, -1");
+                            totalPopulated++;
+                        }
                     }
-                    position.moveI(-1);
-                    current.moveI(-1);
-                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    otherTarget = other.getBlock(0, 0);
                     selfTarget = this.getBlock(current.getLineI(), current.getLineK());
                     if (otherTarget == null || !otherTarget.getState()) {
                         totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                        if (selfTarget == null || selfTarget.getState()) {
+                            System.out.println(current);
+                            System.out.println("0, 0");
+                            totalPopulated++;
+                        }
                     }
-                    position.moveJ(-1);
-                    current.moveJ(-1);
-                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    otherTarget = other.getBlock(0, 1);
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK()+1);
                     if (otherTarget == null || !otherTarget.getState()) {
                         totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                        if (selfTarget == null || selfTarget.getState()) {
+                            System.out.println(current);
+                            System.out.println("0, 1");
+                            totalPopulated++;
+                        }
                     }
-                    position.moveK(-1);
-                    current.moveK(-1);
-                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    otherTarget = other.getBlock(1, 0);
+                    selfTarget = this.getBlock(current.getLineI()+1, current.getLineK());
                     if (otherTarget == null || !otherTarget.getState()) {
                         totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                        if (selfTarget == null || selfTarget.getState()) {
+                            System.out.println(current);
+                            System.out.println("1, 0");
+                            totalPopulated++;
+                        }
                     }
-                    position.moveI(1);
-                    current.moveI(1);
-                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    otherTarget = other.getBlock(1, 1);
+                    selfTarget = this.getBlock(current.getLineI()+1, current.getLineK()+1);
                     if (otherTarget == null || !otherTarget.getState()) {
                         totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                        if (selfTarget == null || selfTarget.getState()) {
+                            System.out.println(current);
+                            System.out.println("1, 1");
+                            totalPopulated++;
+                        }
                     }
                 }
             }
@@ -541,6 +556,7 @@ public class HexEngine implements HexGrid{
         if (totalPossible == 0){
             return 0;
         } else {
+            System.out.println("totalPossible" + totalPossible);
             System.out.println("totalPopulated" + totalPopulated);
             return (double) totalPopulated / totalPossible;
         }
