@@ -6,12 +6,9 @@ public class FeatureFactory {
     public static SpecialFeature createFeature(String className, String hint){
         if(className.equals("Color") || className.equals("java.awt.Color")) {
             // Special Dates
-            if (hint.equals("Default") || hint.equals("2")) {
-                // Special Dates
-                java.time.LocalDate date = java.time.LocalDate.now();
-                if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || randomChance1) {
-                    return new special.Styles.Grayscale();
-                }
+            java.time.LocalDate date = java.time.LocalDate.now();
+            if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || randomChance1) {
+                return new special.Styles.Grayscale();
             } else if (hint.equals("Dark") || hint.equals("4")) {
                 return new special.Styles.DarkTheme();
             }
