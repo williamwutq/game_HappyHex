@@ -2,7 +2,6 @@ package Hex;
 
 import GUI.GameEssentials;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 /**

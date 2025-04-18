@@ -3,7 +3,6 @@ package GUI;
 import GUI.animation.*;
 import Hex.HexEngine;
 import Hex.Queue;
-import special.FeatureFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,8 +43,8 @@ public final class GameEssentials {
     private static int score = 0;
 
     // Special Features
-    private static special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
-    private static special.SpecialFeature effectProcessor = FeatureFactory.createFeature(Animation.class.getName());
+    private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
+    private static special.SpecialFeature effectProcessor = special.FeatureFactory.createFeature(Animation.class.getName());
 
     // Random Piece
     private static final Color[] rawPieceColors = new Color[]{
