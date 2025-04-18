@@ -39,10 +39,6 @@ public class ThemePanel extends UniversalPanel {
             button.resetColor();
         }
     }
-    public void paint(Graphics g){
-        resetColor();
-        super.paint(g);
-    }
 
     protected JComponent[] fetchContent() {
         quitButton = new QuitButton();
