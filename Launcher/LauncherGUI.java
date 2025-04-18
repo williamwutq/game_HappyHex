@@ -54,8 +54,18 @@ public class LauncherGUI {
                 "Eliminate diagonal lines",
                 "Don't blame the developer",
                 "I made this... at what cost",
+                "Try log in and then log out",
+                "Try to change theme color",
+                "Which theme is your favorite?",
+                "Dislike the color? No problem",
+                "Toggle theme in themes",
+                "Dark theme best theme",
+                "I want to be forever young",
+                "Choose white if you like it",
+                "Choose dark if you like it",
+                "Choose a theme you like",
         };
-        return hints[(int)(Math.random() * hints.length)];
+        return hints[LaunchEssentials.getRandomIndex(hints.length)];
     }
     public static JFrame getMainFrame(){
         if(mainFrame == null){

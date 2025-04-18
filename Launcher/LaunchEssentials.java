@@ -16,6 +16,9 @@ public final class LaunchEssentials {
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
+    // Random
+    private static final java.util.Random randomGenerator = new java.util.Random();
+
     // Game info
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
@@ -56,6 +59,9 @@ public final class LaunchEssentials {
     public static String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
     public static String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
 
+    public static int getRandomIndex(int length){
+        return randomGenerator.nextInt(length);
+    }
     public static void setTheme(int featureIndex){
         themeIndex = featureIndex;
         GameEssentials.changeColorProcessor(special.FeatureFactory.createFeature(Color.class.getName(), featureIndex + ""));
