@@ -30,15 +30,81 @@ import java.util.*;
 
 /**
  * An abstract class for creating a simple linear, finite-duration animation in Swing.
- *
- * <p>The animation runs for a specified number of frames, each separated by a given delay in milliseconds.
- * The animation progresses linearly, and each frame is rendered via the abstract {@code paintFrame()} method.
+ * This handler is designed for simple temporary effects such as fading, expanding, or progress animations.
+ * <p>
+ * The animation runs for a specified number of frames, each separated by a given delay in milliseconds.
+ * The animation progresses linearly, and each frame is rendered via the abstract {@link #paintFrame} method.
  * Once the animation finishes, the component removes itself from its parent container. This component is
- * disposable and will not be able to run again once start is triggered.</p>
+ * disposable and will not be able to run again once start is triggered.
+ * <p>
+ * The animation can be initiated using a start listener, accessible via the {@link #getStartListener} method.
+ * This returns an {@link ActionListener} that, when triggered, calls the {@link #start} method to begin the
+ * animation. The start listener is particularly useful for integrating the animation with other Swing components,
+ * such as buttons or timers. For example, attaching the start listener to a button's action allows the animation
+ * to begin when the button is clicked, enabling seamless coordination with user interactions or other events in
+ * the application.
+ * <p>
+ * Additionally, an end listener can be specified either through the constructor or by using the
+ * {@link #setEndListener} method. This {@code ActionListener} is executed exactly once, immediately after the
+ * animation completes and the component is removed from its parent container. The end listener is useful for
+ * triggering follow-up actions, such as starting another animation, updating the UI, or signaling the completion
+ * of a visual effect. For instance, an end listener could be used to display a new component or transition to a
+ * different application state once a fade-out effect finishes, ensuring smooth sequencing of events in the user
+ * interface.
+ * <p>
+ * Example Usage of listeners:
+ * </p>
+ * <pre>{@code
+ * Boo firstAnimation = new Boo(50, 20);
+ * Boo secondAnimation = new Boo(50, 20);
+ * JButton startButton = new JButton("Start");
+ * firstAnimation.setEndListener(secondAnimation.getStartListener());
+ * startButton.addActionListener(firstAnimation.getStartListener());
+ * }</pre>
+ * <p>
+ * In this example, a {@code JButton} named {@code startButton} is linked to the {@link #startListener} of
+ * {@code firstAnimation}, initiating it when clicked. The {@link #endListener} of {@code firstAnimation} is set to
+ * the {@code startListener} of {@code secondAnimation}, ensuring that {@code secondAnimation} begins immediately
+ * after {@code firstAnimation} completes. This creates a sequence where clicking the button triggers
+ * {@code firstAnimation}, and upon its completion, {@code secondAnimation} starts automatically, enabling smooth,
+ * sequential visual effects.
+ * <p>
+ * The {@code Animation} class provide a graphic {@link Component} template but cannot be used directly. To use the
+ * functions provided by {@code Animation}, it is necessary to create a subclass or an anonymous subclass, overriding
+ * the {@link #paintFrame} method. The progress variable passed in the method can be used to create linear animations,
+ * or be manipulated to create more advanced animations using the {@link Math} library.
+ * <p>
+ * Note: This component does not allow adding child components and ignores layout, background, opacity,
+ * and border settings.
+ * <p>
+ * Example: The following subclass creates a fading animation that transitions a colored rectangle
+ * from fully opaque to fully transparent:
+ * <pre>{@code
+ * public class FadeOutAnimation extends Animation {
+ *     private Color color;
+ *     private int width;
+ *     private int height;
  *
- * <p>Designed for simple temporary effects such as fading, expanding, or progress animations.</p>
+ *     public FadeOutAnimation(int totalFrames, int frameTime, Color color, int width, int height) {
+ *         super(totalFrames, frameTime);
+ *         this.color = color;
+ *         this.width = width;
+ *         this.height = height;
+ *         setBounds(0, 0, width, height);
+ *     }
  *
- * <p>Note: This component does not allow adding child components and ignores layout, background, opacity, and border settings.</p>
+ *     protected void paintFrame(Graphics graphics, double progress) {
+ *         graphics.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)((1 - progress) * 255)));
+ *         graphics.fillRect(0, 0, width, height);
+ *     }
+ * }
+ * }</pre>
+ * <p>
+ * The {@code FadeOutAnimation} subclass creates a simple animation that fades a colored rectangle from fully opaque
+ * to fully transparent over a specified duration. It extends the {@code Animation} class, taking parameters for the
+ * total number of frames, frame time, initial color, and rectangle dimensions. The {@code paintFrame} method draws a
+ * rectangle with the given color, adjusting its alpha value based on the animation's progress to achieve the fading effect.
+ * Once the animation completes, the component removes itself from its parent container, as defined in the parent class.
  */
 public abstract class Animation extends Component{
     /** Current frame progress of the animation. */
