@@ -41,7 +41,7 @@ public class DarkTheme implements SpecialFeature {
         return 1;
     }
     public int getSupportVersionMinor() {
-        return 1;
+        return 2;
     }
     public boolean validate() {
         if(special.Special.getCurrentVersionMajor() > getSupportVersionMajor()){
