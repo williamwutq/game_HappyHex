@@ -90,12 +90,14 @@ public class FilledWithLove implements SpecialFeature {
                 } else if (!inWhiteList(hint)){
                     objects[0] = new Color(44, 0, 92);
                 }
-            } else for (int i = 0; i < objects.length; i++) {
-                if (objects[i] instanceof Color) {
+            } else {
+                Color[] arr = new Color[objects.length];
+                for (int i = 0; i < objects.length; i++) {
                     Color color = (Color) objects[i];
-                    color = new Color(color.getRed(), (color.getGreen()*3 + 255)/4, (color.getBlue() + 255)/2);
-                    objects[i] = color;
+                    color = new Color(color.getRed(), (color.getGreen() * 3 + 255) / 4, (color.getBlue() + 255) / 2);
+                    arr[i] = color;
                 }
+                return arr;
             }
         }
         return objects;
