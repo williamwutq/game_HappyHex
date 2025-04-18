@@ -72,8 +72,10 @@ public class WhiteTheme implements SpecialFeature {
                 String hint = (String) objects[1];
                 if(hint.contains("SlidingButtonOn") || hint.contains("SlidingButtonOff")){
                     objects[0] = whitenColor(Color.BLACK);
-                } else if (hint.contains("GameQuitFontColor") || hint.contains("GameDisplayFontColor")) {
+                } else if (hint.contains("GameQuitFont") || hint.contains("GameDisplayFont")) {
                     objects[0] = Color.DARK_GRAY;
+                } else if (hint.contains("PieceSelected")){
+                    objects[0] = Color.LIGHT_GRAY;
                 } else if (hint.contains("Button") && !hint.contains("SlidingButtonEmpty")) {
                     objects[0] = Color.DARK_GRAY;
                 } else if (hint.contains("Background") && !inWhiteList(hint)) {
