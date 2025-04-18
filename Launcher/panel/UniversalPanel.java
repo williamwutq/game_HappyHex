@@ -8,7 +8,8 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public abstract class UniversalPanel extends JPanel implements ComponentListener {
+public abstract class UniversalPanel extends JPanel implements ComponentListener, GUI.Recolorable {
+    private final int gameNameLabelIndexShift = (int) (Math.random() * 12);
     private JPanel gameNameLabelPanel;
     private String gameNameString = "⬢HAPPY⬢⬢HEX⬢";
     private JLabel[] gameNameLabels;
@@ -50,7 +51,6 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
         panel.setBackground(LaunchEssentials.launchTitlePanelBackgroundColor);
         panel.add(Box.createHorizontalGlue());
         gameNameLabels = new JLabel[12];
-        int gameNameLabelIndexShift = (int) (Math.random() * 12);
         for (int i = 0; i < 12; i++) {
             gameNameLabels[i] = new JLabel();
             gameNameLabels[i].setFont(new Font(LaunchEssentials.launchTitleFont, Font.BOLD, 80));
@@ -104,6 +104,19 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
         launchAuthorLabelWW.setFont(new Font(LaunchEssentials.launchWWFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize * 0.03)));
         launchAuthorLabelGame.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize / 40.0)));
         launchCopyrightLabel.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize / 40.0)));
+    }
+    public void resetColor(){
+        this.setBackground(LaunchEssentials.launchBackgroundColor);
+        gameNameLabelPanel.setBackground(LaunchEssentials.launchTitlePanelBackgroundColor);
+        for (int i = 0; i < 12; i++) {
+            gameNameLabels[i].setForeground(GameEssentials.interpolate(
+                    GameEssentials.getIndexedPieceColor((gameNameLabelIndexShift + i * 5) % 12),
+                    LaunchEssentials.launchTitlePanelBackgroundColor, 4));
+        }
+        launchAuthorLabelA.setForeground(LaunchEssentials.launchAuthorFontColor);
+        launchAuthorLabelWW.setForeground(LaunchEssentials.launchWWFontColor);
+        launchAuthorLabelGame.setForeground(LaunchEssentials.launchAuthorFontColor);
+        launchCopyrightLabel.setForeground(LaunchEssentials.launchAuthorFontColor);
     }
 
     public double getReferenceHeight() {

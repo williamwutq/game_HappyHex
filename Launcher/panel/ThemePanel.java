@@ -10,7 +10,9 @@ import java.util.ArrayList;
 
 public class ThemePanel extends UniversalPanel {
     private JLabel launchThemeMainLabel;
+    private LaunchButton quitButton;
     private ArrayList<JLabel> launchThemeLabels;
+    private ArrayList<JPanel> launchThemePanels;
     private ArrayList<SlidingButtonPanel> launchThemeButtons;
     private ArrayList<Integer> targetThemeIDs;
     private ArrayList<special.SpecialFeature> specialThemes;
@@ -21,7 +23,29 @@ public class ThemePanel extends UniversalPanel {
         LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
     }
 
+    public void resetColor(){
+        super.resetColor();
+        this.setBackground(LaunchEssentials.launchBackgroundColor);
+        launchThemeMainLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
+        quitButton.setBackground(LaunchEssentials.launchBackgroundColor);
+        for(JLabel label : launchThemeLabels){
+            label.setForeground(LaunchEssentials.launchVersionFontColor);
+        }
+        for(JPanel panel : launchThemePanels){
+            panel.setBackground(LaunchEssentials.launchBackgroundColor);
+        }
+        for(SlidingButtonPanel button : launchThemeButtons){
+            button.setBackground(LaunchEssentials.launchSlidingButtonOnColor, LaunchEssentials.launchSlidingButtonOffColor);
+        }
+    }
+    public void paint(Graphics g){
+        resetColor();
+        super.paint(g);
+    }
+
     protected JComponent[] fetchContent() {
+        quitButton = new QuitButton();
         launchThemeMainLabel = new JLabel("- Graphics Themes -");
         launchThemeMainLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchThemeMainLabel.setForeground(LaunchEssentials.launchVersionFontColor);
@@ -33,6 +57,7 @@ public class ThemePanel extends UniversalPanel {
         // Create arrays
         targetThemeIDs = new ArrayList<>();
         launchThemeLabels = new ArrayList<>();
+        launchThemePanels = new ArrayList<>();
         launchThemeButtons = new ArrayList<>();
         specialThemes = new ArrayList<>();
 
@@ -54,8 +79,9 @@ public class ThemePanel extends UniversalPanel {
         result[1] = launchThemeMainLabel;
         for(int i = 0; i < targetThemeIDs.size(); i ++){
             result[i + 2] = createThemeSelectorPanel(texts[i]);
+            launchThemePanels.add((JPanel) result[i + 2]);
         }
-        result[result.length - 2] = new QuitButton();
+        result[result.length - 2] = quitButton;
         result[result.length - 1] = (JComponent) Box.createVerticalGlue();
         return result;
     }

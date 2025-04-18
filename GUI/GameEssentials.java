@@ -48,20 +48,21 @@ public final class GameEssentials {
     private static special.SpecialFeature effectProcessor = FeatureFactory.createFeature(Animation.class.getName());
 
     // Random Piece
-    private static final Color[] pieceColors = (Color[]) colorProcessor.process(new Color[]{
-        new Color(0, 0, 240),
-        new Color(0, 100, 190),
-        new Color(0, 180, 180),
-        new Color(0, 180, 120),
-        new Color(0, 210, 0),
-        new Color(100, 180, 0),
-        new Color(180, 180, 0),
-        new Color(200, 90, 0),
-        new Color(210, 0, 0),
-        new Color(200, 0, 120),
-        new Color(180, 0, 180),
-        new Color(100, 0, 200),
-    });
+    private static final Color[] rawPieceColors = new Color[]{
+            new Color(0, 0, 240),
+            new Color(0, 100, 190),
+            new Color(0, 180, 180),
+            new Color(0, 180, 120),
+            new Color(0, 210, 0),
+            new Color(100, 180, 0),
+            new Color(180, 180, 0),
+            new Color(200, 90, 0),
+            new Color(210, 0, 0),
+            new Color(200, 0, 120),
+            new Color(180, 0, 180),
+            new Color(100, 0, 200),
+    };
+    private static Color[] pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
 
     public static final String gameDisplayFont = "Courier";
     public static Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GameBackGroundColor");
