@@ -8,7 +8,7 @@ import javax.swing.border.*;
 
 import java.awt.event.*;
 
-public abstract class LaunchButton extends JButton implements ActionListener {
+public abstract class LaunchButton extends JButton implements ActionListener, GUI.Recolorable {
     private static int sizeConstant = 1;
     private static Color backGroundColor;
     public LaunchButton(String text){
@@ -48,6 +48,10 @@ public abstract class LaunchButton extends JButton implements ActionListener {
     }
     public final void actionPerformed(ActionEvent e) {
         clicked();
+    }
+    public final void resetColor(){
+        this.setForeground(backGroundColor);
+        this.setBackground(fetchColor());
     }
     public final String toString(){
         return "LaunchButton[Class = " + getClass().getName() + ", Text = " + this.getText() + ", Color = " + this.getBackground() + "]";

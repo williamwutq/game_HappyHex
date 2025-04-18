@@ -28,7 +28,7 @@ public class ThemePanel extends UniversalPanel {
         this.setBackground(LaunchEssentials.launchBackgroundColor);
         launchThemeMainLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
-        quitButton.setBackground(LaunchEssentials.launchBackgroundColor);
+        quitButton.resetColor();
         for(JLabel label : launchThemeLabels){
             label.setForeground(LaunchEssentials.launchVersionFontColor);
         }
