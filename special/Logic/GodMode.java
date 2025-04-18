@@ -66,7 +66,7 @@ public class GodMode implements SpecialFeature{
         return count;
     }
     public Object[] process(Object[] objects) {
-        if(objects.length > 2 && objects[0] instanceof Piece && objects[1] instanceof Boolean && objects[2] instanceof HexEngine){
+        if(isActive() && objects.length > 2 && objects[0] instanceof Piece && objects[1] instanceof Boolean && objects[2] instanceof HexEngine){
             // Implementation: get an easy one if the generated does not work
             HexEngine engine = (HexEngine) objects[2];
             if (objects.length > 3 && objects[3] instanceof Piece) try {
