@@ -5,7 +5,7 @@ import javax.swing.*;
 public class GamePanel extends JPanel {
     public GamePanel() {
         super();
-        this.setBackground(GameEssentials.gameBackGroundColor);
+        this.setBackground(GameEssentials.gameBackgroundColor);
         this.setLayout(null);
         // Construct buttons
         for (int i = 0; i < GameEssentials.engine().length(); i++) {

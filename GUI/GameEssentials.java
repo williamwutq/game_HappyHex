@@ -65,7 +65,8 @@ public final class GameEssentials {
     private static Color[] pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
 
     public static final String gameDisplayFont = "Courier";
-    public static Color gameBackGroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GameBackGroundColor");
+    public static Color gameBackgroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GameBackgroundColor");
+    public static Color gameOverBackgroundColor = GameEssentials.processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
     public static Color gameBlockDefaultColor = GameEssentials.processColor(Color.BLACK, "GameBlockDefaultColor");
     public static Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122), "GamePiecePanelColor");
     public static Color gamePieceSelectedColor = GameEssentials.processColor(new Color(213, 236, 230), "GamePieceSelectedColor");;
@@ -144,7 +145,8 @@ public final class GameEssentials {
     public static void changeColorProcessor(special.SpecialFeature newProcessor){
         colorProcessor = newProcessor;
         pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
-        gameBackGroundColor = processColor(new Color(213, 236, 230), "GamePanelBackgroundColor");
+        gameBackgroundColor = processColor(new Color(213, 236, 230), "GamePanelBackgroundColor");
+        gameOverBackgroundColor = processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
         gameBlockDefaultColor = processColor(Color.BLACK, "GameBlockDefaultColor");
         gamePiecePanelColor = processColor(new Color(113, 129, 122), "GamePiecePanelBackgroundColor");
         gamePieceSelectedColor = processColor(new Color(213, 236, 230), "GamePieceSelectedColor");;

@@ -125,7 +125,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
         mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
     }
@@ -134,7 +134,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(fetchLoginPanel(), BorderLayout.CENTER);
     }
     public static void toSettings(){
@@ -142,7 +142,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
     }
     public static void toThemes(){
@@ -150,7 +150,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(fetchThemePanel(), BorderLayout.CENTER);
     }
     public static void returnHome(){
@@ -158,7 +158,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
     }
     public static void toGameOver(){
@@ -166,7 +166,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackGroundColor);
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(fetchGameOverPanel(), BorderLayout.CENTER);
     }
 }

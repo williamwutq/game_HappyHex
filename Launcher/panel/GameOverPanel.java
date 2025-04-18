@@ -30,7 +30,7 @@ public class GameOverPanel extends JPanel implements ComponentListener {
 
     public GameOverPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBackground(GUI.GameEssentials.gameBackGroundColor);
+        this.setBackground(GUI.GameEssentials.gameBackgroundColor);
         gameNameLabelPanel = fetchGameNameLabelPanel();
         spacers = new JLabel[8];
         for (int i = 0; i < spacers.length; i++) {
@@ -134,7 +134,7 @@ public class GameOverPanel extends JPanel implements ComponentListener {
     private JPanel fetchGameNameLabelPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        panel.setBackground(GUI.GameEssentials.whitenColor(GUI.GameEssentials.darkenColor(GUI.GameEssentials.gameBackGroundColor)));
+        panel.setBackground(GUI.GameEssentials.gameOverBackgroundColor);
         panel.add(Box.createHorizontalGlue());
         gameNameLabels = new JLabel[9];
         int gameNameLabelIndexShift = (int) (Math.random() * 9);

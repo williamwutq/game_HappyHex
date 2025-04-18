@@ -22,7 +22,7 @@ public final class InlineInfoPanel extends JComponent implements ComponentListen
         this.linePanel = new JPanel(null);
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         // GameEssentials.gameBackGroundColor
-        this.setBackground(GameEssentials.gameBackGroundColor);
+        this.setBackground(GameEssentials.gameBackgroundColor);
         this.addComponentListener(this);
         Dimension lineSize = new Dimension(1,1);
         linePanel.setBackground(GameEssentials.gameDisplayFontColor);

@@ -18,7 +18,7 @@ public final class GameInfoPanel extends JComponent implements ComponentListener
         this.infoLabel = new JLabel(info);
         this.linePanel = new JPanel(null);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBackground(GameEssentials.gameBackGroundColor);
+        this.setBackground(GameEssentials.gameBackgroundColor);
         this.addComponentListener(this);
         Dimension lineSize = new Dimension(1,2);
         linePanel.setBackground(GameEssentials.gameDisplayFontColor);
