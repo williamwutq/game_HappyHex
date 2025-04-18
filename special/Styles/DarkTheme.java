@@ -5,6 +5,13 @@ import special.SpecialFeature;
 import java.awt.*;
 
 public class DarkTheme implements SpecialFeature {
+    private String[] whiteList = new String[]{
+            "Quit",
+            "Confirm",
+            "SlidingButtonOn",
+            "SlidingButtonOff",
+            "New"
+    };
     private boolean enable;
     private boolean valid;
     public DarkTheme(){
@@ -74,6 +81,14 @@ public class DarkTheme implements SpecialFeature {
                             color.getAlpha());
                 }
                 return newArray;
+            } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
+                String hint = (String) objects[1];
+                if(inWhiteList(hint)){
+                    return objects;
+                } else {
+                    Color color = (Color) objects[0];
+                    objects[0] = new Color(constraint(255-color.getRed()), constraint(255-color.getGreen()), constraint(255-color.getBlue()), color.getAlpha());
+                }
             } else for (int i = 0; i < objects.length; i++) {
                 if (objects[i] instanceof Color) {
                     Color color = (Color) objects[i];
@@ -92,5 +107,10 @@ public class DarkTheme implements SpecialFeature {
         } else if (number < lower){
             return lower;
         } else return number;
+    }
+    private boolean inWhiteList(String str){
+        for(String ignore : whiteList){
+            if(str.contains(ignore)) return true;
+        } return false;
     }
 }

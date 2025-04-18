@@ -18,7 +18,8 @@ public class GameLoginField extends JTextField{
             this.setText(text);
             this.setForeground(Launcher.LaunchEssentials.launchPlayerNameFontColor);
         }
-        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(6,0,6,0)));
+        this.setBorder(new CompoundBorder(new LineBorder(Launcher.LaunchEssentials.launchVersionFontColor, 2), new EmptyBorder(6,0,6,0)));
+        this.setBackground(Launcher.LaunchEssentials.launchLoginFieldBackgroundColor);
         Dimension dimension = new Dimension(375,50);
 
         // Limit length
@@ -45,7 +46,7 @@ public class GameLoginField extends JTextField{
     }
 
     public void setDimension(int size){
-        this.setBorder(new CompoundBorder(new LineBorder(Color.black, 2), new EmptyBorder(size, size*2, size, size*2)));
+        this.setBorder(new CompoundBorder(new LineBorder(Launcher.LaunchEssentials.launchVersionFontColor, 2), new EmptyBorder(size, size*2, size, size*2)));
         Dimension dimension = new Dimension(size * Username.MAX_LENGTH, size * 3);
         this.setMaximumSize(dimension);
         this.setMinimumSize(dimension);

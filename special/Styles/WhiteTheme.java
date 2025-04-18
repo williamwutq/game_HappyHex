@@ -6,6 +6,7 @@ import java.awt.*;
 
 public class WhiteTheme implements SpecialFeature {
     private String[] whiteList = new String[]{
+            "Player",
             "Author",
             "WW",
     };

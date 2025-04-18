@@ -35,6 +35,7 @@ public final class LaunchEssentials {
     public static Color launchWWFontColor = GameEssentials.processColor(Color.BLACK, "LaunchWWFontColor");
     public static Color launchVersionFontColor = GameEssentials.processColor(Color.BLACK, "LaunchVersionFontColor");
     public static Color launchHintFontColor = GameEssentials.processColor(Color.GRAY, "LaunchHintFontColor");
+    public static Color launchLoginFieldBackgroundColor = GameEssentials.processColor(new Color(247, 248, 238), "launchLoginFieldBackgroundColor");
     public static Color launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0), "LaunchPlayerNameFontColor");
     public static Color launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0), "LaunchPlayerPromptFontColor");
     public static Color launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0), "LaunchPlayerErrorFontColor");
@@ -70,6 +71,7 @@ public final class LaunchEssentials {
         launchWWFontColor = GameEssentials.processColor(Color.BLACK, "LaunchWWFontColor");
         launchVersionFontColor = GameEssentials.processColor(Color.BLACK, "LaunchVersionFontColor");
         launchHintFontColor = GameEssentials.processColor(Color.GRAY, "LaunchHintFontColor");
+        launchLoginFieldBackgroundColor = GameEssentials.processColor(new Color(247, 248, 238), "launchLoginFieldBackgroundColor");
         launchPlayerNameFontColor = GameEssentials.processColor(new Color(136, 136, 0), "LaunchPlayerNameFontColor");
         launchPlayerPromptFontColor = GameEssentials.processColor(new Color(0, 136, 0), "LaunchPlayerPromptFontColor");
         launchPlayerErrorFontColor = GameEssentials.processColor(new Color(136, 0, 0), "LaunchPlayerErrorFontColor");
