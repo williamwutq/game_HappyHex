@@ -11,6 +11,8 @@ public class FeatureFactory {
                 return new special.Styles.Grayscale();
             } else if (hint.equals("Dark") || hint.equals("4")) {
                 return new special.Styles.DarkTheme();
+            } else if (hint.equals("White") || hint.equals("5")) {
+                return new special.Styles.WhiteTheme();
             }
         } else if (className.equals("Piece") || className.equals("Hex.Piece")) {
             if (hint.equals("God")){
