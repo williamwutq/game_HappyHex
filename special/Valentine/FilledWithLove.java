@@ -2,7 +2,13 @@ package special.Valentine;
 
 import special.SpecialFeature;
 
+import java.awt.*;
+
 public class FilledWithLove implements SpecialFeature {
+    private String[] whiteList = new String[]{
+            "Player",
+            "WW",
+    };
     private boolean enable;
     private boolean valid;
     public FilledWithLove(){
@@ -52,9 +58,51 @@ public class FilledWithLove implements SpecialFeature {
         return enable && valid;
     }
     public Object[] process(Object[] objects) {
-        if(objects[0] instanceof GUI.animation.DisappearEffect && objects[1] instanceof Hex.Block){
-            return new Object[]{new HeartAnimation((Hex.Block) objects[1])};
+        if(isActive()) {
+            if (objects == null || objects.length == 0) return null;
+            boolean isColorBaseArray = objects.length == 6 || objects.length == 12;
+            int k = 0;
+            while (k < objects.length && isColorBaseArray) {
+                if (!(objects[k] instanceof Color)) {
+                    isColorBaseArray = false;
+                } else k++;
+            }
+            if (objects[0] instanceof GUI.animation.DisappearEffect && objects[1] instanceof Hex.Block) {
+                return new Object[]{new HeartAnimation((Hex.Block) objects[1])};
+            } else if(!isColorBaseArray && objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
+                String hint = (String) objects[1];
+                if(hint.contains("GameBlockDefaultColor") || hint.contains("SlidingButtonEmpty")){
+                    objects[0] = new Color(151, 255, 255);
+                } else if (hint.contains("GameQuitFont") || hint.contains("GameDisplayFont")) {
+                    objects[0] = new Color(241, 152, 205);
+                } else if (hint.contains("PiecePanel")) {
+                    objects[0] = new Color(237, 131, 189);
+                } else if (hint.contains("PieceSelected")){
+                    objects[0] = new Color(44, 193, 193);
+                } else if (hint.contains("SlidingButton")){
+                    objects[0] = new Color(44, 0, 92);
+                } else if (hint.contains("Button")) {
+                    objects[0] = new Color(209, 50, 145);
+                } else if (hint.contains("Author")) {
+                    objects[0] = new Color(28, 0, 58);
+                } else if (hint.contains("Background") && !inWhiteList(hint)) {
+                    objects[0] = new Color(255, 200, 230);
+                } else if (!inWhiteList(hint)){
+                    objects[0] = new Color(44, 0, 92);
+                }
+            } else for (int i = 0; i < objects.length; i++) {
+                if (objects[i] instanceof Color) {
+                    Color color = (Color) objects[i];
+                    color = new Color(color.getRed(), (color.getGreen()*3 + 255)/4, (color.getBlue() + 255)/2);
+                    objects[i] = color;
+                }
+            }
         }
         return objects;
+    }
+    private boolean inWhiteList(String str){
+        for(String ignore : whiteList){
+            if(str.contains(ignore)) return true;
+        } return false;
     }
 }
