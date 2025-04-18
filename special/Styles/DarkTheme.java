@@ -34,7 +34,7 @@ public class DarkTheme implements SpecialFeature {
         return 1;
     }
     public int getSupportVersionMinor() {
-        return 0;
+        return 1;
     }
     public boolean validate() {
         if(special.Special.getCurrentVersionMajor() > getSupportVersionMajor()){
@@ -64,14 +64,16 @@ public class DarkTheme implements SpecialFeature {
                 } else k++;
             }
             if(isColorBaseArray){
+                Color[] newArray = new Color[objects.length];
                 for (int i = 0; i < objects.length; i++) {
                     Color color = (Color) objects[i];
-                    objects[i] = new Color(
+                    newArray[i] = new Color(
                             constraint((int)(240-color.getRed() * 0.75)),
                             constraint((int)(240-color.getGreen() * 0.75)),
                             constraint((int)(240-color.getBlue() * 0.75)),
                             color.getAlpha());
                 }
+                return newArray;
             } else for (int i = 0; i < objects.length; i++) {
                 if (objects[i] instanceof Color) {
                     Color color = (Color) objects[i];
