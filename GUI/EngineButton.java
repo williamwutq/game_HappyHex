@@ -30,7 +30,7 @@ public class EngineButton extends HexButton {
             // If is the range of potential blocks for adding
             if(isPotentialPieceBlock()){
                 Color color = GameEssentials.queue().get(pieceIndex).getColor();
-                return GameEssentials.whitenColor(color);
+                return GameEssentials.interpolate(color, GameEssentials.gameBackgroundColor, 1);
             }
             // Get piece
             Piece piece = GameEssentials.queue().get(pieceIndex);
@@ -41,7 +41,7 @@ public class EngineButton extends HexButton {
                 return GameEssentials.interpolate(super.fetchColor(), GameEssentials.gameBackgroundColor, 1);
             }
             if (isPotentialEliminationTarget()){
-                return GameEssentials.whitenColor(super.fetchColor());
+                return GameEssentials.interpolate(super.fetchColor(), GameEssentials.gameBackgroundColor, 1);
             }
         }
         return super.fetchColor();

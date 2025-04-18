@@ -71,7 +71,7 @@ public class WhiteTheme implements SpecialFeature {
             if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
                 String hint = (String) objects[1];
                 if(hint.contains("SlidingButtonOn") || hint.contains("SlidingButtonOff")){
-                    objects[0] = GUI.GameEssentials.whitenColor(Color.BLACK);
+                    objects[0] = whitenColor(Color.BLACK);
                 } else if (hint.contains("GameQuitFontColor") || hint.contains("GameDisplayFontColor")) {
                     objects[0] = Color.DARK_GRAY;
                 } else if (hint.contains("Button") && !hint.contains("SlidingButtonEmpty")) {
@@ -79,7 +79,7 @@ public class WhiteTheme implements SpecialFeature {
                 } else if (hint.contains("Background") && !inWhiteList(hint)) {
                     objects[0] = Color.WHITE;
                 } else if (!inWhiteList(hint)){
-                    objects[0] = GUI.GameEssentials.whitenColor((Color) objects[0]);
+                    objects[0] = whitenColor((Color) objects[0]);
                 }
             }
         }
@@ -89,5 +89,8 @@ public class WhiteTheme implements SpecialFeature {
         for(String ignore : whiteList){
             if(str.contains(ignore)) return true;
         } return false;
+    }
+    private Color whitenColor(Color origin){
+        return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
     }
 }

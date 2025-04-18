@@ -124,9 +124,11 @@ public final class GameEssentials {
             return pieceColors[index];
         } else return null;
     }
+    @Deprecated
     public static Color whitenColor(Color origin){
         return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
     }
+    @Deprecated
     public static Color darkenColor(Color origin){
         return new Color((origin.getRed())/2, (origin.getGreen())/2, (origin.getBlue())/2);
     }

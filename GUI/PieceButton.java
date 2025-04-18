@@ -34,7 +34,7 @@ public class PieceButton extends HexButton {
             return GameEssentials.gamePieceSelectedColor;
         } else if(GameEssentials.getSelectedPieceIndex() == pieceIndex){
             // One in the piece is selected
-            return GameEssentials.whitenColor(GameEssentials.queue().get(pieceIndex).getColor());
+            return GameEssentials.interpolate(GameEssentials.queue().get(pieceIndex).getColor(), GameEssentials.gameBackgroundColor, 1);
         } else return GameEssentials.queue().get(pieceIndex).getColor();
     }
     protected void clicked() {
