@@ -154,7 +154,6 @@ public final class GameEssentials {
         gamePieceSelectedColor = processColor(new Color(168, 213, 201), "GamePieceSelectedColor");;
         gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
-        Launcher.LaunchEssentials.recolorAll();
     }
     /**
      * Paints a hexagon at the origin (0,0) with a specified color and size.

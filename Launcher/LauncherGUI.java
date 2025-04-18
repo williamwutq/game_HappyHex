@@ -1,6 +1,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import GUI.Recolorable;
 import Launcher.panel.*;
 
 import javax.swing.*;
@@ -114,8 +115,12 @@ public class LauncherGUI {
         mainFrame.setLayout(new BorderLayout());
         mainFrame.getContentPane().revalidate();
     }
-    public static void repaintFrame(){
-        mainFrame.repaint();
+    public static void resetColor(){
+        for (Component component : mainFrame.getContentPane().getComponents()){
+            if (component instanceof GUI.Recolorable){
+                ((Recolorable) component).resetColor();
+            }
+        }
     }
     public static void setBackgroundColor(Color color){
         mainFrame.setBackground(color);
