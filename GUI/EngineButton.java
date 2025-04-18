@@ -38,7 +38,7 @@ public class EngineButton extends HexButton {
             position = position.subtract(piece.getBlock(blockIndex));
             if (GameEssentials.engine().checkAdd(position, piece)) {
                 // If addition is possible
-                return Color.GRAY;
+                return GameEssentials.interpolate(super.fetchColor(), GameEssentials.gameBackgroundColor, 1);
             }
             if (isPotentialEliminationTarget()){
                 return GameEssentials.whitenColor(super.fetchColor());
