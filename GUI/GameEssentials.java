@@ -144,9 +144,9 @@ public final class GameEssentials {
     public static void changeColorProcessor(special.SpecialFeature newProcessor){
         colorProcessor = newProcessor;
         pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
-        gameBackGroundColor = processColor(new Color(213, 236, 230), "GameBackGroundColor");
+        gameBackGroundColor = processColor(new Color(213, 236, 230), "GamePanelBackgroundColor");
         gameBlockDefaultColor = processColor(Color.BLACK, "GameBlockDefaultColor");
-        gamePiecePanelColor = processColor(new Color(113, 129, 122), "GamePiecePanelColor");
+        gamePiecePanelColor = processColor(new Color(113, 129, 122), "GamePiecePanelBackgroundColor");
         gamePieceSelectedColor = processColor(new Color(213, 236, 230), "GamePieceSelectedColor");;
         gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
