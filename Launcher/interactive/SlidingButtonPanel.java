@@ -7,7 +7,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class SlidingButtonPanel extends JPanel implements ComponentListener {
+public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI.Recolorable {
     private boolean state;
     private String onText;
     private String offText;
@@ -109,11 +109,21 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener {
         repaint();
     }
     public final void componentHidden(ComponentEvent e) {}
+    public final void resetColor() {
+        this.onColor = LaunchEssentials.launchSlidingButtonOnColor;
+        this.offColor = LaunchEssentials.launchSlidingButtonOffColor;
+        button.setBackground(LaunchEssentials.launchSlidingButtonEmptyColor);
+        if (state) {
+            this.setBackground(onColor);
+        } else {
+            this.setBackground(offColor);
+        }
+    }
 
     private final class SlidingButton extends JButton implements ActionListener{
         private SlidingButton(){
             this.setText(offText);
-            this.setBackground(Color.WHITE);
+            this.setBackground(LaunchEssentials.launchSlidingButtonEmptyColor);
             this.setOpaque(true);
             this.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, 20));
             this.setBorder(new EmptyBorder(0,0,0,0));

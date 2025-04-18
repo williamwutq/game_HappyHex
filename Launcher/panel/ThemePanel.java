@@ -36,7 +36,7 @@ public class ThemePanel extends UniversalPanel {
             panel.setBackground(LaunchEssentials.launchBackgroundColor);
         }
         for(SlidingButtonPanel button : launchThemeButtons){
-            button.setBackground(LaunchEssentials.launchSlidingButtonOnColor, LaunchEssentials.launchSlidingButtonOffColor);
+            button.resetColor();
         }
     }
     public void paint(Graphics g){

@@ -45,6 +45,7 @@ public final class LaunchEssentials {
     public static Color launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39), "LaunchConfirmButtonBackgroundColor");
     public static Color launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN, "LaunchSlidingButtonOnColor");
     public static Color launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED, "LaunchSlidingButtonOffColor");
+    public static Color launchSlidingButtonEmptyColor = GameEssentials.processColor(Color.WHITE, "LaunchSlidingButtonEmptyColor");
     public static String launchTitleFont = (String) fontStyle.process(new Object[]{"Courier", "TitleFont"})[0];
     public static String launchVersionFont = (String) fontStyle.process(new Object[]{"Comic Sans MS", "VersionFont"})[0];
     public static String launchAuthorFont = "Helvetica";
@@ -79,6 +80,7 @@ public final class LaunchEssentials {
         launchConfirmButtonBackgroundColor = GameEssentials.processColor(new Color(0, 223, 39), "LaunchConfirmButtonBackgroundColor");
         launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN, "LaunchSlidingButtonOnColor");
         launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED, "LaunchSlidingButtonOffColor");
+        launchSlidingButtonEmptyColor = GameEssentials.processColor(Color.WHITE, "LaunchSlidingButtonEmptyColor");
     }
 
     public static boolean isGameStarted(){
