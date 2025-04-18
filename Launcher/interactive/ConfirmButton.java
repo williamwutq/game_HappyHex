@@ -25,6 +25,15 @@ public class ConfirmButton extends LaunchButton {
             textField.setText("INCORRECT NAMING FORMAT!");
             textField.setForeground(Launcher.LaunchEssentials.launchPlayerErrorFontColor);
             System.err.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Attempted login failed.");
+        } else if ((player.equals("Guest") || player.equals("guest") || player.equals("GUEST")
+                || player.equals("Logout") || player.equals("logout") || player.equals("LOGOUT")
+                || player.equals("log out") || player.equals("Log out") || player.equals("LOG OUT")
+                || player.equals("Out") || player.equals("out") || player.equals("OUT")) &&
+                !Launcher.LaunchEssentials.getCurrentPlayer().equals("Guest")){
+            Launcher.LaunchEssentials.setCurrentPlayer(new Username("Guest"), -1);
+            textField.setText("SUCCESSFULLY LOGGED OUT!");
+            textField.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
+            System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Login: Logged out.");
         } else if (player.isKeyword()){
             failLogin();
         } else if (player.equals("Normal") || player.equals("NORMAL")){
@@ -69,7 +78,7 @@ public class ConfirmButton extends LaunchButton {
             } else {
                 failLogin();
             }
-        } else {
+        } else if (!player.equals(Launcher.LaunchEssentials.getCurrentPlayer())){
             // Validate user input
             Launcher.LaunchEssentials.setCurrentPlayer(player, player.toHash());
             textField.setText("SUCCESSFUL PLAYER LOGIN!");
