@@ -254,6 +254,7 @@ public class HexEngine implements HexGrid{
             Block current = otherBlocks[i];
             // Null check and state check
             if (current != null && current.getState()){
+                System.out.println(computeDenseIndex(origin, other));
                 current = current.add(origin); // placement
                 // Check for this HexGrid
                 Block selfTarget = this.getBlock(current.getLineI(), current.getLineK());
@@ -465,6 +466,86 @@ public class HexEngine implements HexGrid{
         }
         return false;
     }
+    public double computeDenseIndex(Hex origin, HexGrid other){
+        int totalPossible = 0;
+        int totalPopulated = 0;
+        Block[] otherBlocks = other.blocks();
+        for(int i = 0; i < other.length(); i ++){
+            Block current = otherBlocks[i];
+            // Null check and state check
+            if (current != null && current.getState()){
+                current = current.add(origin); // placement
+                Block selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                Hex position = new Hex();
+                if (selfTarget == null || selfTarget.getState()){
+                    // Check for addition possibility
+                    return 0;
+                } else {
+                    Block otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    if (otherTarget == null || !otherTarget.getState()) {
+                        totalPossible++;
+                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                    }
+                    position.moveI(1);
+                    current.moveI(1);
+                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    if (otherTarget == null || !otherTarget.getState()) {
+                        totalPossible++;
+                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                    }
+                    position.moveK(1);
+                    current.moveK(1);
+                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    if (otherTarget == null || !otherTarget.getState()) {
+                        totalPossible++;
+                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                    }
+                    position.moveI(-1);
+                    current.moveI(-1);
+                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    if (otherTarget == null || !otherTarget.getState()) {
+                        totalPossible++;
+                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                    }
+                    position.moveJ(-1);
+                    current.moveJ(-1);
+                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    if (otherTarget == null || !otherTarget.getState()) {
+                        totalPossible++;
+                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                    }
+                    position.moveK(-1);
+                    current.moveK(-1);
+                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    if (otherTarget == null || !otherTarget.getState()) {
+                        totalPossible++;
+                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                    }
+                    position.moveI(1);
+                    current.moveI(1);
+                    otherTarget = other.getBlock(position.getLineI(), position.getLineK());
+                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                    if (otherTarget == null || !otherTarget.getState()) {
+                        totalPossible++;
+                        if (selfTarget == null || selfTarget.getState()) totalPopulated++;
+                    }
+                }
+            }
+        }
+        if (totalPossible == 0){
+            return 0;
+        } else {
+            System.out.println("totalPopulated" + totalPopulated);
+            return (double) totalPopulated / totalPossible;
+        }
+    }
+
 
     /**
      * Returns a string representation of the grid and block states.
