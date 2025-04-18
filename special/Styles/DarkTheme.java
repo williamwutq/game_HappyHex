@@ -70,23 +70,24 @@ public class DarkTheme implements SpecialFeature {
                     isColorBaseArray = false;
                 } else k++;
             }
-            if(isColorBaseArray){
-                Color[] newArray = new Color[objects.length];
-                for (int i = 0; i < objects.length; i++) {
-                    Color color = (Color) objects[i];
-                    newArray[i] = new Color(
-                            constraint((int)(240-color.getRed() * 0.75)),
-                            constraint((int)(240-color.getGreen() * 0.75)),
-                            constraint((int)(240-color.getBlue() * 0.75)),
-                            color.getAlpha());
-                }
-                return newArray;
-            } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
+            if(!isColorBaseArray && objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
+                Color color = (Color) objects[0];
                 String hint = (String) objects[1];
-                if(inWhiteList(hint)){
+                if (hint.contains("GameQuitFont")) {
+                    objects[0] = new Color(255, 144, 110);
+                } else if (hint.contains("GamePieceSelected")) {
+                    objects[0] = new Color(36, 33, 101);
+                } else if(inWhiteList(hint)){
                     return objects;
+                } else if (color.equals(Color.BLACK)) {
+                    objects[0] = new Color(204, 204, 204);
+                } else if (hint.contains("GamePiecePanelBackground") || hint.contains("GameOverBackground")) {
+                    objects[0] = new Color(63, 61, 112);
+                } else if (hint.contains("GamePanelBackground")) {
+                    objects[0] = new Color(23, 23, 42);
+                } else if (hint.contains("GameDisplayFont") || hint.contains("LaunchAuthorFont")) {
+                    objects[0] = new Color(158, 157, 232);
                 } else {
-                    Color color = (Color) objects[0];
                     objects[0] = new Color(constraint(255-color.getRed()), constraint(255-color.getGreen()), constraint(255-color.getBlue()), color.getAlpha());
                 }
             } else for (int i = 0; i < objects.length; i++) {
@@ -100,7 +101,7 @@ public class DarkTheme implements SpecialFeature {
         return objects;
     }
     private int constraint(int number){
-        int upper = 248;
+        int upper = 240;
         int lower = 22;
         if(number > upper){
             return upper;
