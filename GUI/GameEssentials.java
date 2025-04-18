@@ -142,6 +142,7 @@ public final class GameEssentials {
     }
     public static void changeColorProcessor(special.SpecialFeature newProcessor){
         colorProcessor = newProcessor;
+        pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
         gameBackGroundColor = processColor(new Color(213, 236, 230), "GameBackGroundColor");
         gameBlockDefaultColor = processColor(Color.BLACK, "GameBlockDefaultColor");
         gamePiecePanelColor = processColor(new Color(113, 129, 122), "GamePiecePanelColor");
@@ -149,7 +150,6 @@ public final class GameEssentials {
         gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
         Launcher.LaunchEssentials.recolorAll();
-        Launcher.LauncherGUI.getMainFrame().repaint();
     }
     /**
      * Paints a hexagon at the origin (0,0) with a specified color and size.

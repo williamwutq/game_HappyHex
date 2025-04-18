@@ -1,16 +1,18 @@
 package special;
 
 public class FeatureFactory {
-        public static SpecialFeature createFeature(String className, String hint){
+    private static final boolean randomChance1 = Math.random() >= 0.94;
+    private static final boolean randomChance2 = Math.random() >= 0.94;
+    public static SpecialFeature createFeature(String className, String hint){
         if(className.equals("Color") || className.equals("java.awt.Color")) {
             // Special Dates
-            if (hint.equals("Default")) {
+            if (hint.equals("Default") || hint.equals("2")) {
                 // Special Dates
                 java.time.LocalDate date = java.time.LocalDate.now();
-                if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || Math.random() >= 0.94) {
+                if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || randomChance1) {
                     return new special.Styles.Grayscale();
                 }
-            } else if (hint.equals("Dark")) {
+            } else if (hint.equals("Dark") || hint.equals("4")) {
                 return new special.Styles.DarkTheme();
             }
         } else if (className.equals("Piece") || className.equals("Hex.Piece")) {

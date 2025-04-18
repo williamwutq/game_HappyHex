@@ -114,6 +114,9 @@ public class LauncherGUI {
         mainFrame.setLayout(new BorderLayout());
         mainFrame.getContentPane().revalidate();
     }
+    public static void repaintFrame(){
+        mainFrame.repaint();
+    }
     public static void setBackgroundColor(Color color){
         mainFrame.setBackground(color);
     }

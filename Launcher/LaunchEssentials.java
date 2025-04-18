@@ -56,6 +56,8 @@ public final class LaunchEssentials {
 
     public static void setTheme(int featureIndex){
         themeIndex = featureIndex;
+        GameEssentials.changeColorProcessor(special.FeatureFactory.createFeature(Color.class.getName(), featureIndex + ""));
+        LauncherGUI.repaintFrame();
     }
     public static int getTheme(){
         return themeIndex;
