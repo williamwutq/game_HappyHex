@@ -36,7 +36,7 @@ public class CenteringEffect extends Animation {
      * is scaled to 1.2 times the standard size and positioned with an offset to ensure proper
      * alignment within the game panel, accounting for extensions from
      * {@link GameEssentials#getGamePanelWidthExtension()} and
-     * {@link GameEssentials#getGamePanelHeightExtension()}.</p>
+     * {@link GameEssentials#getGamePanelHeightExtension()}.
      */
     public final void resetSize(){
         if(block == null) {
