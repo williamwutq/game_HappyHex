@@ -317,6 +317,10 @@ public final class GameEssentials {
     public static void resetGame(){
         score = 0;
         turn = 0;
+        selectedPieceIndex = -1;
+        selectedBlockIndex = -1;
+        hoveredOverIndex = -1;
+        clickedOnIndex = -1;
         turnLabel.setInfo(turn + "");
         scoreLabel.setInfo(score + "");
         engine.reset();
