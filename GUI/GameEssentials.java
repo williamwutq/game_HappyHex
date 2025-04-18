@@ -69,7 +69,7 @@ public final class GameEssentials {
     public static Color gameOverBackgroundColor = GameEssentials.processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
     public static Color gameBlockDefaultColor = GameEssentials.processColor(Color.BLACK, "GameBlockDefaultColor");
     public static Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122), "GamePiecePanelColor");
-    public static Color gamePieceSelectedColor = GameEssentials.processColor(new Color(213, 236, 230), "GamePieceSelectedColor");;
+    public static Color gamePieceSelectedColor = GameEssentials.processColor(new Color(168, 213, 201), "GamePieceSelectedColor");;
     public static Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24), "GameDisplayFontColor");
     public static Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7), "GameQuitFontColor");
 
@@ -149,7 +149,7 @@ public final class GameEssentials {
         gameOverBackgroundColor = processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
         gameBlockDefaultColor = processColor(Color.BLACK, "GameBlockDefaultColor");
         gamePiecePanelColor = processColor(new Color(113, 129, 122), "GamePiecePanelBackgroundColor");
-        gamePieceSelectedColor = processColor(new Color(213, 236, 230), "GamePieceSelectedColor");;
+        gamePieceSelectedColor = processColor(new Color(168, 213, 201), "GamePieceSelectedColor");;
         gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
         Launcher.LaunchEssentials.recolorAll();
@@ -202,7 +202,7 @@ public final class GameEssentials {
         yPoints[2] = (int) Math.round(size * (y * 2 + 1.0 + r2 * fill * 0.5));
         xPoints[3] = xPoints[0];
         yPoints[3] = (int) Math.round(size * (y * 2 + 1.0 + r2 * fill));
-        g.setColor(Color.WHITE);
+        g.setColor(gameBackgroundColor);
         g.fillPolygon(xPoints, yPoints, 4);
     }
     // Resizing
