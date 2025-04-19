@@ -14,10 +14,10 @@ public class SettingPanel extends UniversalPanel {
     private JLabel launchSettingGameSmallLabel;
     private JLabel launchSettingGameMediumLabel;
     private JLabel launchSettingGameLargeLabel;
-    private SlidingButtonPanel launchSettingEasyModeButton;
-    private SlidingButtonPanel launchSettingGameSmallButton;
-    private SlidingButtonPanel launchSettingGameMediumButton;
-    private SlidingButtonPanel launchSettingGameLargeButton;
+    private SlidingButton launchSettingEasyModeButton;
+    private SlidingButton launchSettingGameSmallButton;
+    private SlidingButton launchSettingGameMediumButton;
+    private SlidingButton launchSettingGameLargeButton;
 
     public SettingPanel(){
         super();
@@ -40,7 +40,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingEasyModeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingEasyModeLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingEasyModeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingEasyModeButton = new SlidingButtonPanel(){
+        launchSettingEasyModeButton = new SlidingButton(){
             @Override
             protected void turnedOn() {
                 super.turnedOn();
@@ -76,7 +76,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameSmallLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingGameSmallLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingGameSmallLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingGameSmallButton = new SlidingButtonPanel(){
+        launchSettingGameSmallButton = new SlidingButton(){
             @Override
             protected void turnedOn() {
                 super.turnedOn();
@@ -106,7 +106,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameMediumLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingGameMediumLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingGameMediumLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingGameMediumButton = new SlidingButtonPanel(){
+        launchSettingGameMediumButton = new SlidingButton(){
             @Override
             protected void turnedOn() {
                 super.turnedOn();
@@ -136,7 +136,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         launchSettingGameLargeLabel.setVerticalAlignment(SwingConstants.CENTER);
         launchSettingGameLargeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingGameLargeButton = new SlidingButtonPanel(){
+        launchSettingGameLargeButton = new SlidingButton(){
             @Override
             protected void turnedOn() {
                 super.turnedOn();

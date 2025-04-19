@@ -13,7 +13,7 @@ public class ThemePanel extends UniversalPanel {
     private LaunchButton quitButton;
     private ArrayList<JLabel> launchThemeLabels;
     private ArrayList<JPanel> launchThemePanels;
-    private ArrayList<SlidingButtonPanel> launchThemeButtons;
+    private ArrayList<SlidingButton> launchThemeButtons;
     private ArrayList<Integer> targetThemeIDs;
     private ArrayList<special.SpecialFeature> specialThemes;
 
@@ -35,7 +35,7 @@ public class ThemePanel extends UniversalPanel {
         for(JPanel panel : launchThemePanels){
             panel.setBackground(LaunchEssentials.launchBackgroundColor);
         }
-        for(SlidingButtonPanel button : launchThemeButtons){
+        for(SlidingButton button : launchThemeButtons){
             button.resetColor();
         }
     }
@@ -102,7 +102,7 @@ public class ThemePanel extends UniversalPanel {
         launchThemeMainLabel.setBorder(new EmptyBorder((int)Math.round(referenceStartButtonSize/120.0), 0, (int)Math.round(referenceStartButtonSize/120.0), 0));
 
         Dimension buttonSize = new Dimension((int)Math.round(referenceStartButtonSize/4), (int)Math.round(referenceStartButtonSize/12));
-        for(SlidingButtonPanel button : launchThemeButtons){
+        for(SlidingButton button : launchThemeButtons){
             button.mandateSize(buttonSize);
         }
     }
@@ -121,7 +121,7 @@ public class ThemePanel extends UniversalPanel {
         launchThemeLabels.add(label);
 
         // Create the toggle button and define behavior for ON and OFF states
-        SlidingButtonPanel button = new SlidingButtonPanel() {
+        SlidingButton button = new SlidingButton() {
             @Override
             protected void turnedOn() {
                 super.turnedOn();
