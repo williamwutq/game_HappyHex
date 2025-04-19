@@ -480,84 +480,16 @@ public class HexEngine implements HexGrid{
                     // Check for addition possibility
                     return 0;
                 } else {
-                    Block otherTarget = other.getBlock(-1, -1);
-                    selfTarget = this.getBlock(current.getLineI()-1, current.getLineK()-1);
-                    if (otherTarget == null || !otherTarget.getState()) {
-                        totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) {
-                            System.out.println(current);
-                            System.out.println("-1, -1");
-                            totalPopulated++;
-                        }
-                    }
-                    otherTarget = other.getBlock(-1, 0);
-                    selfTarget = this.getBlock(current.getLineI()-1, current.getLineK());
-                    if (otherTarget == null || !otherTarget.getState()) {
-                        totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) {
-                            System.out.println(current);
-                            System.out.println("-1, 0");
-                            totalPopulated++;
-                        }
-                    }
-                    otherTarget = other.getBlock(0, -1);
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK()-1);
-                    if (otherTarget == null || !otherTarget.getState()) {
-                        totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) {
-                            System.out.println(current);
-                            System.out.println("0, -1");
-                            totalPopulated++;
-                        }
-                    }
-                    otherTarget = other.getBlock(0, 0);
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK());
-                    if (otherTarget == null || !otherTarget.getState()) {
-                        totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) {
-                            System.out.println(current);
-                            System.out.println("0, 0");
-                            totalPopulated++;
-                        }
-                    }
-                    otherTarget = other.getBlock(0, 1);
-                    selfTarget = this.getBlock(current.getLineI(), current.getLineK()+1);
-                    if (otherTarget == null || !otherTarget.getState()) {
-                        totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) {
-                            System.out.println(current);
-                            System.out.println("0, 1");
-                            totalPopulated++;
-                        }
-                    }
-                    otherTarget = other.getBlock(1, 0);
-                    selfTarget = this.getBlock(current.getLineI()+1, current.getLineK());
-                    if (otherTarget == null || !otherTarget.getState()) {
-                        totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) {
-                            System.out.println(current);
-                            System.out.println("1, 0");
-                            totalPopulated++;
-                        }
-                    }
-                    otherTarget = other.getBlock(1, 1);
-                    selfTarget = this.getBlock(current.getLineI()+1, current.getLineK()+1);
-                    if (otherTarget == null || !otherTarget.getState()) {
-                        totalPossible++;
-                        if (selfTarget == null || selfTarget.getState()) {
-                            System.out.println(current);
-                            System.out.println("1, 1");
-                            totalPopulated++;
-                        }
-                    }
+                    totalPossible += (6 - other.countNeighbors(current.getLineI(), current.getLineK(), false));
+                    totalPopulated += this.countNeighbors(current.getLineI(), current.getLineK(), true);
                 }
             }
         }
+        System.out.println("totalPossible" + totalPossible);
+        System.out.println("totalPopulated" + totalPopulated);
         if (totalPossible == 0){
             return 0;
         } else {
-            System.out.println("totalPossible" + totalPossible);
-            System.out.println("totalPopulated" + totalPopulated);
             return (double) totalPopulated / totalPossible;
         }
     }
