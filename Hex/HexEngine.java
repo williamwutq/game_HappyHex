@@ -250,7 +250,6 @@ public class HexEngine implements HexGrid{
     public void add(Hex origin, HexGrid other) throws IllegalArgumentException{
         // Iterate through other
         Block[] otherBlocks = other.blocks();
-        System.out.println(computeDenseIndex(origin, other));
         for(int i = 0; i < other.length(); i ++){
             Block current = otherBlocks[i];
             // Null check and state check
@@ -485,13 +484,9 @@ public class HexEngine implements HexGrid{
                 }
             }
         }
-        System.out.println("totalPossible" + totalPossible);
-        System.out.println("totalPopulated" + totalPopulated);
         if (totalPossible == 0){
             return 0;
-        } else {
-            return (double) totalPopulated / totalPossible;
-        }
+        } else return (double) totalPopulated / totalPossible;
     }
 
 
