@@ -19,7 +19,7 @@ import java.util.ArrayList;
  *     <li>Deep copy support through the {@link #clone} method</li>
  * </ul>
  *
- * <p><b>Grid Structure:</b><br>
+ * <p><h3>Grid Structure:</h3>
  * The hex grid uses an axial coordinate system (i, k), where i - j + k = 0, and j is
  * implicitly derived as j = i + k. The coordinate system has three axes, I, J, K (not
  * to be confused with 3D). I+ is 60 degree from J+, J+ is 60 degree from K+, and K+ is
@@ -29,17 +29,29 @@ import java.util.ArrayList;
  * Blocks are constructed and stored in a sorted array by increasing raw coordinate i and then k.
  * See {@link Hex} for more coordinate information.
  *
- * <p><b>Grid Size:</b><br>
+ * <p><h3>Grid Size:</h3>
  * The total number of blocks in a hexagonal grid of radius {@code r} is calculated as:
  * <pre>
  *     Aₖ = 1 + 3(r)(r - 1)
  * </pre>
  * This is derived from the recursive pattern:
  * <pre>
- *     @code Aₖ = Aₖ₋₁ + 6(k - 1); A₁ = 1
+ *     {@code Aₖ = Aₖ₋₁ + 6(k - 1); A₁ = 1}
  * </pre>
+ * <p><h3>Machine Learning:</h3>
+ * The {@code HexEngine} supports machine learning reward functions by exposing utility methods that help evaluate
+ * the quality and validity of in-game actions. These metrics can guide reinforcement learning agents in making
+ * smarter decisions within the block blast game environment.
+ * <p>
+ * Invalid moves can be discouraged by using the {@link #checkAdd(Hex, HexGrid)} method, which returns {@code false}
+ * for placements that are not allowed—such as overlapping with existing occupied blocks. This can be used to
+ * assign negative rewards to agents attempting illegal placements.
+ * <p>
+ * Rewarding effective gap-filling and spatial efficiency is made possible through the {@link #computeDenseIndex(Hex, HexGrid)}
+ * method. This computes a normalized score (0 to 1) representing how densely the placed grid would interact
+ * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
  * @author William Wu
- * @version 1.1
+ * @version 1.2
  */
 public class HexEngine implements HexGrid{
     private int radius;
@@ -465,6 +477,28 @@ public class HexEngine implements HexGrid{
         }
         return false;
     }
+    /**
+     * Computes a density index score for hypothetically placing another {@link HexGrid} onto this grid.
+     * <p>
+     * The density index is a value between 0 and 1 that represents how "dense" the surrounding area is
+     * when the given {@code other} grid were placed on this grid at the specified {@code origin} coordinate.
+     * A score of 1 represents that all the surrounding blocks of that grid would be filled and 0 represent
+     * that the grid would be "alone" after addition. A higher score indicates a more tightly packed
+     * configuration, which may correlate with better outcomes in certain game strategies or ML reward functions.
+     * <p>
+     * This method is used in reinforcement learning contexts to evaluate placement strategies and learn high-scoring
+     * moves. It checks whether the {@link Block} in {@code other} can be placed without overlapping existing occupied
+     * blocks. For each valid block, it computes how many potential neighbors are unoccupied in {@code other},
+     * and how many are actually occupied in {@code this} grid. These values contribute to the ratio:
+     * <pre>{@code
+     *     denseIndex = totalPopulatedNeighbors / totalPossibleNeighbors
+     * }</pre>
+     *
+     * @param origin the position in which the {@code other} grid is added for hypothetical placement.
+     * @param other the {@link HexGrid} representing a piece to be evaluated for placement.
+     * @return a density index between 0 and 1. Returns 0 if placement is invalid or no potential neighbors exist.
+     * @see #countNeighbors(int, int, boolean)
+     */
     public double computeDenseIndex(Hex origin, HexGrid other){
         int totalPossible = 0;
         int totalPopulated = 0;
