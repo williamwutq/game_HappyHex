@@ -9,6 +9,7 @@ import java.awt.event.*;
 
 public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI.Recolorable {
     private boolean state;
+    private int radius;
     private String onText;
     private String offText;
     private SlidingButton button;
@@ -17,11 +18,13 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
     public SlidingButtonPanel(){
         super();
         this.state = false;
+        this.radius = 1;
         this.onText = "ON";
         this.offText = "OFF";
         this.onColor = LaunchEssentials.launchSlidingButtonOnColor;
         this.offColor = LaunchEssentials.launchSlidingButtonOffColor;
         this.button = new SlidingButton();
+        this.setOpaque(false);
         this.setBackground(offColor);
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.setBorder(new EmptyBorder(0,0,0,0));
@@ -74,8 +77,8 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         button.setPreferredSize(dimension);
         button.setMinimumSize(dimension);
         button.setMaximumSize(dimension);
-        int size = Math.min(this.getWidth()*2/3, this.getHeight())/2;
-        button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, size));
+        radius = Math.min(this.getWidth()*2/3, this.getHeight());
+        button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, radius/2));
     }
     public void setState(boolean state){
         if(this.state != state) {
@@ -119,12 +122,22 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
             this.setBackground(offColor);
         }
     }
+    public void paint(Graphics g){
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(this.getBackground());
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+        g2.dispose();
+        super.paintChildren(g);
+    }
 
     private final class SlidingButton extends JButton implements ActionListener{
         private SlidingButton(){
             this.setText(offText);
             this.setBackground(LaunchEssentials.launchSlidingButtonEmptyColor);
             this.setOpaque(true);
+            this.setContentAreaFilled(false);
+            this.setFocusPainted(false);
             this.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, 20));
             this.setBorder(new EmptyBorder(0,0,0,0));
             this.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -142,6 +155,14 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
                 this.setText(onText);
                 turnedOn();
             }
+        }
+        public void paint(Graphics g){
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(this.getBackground());
+            g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), radius, radius);
+            g2.dispose();
+            super.paintComponent(g);
         }
     }
 }
