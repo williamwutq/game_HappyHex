@@ -7,17 +7,17 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI.Recolorable {
+public class SlidingButton extends JComponent implements ComponentListener, GUI.Recolorable {
     private boolean state;
     private int radius;
     private int innerGap;
     private int halfBorderGap;
     private String onText;
     private String offText;
-    private SlidingButton button;
+    private InnerButton button;
     private Color onColor;
     private Color offColor;
-    public SlidingButtonPanel(){
+    public SlidingButton(){
         super();
         this.state = false;
         this.radius = 1;
@@ -27,7 +27,7 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         this.offText = "OFF";
         this.onColor = LaunchEssentials.launchSlidingButtonOnColor;
         this.offColor = LaunchEssentials.launchSlidingButtonOffColor;
-        this.button = new SlidingButton();
+        this.button = new InnerButton();
         this.setOpaque(false);
         this.setBackground(offColor);
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -38,14 +38,6 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         this.add(Box.createHorizontalGlue());
         this.addComponentListener(this);
         this.mandateSize(new Dimension(1,1));
-    }
-    public final void setTexts(String onText, String offText){
-        this.onText = onText;
-        this.offText = offText;
-    }
-    public final void setBackground(Color on, Color off){
-        this.onColor = on;
-        this.offColor = off;
     }
     public final void setBackground(Color color){
         super.setBackground(color);
@@ -138,8 +130,8 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         super.paintChildren(g);
     }
 
-    private final class SlidingButton extends JButton implements ActionListener{
-        private SlidingButton(){
+    private final class InnerButton extends JButton implements ActionListener{
+        private InnerButton(){
             this.setText(offText);
             this.setBackground(LaunchEssentials.launchSlidingButtonEmptyColor);
             this.setOpaque(true);
