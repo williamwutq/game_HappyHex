@@ -1,9 +1,30 @@
 package Hex;
 
 /**
- * Interface for a grid of {@link Block} objects.
+ * Interface for a two-dimensional hexagonal grid composed of {@link Block} objects.
+ * <p>
+ * The {@code HexGrid} represents a grid layout based on axial coordinates (I-line and K-line),
+ * where each valid position may contain a {@link Block} object. This interface supports querying,
+ * iteration, merging, and neighbor-counting functionalities.
+ * <p>
+ * It is designed to be flexible enough to support a wide range of hex-based systems, including
+ * tile-based games, simulations, or cellular automata. Implementations of this interface must
+ * ensure consistent behavior when accessing blocks by coordinate or index, and must provide
+ * methods for determining grid boundaries and merging with other grids.
+ *
+ * <h3>Coordinate System</h3>
+ * The grid uses a hexagonal coordinate system where positions are indexed by two integers: (i, k),
+ * representing the I-line and K-line respectively. These correspond to {@link Hex} objects used
+ * throughout the interface. See {@link Hex} for detailed description on coordinate system in use.
+ *
+ * <h3>Usage</h3>
+ * Typical use involves iterating through blocks using {@link #length()} and {@link #getBlock(int)},
+ * or accessing specific positions using {@link #getBlock(int, int)}. Additional functionality includes
+ * merging entire grids using the {@link #add(Hex, HexGrid)} method and checking in-bounds positions
+ * with {@link #inRange(int, int)}.
+ *
  * @author William Wu
- * @version 1.1
+ * @version 1.2
  */
 public interface HexGrid {
     /**
