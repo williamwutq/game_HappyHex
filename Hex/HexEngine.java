@@ -480,7 +480,7 @@ public class HexEngine implements HexGrid{
                     // Check for addition possibility
                     return 0;
                 } else {
-                    totalPossible += (6 - other.countNeighbors(current.getLineI(), current.getLineK(), false));
+                    totalPossible += (6 - other.countNeighbors(otherBlocks[i].getLineI(), otherBlocks[i].getLineK(), false));
                     totalPopulated += this.countNeighbors(current.getLineI(), current.getLineK(), true);
                 }
             }
