@@ -76,7 +76,7 @@ public class HardMode implements SpecialFeature{
         return count;
     }
     public Object[] process(Object[] objects) {
-        if(objects.length > 2 && objects[1] instanceof Boolean){
+        if(isActive() && objects.length > 2 && objects[1] instanceof Boolean){
             if (!(Boolean) objects[1]) {
                 if (objects[0] instanceof Piece && objects[2] instanceof HexEngine) {
                     // Implementation: get the most difficult pne

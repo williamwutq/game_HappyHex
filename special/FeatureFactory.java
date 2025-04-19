@@ -7,7 +7,9 @@ public class FeatureFactory {
         if(className.equals("Color") || className.equals("java.awt.Color")) {
             // Special Dates
             java.time.LocalDate date = java.time.LocalDate.now();
-            if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || randomChance1) {
+            if ((date.getMonthValue() == 2 && date.getDayOfMonth() == 14)) {
+                return new special.Valentine.FilledWithLove();
+            } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || randomChance1) {
                 return new special.Styles.Grayscale();
             } else if (hint.equals("Dark") || hint.equals("4")) {
                 return new special.Styles.DarkTheme();
