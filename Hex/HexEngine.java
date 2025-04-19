@@ -2,7 +2,6 @@ package Hex;
 
 import GUI.GameEssentials;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 /**
@@ -267,7 +266,6 @@ public class HexEngine implements HexGrid{
                 } else {
                     // If all checks, proceed to add block
                     setBlock(current.getLineI(), current.getLineK(), current);
-                    GameEssentials.addAnimation(GameEssentials.createCenterEffect(current));
                 }
             }
         }
