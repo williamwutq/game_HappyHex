@@ -10,6 +10,8 @@ import java.awt.event.*;
 public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI.Recolorable {
     private boolean state;
     private int radius;
+    private int innerGap;
+    private int halfBorderGap;
     private String onText;
     private String offText;
     private SlidingButton button;
@@ -19,6 +21,8 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         super();
         this.state = false;
         this.radius = 1;
+        this.innerGap = 1;
+        this.halfBorderGap = 1;
         this.onText = "ON";
         this.offText = "OFF";
         this.onColor = LaunchEssentials.launchSlidingButtonOnColor;
@@ -27,7 +31,7 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         this.setOpaque(false);
         this.setBackground(offColor);
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        this.setBorder(new EmptyBorder(0,0,0,0));
+        this.setBorder(new EmptyBorder(1,1,1,1));
         this.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.setAlignmentY(Component.CENTER_ALIGNMENT);
         this.add(button);
@@ -79,6 +83,9 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         button.setMaximumSize(dimension);
         radius = Math.min(this.getWidth()*2/3, this.getHeight());
         button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, radius/2));
+        halfBorderGap = radius / 16;
+        innerGap = radius / 8;
+        this.setBorder(new EmptyBorder(halfBorderGap, halfBorderGap, halfBorderGap, halfBorderGap));
     }
     public void setState(boolean state){
         if(this.state != state) {
@@ -126,7 +133,7 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(this.getBackground());
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+        g2.fillRoundRect(halfBorderGap, halfBorderGap, getWidth() - 2 * halfBorderGap, getHeight() - 2 * halfBorderGap, radius - halfBorderGap, radius - halfBorderGap);
         g2.dispose();
         super.paintChildren(g);
     }
@@ -139,7 +146,7 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
             this.setContentAreaFilled(false);
             this.setFocusPainted(false);
             this.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, 20));
-            this.setBorder(new EmptyBorder(0,0,0,0));
+            this.setBorder(new EmptyBorder(1,1,1,1));
             this.setAlignmentX(Component.CENTER_ALIGNMENT);
             this.setAlignmentY(Component.CENTER_ALIGNMENT);
             this.addActionListener(this);
@@ -157,10 +164,11 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
             }
         }
         public void paint(Graphics g){
+            int combinedRadius = radius - 2 * (innerGap + halfBorderGap);
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setColor(this.getBackground());
-            g2.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), radius, radius);
+            g2.fillRoundRect(innerGap, innerGap, this.getWidth() - 2 * innerGap, this.getHeight() - 2 * innerGap, combinedRadius, combinedRadius);
             g2.dispose();
             super.paintComponent(g);
         }
