@@ -82,9 +82,9 @@ public class SlidingButtonPanel extends JPanel implements ComponentListener, GUI
         button.setMinimumSize(dimension);
         button.setMaximumSize(dimension);
         radius = Math.min(this.getWidth()*2/3, this.getHeight());
-        button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, radius/2));
         halfBorderGap = radius / 16;
-        innerGap = radius / 8;
+        innerGap = radius / 12;
+        button.setFont(new Font(LaunchEssentials.launchSettingsSlidingButtonFont, Font.BOLD, radius/2 - innerGap));
         this.setBorder(new EmptyBorder(halfBorderGap, halfBorderGap, halfBorderGap, halfBorderGap));
     }
     public void setState(boolean state){
