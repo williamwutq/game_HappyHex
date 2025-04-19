@@ -63,4 +63,41 @@ public interface HexGrid {
     default void add (HexGrid other) throws IllegalArgumentException{
         add(new Block(), other);
     }
+    /**
+     * Counts the number of occupied neighboring {@link Block} around the given {@link Hex position} in the hexagonal grid.
+     * <p>
+     * This method checks up to six adjacent positions to the block located at coordinates (i, k).
+     * A neighbor is considered "occupied" if the block at that position is non-null and its state is {@code true}.
+     * If a neighboring position is out of range or contains a {@code null} block, it is either counted as occupied
+     * or ignored based on the {@code includeNull} flag.
+     *
+     * @param i the I-line coordinate of the block whose neighbors are to be counted.
+     * @param k the K-line coordinate of the block whose neighbors are to be counted.
+     * @param includeNull whether to treat {@code null} or out-of-bounds neighbors as occupied ({@code true}) or unoccupied ({@code false}).
+     * @return the number of occupied neighbors surrounding the block at (i, k). Returns 0 if the center position itself is out of range.
+     */
+    default int countNeighbors(int i, int k, boolean includeNull){
+        int count = 0;
+        if (inRange(i, k)){
+            if (inRange(i - 1, k - 1)){
+                if (getBlock(i - 1, k - 1).getState()) count ++;
+            } else if (includeNull) count ++;
+            if (inRange(i - 1, k)){
+                if (getBlock(i - 1, k).getState()) count ++;
+            } else if (includeNull) count ++;
+            if (inRange(i, k - 1)){
+                if (getBlock(i, k - 1).getState()) count ++;
+            } else if (includeNull) count ++;
+            if (inRange(i, k + 1)){
+                if (getBlock(i, k + 1).getState()) count ++;
+            } else if (includeNull) count ++;
+            if (inRange(i + 1, k)){
+                if (getBlock(i + 1, k).getState()) count ++;
+            } else if (includeNull) count ++;
+            if (inRange(i + 1, k + 1)){
+                if (getBlock(i + 1, k + 1).getState()) count ++;
+            } else if (includeNull) count ++;
+            return count;
+        } else return 0;
+    }
 }
