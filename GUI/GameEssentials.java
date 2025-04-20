@@ -47,21 +47,23 @@ public final class GameEssentials {
     private static special.SpecialFeature effectProcessor = special.FeatureFactory.createFeature(Animation.class.getName());
 
     // Random Piece
-    private static final Color[] rawPieceColors = new Color[]{
-            new Color(0, 0, 240),
-            new Color(0, 100, 190),
-            new Color(0, 180, 180),
-            new Color(0, 180, 120),
-            new Color(0, 210, 0),
-            new Color(100, 180, 0),
-            new Color(180, 180, 0),
-            new Color(200, 90, 0),
-            new Color(210, 0, 0),
-            new Color(200, 0, 120),
-            new Color(180, 0, 180),
-            new Color(100, 0, 200),
-    };
-    private static Color[] pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
+    private static Color[] getRawPieceColors(){
+        return new Color[]{
+                new Color(0, 0, 240),
+                new Color(0, 100, 190),
+                new Color(0, 180, 180),
+                new Color(0, 180, 120),
+                new Color(0, 210, 0),
+                new Color(100, 180, 0),
+                new Color(180, 180, 0),
+                new Color(200, 90, 0),
+                new Color(210, 0, 0),
+                new Color(200, 0, 120),
+                new Color(180, 0, 180),
+                new Color(100, 0, 200),
+        };
+    }
+    private static Color[] pieceColors = (Color[]) colorProcessor.process(getRawPieceColors());
 
     public static final String gameDisplayFont = "Courier";
     public static Color gameBackgroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GameBackgroundColor");
@@ -145,7 +147,7 @@ public final class GameEssentials {
     }
     public static void changeColorProcessor(special.SpecialFeature newProcessor){
         colorProcessor = newProcessor;
-        pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
+        pieceColors = (Color[]) colorProcessor.process(getRawPieceColors());
         gameBackgroundColor = processColor(new Color(213, 236, 230), "GamePanelBackgroundColor");
         gameOverBackgroundColor = processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
         gameBlockDefaultColor = processColor(Color.BLACK, "GameBlockDefaultColor");
