@@ -4,7 +4,27 @@ import GUI.GameEssentials;
 import hex.Block;
 import hex.Piece;
 
-public class PieceFactory {
+/**
+ * A utility class responsible for generating and retrieving various types of {@link Piece} objects
+ * used in gameplay. This factory supports both "easy" and "normal" difficulty modes, which affect
+ * the distribution and type of pieces generated at runtime.
+ * <p>
+ * Pieces are generated either randomly or through direct indexing. The {@code generatePiece()}
+ * method reflects the current difficulty mode, producing simpler, beginner-friendly pieces in easy
+ * mode and a more diverse, complex set in normal mode.
+ * <p>
+ * The factory also exposes a method to retrieve a specific {@link Piece} instance based on a numeric
+ * index via {@link #getIndexedPiece(int)}. The valid index range is [0, {@link #getMaxPieceIndex()}).
+ * <p>
+ * Easy mode can be toggled with {@link #setEasy()} and {@link #setNormal()}, and its current state
+ * is available via {@link #isEasy()}.</p>
+ * <p>
+ * This class is stateless aside from the global difficulty setting and is not intended to be instantiated.
+ * This class migrates all static generation code from {@link Piece}.
+ * @version 1.2
+ * @see Piece
+ */
+public final class PieceFactory {
     private static boolean easy = false;
     /**
      * Returns whether the game or context is currently set to "easy" mode.
