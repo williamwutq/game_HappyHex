@@ -150,7 +150,7 @@ public class Piece implements HexGrid{
         Block[] result = blocks;
         for(int i = 0; i < length(); i ++){
             if(blocks[i] == null){
-                result[i] = new Block(-1, -1, color, false);
+                result[i] = new Block(0, 0, color);
             }else{
                 result[i] = blocks[i];
             }
