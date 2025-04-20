@@ -262,7 +262,7 @@ public final class LaunchEssentials {
         updateHighest();
         updateOnGame();
         try {
-            LaunchLogger.write();
+            LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
             LaunchLogger.resetLoggerInfo();
             return true;
         } catch (IOException e) {
