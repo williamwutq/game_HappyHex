@@ -8,7 +8,7 @@ import javax.swing.border.*;
 
 import java.awt.event.*;
 
-public abstract class LaunchButton extends JButton implements ActionListener, GUI.Recolorable {
+public abstract class LaunchButton extends JButton implements ActionListener, Launcher.Recolorable {
     private static int sizeConstant = 1;
     private static Color backGroundColor;
     public LaunchButton(String text){

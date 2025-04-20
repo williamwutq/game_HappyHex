@@ -8,7 +8,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public abstract class UniversalPanel extends JPanel implements ComponentListener, GUI.Recolorable {
+public abstract class UniversalPanel extends JPanel implements ComponentListener, Launcher.Recolorable {
     private final int gameNameLabelIndexShift = (int) (Math.random() * 12);
     private JPanel gameNameLabelPanel;
     private String gameNameString = "⬢HAPPY⬢⬢HEX⬢";
