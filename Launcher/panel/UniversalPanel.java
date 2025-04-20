@@ -8,7 +8,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public abstract class UniversalPanel extends JPanel implements ComponentListener, Launcher.Recolorable {
+public abstract class UniversalPanel extends JPanel implements ComponentListener, Launcher.Recolorable, Launcher.Refontable {
     private final int gameNameLabelIndexShift = (int) (Math.random() * 12);
     private JPanel gameNameLabelPanel;
     private String gameNameString = "⬢HAPPY⬢⬢HEX⬢";
@@ -117,6 +117,17 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
         launchAuthorLabelWW.setForeground(LaunchEssentials.launchWWFontColor);
         launchAuthorLabelGame.setForeground(LaunchEssentials.launchAuthorFontColor);
         launchCopyrightLabel.setForeground(LaunchEssentials.launchAuthorFontColor);
+    }
+    public void resetFont(){
+        double referenceGameNameSize = Math.min(getReferenceHeight() * 1.8, getReferenceWidth());
+        for (JLabel label : gameNameLabels) {
+            label.setFont(new Font(LaunchEssentials.launchTitleFont, Font.BOLD, (int) Math.round(referenceGameNameSize / 10)));
+        }
+        double referenceLaunchAuthorSize = Math.min(getReferenceHeight(), getReferenceWidth() * 2.25);
+        launchAuthorLabelA.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize / 40.0)));
+        launchAuthorLabelWW.setFont(new Font(LaunchEssentials.launchWWFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize * 0.03)));
+        launchAuthorLabelGame.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize / 40.0)));
+        launchCopyrightLabel.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize / 40.0)));
     }
 
     public double getReferenceHeight() {
