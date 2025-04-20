@@ -303,9 +303,8 @@ public class HexEngine implements HexGrid{
         return positions;
     }
     /**
-     * Eliminates fully occupied lines along I, J, or K axes then return how many blocks are being
-     * eliminated. This method also adds visual effects for disappearing blocks via
-     * {@link GUI.GameEssentials#addAnimation}.
+     * Eliminates fully occupied lines along I, J, or K axes then return the blocks that are being
+     * eliminated.
      * <p>
      * This method will directly modify the hexagonal grid and have access to all the {@link Block}
      * contained in this {@code HexEngine}. This change is permanent. The elimination process consumes
