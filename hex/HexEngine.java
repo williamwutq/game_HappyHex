@@ -1,7 +1,6 @@
-package Hex;
+package hex;
 
-import GUI.GameEssentials;
-
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -13,13 +12,14 @@ import java.util.ArrayList;
  * pattern with its leftmost {@code Block} at origin (0,0), and provides operations such as:
  * <ul>
  *     <li>Grid {@link #HexEngine initialization} and {@link #reset}</li>
+ *     <li>Automatic coloring through {@link #setDefaultBlockColors}</li>
  *     <li>Efficient block {@link #getBlock(int) lookup} using {@link #search binary search}</li>
  *     <li>Grid placement {@link #checkAdd validation} and piece {@link #add insertion}</li>
  *     <li>Line detection and {@link #eliminate elimination} across I/J/K axes</li>
  *     <li>Deep copy support through the {@link #clone} method</li>
  * </ul>
  *
- * <p><b>Grid Structure:</b><br>
+ * <p><h3>Grid Structure:</h3>
  * The hex grid uses an axial coordinate system (i, k), where i - j + k = 0, and j is
  * implicitly derived as j = i + k. The coordinate system has three axes, I, J, K (not
  * to be confused with 3D). I+ is 60 degree from J+, J+ is 60 degree from K+, and K+ is
@@ -29,23 +29,46 @@ import java.util.ArrayList;
  * Blocks are constructed and stored in a sorted array by increasing raw coordinate i and then k.
  * See {@link Hex} for more coordinate information.
  *
- * <p><b>Grid Size:</b><br>
+ * <p><h3>Grid Size:</h3>
  * The total number of blocks in a hexagonal grid of radius {@code r} is calculated as:
  * <pre>
  *     Aₖ = 1 + 3(r)(r - 1)
  * </pre>
  * This is derived from the recursive pattern:
  * <pre>
- *     @code Aₖ = Aₖ₋₁ + 6(k - 1); A₁ = 1
+ *     {@code Aₖ = Aₖ₋₁ + 6(k - 1); A₁ = 1}
  * </pre>
+ *
+ * <p><h3>Block Coloring:</h3>
+ * By default, blocks are visually represented using two colors: one for the empty {@link Block#getState state}
+ * (false) and one for the filled {@code state} (true). These default colors can be configured using the
+ * {@code setDefaultBlockColors} method. When a block's state is updated using {@code setState} or during
+ * {@link #HexEngine initialization} and {@link #reset}, it automatically changes to the corresponding default color.
+ * For full control, the {@link #setBlock} method can be used to manually assign a specific color to a block,
+ * independent of its state. See {@link Block#setColor} for coloring blocks.
+ *
+ * <p><h3>Machine Learning:</h3>
+ * The {@code HexEngine} supports machine learning reward functions by exposing utility methods that help evaluate
+ * the quality and validity of in-game actions. These metrics can guide reinforcement learning agents in making
+ * smarter decisions within the block blast game environment.
+ * <p>
+ * Invalid moves can be discouraged by using the {@link #checkAdd(Hex, HexGrid)} method, which returns {@code false}
+ * for placements that are not allowed—such as overlapping with existing occupied blocks. This can be used to
+ * assign negative rewards to agents attempting illegal placements.
+ * <p>
+ * Rewarding effective gap-filling and spatial efficiency is made possible through the {@link #computeDenseIndex(Hex, HexGrid)}
+ * method. This computes a normalized score (0 to 1) representing how densely the placed grid would interact
+ * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
  * @author William Wu
- * @version 1.1
+ * @version 1.2
  */
 public class HexEngine implements HexGrid{
+    private Color emptyBlockColor;
+    private Color filledBlockColor;
     private int radius;
     private Block[] blocks;
     /**
-     * Constructs a {@code HexEngine} with the specified radius.
+     * Constructs a {@code HexEngine} with the specified radius and default colors.
      * Populates the hexagonal {@link HexGrid block grid} with valid blocks.
      * <p>
      * Each valid grid cell is tested via {@link Block#inRange(int)},
@@ -55,11 +78,15 @@ public class HexEngine implements HexGrid{
      * This property is used by the {@link #search binary search} for lookup efficiency.
      *
      * @param radius the radius of the hexagonal grid, where radius should be greater than 1.
+     * @param emptyBlockColor the default color of {@link Block} when it is empty.
+     * @param filledBlockColor the default color of {@link Block} when it is filled.
      * @see HexGrid
      * @see Block
      */
-    public HexEngine(int radius){
+    public HexEngine(int radius, Color emptyBlockColor, Color filledBlockColor){
         this.radius = radius;
+        this.emptyBlockColor = emptyBlockColor;
+        this.filledBlockColor = filledBlockColor;
         // Calculate array size
         // Recursive Formula Ak = A(k-1) + 6 * (k-1)
         // General Formula: Ak = 1 + 3 * (k-1)*(k)
@@ -68,7 +95,7 @@ public class HexEngine implements HexGrid{
         int i = 0;
         for(int a = 0; a <= radius*2-1; a++){
             for(int b = 0; b <= radius*2-1; b++){
-                Block nb = new Block();
+                Block nb = new Block(new Hex(), emptyBlockColor);
                 nb.moveI(b);
                 nb.moveK(a);
                 if(nb.inRange(radius)){
@@ -85,10 +112,11 @@ public class HexEngine implements HexGrid{
      */
     public void reset(){
         // Set all to empty and default color
-        for (Block block : blocks){
-            block.setColor(GUI.GameEssentials.gameBlockDefaultColor);
-            block.setState(false);
+        Block[] newBlocks = new Block[blocks.length];
+        for (int i = 0; i < blocks.length; i++) {
+            newBlocks[i] = new Block (blocks[i], emptyBlockColor);
         }
+        blocks = newBlocks;
     }
     /**
      * Returns the radius of the grid.
@@ -176,6 +204,29 @@ public class HexEngine implements HexGrid{
         }
     }
     /**
+     * Sets the state of a {@link Block} at a specific grid coordinate.
+     * This performs a {@link #search binary search} to obtain the targeting block.
+     * This automatically set the color of the block depending on its state.
+     *
+     * @param i I coordinate
+     * @param k K coordinate
+     * @param state the new state of the block (true = occupied).
+     */
+    public void setState(int i, int k, boolean state){
+        if(inRange(i, k)){
+            int index = search(i, k, 0, length()-1);
+            if (index >= 0) {
+                Block block = blocks[index];
+                if(block.getState() != state){
+                    block.setState(state);
+                    if(state){
+                        block.setColor(filledBlockColor);
+                    } else block.setColor(emptyBlockColor);
+                }
+            }
+        }
+    }
+    /**
      * Performs a binary search to locate a block at (i, k).
      * Assumes the array is sorted by I, then K.
      *
@@ -204,6 +255,33 @@ public class HexEngine implements HexGrid{
             // first half
             return search(i, k, start, middleIndex-1);
         }
+    }
+    /**
+     * Sets the default block colors used by the HexEngine.
+     * <p>
+     * These default colors are used when a block's state is changed via {@link #setState} or on initialization
+     * and {@link #reset}. For custom coloring, use {@link #setBlock} to manually assign a color to a block.
+     *
+     * @param emptyBlockColor the color used for blocks in the empty (false) state
+     * @param filledBlockColor the color used for blocks in the filled (true) state
+     */
+    public void setDefaultBlockColors(Color emptyBlockColor, Color filledBlockColor){
+        this.emptyBlockColor = emptyBlockColor;
+        this.filledBlockColor = filledBlockColor;
+    }
+    /**
+     * Returns the current default color used for {@link Block} in the empty (false) state.
+     * @return the default filled block color
+     */
+    public Color getEmptyBlockColor(){
+        return emptyBlockColor;
+    }
+    /**
+     * Returns the current default color used for {@link Block} in the filled (true) state.
+     * @return the default filled block color
+     */
+    public Color getFilledBlockColor(){
+        return filledBlockColor;
     }
     /**
      * Checks whether the {@code other} grid can be added to this grid
@@ -292,9 +370,8 @@ public class HexEngine implements HexGrid{
         return positions;
     }
     /**
-     * Eliminates fully occupied lines along I, J, or K axes then return how many blocks are being
-     * eliminated. This method also adds visual effects for disappearing blocks via
-     * {@link GameEssentials#addAnimation}.
+     * Eliminates fully occupied lines along I, J, or K axes then return the blocks that are being
+     * eliminated.
      * <p>
      * This method will directly modify the hexagonal grid and have access to all the {@link Block}
      * contained in this {@code HexEngine}. This change is permanent. The elimination process consumes
@@ -302,9 +379,9 @@ public class HexEngine implements HexGrid{
      * <p>
      * For checking the possibility of eliminating a piece, use the {@link #checkEliminate()} method
      * instead. For adding pieces into this {@code HexEngine}, see {@link #add}.
-     * @return the number of blocks eliminated
+     * @return blocks eliminated
      */
-    public int eliminate(){
+    public Block[] eliminate(){
         // Eliminate according to I, J, K, then return how many blocks are being eliminated
         ArrayList<Block> eliminate = new ArrayList<Block>();
         // Check I
@@ -359,14 +436,13 @@ public class HexEngine implements HexGrid{
             eliminate.addAll(line);
         }
         // Eliminate
-        for(Block block : eliminate){
-            GameEssentials.addAnimation(GameEssentials.createDisappearEffect(block));
-            block.setColor(GUI.GameEssentials.gameBlockDefaultColor);
-            block.setState(false);
-            setBlock(block.getLineI(), block.getLineK(), block);
-            GameEssentials.addAnimation(GameEssentials.createCenterEffect(block));
+        Block[] eliminated = new Block[eliminate.size()];
+        for (int i = 0; i < eliminate.size(); i++) {
+            Block block = eliminate.get(i);
+            eliminated[i] = block.clone();
+            setState(block.getLineI(), block.getLineK(), false);
         }
-        return eliminate.size(); // Number of blocks being eliminated
+        return eliminated; // blocks being eliminated
     }
     /**
      * Checks whether any full line can be eliminated in the hex grid.
@@ -399,12 +475,7 @@ public class HexEngine implements HexGrid{
      */
     public boolean checkEliminateI(int i){
         for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineI() == i){
-                // Found block
-                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
-                    return false;
-                }
-            }
+            if(blocks[index].getLineI() == i && !blocks[index].getState()) return false;
         }
         return true;
     }
@@ -417,12 +488,7 @@ public class HexEngine implements HexGrid{
      */
     public boolean checkEliminateJ(int j){
         for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineJ() == j){
-                // Found block
-                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
-                    return false;
-                }
-            }
+            if(blocks[index].getLineJ() == j && !blocks[index].getState()) return false;
         }
         return true;
     }
@@ -435,35 +501,56 @@ public class HexEngine implements HexGrid{
      */
     public boolean checkEliminateK(int k){
         for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineK() == k){
-                // Found block
-                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
-                    return false;
-                }
-            }
+            if(blocks[index].getLineK() == k && !blocks[index].getState()) return false;
         }
         return true;
     }
     /**
-     * Checks if the block at a specific index is part of the currently hovered-over potential piece placement.
-     * @param index index of the block
-     * @return true if it is part of a candidate placement
-     * @see GameEssentials#getHoveredOverIndex()
+     * Computes a density index score for hypothetically placing another {@link HexGrid} onto this grid.
+     * <p>
+     * The density index is a value between 0 and 1 that represents how "dense" the surrounding area is
+     * when the given {@code other} grid were placed on this grid at the specified {@code origin} coordinate.
+     * A score of 1 represents that all the surrounding blocks of that grid would be filled and 0 represent
+     * that the grid would be "alone" after addition. A higher score indicates a more tightly packed
+     * configuration, which may correlate with better outcomes in certain game strategies or ML reward functions.
+     * <p>
+     * This method is used in reinforcement learning contexts to evaluate placement strategies and learn high-scoring
+     * moves. It checks whether the {@link Block} in {@code other} can be placed without overlapping existing occupied
+     * blocks. For each valid block, it computes how many potential neighbors are unoccupied in {@code other},
+     * and how many are actually occupied in {@code this} grid. These values contribute to the ratio:
+     * <pre>{@code
+     *     denseIndex = totalPopulatedNeighbors / totalPossibleNeighbors
+     * }</pre>
+     *
+     * @param origin the position in which the {@code other} grid is added for hypothetical placement.
+     * @param other the {@link HexGrid} representing a piece to be evaluated for placement.
+     * @return a density index between 0 and 1. Returns 0 if placement is invalid or no potential neighbors exist.
+     * @see #countNeighbors(int, int, boolean)
      */
-    public boolean isPotentialPieceBlock(int index){
-        if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
-            Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
-            Piece piece = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex());
-            hoverBlock = hoverBlock.subtract(piece.getBlock(GameEssentials.getSelectedBlockIndex()));
-            for (int i = 0; i < piece.length(); i++) {
-                Hex position = piece.getBlock(i).thisHex();
-                if (blocks[index].thisHex().equals(hoverBlock.add(position))) {
-                    return true;
+    public double computeDenseIndex(Hex origin, HexGrid other){
+        int totalPossible = 0;
+        int totalPopulated = 0;
+        Block[] otherBlocks = other.blocks();
+        for(int i = 0; i < other.length(); i ++){
+            Hex current = otherBlocks[i];
+            // Null check and state check
+            if (current != null && otherBlocks[i].getState()){
+                current = current.add(origin); // placement
+                Block selfTarget = this.getBlock(current.getLineI(), current.getLineK());
+                if (selfTarget == null || selfTarget.getState()){
+                    // Check for addition possibility
+                    return 0;
+                } else {
+                    totalPossible += (6 - other.countNeighbors(otherBlocks[i].getLineI(), otherBlocks[i].getLineK(), false));
+                    totalPopulated += this.countNeighbors(current.getLineI(), current.getLineK(), true);
                 }
             }
         }
-        return false;
+        if (totalPossible == 0){
+            return 0;
+        } else return (double) totalPopulated / totalPossible;
     }
+
 
     /**
      * Returns a string representation of the grid and block states.
@@ -493,7 +580,7 @@ public class HexEngine implements HexGrid{
             newEngine = (HexEngine) super.clone();
             newEngine.radius = this.radius;
         } catch (CloneNotSupportedException e) {
-            newEngine = new HexEngine(this.radius);
+            newEngine = new HexEngine(this.radius, this.emptyBlockColor, this.filledBlockColor);
         }
         for(int i = 0; i < this.length(); i ++){
             newEngine.blocks[i] = this.blocks[i].clone();

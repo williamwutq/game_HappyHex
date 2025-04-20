@@ -1,4 +1,4 @@
-package Launcher.IO;
+package io;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -58,6 +58,9 @@ public final class Username {
      *     <li>"name"</li>
      *     <li>"club"</li>
      *     <li>"event"</li>
+     *     <li>"out"</li>
+     *     <li>"logout"</li>
+     *     <li>"log out"</li>
      * </ul>
      */
     private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(

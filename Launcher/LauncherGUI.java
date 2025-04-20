@@ -54,8 +54,18 @@ public class LauncherGUI {
                 "Eliminate diagonal lines",
                 "Don't blame the developer",
                 "I made this... at what cost",
+                "Try log in and then log out",
+                "Try to change theme color",
+                "Which theme is your favorite?",
+                "Dislike the color? No problem",
+                "Toggle theme in themes",
+                "Dark theme best theme",
+                "I want to be forever young",
+                "Choose white if you like it",
+                "Choose dark if you like it",
+                "Choose a theme you like",
         };
-        return hints[(int)(Math.random() * hints.length)];
+        return hints[LaunchEssentials.getRandomIndex(hints.length)];
     }
     public static JFrame getMainFrame(){
         if(mainFrame == null){
@@ -98,13 +108,13 @@ public class LauncherGUI {
                 if(LaunchEssentials.isGameStarted()) {
                     // Log if it has score and reset
                     if (GameEssentials.getTurn() != 0) {
-                        System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
+                        System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
                         GameEssentials.logGame();
                     }
                     GameEssentials.resetGame();
                 }
                 // Close
-                System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
+                System.out.println(io.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
             }
         });

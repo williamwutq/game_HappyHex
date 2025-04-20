@@ -1,9 +1,8 @@
 package GUI;
 
 import GUI.animation.*;
-import Hex.HexEngine;
-import Hex.Queue;
-import special.FeatureFactory;
+import hex.HexEngine;
+import game.Queue;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,15 +16,11 @@ import java.awt.*;
 public final class GameEssentials {
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
-    /** A scaling factor used for filling hexagons, ranging between 0.0 and 1.0. */
-    private static double fill = 0.9;
-    /** A scaling factor used for dimming color of hovered over blocks, ranging between 0.0 and 1.0. */
-    private static double dim = 0.8;
     /** The delay to a typical action of the game, in ms*/
     private static int actionDelay = 80;
     /** The main game engine object. */
     private static HexEngine engine;
-    /** The main game queue of pieces, which contain a number of {@link Hex.Piece}. */
+    /** The main game queue of pieces, which contain a number of {@link hex.Piece}. */
     private static Queue queue;
     /** The main window of the game. */
     private static JFrame window;
@@ -44,56 +39,38 @@ public final class GameEssentials {
     private static int score = 0;
 
     // Special Features
-    private static special.SpecialFeature colorProcessor = FeatureFactory.createFeature(Color.class.getName());
+    private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
     private static special.SpecialFeature fontProcessor = special.FeatureFactory.createFeature(Font.class.getName());
-    private static special.SpecialFeature effectProcessor = FeatureFactory.createFeature(Animation.class.getName());
+    private static special.SpecialFeature effectProcessor = special.FeatureFactory.createFeature(Animation.class.getName());
 
     // Random Piece
-    private static final Color[] rawPieceColors = new Color[]{
-            new Color(0, 0, 240),
-            new Color(0, 100, 190),
-            new Color(0, 180, 180),
-            new Color(0, 180, 120),
-            new Color(0, 210, 0),
-            new Color(100, 180, 0),
-            new Color(180, 180, 0),
-            new Color(200, 90, 0),
-            new Color(210, 0, 0),
-            new Color(200, 0, 120),
-            new Color(180, 0, 180),
-            new Color(100, 0, 200),
-    };
-    private static Color[] pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
+    private static Color[] getRawPieceColors(){
+        return new Color[]{
+                new Color(0, 0, 240),
+                new Color(0, 100, 190),
+                new Color(0, 180, 180),
+                new Color(0, 180, 120),
+                new Color(0, 210, 0),
+                new Color(100, 180, 0),
+                new Color(180, 180, 0),
+                new Color(200, 90, 0),
+                new Color(210, 0, 0),
+                new Color(200, 0, 120),
+                new Color(180, 0, 180),
+                new Color(100, 0, 200),
+        };
+    }
+    private static Color[] pieceColors = (Color[]) colorProcessor.process(getRawPieceColors());
 
     public static String gameDisplayFont = GameEssentials.processFont("Courier", "GameDisplayFont");
     public static Color gameBackgroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GameBackgroundColor");
     public static Color gameOverBackgroundColor = GameEssentials.processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
     public static Color gameBlockDefaultColor = GameEssentials.processColor(Color.BLACK, "GameBlockDefaultColor");
     public static Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122), "GamePiecePanelColor");
-    public static Color gamePieceSelectedColor = GameEssentials.processColor(new Color(168, 213, 201), "GamePieceSelectedColor");;
+    public static Color gamePieceSelectedColor = GameEssentials.processColor(new Color(168, 213, 201), "GamePieceSelectedColor");
     public static Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24), "GameDisplayFontColor");
     public static Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7), "GameQuitFontColor");
 
-    /**
-     * Sets the fill ratio for hexagons, ensuring it remains within the valid range (0.0, 1.0].
-     *
-     * @param newFill the new fill ratio to set; must be between 0.0 (exclusive) and 1.0 (inclusive).
-     */
-    public static void setFill(double newFill) {
-        if (newFill <= 1.0 && newFill > 0.0) {
-            fill = newFill;
-        }
-    }
-    /**
-     * Sets the dimming ratio for hovered blocks, ensuring it remains within the valid range (0.0, 1.0].
-     *
-     * @param newDim the new dimming ratio to set; must be between 0.0 (exclusive) and 1.0 (inclusive).
-     */
-    public static void setDim(double newDim) {
-        if (newDim <= 1.0 && newDim > 0.0) {
-            dim = newDim;
-        }
-    }
     /**
      * Sets the typical action delay of the game in ms, must be an integer between 10 and 100000.
      *
@@ -134,7 +111,7 @@ public final class GameEssentials {
         return new Color((origin.getRed())/2, (origin.getGreen())/2, (origin.getBlue())/2);
     }
     public static Color dimColor(Color origin){
-        return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * dim));
+        return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * 0.8));
     }
     public static Color processColor(Color origin){
         return (Color) colorProcessor.process(origin);
@@ -147,12 +124,12 @@ public final class GameEssentials {
     }
     public static void changeColorProcessor(special.SpecialFeature newProcessor){
         colorProcessor = newProcessor;
-        pieceColors = (Color[]) colorProcessor.process(rawPieceColors);
+        pieceColors = (Color[]) colorProcessor.process(getRawPieceColors());
         gameBackgroundColor = processColor(new Color(213, 236, 230), "GamePanelBackgroundColor");
         gameOverBackgroundColor = processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
         gameBlockDefaultColor = processColor(Color.BLACK, "GameBlockDefaultColor");
         gamePiecePanelColor = processColor(new Color(113, 129, 122), "GamePiecePanelBackgroundColor");
-        gamePieceSelectedColor = processColor(new Color(168, 213, 201), "GamePieceSelectedColor");;
+        gamePieceSelectedColor = processColor(new Color(168, 213, 201), "GamePieceSelectedColor");
         gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
     }
@@ -172,7 +149,7 @@ public final class GameEssentials {
      * @see #paintHexagon(Graphics, Color, double, double, double, double) Full version
      */
     public static void paintHexagon(Graphics g, Color color, double size) {
-        paintHexagon(g, color, 0, 0, size, GameEssentials.fill);
+        paintHexagon(g, color, 0, 0, size, 0.9);
     }
     /**
      * Paints a hexagon at a specified (x, y) position with a given color, size, and fill ratio.
@@ -271,9 +248,9 @@ public final class GameEssentials {
     // Initializing
     public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player){
         if(easy) {
-            Hex.Piece.setEasy();
+            game.PieceFactory.setEasy();
         }
-        engine = new HexEngine(size);
+        engine = new HexEngine(size, gameBlockDefaultColor, getIndexedPieceColor(0)); // replace getIndexedPieceColor(0) with something else
         queue = new Queue(queueSize);
         window = frame;
         // Construct labels
@@ -295,12 +272,12 @@ public final class GameEssentials {
         calculateButtonSize();
         calculateLabelSize();
     }
-    public static Animation createCenterEffect(Hex.Block block){
+    public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
         animation.start();
         return animation;
     }
-    public static Animation createDisappearEffect(Hex.Block block){
+    public static Animation createDisappearEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new DisappearEffect(block), block})[0];
         animation.start();
         return animation;
@@ -327,7 +304,7 @@ public final class GameEssentials {
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
-            System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
+            System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();
@@ -358,13 +335,7 @@ public final class GameEssentials {
 
     // Logging at the end
     public static void logGame(){
-        // Temporary implementation: Print to console
-        System.out.println("\n---------- Game Over ----------");
-        System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
-        System.out.println("The total score is " + GameEssentials.score + " points.\n");
-        // Logs
-        Launcher.LaunchEssentials.fetchGameInfo();
-        Launcher.LaunchEssentials.log();
+        Launcher.LaunchEssentials.log(turn, score);
     }
 
     // Scoring

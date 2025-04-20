@@ -1,6 +1,6 @@
 package GUI;
 
-import Hex.*;
+import hex.*;
 import java.awt.Color;
 
 public class PieceButton extends HexButton {

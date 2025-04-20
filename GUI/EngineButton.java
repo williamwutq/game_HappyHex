@@ -1,6 +1,6 @@
 package GUI;
 
-import Hex.*;
+import hex.*;
 import java.awt.Color;
 
 public class EngineButton extends HexButton {
@@ -28,7 +28,7 @@ public class EngineButton extends HexButton {
         // If selected
         if(blockIndex != -1) {
             // If is the range of potential blocks for adding
-            if(isPotentialPieceBlock()){
+            if(isPotentialPieceBlock(getIndex())){
                 Color color = GameEssentials.queue().get(pieceIndex).getColor();
                 return GameEssentials.interpolate(color, GameEssentials.gameBackgroundColor, 1);
             }
@@ -98,8 +98,20 @@ public class EngineButton extends HexButton {
     protected void removed(){
         GameEssentials.setHoveredOverIndex(-1);
     }
-    private boolean isPotentialPieceBlock(){
-        return GameEssentials.engine().isPotentialPieceBlock(getIndex());
+    private boolean isPotentialPieceBlock(int index){
+        if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
+            Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
+            Piece piece = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex());
+            HexEngine engine = GameEssentials.engine();
+            hoverBlock = hoverBlock.subtract(piece.getBlock(GameEssentials.getSelectedBlockIndex()));
+            for (int i = 0; i < piece.length(); i++) {
+                Hex position = piece.getBlock(i).thisHex();
+                if (engine.getBlock(index).thisHex().equals(hoverBlock.add(position))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     private boolean isPotentialEliminationTarget(){
         if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
@@ -109,12 +121,48 @@ public class EngineButton extends HexButton {
             for (int i = 0; i < piece.length(); i++) {
                 Hex position = hoverBlock.add(piece.getBlock(i).thisHex());
                 Hex current = fetchBlock().thisHex();
-                if(GameEssentials.engine().checkEliminateI(position.getLineI()) && current.inLineI(position) ||
-                   GameEssentials.engine().checkEliminateJ(position.getLineJ()) && current.inLineJ(position) ||
-                   GameEssentials.engine().checkEliminateK(position.getLineK()) && current.inLineK(position)
+                if(simulateEliminateI(position.getLineI()) && current.inLineI(position) ||
+                   simulateEliminateJ(position.getLineJ()) && current.inLineJ(position) ||
+                   simulateEliminateK(position.getLineK()) && current.inLineK(position)
                 ) return true;
             }
         }
         return false;
+    }
+    private boolean simulateEliminateI(int i){
+        HexEngine engine = GameEssentials.engine();
+        for(int index = 0; index < engine.length(); index ++){
+            if(engine.getBlock(index).getLineI() == i){
+                // Found block
+                if(!(engine.getBlock(index).getState() || isPotentialPieceBlock(index))){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private boolean simulateEliminateJ(int j){
+        HexEngine engine = GameEssentials.engine();
+        for(int index = 0; index < engine.length(); index ++){
+            if(engine.getBlock(index).getLineJ() == j){
+                // Found block
+                if(!(engine.getBlock(index).getState() || isPotentialPieceBlock(index))){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    private boolean simulateEliminateK(int k){
+        HexEngine engine = GameEssentials.engine();
+        for(int index = 0; index < engine.length(); index ++){
+            if(engine.getBlock(index).getLineK() == k){
+                // Found block
+                if(!(engine.getBlock(index).getState() || isPotentialPieceBlock(index))){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

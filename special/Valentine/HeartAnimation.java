@@ -6,9 +6,9 @@ import GUI.animation.Animation;
 import java.awt.*;
 
 public class HeartAnimation extends Animation {
-    private Hex.Hex hex;
+    private hex.Hex hex;
     private Color color;
-    public HeartAnimation(Hex.Block block){
+    public HeartAnimation(hex.Block block){
         super(2000, 1);
         this.hex = block.thisHex();
         this.color = new Color(255, 102, 153);

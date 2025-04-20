@@ -1,9 +1,9 @@
 package Launcher;
 
 import GUI.GameEssentials;
-import Launcher.IO.*;
+import io.*;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 
 /**
@@ -12,9 +12,12 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 1, 3);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 2, 1);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
+
+    // Random
+    private static final java.util.Random randomGenerator = new java.util.Random();
 
     // Game info
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
@@ -53,6 +56,9 @@ public final class LaunchEssentials {
     public static String launchSettingsFont = GameEssentials.processFont("Courier", "MonoFont");
     public static String launchSettingsSlidingButtonFont = GameEssentials.processFont("Helvetica", "SlidingButtonFont");
 
+    public static int getRandomIndex(int length){
+        return randomGenerator.nextInt(length);
+    }
     public static void setTheme(int featureIndex){
         themeIndex = featureIndex;
         GameEssentials.changeColorProcessor(special.FeatureFactory.createFeature(Color.class.getName(), featureIndex + ""));
@@ -128,7 +134,7 @@ public final class LaunchEssentials {
         return currentGameInfo.getPlayer().toString();
     }
     public static void initialize(){
-        currentGameInfo = new GameInfo(GameMode.Small);
+        currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }
@@ -179,9 +185,6 @@ public final class LaunchEssentials {
     }
     public static boolean isLargeMode(){
         return currentGameInfo.getGameMode() == GameMode.Large || currentGameInfo.getGameMode() == GameMode.LargeEasy;
-    }
-    public static void fetchGameInfo(){
-        currentGameInfo = new GameInfo(GameEssentials.getTurn(), GameEssentials.getScore(), Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
     }
     public static void updateRecent(){
         currentPlayerInfo.setRecentTurn(currentGameInfo.getTurn());
@@ -249,19 +252,28 @@ public final class LaunchEssentials {
         return (int) Math.round(currentPlayerInfo.getAvgTurn());
     }
 
-    public static boolean log(){
+    public static boolean log(int turn, int score){
+        // Print to console
+        System.out.println(GameTime.generateSimpleTime() +
+                " GameEssentials: This game lasted for " + turn +
+                " turn" + (turn == 1 ? "" : "s") + ", resulting in a total score of " + score +
+                " point" + (score == 1 ? "" : "s") + ".");
+        // Try to read previous logs
         try {
             LaunchLogger.read();
         } catch (IOException e) {
             System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
         }
+        // Update current information
         currentPlayerInfo.eraseStats();
+        currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
+                new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
         LaunchLogger.addGame(currentGameInfo);
         updateRecent();
         updateHighest();
         updateOnGame();
         try {
-            LaunchLogger.write();
+            LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
             LaunchLogger.resetLoggerInfo();
             return true;
         } catch (IOException e) {
