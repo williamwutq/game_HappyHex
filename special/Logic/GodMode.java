@@ -78,14 +78,14 @@ public class GodMode implements SpecialFeature{
             } catch (CloneNotSupportedException e) {}
             if (calculateAdditionOpportunities(engine, (Piece) objects[0]) < 2) {
                 ArrayList<Piece> candidates = new ArrayList<Piece>();
-                for (int index = 0; index < Piece.getMaxPieceIndex(); index++) {
-                    Piece candidate = Piece.getIndexedPiece(index);
+                for (int index = 0; index < game.PieceFactory.getMaxPieceIndex(); index++) {
+                    Piece candidate = game.PieceFactory.getIndexedPiece(index);
                     int opportunities = calculateAdditionOpportunities(engine, candidate);
                     if (opportunities > 0) {
                         candidates.add(candidate);
                     }
                 }
-                if(candidates.size() == 0) candidates.add(Piece.uno());
+                if(candidates.size() == 0) candidates.add(game.PieceFactory.uno());
                 return new Piece[]{candidates.get((int) (candidates.size() * Math.random()))};
             }
         }

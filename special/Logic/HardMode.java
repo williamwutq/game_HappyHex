@@ -1,5 +1,6 @@
 package special.Logic;
 
+import game.PieceFactory;
 import hex.Block;
 import hex.HexEngine;
 import hex.Piece;
@@ -82,8 +83,8 @@ public class HardMode implements SpecialFeature{
                     // Implementation: get the most difficult pne
                     HexEngine engine = (HexEngine) objects[2];
                     ArrayList<Piece> candidates = new ArrayList<Piece>();
-                    for (int index = 0; index < Piece.getMaxPieceIndex() - 2; index ++){
-                        Piece candidate = Piece.getIndexedPiece(index);
+                    for (int index = 0; index < PieceFactory.getMaxPieceIndex() - 2; index ++){
+                        Piece candidate = PieceFactory.getIndexedPiece(index);
                         int opportunities = calculateAdditionOpportunities(engine, candidate);
                         if(opportunities < 6){
                             candidates.add(candidate);
@@ -99,36 +100,36 @@ public class HardMode implements SpecialFeature{
                             result = hollow();
                         }
                     } if (rando == 1 || rando == 9){
-                        if(calculateAdditionOpportunities(engine, Piece.fan4A()) > 0) {
-                            result = Piece.fan4A();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.fan4A()) > 0) {
+                            result = PieceFactory.fan4A();
                         }
                     } else if (rando == 2|| rando == 10){
-                        if(calculateAdditionOpportunities(engine, Piece.fan4B()) > 0) {
-                            result = Piece.fan4B();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.fan4B()) > 0) {
+                            result = PieceFactory.fan4B();
                         }
                     } else if (rando == 3){
-                        if(calculateAdditionOpportunities(engine, Piece.fan4A()) > 0) {
-                            result = Piece.corner4Il();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.fan4A()) > 0) {
+                            result = PieceFactory.corner4Il();
                         }
                     } else if (rando == 4){
-                        if(calculateAdditionOpportunities(engine, Piece.corner4Ir()) > 0) {
-                            result = Piece.corner4Ir();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.corner4Ir()) > 0) {
+                            result = PieceFactory.corner4Ir();
                         }
                     } else if (rando == 5){
-                        if(calculateAdditionOpportunities(engine, Piece.corner4Jl()) > 0) {
-                            result = Piece.corner4Jl();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.corner4Jl()) > 0) {
+                            result = PieceFactory.corner4Jl();
                         }
                     } else if (rando == 6){
-                        if(calculateAdditionOpportunities(engine, Piece.corner4Jr()) > 0) {
-                            result = Piece.corner4Jr();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.corner4Jr()) > 0) {
+                            result = PieceFactory.corner4Jr();
                         }
                     } else if (rando == 7){
-                        if(calculateAdditionOpportunities(engine, Piece.corner4Kl()) > 0) {
-                            result = Piece.corner4Kl();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.corner4Kl()) > 0) {
+                            result = PieceFactory.corner4Kl();
                         }
                     } else if (rando == 8){
-                        if(calculateAdditionOpportunities(engine, Piece.corner4Kr()) > 0) {
-                            result = Piece.corner4Kr();
+                        if(calculateAdditionOpportunities(engine, PieceFactory.corner4Kr()) > 0) {
+                            result = PieceFactory.corner4Kr();
                         }
                     }
                     return new Object[]{result};

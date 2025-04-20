@@ -2,7 +2,7 @@ package GUI;
 
 import GUI.animation.*;
 import hex.HexEngine;
-import hex.Queue;
+import game.Queue;
 
 import javax.swing.*;
 import java.awt.*;
@@ -262,7 +262,7 @@ public final class GameEssentials {
     // Initializing
     public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player){
         if(easy) {
-            hex.Piece.setEasy();
+            game.PieceFactory.setEasy();
         }
         engine = new HexEngine(size);
         queue = new Queue(queueSize);

@@ -10,7 +10,6 @@
  *   <li>{@link hex.Piece} – Models a game piece as a collection of {@code Block} objects arranged as a smaller hex grid.</li>
  *   <li>{@link hex.HexEngine} – Implements {@code HexGrid} to manage the overall hexagonal grid for game purposes,
  *       including block lookup, grid reset, and elimination operations.</li>
- *   <li>{@link hex.Queue} – Maintains a fixed-length queue of {@code Piece} objects, automatically generating new pieces upon consumption.</li>
  * </ul>
  * </p>
  *
