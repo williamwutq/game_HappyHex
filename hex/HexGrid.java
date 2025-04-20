@@ -82,7 +82,7 @@ public interface HexGrid {
      * @see #add(Hex, HexGrid)
      */
     default void add (HexGrid other) throws IllegalArgumentException{
-        add(new Block(), other);
+        add(new Hex(), other);
     }
     /**
      * Counts the number of occupied neighboring {@link Block} around the given {@link Hex position} in the hexagonal grid.
