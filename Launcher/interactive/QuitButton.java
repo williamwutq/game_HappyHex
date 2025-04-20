@@ -11,7 +11,7 @@ public class QuitButton extends LaunchButton {
     protected void clicked() {
         // Log if there exist game and score
         if(Launcher.LaunchEssentials.isGameStarted() && GUI.GameEssentials.getTurn() != 0){
-            System.err.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Unexpected game information detected. Please relaunch game.");
+            System.err.println(io.GameTime.generateSimpleTime() + " GameEssentials: Unexpected game information detected. Please relaunch game.");
             GUI.GameEssentials.logGame();
         }
         Launcher.LauncherGUI.returnHome();

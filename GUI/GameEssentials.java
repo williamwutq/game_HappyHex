@@ -318,7 +318,7 @@ public final class GameEssentials {
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
-            System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
+            System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();

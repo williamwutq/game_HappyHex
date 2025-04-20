@@ -1,4 +1,4 @@
-package Launcher.IO;
+package io;
 
 import java.util.Arrays;
 import java.util.HashSet;

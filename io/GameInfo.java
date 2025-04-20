@@ -1,4 +1,4 @@
-package Launcher.IO;
+package io;
 
 import javax.json.*;
 

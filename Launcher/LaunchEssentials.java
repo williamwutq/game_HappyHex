@@ -1,7 +1,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
-import Launcher.IO.*;
+import io.*;
 
 import java.awt.*;
 import java.io.IOException;

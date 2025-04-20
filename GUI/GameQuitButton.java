@@ -9,7 +9,7 @@ public final class GameQuitButton extends SimpleButton {
         if(Launcher.LaunchEssentials.isGameStarted()) {
             // Log if it has score and reset
             if (GameEssentials.getTurn() != 0) {
-                System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
+                System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
                 GameEssentials.logGame();
             }
             GameEssentials.resetGame();
