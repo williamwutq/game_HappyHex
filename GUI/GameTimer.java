@@ -11,7 +11,15 @@ public class GameTimer extends Timer implements ActionListener {
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        GameEssentials.incrementScore(5 * GameEssentials.engine().eliminate());
+        // Run animation
+        hex.Block[] eliminated = GameEssentials.engine().eliminate();
+        // Add animation
+        for(hex.Block block : eliminated){
+            GameEssentials.addAnimation(GameEssentials.createDisappearEffect(block));
+            GameEssentials.addAnimation(GameEssentials.createCenterEffect(new hex.Block(block)));
+        }
+        // Add score
+        GameEssentials.incrementScore(5 * eliminated.length);
         // Check end after eliminate
         GameEssentials.checkEnd();
         GameEssentials.window().repaint();

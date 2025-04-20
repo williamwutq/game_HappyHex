@@ -313,9 +313,9 @@ public class HexEngine implements HexGrid{
      * <p>
      * For checking the possibility of eliminating a piece, use the {@link #checkEliminate()} method
      * instead. For adding pieces into this {@code HexEngine}, see {@link #add}.
-     * @return the number of blocks eliminated
+     * @return blocks eliminated
      */
-    public int eliminate(){
+    public Block[] eliminate(){
         // Eliminate according to I, J, K, then return how many blocks are being eliminated
         ArrayList<Block> eliminate = new ArrayList<Block>();
         // Check I
@@ -371,11 +371,9 @@ public class HexEngine implements HexGrid{
         }
         // Eliminate
         for(Block block : eliminate){
-            GUI.GameEssentials.addAnimation(GUI.GameEssentials.createDisappearEffect(block)); // remove dependency
             setBlock(block.getLineI(), block.getLineK(), new Block(block));
-            GUI.GameEssentials.addAnimation(GUI.GameEssentials.createCenterEffect(block)); // remove dependency
         }
-        return eliminate.size(); // Number of blocks being eliminated
+        return eliminate.toArray(new Block[0]); // blocks being eliminated
     }
     /**
      * Checks whether any full line can be eliminated in the hex grid.
