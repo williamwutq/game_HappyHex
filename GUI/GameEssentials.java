@@ -1,8 +1,8 @@
 package GUI;
 
 import GUI.animation.*;
-import Hex.HexEngine;
-import Hex.Queue;
+import hex.HexEngine;
+import game.Queue;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +20,7 @@ public final class GameEssentials {
     private static int actionDelay = 80;
     /** The main game engine object. */
     private static HexEngine engine;
-    /** The main game queue of pieces, which contain a number of {@link Hex.Piece}. */
+    /** The main game queue of pieces, which contain a number of {@link hex.Piece}. */
     private static Queue queue;
     /** The main window of the game. */
     private static JFrame window;
@@ -240,9 +240,9 @@ public final class GameEssentials {
     // Initializing
     public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player){
         if(easy) {
-            Hex.Piece.setEasy();
+            game.PieceFactory.setEasy();
         }
-        engine = new HexEngine(size);
+        engine = new HexEngine(size, gameBlockDefaultColor, getIndexedPieceColor(0)); // replace getIndexedPieceColor(0) with something else
         queue = new Queue(queueSize);
         window = frame;
         // Construct labels
@@ -264,12 +264,12 @@ public final class GameEssentials {
         calculateButtonSize();
         calculateLabelSize();
     }
-    public static Animation createCenterEffect(Hex.Block block){
+    public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
         animation.start();
         return animation;
     }
-    public static Animation createDisappearEffect(Hex.Block block){
+    public static Animation createDisappearEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new DisappearEffect(block), block})[0];
         animation.start();
         return animation;
@@ -296,7 +296,7 @@ public final class GameEssentials {
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
-            System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
+            System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();

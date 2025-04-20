@@ -1,6 +1,6 @@
 package Launcher.interactive;
 
-import Launcher.IO.Username;
+import io.Username;
 
 import javax.swing.*;
 import javax.swing.border.*;

@@ -5,24 +5,24 @@ import GUI.GameEssentials;
 import java.awt.*;
 
 /**
- * An animation that draws a hexagon outline centered on a specified {@code Hex.Block},
+ * An animation that draws a hexagon outline centered on a specified {@code hex.Block},
  * decreasing in opaqueness and size over time.
  * <p>
  * This class extends {@link Animation} to create a visual effect where a hexagon outline,
  * initially larger than the standard hexagon size, gradually shrinks and fades into the background.
- * The hexagon's position and color are derived from a {@link Hex.Block} object, with its center
+ * The hexagon's position and color are derived from a {@link hex.Block} object, with its center
  * defined by the block's X and Y coordinates. The animation uses a fixed duration of 2000 frames
  * with a 1ms delay between frames, creating a smooth transition effect suitable for highlighting
  * a specific block in the game.
  */
 public class CenteringEffect extends Animation {
-    private Hex.Block block;
+    private hex.Block block;
     /**
-     * Constructs a {@code CenteringEffect} animation for a given {@link Hex.Block}.
+     * Constructs a {@code CenteringEffect} animation for a given {@link hex.Block}.
      * This animation last for 2 seconds, with 1 millisecond per frame.
-     * @param block the {@code Hex.Block} defining the hexagon's center position and color.
+     * @param block the {@code hex.Block} defining the hexagon's center position and color.
      */
-    public CenteringEffect(Hex.Block block){
+    public CenteringEffect(hex.Block block){
         super(2000, 1);
         this.block = block;
         resetSize();

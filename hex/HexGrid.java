@@ -1,4 +1,4 @@
-package Hex;
+package hex;
 
 /**
  * Interface for a two-dimensional hexagonal grid composed of {@link Block} objects.
@@ -69,7 +69,7 @@ public interface HexGrid {
     /**
      * Adds all blocks from another {@link HexGrid} to this grid, aligning them based on a specified {@link Hex} coordinate.
      *
-     * @param origin the reference {@code Hex} position for alignment.
+     * @param origin the reference {@code hex} position for alignment.
      * @param other  the other {@code HexGrid} to merge into this grid.
      * @throws IllegalArgumentException if the grids cannot be merged due to alignment issues.
      */
@@ -82,7 +82,7 @@ public interface HexGrid {
      * @see #add(Hex, HexGrid)
      */
     default void add (HexGrid other) throws IllegalArgumentException{
-        add(new Block(), other);
+        add(new Hex(), other);
     }
     /**
      * Counts the number of occupied neighboring {@link Block} around the given {@link Hex position} in the hexagonal grid.

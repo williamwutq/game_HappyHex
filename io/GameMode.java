@@ -1,4 +1,4 @@
-package Launcher.IO;
+package io;
 
 /**
  * Represents the difficulty and size presets available for the game.

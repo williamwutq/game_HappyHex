@@ -1,4 +1,4 @@
-package Launcher.IO;
+package io;
 
 import javax.json.*;
 import javax.json.stream.*;
@@ -247,17 +247,17 @@ public final class LaunchLogger {
      * @throws IOException If writing fails for all file paths.
      * @see JsonConvertible
      */
-    public static void write() throws IOException {
+    public static void write(String gameName, String gameEvironment, GameVersion gameVersion) throws IOException {
         // Create JSON Object
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
         // Write basics
-        jsonObjectBuilder.add("Game", Launcher.LaunchEssentials.currentGameName);
-        jsonObjectBuilder.add("Environment", Launcher.LaunchEssentials.currentEnvironment);
+        jsonObjectBuilder.add("Game", gameName);
+        jsonObjectBuilder.add("Environment", gameEvironment);
         jsonObjectBuilder.add("Generator", "LaunchLogger");
         jsonObjectBuilder.add("GeneratorID", ID);
 
         // Write version
-        jsonObjectBuilder.add("Version", Launcher.LaunchEssentials.currentGameVersion.toJsonObject());
+        jsonObjectBuilder.add("Version", gameVersion.toJsonObject());
 
         // Write scores
         JsonArrayBuilder scoresJsonArray = Json.createArrayBuilder();

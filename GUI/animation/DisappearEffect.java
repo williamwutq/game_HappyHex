@@ -8,15 +8,15 @@ import java.awt.*;
  * An animation that creates a wave-like, shrinking, and fading effect centered on a hexagonal block.
  * <p>
  * This class extends {@link Animation} to produce a dynamic visual effect where a polygon, initially centered
- * on a {@link Hex.Hex} coordinate from a {@link Hex.Block}, shrinks and fades over 2000 frames with a 1ms delay
+ * on a {@link hex.Hex} coordinate from a {@link hex.Block}, shrinks and fades over 2000 frames with a 1ms delay
  * per frame. The polygon's shape resembles a wave, with crests and troughs that oscillate, creating a pattern where
  * crests periodically transform into troughs and vice versa. This effect is ideal for visually indicating the
  * disappearance or dissolution of hexagonal blocks in the game.
  */
 public class DisappearEffect extends Animation {
-    private Hex.Hex hex;
+    private hex.Hex hex;
     private Color color;
-    public DisappearEffect(Hex.Block block){
+    public DisappearEffect(hex.Block block){
         super(2000, 1);
         this.hex = block.thisHex();
         this.color = new Color(block.color().getRed(), block.color().getGreen(), block.color().getBlue());
@@ -26,7 +26,7 @@ public class DisappearEffect extends Animation {
      * Resets the size and position of the animation component based on the hexagonal coordinates.
      * <p>
      * This method calculates the dimensions and bounds of the animation using the active hexagon size from
-     * {@link GUI.HexButton#getActiveSize()} and the coordinates from the {@link Hex.Block} object. The
+     * {@link GUI.HexButton#getActiveSize()} and the coordinates from the {@link hex.Block} object. The
      * component is sized to fit a hexagon and positioned at the block's center, adjusted by offsets from
      * {@link GameEssentials#getGamePanelWidthExtension()} and
      * {@code GameEssentials#getGamePanelHeightExtension()}
