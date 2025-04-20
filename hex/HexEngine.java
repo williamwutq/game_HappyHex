@@ -1,7 +1,5 @@
 package hex;
 
-import GUI.GameEssentials;
-
 import java.util.ArrayList;
 
 /**
@@ -97,10 +95,11 @@ public class HexEngine implements HexGrid{
      */
     public void reset(){
         // Set all to empty and default color
-        for (Block block : blocks){
-            block.setColor(GUI.GameEssentials.gameBlockDefaultColor);
-            block.setState(false);
+        Block[] newBlocks = new Block[blocks.length];
+        for (int i = 0; i < blocks.length; i++) {
+            newBlocks[i] = new Block (blocks[i]);
         }
+        blocks = newBlocks;
     }
     /**
      * Returns the radius of the grid.
@@ -306,7 +305,7 @@ public class HexEngine implements HexGrid{
     /**
      * Eliminates fully occupied lines along I, J, or K axes then return how many blocks are being
      * eliminated. This method also adds visual effects for disappearing blocks via
-     * {@link GameEssentials#addAnimation}.
+     * {@link GUI.GameEssentials#addAnimation}.
      * <p>
      * This method will directly modify the hexagonal grid and have access to all the {@link Block}
      * contained in this {@code HexEngine}. This change is permanent. The elimination process consumes
@@ -372,11 +371,9 @@ public class HexEngine implements HexGrid{
         }
         // Eliminate
         for(Block block : eliminate){
-            GameEssentials.addAnimation(GameEssentials.createDisappearEffect(block));
-            block.setColor(GUI.GameEssentials.gameBlockDefaultColor);
-            block.setState(false);
-            setBlock(block.getLineI(), block.getLineK(), block);
-            GameEssentials.addAnimation(GameEssentials.createCenterEffect(block));
+            GUI.GameEssentials.addAnimation(GUI.GameEssentials.createDisappearEffect(block)); // remove dependency
+            setBlock(block.getLineI(), block.getLineK(), new Block(block));
+            GUI.GameEssentials.addAnimation(GUI.GameEssentials.createCenterEffect(block)); // remove dependency
         }
         return eliminate.size(); // Number of blocks being eliminated
     }
@@ -413,7 +410,7 @@ public class HexEngine implements HexGrid{
         for(int index = 0; index < length(); index ++){
             if(blocks[index].getLineI() == i){
                 // Found block
-                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
+                if(!(blocks[index].getState())){
                     return false;
                 }
             }
@@ -431,7 +428,7 @@ public class HexEngine implements HexGrid{
         for(int index = 0; index < length(); index ++){
             if(blocks[index].getLineJ() == j){
                 // Found block
-                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
+                if(!(blocks[index].getState())){
                     return false;
                 }
             }
@@ -449,32 +446,12 @@ public class HexEngine implements HexGrid{
         for(int index = 0; index < length(); index ++){
             if(blocks[index].getLineK() == k){
                 // Found block
-                if(!(blocks[index].getState() || isPotentialPieceBlock(index))){
+                if(!(blocks[index].getState())){
                     return false;
                 }
             }
         }
         return true;
-    }
-    /**
-     * Checks if the block at a specific index is part of the currently hovered-over potential piece placement.
-     * @param index index of the block
-     * @return true if it is part of a candidate placement
-     * @see GameEssentials#getHoveredOverIndex()
-     */
-    public boolean isPotentialPieceBlock(int index){
-        if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
-            Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
-            Piece piece = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex());
-            hoverBlock = hoverBlock.subtract(piece.getBlock(GameEssentials.getSelectedBlockIndex()));
-            for (int i = 0; i < piece.length(); i++) {
-                Hex position = piece.getBlock(i).thisHex();
-                if (blocks[index].thisHex().equals(hoverBlock.add(position))) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
     /**
      * Computes a density index score for hypothetically placing another {@link HexGrid} onto this grid.

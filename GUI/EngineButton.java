@@ -99,7 +99,19 @@ public class EngineButton extends HexButton {
         GameEssentials.setHoveredOverIndex(-1);
     }
     private boolean isPotentialPieceBlock(){
-        return GameEssentials.engine().isPotentialPieceBlock(getIndex());
+        if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
+            Hex hoverBlock = GameEssentials.engine().getBlock(GameEssentials.getHoveredOverIndex()).thisHex();
+            Piece piece = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex());
+            HexEngine engine = GameEssentials.engine();
+            hoverBlock = hoverBlock.subtract(piece.getBlock(GameEssentials.getSelectedBlockIndex()));
+            for (int i = 0; i < piece.length(); i++) {
+                Hex position = piece.getBlock(i).thisHex();
+                if (engine.getBlock(getIndex()).thisHex().equals(hoverBlock.add(position))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     private boolean isPotentialEliminationTarget(){
         if (GameEssentials.getHoveredOverIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1) {
