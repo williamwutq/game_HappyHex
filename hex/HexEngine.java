@@ -408,12 +408,7 @@ public class HexEngine implements HexGrid{
      */
     public boolean checkEliminateI(int i){
         for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineI() == i){
-                // Found block
-                if(!(blocks[index].getState())){
-                    return false;
-                }
-            }
+            if(blocks[index].getLineI() == i && !blocks[index].getState()) return false;
         }
         return true;
     }
@@ -426,12 +421,7 @@ public class HexEngine implements HexGrid{
      */
     public boolean checkEliminateJ(int j){
         for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineJ() == j){
-                // Found block
-                if(!(blocks[index].getState())){
-                    return false;
-                }
-            }
+            if(blocks[index].getLineJ() == j && !blocks[index].getState()) return false;
         }
         return true;
     }
@@ -444,12 +434,7 @@ public class HexEngine implements HexGrid{
      */
     public boolean checkEliminateK(int k){
         for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineK() == k){
-                // Found block
-                if(!(blocks[index].getState())){
-                    return false;
-                }
-            }
+            if(blocks[index].getLineK() == k && !blocks[index].getState()) return false;
         }
         return true;
     }
