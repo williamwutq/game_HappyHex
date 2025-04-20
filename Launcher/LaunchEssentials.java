@@ -129,7 +129,7 @@ public final class LaunchEssentials {
         return currentGameInfo.getPlayer().toString();
     }
     public static void initialize(){
-        currentGameInfo = new GameInfo(GameMode.Small);
+        currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }

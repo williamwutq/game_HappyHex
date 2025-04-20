@@ -1,14 +1,12 @@
 package Launcher.IO;
 
-import Launcher.LaunchEssentials;
-
 import javax.json.*;
 
 /**
  * Represents game session information such as player identity, score, turn, mode, and versioning.
  * This class is immutable in part and serializable via the {@link JsonConvertible} interface.
  * <p>
- * {@code GameInfo} objects can either be {@link #GameInfo(GameMode) created with default values}
+ * {@code GameInfo} objects can either be {@link #GameInfo(GameMode, GameVersion) created with default values}
  * as if it was an unspecified guest player, or via the fully populated
  * {@link #GameInfo(int, int, String, Username, GameTime, String, GameMode, GameVersion) constructor}.
  * <p>
@@ -44,11 +42,12 @@ public final class GameInfo implements JsonConvertible{
     /**
      * Create a new {@code GameInfo} with default player and a specified {@link GameMode}.
      * This constructor initializes the player as {@code "Guest"} (ID = {@code -1}), generates a new {@code GameID},
-     * and sets the game version to the {@link LaunchEssentials#currentGameVersion current version} of the running process.
+     * and sets the game version.
      *
      * @param mode the {@link GameMode} to initialize with
+     * @param version    the {@link GameVersion} in use
      */
-    public GameInfo(GameMode mode) {
+    public GameInfo(GameMode mode, GameVersion version) {
         this.turn = 0;
         this.score = 0;
         this.playerID = -1;
@@ -56,7 +55,7 @@ public final class GameInfo implements JsonConvertible{
         this.time = new GameTime();
         this.gameID = LaunchLogger.generateHash(0);
         this.gameMode = mode;
-        this.gameVersion = LaunchEssentials.currentGameVersion;
+        this.gameVersion = version;
     }
     /**
      * Constructs a fully populated {@code GameInfo} object, typically used for deserialization.
