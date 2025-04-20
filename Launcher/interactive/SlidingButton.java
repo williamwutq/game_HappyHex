@@ -1,6 +1,7 @@
 package Launcher.interactive;
 
 import Launcher.LaunchEssentials;
+import Launcher.Recolorable;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -15,7 +16,7 @@ import java.awt.event.*;
  * toggle control, such as settings panels or dashboards.
  * <p>
  * The component integrates with {@link LaunchEssentials} for consistent theming, including colors
- * and fonts, and implements the {@link GUI.Recolorable} interface to support dynamic color updates.
+ * and fonts, and implements the {@link Recolorable} interface to support dynamic color updates.
  * The button dynamically resizes based on its container, recalculating dimensions, borders, and
  * font sizes to maintain a polished appearance. It also provides hooks for subclasses to respond
  * to state changes via the {@link #turnedOn()} and {@link #turnedOff()} methods.
@@ -29,9 +30,9 @@ import java.awt.event.*;
  * @author William Wu
  * @version 1.2
  * @see LaunchEssentials
- * @see GUI.Recolorable
+ * @see Recolorable
  */
-public class SlidingButton extends JComponent implements ComponentListener, GUI.Recolorable {
+public class SlidingButton extends JComponent implements ComponentListener, Recolorable {
     /** The current state of the button: {@code true} for ON, {@code false} for OFF. */
     private boolean state;
     /** The radius used for rounded corners, derived from the component's dimensions. */
@@ -235,7 +236,7 @@ public class SlidingButton extends JComponent implements ComponentListener, GUI.
      * Resets the colors of the button to match the current settings in {@link LaunchEssentials}. Updates the
      * ON and OFF colors, the inner button's background, and the component's background based on the current state.
      * <p>
-     * This method is part of the {@link GUI.Recolorable} interface and can be called when the application's color
+     * This method is part of the {@link Recolorable} interface and can be called when the application's color
      * scheme is updated, ensuring the button remains visually consistent with the theme.
      */
     public final void resetColor() {
