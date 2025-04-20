@@ -327,13 +327,7 @@ public final class GameEssentials {
 
     // Logging at the end
     public static void logGame(){
-        // Temporary implementation: Print to console
-        System.out.println("\n---------- Game Over ----------");
-        System.out.println("This game lasted for " + GameEssentials.turn + " turns.");
-        System.out.println("The total score is " + GameEssentials.score + " points.\n");
-        // Logs
-        Launcher.LaunchEssentials.fetchGameInfo();
-        Launcher.LaunchEssentials.log();
+        Launcher.LaunchEssentials.log(turn, score);
     }
 
     // Scoring
