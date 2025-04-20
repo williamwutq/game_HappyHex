@@ -21,34 +21,13 @@ import java.awt.*;
  *
  * @see Hex
  * @author William Wu
- * @version 1.1
+ * @version 1.2
  */
 public class Block extends Hex{
     private Color color;
     private boolean state;
 
     // Basic constructors
-    /**
-     * Default constructor initializing the block at (0,0) with default color and unoccupied state.
-     */
-    public Block(){
-        // Basic constructor
-        super();
-        this.state = false;
-        this.color = GUI.GameEssentials.gameBlockDefaultColor;
-    }
-    /**
-     * Constructs a block at the specified (i, k) coordinates and unoccupied state.
-     *
-     * @param i The i-coordinate.
-     * @param k The k-coordinate.
-     */
-    public Block(int i, int k){
-        // Coordinate constructor
-        super(i, k);
-        this.state = false;
-        this.color = GUI.GameEssentials.gameBlockDefaultColor;
-    }
     /**
      * Constructs a block at the specified (i, k) coordinates with a specified color and unoccupied state.
      *
@@ -75,18 +54,6 @@ public class Block extends Hex{
         super(i, k);
         this.color = color;
         this.state = state;
-    }
-    /**
-     * Constructs a block at the specified hex coordinates and unoccupied state.
-     *
-     * @param hex the coordinate.
-     */
-    public Block(Hex hex){
-        // Coordinate constructor
-        super();
-        super.set(hex);
-        this.state = false;
-        this.color = GUI.GameEssentials.gameBlockDefaultColor;
     }
     /**
      * Constructs a block at the specified hex coordinates with a specified color and unoccupied state.
@@ -118,25 +85,6 @@ public class Block extends Hex{
 
     // Line constructors (static)
     // Please use those for the game instead of the old constructors
-    /**
-     * Creates a default block at (0,0) with black color and unoccupied state.
-     *
-     * @return A new block instance at the origin.
-     */
-    public static Block block(){
-        return new Block();
-    }
-    /**
-     * Creates a block using hexagonal line indices instead of direct coordinates.
-     * The block is shifted accordingly in the coordinate system.
-     *
-     * @param i The I-line index in the hexagonal coordinate system.
-     * @param k The K-line index in the hexagonal coordinate system.
-     * @return A new block positioned according to the given line indices.
-     */
-    public static Block block(int i, int k){
-        return new Block().shiftI(k).shiftK(i);
-    }
     /**
      * Creates a block using hexagonal line indices and assigns it a specific color.
      * The block is shifted accordingly in the coordinate system.
@@ -189,7 +137,7 @@ public class Block extends Hex{
         try{
             block = (Block) super.clone();
         } catch (CloneNotSupportedException e) {
-            block = new Block(this.thisHex());
+            block = new Block(this.thisHex(), new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue()));
         }
         block.color = new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue());
         block.state = this.state;

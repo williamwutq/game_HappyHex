@@ -1,5 +1,6 @@
 package hex;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -52,10 +53,12 @@ import java.util.ArrayList;
  * @version 1.2
  */
 public class HexEngine implements HexGrid{
+    private Color emptyBlockColor;
+    private Color filledBlockColor;
     private int radius;
     private Block[] blocks;
     /**
-     * Constructs a {@code HexEngine} with the specified radius.
+     * Constructs a {@code HexEngine} with the specified radius and default colors.
      * Populates the hexagonal {@link HexGrid block grid} with valid blocks.
      * <p>
      * Each valid grid cell is tested via {@link Block#inRange(int)},
@@ -65,11 +68,15 @@ public class HexEngine implements HexGrid{
      * This property is used by the {@link #search binary search} for lookup efficiency.
      *
      * @param radius the radius of the hexagonal grid, where radius should be greater than 1.
+     * @param emptyBlockColor the default color of {@link Block} when it is empty.
+     * @param filledBlockColor the default color of {@link Block} when it is filled.
      * @see HexGrid
      * @see Block
      */
-    public HexEngine(int radius){
+    public HexEngine(int radius, Color emptyBlockColor, Color filledBlockColor){
         this.radius = radius;
+        this.emptyBlockColor = emptyBlockColor;
+        this.filledBlockColor = filledBlockColor;
         // Calculate array size
         // Recursive Formula Ak = A(k-1) + 6 * (k-1)
         // General Formula: Ak = 1 + 3 * (k-1)*(k)
@@ -78,7 +85,7 @@ public class HexEngine implements HexGrid{
         int i = 0;
         for(int a = 0; a <= radius*2-1; a++){
             for(int b = 0; b <= radius*2-1; b++){
-                Block nb = new Block();
+                Block nb = new Block(new Hex(), emptyBlockColor);
                 nb.moveI(b);
                 nb.moveK(a);
                 if(nb.inRange(radius)){
@@ -97,7 +104,7 @@ public class HexEngine implements HexGrid{
         // Set all to empty and default color
         Block[] newBlocks = new Block[blocks.length];
         for (int i = 0; i < blocks.length; i++) {
-            newBlocks[i] = new Block (blocks[i]);
+            newBlocks[i] = new Block (blocks[i], emptyBlockColor);
         }
         blocks = newBlocks;
     }
@@ -370,7 +377,7 @@ public class HexEngine implements HexGrid{
         }
         // Eliminate
         for(Block block : eliminate){
-            setBlock(block.getLineI(), block.getLineK(), new Block(block));
+            setBlock(block.getLineI(), block.getLineK(), new Block(block, emptyBlockColor));
         }
         return eliminate.toArray(new Block[0]); // blocks being eliminated
     }
@@ -510,7 +517,7 @@ public class HexEngine implements HexGrid{
             newEngine = (HexEngine) super.clone();
             newEngine.radius = this.radius;
         } catch (CloneNotSupportedException e) {
-            newEngine = new HexEngine(this.radius);
+            newEngine = new HexEngine(this.radius, this.emptyBlockColor, this.filledBlockColor);
         }
         for(int i = 0; i < this.length(); i ++){
             newEngine.blocks[i] = this.blocks[i].clone();

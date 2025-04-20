@@ -107,6 +107,27 @@ public class Piece implements HexGrid{
         // not added
         return false;
     }
+    /**
+     * Create a block at (I, K) and add to the first available slot in this piece.
+     * Automatically applies the current color and marks the block as occupied.
+     * If the piece is full, the block is not added and the method return false.
+     * @param i the I-line coordinate of the block to add.
+     * @param k the K-line coordinate of the block to add.
+     * @return {@code true} if the block was added; {@code false} if the piece is full.
+     * @see #add(Block)
+     */
+    public boolean add(int i, int k){
+        for(int index = 0; index < length(); index ++){
+            if(blocks[index] == null){
+                // find
+                blocks[index] = Block.block(i, k, color);
+                blocks[index].setState(true); // All should be occupied
+                return true;
+            }
+        }
+        // not added
+        return false;
+    }
 
     // Implements HexGrid
     /** {@inheritDoc} */

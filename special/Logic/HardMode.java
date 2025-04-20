@@ -59,12 +59,12 @@ public class HardMode implements SpecialFeature{
     }
     private static Piece hollow(){
         Piece p = new Piece(6, GUI.GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 1);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     private static int calculateAdditionOpportunities(HexEngine engine, Piece piece){

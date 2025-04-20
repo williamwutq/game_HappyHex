@@ -29,7 +29,7 @@ public class PieceFactory {
      */
     public static Piece uno() {
         Piece p = new Piece(1, GameEssentials.generateColor());
-        p.add(Block.block(0, 0));
+        p.add(0, 0);
         return p;
     }
     /**
@@ -44,13 +44,13 @@ public class PieceFactory {
      */
     public static Piece bigBlock() {
         Piece p = new Piece(7, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -65,9 +65,9 @@ public class PieceFactory {
      */
     public static Piece triangle3A() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 1));
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -82,9 +82,9 @@ public class PieceFactory {
      */
     public static Piece triangle3B() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
+        p.add(-1, -1);
+        p.add(0, -1);
+        p.add(0, 0);
         return p;
     }
     /**
@@ -99,9 +99,9 @@ public class PieceFactory {
      */
     public static Piece line3I() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(0, 1);
         return p;
     }
     /**
@@ -116,9 +116,9 @@ public class PieceFactory {
      */
     public static Piece line3J() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(0, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -133,9 +133,9 @@ public class PieceFactory {
      */
     public static Piece line3K() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
+        p.add(-1, 0);
+        p.add(0, 0);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -150,9 +150,9 @@ public class PieceFactory {
      */
     public static Piece corner3Il() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
+        p.add(-1, -1);
+        p.add(0, 0);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -167,9 +167,9 @@ public class PieceFactory {
      */
     public static Piece corner3Jl() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 0);
         return p;
     }
     /**
@@ -184,9 +184,9 @@ public class PieceFactory {
      */
     public static Piece corner3Kl() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
+        p.add(-1, -1);
+        p.add(0, 0);
+        p.add(0, 1);
         return p;
     }
     /**
@@ -201,9 +201,9 @@ public class PieceFactory {
      */
     public static Piece corner3Ir() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, 0);
+        p.add(0, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -218,9 +218,9 @@ public class PieceFactory {
      */
     public static Piece corner3Jr() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -235,9 +235,9 @@ public class PieceFactory {
      */
     public static Piece corner3Kr() {
         Piece p = new Piece(3, GameEssentials.generateColor());
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 1));
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -252,10 +252,10 @@ public class PieceFactory {
      */
     public static Piece fan4A() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
+        p.add(-1, -1);
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -270,10 +270,10 @@ public class PieceFactory {
      */
     public static Piece fan4B() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -288,10 +288,10 @@ public class PieceFactory {
      */
     public static Piece rhombus4I() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -306,10 +306,10 @@ public class PieceFactory {
      */
     public static Piece rhombus4J() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 0);
         return p;
     }
     /**
@@ -324,10 +324,10 @@ public class PieceFactory {
      */
     public static Piece rhombus4K() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
+        p.add(-1, -1);
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -342,10 +342,10 @@ public class PieceFactory {
      */
     public static Piece corner4Ir() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(1, 0));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -360,10 +360,10 @@ public class PieceFactory {
      */
     public static Piece corner4Il() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, 0);
+        p.add(0, 1);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -378,10 +378,10 @@ public class PieceFactory {
      */
     public static Piece corner4Jr() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(0, -1);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -396,10 +396,10 @@ public class PieceFactory {
      */
     public static Piece corner4Jl() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, 1);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -414,10 +414,10 @@ public class PieceFactory {
      */
     public static Piece corner4Kr() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 1));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 1);
         return p;
     }
     /**
@@ -432,10 +432,10 @@ public class PieceFactory {
      */
     public static Piece corner4Kl() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(0, -1);
+        p.add(0, 1);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -450,10 +450,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Ia() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
+        p.add(-1, -1);
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(0, 1);
         return p;
     }
     /**
@@ -468,10 +468,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Ib() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -486,10 +486,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Ic() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(0, 1);
         return p;
     }
     /**
@@ -504,10 +504,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Id() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 1));
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -522,10 +522,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Ja() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(0, 0);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -540,10 +540,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Jb() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -558,10 +558,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Jc() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -576,10 +576,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Jd() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -594,10 +594,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Ka() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(0, 1));
-        p.add(Block.block(1, 0));
+        p.add(-1, 0);
+        p.add(0, 0);
+        p.add(0, 1);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -612,10 +612,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Kb() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, -1));
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
+        p.add(-1, -1);
+        p.add(-1, 0);
+        p.add(0, 0);
+        p.add(1, 0);
         return p;
     }
     /**
@@ -630,10 +630,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Kc() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
-        p.add(Block.block(1, 1));
+        p.add(-1, 0);
+        p.add(0, 0);
+        p.add(1, 0);
+        p.add(1, 1);
         return p;
     }
     /**
@@ -648,10 +648,10 @@ public class PieceFactory {
      */
     public static Piece asymmetrical4Kd() {
         Piece p = new Piece(4, GameEssentials.generateColor());
-        p.add(Block.block(-1, 0));
-        p.add(Block.block(0, -1));
-        p.add(Block.block(0, 0));
-        p.add(Block.block(1, 0));
+        p.add(-1, 0);
+        p.add(0, -1);
+        p.add(0, 0);
+        p.add(1, 0);
         return p;
     }
     /**

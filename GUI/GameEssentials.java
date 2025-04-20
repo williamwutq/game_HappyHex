@@ -264,7 +264,7 @@ public final class GameEssentials {
         if(easy) {
             game.PieceFactory.setEasy();
         }
-        engine = new HexEngine(size);
+        engine = new HexEngine(size, gameBlockDefaultColor, getIndexedPieceColor(0)); // replace getIndexedPieceColor(0) with something else
         queue = new Queue(queueSize);
         window = frame;
         // Construct labels

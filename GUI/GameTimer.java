@@ -16,7 +16,7 @@ public class GameTimer extends Timer implements ActionListener {
         // Add animation
         for(hex.Block block : eliminated){
             GameEssentials.addAnimation(GameEssentials.createDisappearEffect(block));
-            GameEssentials.addAnimation(GameEssentials.createCenterEffect(new hex.Block(block)));
+            GameEssentials.addAnimation(GameEssentials.createCenterEffect(new hex.Block(block, GameEssentials.gameBlockDefaultColor)));
         }
         // Add score
         GameEssentials.incrementScore(5 * eliminated.length);
