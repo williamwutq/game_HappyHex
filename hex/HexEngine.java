@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * pattern with its leftmost {@code Block} at origin (0,0), and provides operations such as:
  * <ul>
  *     <li>Grid {@link #HexEngine initialization} and {@link #reset}</li>
+ *     <li>Automatic coloring through {@link #setDefaultBlockColors}</li>
  *     <li>Efficient block {@link #getBlock(int) lookup} using {@link #search binary search}</li>
  *     <li>Grid placement {@link #checkAdd validation} and piece {@link #add insertion}</li>
  *     <li>Line detection and {@link #eliminate elimination} across I/J/K axes</li>
@@ -37,6 +38,15 @@ import java.util.ArrayList;
  * <pre>
  *     {@code Aₖ = Aₖ₋₁ + 6(k - 1); A₁ = 1}
  * </pre>
+ *
+ * <p><h3>Block Coloring:</h3>
+ * By default, blocks are visually represented using two colors: one for the empty {@link Block#getState state}
+ * (false) and one for the filled {@code state} (true). These default colors can be configured using the
+ * {@code setDefaultBlockColors} method. When a block's state is updated using {@code setState} or during
+ * {@link #HexEngine initialization} and {@link #reset}, it automatically changes to the corresponding default color.
+ * For full control, the {@link #setBlock} method can be used to manually assign a specific color to a block,
+ * independent of its state. See {@link Block#setColor} for coloring blocks.
+ *
  * <p><h3>Machine Learning:</h3>
  * The {@code HexEngine} supports machine learning reward functions by exposing utility methods that help evaluate
  * the quality and validity of in-game actions. These metrics can guide reinforcement learning agents in making
@@ -194,6 +204,29 @@ public class HexEngine implements HexGrid{
         }
     }
     /**
+     * Sets the state of a {@link Block} at a specific grid coordinate.
+     * This performs a {@link #search binary search} to obtain the targeting block.
+     * This automatically set the color of the block depending on its state.
+     *
+     * @param i I coordinate
+     * @param k K coordinate
+     * @param state the new state of the block (true = occupied).
+     */
+    public void setState(int i, int k, boolean state){
+        if(inRange(i, k)){
+            int index = search(i, k, 0, length()-1);
+            if (index >= 0) {
+                Block block = blocks[index];
+                if(block.getState() != state){
+                    block.setState(state);
+                    if(state){
+                        block.setColor(filledBlockColor);
+                    } else block.setColor(emptyBlockColor);
+                }
+            }
+        }
+    }
+    /**
      * Performs a binary search to locate a block at (i, k).
      * Assumes the array is sorted by I, then K.
      *
@@ -222,6 +255,33 @@ public class HexEngine implements HexGrid{
             // first half
             return search(i, k, start, middleIndex-1);
         }
+    }
+    /**
+     * Sets the default block colors used by the HexEngine.
+     * <p>
+     * These default colors are used when a block's state is changed via {@link #setState} or on initialization
+     * and {@link #reset}. For custom coloring, use {@link #setBlock} to manually assign a color to a block.
+     *
+     * @param emptyBlockColor the color used for blocks in the empty (false) state
+     * @param filledBlockColor the color used for blocks in the filled (true) state
+     */
+    public void setDefaultBlockColors(Color emptyBlockColor, Color filledBlockColor){
+        this.emptyBlockColor = emptyBlockColor;
+        this.filledBlockColor = filledBlockColor;
+    }
+    /**
+     * Returns the current default color used for {@link Block} in the empty (false) state.
+     * @return the default filled block color
+     */
+    public Color getEmptyBlockColor(){
+        return emptyBlockColor;
+    }
+    /**
+     * Returns the current default color used for {@link Block} in the filled (true) state.
+     * @return the default filled block color
+     */
+    public Color getFilledBlockColor(){
+        return filledBlockColor;
     }
     /**
      * Checks whether the {@code other} grid can be added to this grid
@@ -376,10 +436,13 @@ public class HexEngine implements HexGrid{
             eliminate.addAll(line);
         }
         // Eliminate
-        for(Block block : eliminate){
-            setBlock(block.getLineI(), block.getLineK(), new Block(block, emptyBlockColor));
+        Block[] eliminated = new Block[eliminate.size()];
+        for (int i = 0; i < eliminate.size(); i++) {
+            Block block = eliminate.get(i);
+            eliminated[i] = block.clone();
+            setState(block.getLineI(), block.getLineK(), false);
         }
-        return eliminate.toArray(new Block[0]); // blocks being eliminated
+        return eliminated; // blocks being eliminated
     }
     /**
      * Checks whether any full line can be eliminated in the hex grid.
