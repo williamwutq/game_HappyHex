@@ -1,4 +1,4 @@
-package Hex;
+package hex;
 
 import java.awt.*;
 

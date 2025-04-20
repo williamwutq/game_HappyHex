@@ -1,8 +1,8 @@
 package special.Logic;
 
 import GUI.GameEssentials;
-import Hex.HexEngine;
-import Hex.Piece;
+import hex.HexEngine;
+import hex.Piece;
 import special.SpecialFeature;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class GodMode implements SpecialFeature{
             if (objects.length > 3 && objects[3] instanceof Piece) try {
                 engine = (HexEngine) engine.clone();
                 if(GameEssentials.getClickedOnIndex() != -1 && GameEssentials.getSelectedBlockIndex() != -1){
-                    Hex.Hex position = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex()).getBlock(GameEssentials.getSelectedBlockIndex());
+                    hex.Hex position = GameEssentials.queue().get(GameEssentials.getSelectedPieceIndex()).getBlock(GameEssentials.getSelectedBlockIndex());
                     engine.add(engine.getBlock(GameEssentials.getClickedOnIndex()).subtract(position), (Piece) objects[3]);
                 }
             } catch (CloneNotSupportedException e) {}

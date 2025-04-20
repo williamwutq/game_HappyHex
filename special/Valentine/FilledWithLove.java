@@ -63,8 +63,8 @@ public class FilledWithLove implements SpecialFeature {
                     isColorBaseArray = false;
                 } else k++;
             }
-            if (objects[0] instanceof GUI.animation.DisappearEffect && objects[1] instanceof Hex.Block) {
-                return new Object[]{new HeartAnimation((Hex.Block) objects[1])};
+            if (objects[0] instanceof GUI.animation.DisappearEffect && objects[1] instanceof hex.Block) {
+                return new Object[]{new HeartAnimation((hex.Block) objects[1])};
             } else if(!isColorBaseArray && objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
                 String hint = (String) objects[1];
                 if(hint.contains("GameBlockDefaultColor")){

@@ -37,19 +37,19 @@ public class ConfirmButton extends LaunchButton {
         } else if (player.isKeyword()){
             failLogin();
         } else if (player.equals("Normal") || player.equals("NORMAL")){
-            if(Hex.Queue.getPieceProcessorID() != 0){
+            if(hex.Queue.getPieceProcessorID() != 0){
                 textField.setText("USING NORMAL DIFFICULTY!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerPromptFontColor);
-                Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature());
+                hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature());
                 System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " SpecialFeature: Game difficulty switched to normal.");
             } else {
                 failLogin();
             }
         } else if (player.equals("Hard") || player.equals("Evil") || player.equals("HARD") || player.equals("EVIL")){
-            if(Hex.Queue.getPieceProcessorID() != 2){
+            if(hex.Queue.getPieceProcessorID() != 2){
                 textField.setText("RELEASING THE HARD MODE!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
-                Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "Hard"));
+                hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("hex.Piece", "Hard"));
                 System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Special Feature: Game difficulty switched to hard.\n" +
                         "                                         This is only enabled if in settings, easyMode is turned OFF.\n" +
                         "                                         Type \"Normal\" into this field to switch back to normal.");
@@ -57,10 +57,10 @@ public class ConfirmButton extends LaunchButton {
                 failLogin();
             }
         } else if (player.equals("Devil") || player.equals("DEVIL")){
-            if(Hex.Queue.getPieceProcessorID() != 2){
+            if(hex.Queue.getPieceProcessorID() != 2){
                 textField.setText("PLACE UNBREAKABLE CURSE!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
-                Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "Hard"));
+                hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("hex.Piece", "Hard"));
                 System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Special Feature: Game difficulty switched to hard.\n" +
                         "                                         This is only enabled if in settings, easyMode is turned OFF.\n" +
                         "                                         Type \"Normal\" into this field to switch back to normal.");
@@ -68,10 +68,10 @@ public class ConfirmButton extends LaunchButton {
                 failLogin();
             }
         } else if (player.equals("God") || player.equals("GOD")){
-            if(Hex.Queue.getPieceProcessorID() != 5 && LaunchEssentials.isEasyMode()){
+            if(hex.Queue.getPieceProcessorID() != 5 && LaunchEssentials.isEasyMode()){
                 textField.setText("THE DIVINE INTERVENTION!");
                 textField.setForeground(Launcher.LaunchEssentials.launchPlayerSpecialFontColor);
-                Hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("Hex.Piece", "God"));
+                hex.Queue.changePieceProcessor(special.FeatureFactory.createFeature("hex.Piece", "God"));
                 System.out.println(Launcher.IO.GameTime.generateSimpleTime() + " Special Feature: You have unlocked God Mode.\n" +
                         "                                         This means the game will try to ensure that, your game will not end.\n" +
                         "                                         Type \"Normal\" into this field to switch back to normal.");

@@ -1,4 +1,4 @@
-package Hex;
+package hex;
 
 /**
  * Represents a simple fixed-length queue of {@code Piece} objects.

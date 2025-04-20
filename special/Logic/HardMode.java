@@ -1,8 +1,8 @@
 package special.Logic;
 
-import Hex.Block;
-import Hex.HexEngine;
-import Hex.Piece;
+import hex.Block;
+import hex.HexEngine;
+import hex.Piece;
 import special.SpecialFeature;
 
 import java.util.ArrayList;

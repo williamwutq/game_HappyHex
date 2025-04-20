@@ -1,7 +1,7 @@
-package Hex;
+package hex;
 
 /**
- * The {@code Hex} class represents a 2D coordinate in a hexagonal grid system using
+ * The {@code hex} class represents a 2D coordinate in a hexagonal grid system using
  * a specialized integer coordinate model. It supports both raw coordinate access
  * and derived line-based computations across three axes: I, J, and K.
  * <p>
@@ -23,7 +23,7 @@ package Hex;
  * <h2>Coordinate System Visualization</h2>
  * <p>Three example points are provided with raw coordinates:</p>
  * <pre>
- * Hex Coordinates (2i, 2j, 2k)
+ * hex Coordinates (2i, 2j, 2k)
  *    I
  *   / * (5, 4, -1)
  *  /     * (5, 7, 2)
@@ -46,7 +46,7 @@ package Hex;
  *
  * <h2>Coordinate System Implementation</h2>
  * <ul>
- *   <li>{@code x} and {@code y} are the base values stored in each {@code Hex} instance.</li>
+ *   <li>{@code x} and {@code y} are the base values stored in each {@code hex} instance.</li>
  *   <li>{@code I = x}, {@code K = y}, and {@code J = x + y}.</li>
  *   <li>Line indices are derived as follows:
  *     <ul>
@@ -415,11 +415,11 @@ public class Hex{
     }
     /**
      * String representation of the hex coordinate used for debugging
-     * <p>Format: {@code {Hex I,J,K = {i, j, k}, Line I,J,K = {i, j, k}, Rect X,Y = {x, y}}}</p>
+     * <p>Format: {@code {hex I,J,K = {i, j, k}, Line I,J,K = {i, j, k}, Rect X,Y = {x, y}}}</p>
      * @return A string representation of the hex coordinate, including its rectangular conversion.
      */
     public String toString(){
-        return "{Hex I,J,K = {" + I() + ", " + J() + ", " + K() +
+        return "{hex I,J,K = {" + I() + ", " + J() + ", " + K() +
                 "}, Line I,J,K = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
                 "}, Rect X,Y = {" + X() + ", "+ Y() + "}}";
     }
@@ -519,12 +519,12 @@ public class Hex{
     }
     /**
      * {@inheritDoc}
-     * A clone of this {@code Hex} object, with its hexagonal coordinates copied.
-     * @return a clone of the Hex object.
-     * @throws CloneNotSupportedException if the class of this object is not {@code Hex}.
+     * A clone of this {@code hex} object, with its hexagonal coordinates copied.
+     * @return a clone of the hex object.
+     * @throws CloneNotSupportedException if the class of this object is not {@code hex}.
      */
     public Hex clone() throws CloneNotSupportedException{
-        if (this.getClass() != Hex.class) throw new CloneNotSupportedException("Clone only supported for Hex");
+        if (this.getClass() != Hex.class) throw new CloneNotSupportedException("Clone only supported for hex");
         try {
             return (Hex) super.clone();
         } catch (CloneNotSupportedException e) {

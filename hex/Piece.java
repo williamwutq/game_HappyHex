@@ -1,4 +1,4 @@
-package Hex;
+package hex;
 
 import GUI.GameEssentials;
 import java.awt.*;

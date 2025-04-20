@@ -1,6 +1,6 @@
 package GUI;
 
-import Hex.*;
+import hex.*;
 
 import javax.swing.*;
 import javax.swing.border.*;

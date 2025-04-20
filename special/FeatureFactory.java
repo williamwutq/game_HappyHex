@@ -16,7 +16,7 @@ public class FeatureFactory {
             } else if (hint.equals("White") || hint.equals("5")) {
                 return new special.Styles.WhiteTheme();
             }
-        } else if (className.equals("Piece") || className.equals("Hex.Piece")) {
+        } else if (className.equals("Piece") || className.equals("hex.Piece")) {
             if (hint.equals("God")){
                 return new special.Logic.GodMode();
             } else if (hint.equals("Hard")){
