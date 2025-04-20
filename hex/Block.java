@@ -129,10 +129,8 @@ public class Block extends Hex{
      * {@inheritDoc}
      * In addition, it also copies the state and color of this {@code Block}.
      * @return a clone of the {@code Block}.
-     * @throws CloneNotSupportedException if the class of this object is not {@code Block}.
      */
-    public Block clone() throws CloneNotSupportedException{
-        if (this.getClass() != Block.class) throw new CloneNotSupportedException("Clone only supported for Block");
+    public Block clone(){
         Block block;
         try{
             block = (Block) super.clone();
