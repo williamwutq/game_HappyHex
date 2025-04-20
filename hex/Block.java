@@ -136,10 +136,10 @@ public class Block extends Hex{
         Block block;
         try{
             block = (Block) super.clone();
+            block.setColor(new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue()));
         } catch (CloneNotSupportedException e) {
             block = new Block(this.thisHex(), new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue()));
         }
-        block.color = new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue());
         block.state = this.state;
         return block;
     }
