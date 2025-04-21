@@ -1,5 +1,7 @@
 /java
 /Lib
+/out
 **/logs.json
 logs.json
 templogs.json
+**/*.game.json
