@@ -3,7 +3,10 @@ package hexio;
 import javax.json.*;
 import hex.*;
 
+import java.io.IOException;
+
 public final class HexConverter {
+    // Hex to Json
     public static JsonObject convertHex(Hex hex){
         JsonObjectBuilder builder = Json.createObjectBuilder();
         if (hex == null) {
@@ -83,5 +86,50 @@ public final class HexConverter {
         }
         objectBuilder.add("blocks", arrayBuilder);
         return objectBuilder.build();
+    }
+    public static JsonObject convertMove(int moveOrder, Hex center, Piece piece){
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("order", moveOrder);
+        builder.add("center", convertHex(center));
+        builder.add("piece", convertPiece(piece));
+        return builder.build();
+    }
+
+    // Json to Hex
+    public static Hex convertHex(JsonObject jsonObject) throws IOException {
+        int i = 0; int j = 0; int k = 0;
+        try {
+            i = jsonObject.getInt("I");
+        } catch (Exception e) {
+            try {
+                i = jsonObject.getInt("i");
+            } catch (Exception ex) {
+                throw new IOException("Coordinate I in \"Hex\" not found");
+            }
+        }
+        try {
+            j = jsonObject.getInt("J");
+        } catch (Exception e) {
+            try {
+                j = jsonObject.getInt("j");
+            } catch (Exception ex) {
+                throw new IOException("Coordinate J in \"Hex\" not found");
+            }
+        }
+        try {
+            k = jsonObject.getInt("K");
+        } catch (Exception e) {
+            try {
+                k = jsonObject.getInt("k");
+            } catch (Exception ex) {
+                throw new IOException("Coordinate K in \"Hex\" not found");
+            }
+        }
+        // Verify coordinate
+        if (i + j != k) {
+            throw new IOException("Coordinate I, J, K does not match");
+        } else {
+            return Hex.hex(i, j);
+        }
     }
 }
