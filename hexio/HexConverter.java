@@ -73,4 +73,15 @@ public final class HexConverter {
         builder.add(convertPieceBlock(1, 1, piece));
         return builder.build().asJsonObject();
     }
+    public static JsonObject convertEngine(HexEngine engine){
+        JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        objectBuilder.add("radius", engine.getRadius());
+        // Add array of blocks
+        for (int i = 0; i < engine.length(); i ++){
+            arrayBuilder.add(convertBlock(engine.getBlock(i)));
+        }
+        objectBuilder.add("blocks", arrayBuilder);
+        return objectBuilder.build();
+    }
 }
