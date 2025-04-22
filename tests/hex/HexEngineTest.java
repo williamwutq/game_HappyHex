@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class HexEngineTest {
 
@@ -164,7 +163,6 @@ public class HexEngineTest {
         engine.setState(1, 2, true);
 
         Block[] eliminated = engine.eliminate();
-        System.out.println(Arrays.toString(eliminated));
         assertEquals(3, eliminated.length, "Should eliminate 3 blocks");
         assertFalse(engine.getBlock(1, 0).getState(), "Block at (0,0) should be unoccupied");
         assertFalse(engine.getBlock(1, 1).getState(), "Block at (0,1) should be unoccupied");
