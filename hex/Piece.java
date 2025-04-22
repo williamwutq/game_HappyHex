@@ -46,6 +46,7 @@ public class Piece implements HexGrid{
         this.blocks = new Block[1];
         this.color = Color.BLACK;
         this.blocks[0] = new Block(0, 0, color);
+        this.blocks[0].setState(true);
     }
     /**
      * Constructs an empty {@code Piece} with the specified capacity and color.
@@ -219,10 +220,14 @@ public class Piece implements HexGrid{
         for (int i = 1; i < n; i++) {
             Block key = blocks[i];
             int j = i - 1;
-            // Sort by getLineI(), then getLineK() if equal
-            while (j >= 0 && (blocks[j].getLineI() > key.getLineI() || (blocks[j].getLineI() == key.getLineI() && blocks[j].getLineK() > key.getLineK()))) {
-                blocks[j + 1] = blocks[j];
-                j--;
+            if (key != null) {
+                // Sort by getLineI(), then getLineK() if equal, skipping nulls
+                while (j >= 0 && (blocks[j] == null || (blocks[j].getLineI() > key.getLineI() ||
+                      blocks[j].getLineI() == key.getLineI() && blocks[j].getLineK() > key.getLineK()))) {
+                    blocks[j + 1] = blocks[j];
+                    j--;
+                }
+                blocks[j + 1] = key;
             }
             blocks[j + 1] = key;
         }
