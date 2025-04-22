@@ -1,6 +1,6 @@
 package hex;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Represents a shape or unit made up of multiple {@link Block} instances,
