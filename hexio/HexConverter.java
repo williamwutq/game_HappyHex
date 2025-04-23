@@ -76,6 +76,26 @@ public final class HexConverter {
         builder.add(convertPieceBlock(1, 1, piece));
         return builder.build().asJsonObject();
     }
+    private static JsonObject convertColoredPieceBlock(int i, int k, Piece piece){
+        Block block = piece.getBlock(i, k);
+        if (block == null){
+            block = Block.block(i, k, piece.getColor());
+        } else {
+            block = block.clone();
+        }
+        return convertColoredBlock(block);
+    }
+    public static JsonObject convertColoredPiece(Piece piece){
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+        builder.add(convertColoredPieceBlock(-1, -1, piece));
+        builder.add(convertColoredPieceBlock(-1, 0, piece));
+        builder.add(convertColoredPieceBlock(0, -1, piece));
+        builder.add(convertColoredPieceBlock(0, 0, piece));
+        builder.add(convertColoredPieceBlock(0, 1, piece));
+        builder.add(convertColoredPieceBlock(1, 0, piece));
+        builder.add(convertColoredPieceBlock(1, 1, piece));
+        return builder.build().asJsonObject();
+    }
     public static JsonObject convertEngine(HexEngine engine){
         JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
@@ -87,11 +107,29 @@ public final class HexConverter {
         objectBuilder.add("blocks", arrayBuilder);
         return objectBuilder.build();
     }
+    public static JsonObject convertColoredEngine(HexEngine engine){
+        JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        objectBuilder.add("radius", engine.getRadius());
+        // Add array of blocks
+        for (int i = 0; i < engine.length(); i ++){
+            arrayBuilder.add(convertColoredBlock(engine.getBlock(i)));
+        }
+        objectBuilder.add("blocks", arrayBuilder);
+        return objectBuilder.build();
+    }
     public static JsonObject convertMove(int moveOrder, Hex center, Piece piece){
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("order", moveOrder);
         builder.add("center", convertHex(center));
         builder.add("piece", convertPiece(piece));
+        return builder.build();
+    }
+    public static JsonObject convertColoredMove(int moveOrder, Hex center, Piece piece){
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("order", moveOrder);
+        builder.add("center", convertHex(center));
+        builder.add("piece", convertColoredPiece(piece));
         return builder.build();
     }
 
