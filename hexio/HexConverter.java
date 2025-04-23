@@ -228,7 +228,7 @@ public final class HexConverter {
         } catch (Exception e) {}
         return new Block(hex, color, state);
     }
-    // Must contain at least one block
+    // Must contain at least one block that is populated (state = true)
     // Empty blocks can be missing
     // See convertBlock
     public static Piece convertPiece(JsonObject jsonObject) throws IOException {
@@ -254,18 +254,42 @@ public final class HexConverter {
                     if (valid == 0) color = block.color();
                     valid++;
                 }
-            } catch (IOException e) {}
+            } catch (Exception e) {}
         }
         if (valid == 0) throw new IOException("\"Piece\" object does not contain valid blocks");
+        // Create piece object
         Piece piece = new Piece(jsonArray.size(), color);
-        for (JsonObject jsonBlock : jsonArray.getValuesAs(JsonObject.class)) {
+        for (int i = 0; i < size; i ++){
             try {
-                Block block = convertBlock(jsonBlock);
+                Block block = convertBlock(jsonArray.getJsonObject(i));
                 if (block.getState()) {
                     piece.add(block);
                 }
-            } catch (IOException e) {}
+            } catch (Exception e) {}
         }
         return piece;
+    }
+    // This will ignore all invalid blocks, only throw exception when engine cannot be constructed
+    public static HexEngine convertEngine(JsonObject jsonObject) throws IOException {
+        // Read radius, color, and create engine object
+        java.awt.Color emptyColor = java.awt.Color.BLACK;
+        java.awt.Color filledColor = java.awt.Color.WHITE;
+        int radius = 0;
+        try {
+            emptyColor = convertColor(jsonObject.getJsonObject("empty"));
+        } catch (Exception e) {}
+        try {
+            filledColor = convertColor(jsonObject.getJsonObject("filled"));
+        } catch (Exception e) {}
+        try {
+            radius = jsonObject.getInt("radius");
+        } catch (Exception e) {
+            throw new IOException("Engine cannot be constructed because critical attribute radius in \"HexEngine\" not found");
+        }
+        if (radius < 1) {
+            throw new IOException("Engine cannot be constructed because critical attribute radius in \"HexEngine\" is 0 or negative");
+        }
+        HexEngine engine = new HexEngine(radius, emptyColor, filledColor);
+        return engine;
     }
 }
