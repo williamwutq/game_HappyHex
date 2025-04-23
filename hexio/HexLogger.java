@@ -34,6 +34,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(){
         dataFile = dataDirectory + generateFileName(ID);
+        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Piece>();
@@ -41,6 +42,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     private HexLogger(String fileName){
         dataFile = fileName;
+        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Piece>();
@@ -297,7 +299,56 @@ public class HexLogger {
         }
     }
 
-    public static void main(String[] args){
+    /**
+     * Constructs a complete JSON object from the current logger information and writes it to a file.
+     * This includes the basic game information, the current {@link HexEngine} statues, the current
+     * {@link Piece} queue statues, and the moves in the game.
+     * @throws IOException If JSON creation or writing fails.
+     */
+    public void write() throws IOException {
+        // Create JSON Object
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        // Write basics
+        jsonObjectBuilder.add("Game", HexIOInfo.gameName);
+        jsonObjectBuilder.add("Environment", HexIOInfo.gameEnvironment);
+        jsonObjectBuilder.add("Generator", "HexLogger");
+        jsonObjectBuilder.add("GeneratorID", ID);
 
+        // Write version
+        JsonObjectBuilder versionBuilder = Json.createObjectBuilder();
+        versionBuilder.add("Major", HexIOInfo.major);
+        versionBuilder.add("Minor", HexIOInfo.minor);
+        versionBuilder.add("Patch", HexIOInfo.patch);
+        jsonObjectBuilder.add("Version", versionBuilder);
+
+        // Write engine
+        jsonObjectBuilder.add("engine", HexConverter.convertEngine(currentEngine));
+
+        // Write queue
+        JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
+        for (Piece piece : currentQueue) {
+            jsonQueueBuilder.add(HexConverter.convertPiece(piece));
+        }
+        jsonObjectBuilder.add("queue", jsonQueueBuilder);
+
+        // Write moves
+        JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
+        int totalMoves = moveOrigins.size();
+        for (int i = 0; i < totalMoves; i ++) {
+            JsonObjectBuilder jsonMoveBuilder = Json.createObjectBuilder();
+            try {
+                jsonMoveBuilder.add("order", i);
+                jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
+                jsonMoveBuilder.add("piece", HexConverter.convertPiece(movePieces.get(i)));
+            } catch (Exception e) {
+                throw new IOException("Failed to create JSON objects for moves");
+            }
+            jsonMoveArrayBuilder.add(jsonMoveBuilder);
+        }
+        jsonObjectBuilder.add("moves", jsonQueueBuilder);
+
+        // write
+        JsonObject resultingObject = jsonObjectBuilder.build();
+        writeJsonToFile(resultingObject);
     }
 }
