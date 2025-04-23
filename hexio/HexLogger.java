@@ -10,6 +10,7 @@ import java.nio.file.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.ArrayList;
 
 public class HexLogger {
     // Hashing
@@ -104,6 +105,31 @@ public class HexLogger {
     }
 
     // JSON
+
+    /**
+     * Scans the data directory for all files ending with ".game.json".
+     *
+     * @return a list of {@link Path} objects representing the .game.json files found;
+     *         returns an empty list if none are found or if the directory is invalid
+     */
+    public static ArrayList<Path> findGameJsonFiles() {
+        ArrayList<Path> result = new ArrayList<>();
+        Path dir = Paths.get(dataDirectory);
+        if (!Files.isDirectory(dir)) {
+            return result; // Return empty list if not a directory
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{hpyhex.json}")) {
+            for (Path path : stream) {
+                if (path.getFileName().toString().endsWith(".hpyhex.json")) {
+                    result.add(path);
+                }
+            }
+        } catch (IOException | DirectoryIteratorException e) {
+            System.err.println(generateSimpleTime() + " HexLogger: Error occurred finding reading all game data files.");
+        }
+        return result;
+    }
+
     /**
      * Attempts to read JSON log files from {@link #dataDirectory}.
      * @return The raw JSON content as a string, or {@code null} if not found.
@@ -163,6 +189,10 @@ public class HexLogger {
 
     public static void main(String[] args){
         HexLogger logger = new HexLogger();
-        logger.writeJsonToFile(HexConverter.convertColoredBlock(Block.block(6, -2, new java.awt.Color(163, 202, 43))));
+        // logger.writeJsonToFile(HexConverter.convertColoredBlock(Block.block(6, -2, new java.awt.Color(163, 202, 43))));
+        ArrayList<Path> gameFiles = findGameJsonFiles();
+        for (Path path : gameFiles) {
+            System.out.println(path.toAbsolutePath());
+        }
     }
 }
