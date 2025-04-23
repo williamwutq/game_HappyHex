@@ -13,24 +13,6 @@ public final class Special {
     private static int CURRENT_VERSION_MINOR = -1;
 
     public static boolean validate(){
-        // Valid Main
-        URL main = Special.class.getResource("/Main.class");
-        if (main == null || !(new File(main.getPath()).exists())) {
-            System.err.println(io.GameTime.generateSimpleTime() + " Special Feature: Main class not found.");
-            return false;
-        }
-        // Valid Launcher
-        URL launchEssentials = Special.class.getResource("/Launcher/LaunchEssentials.class");
-        if (launchEssentials == null || !(new File(launchEssentials.getPath()).exists())) {
-            System.err.println(io.GameTime.generateSimpleTime() + " Special Feature: Launcher/LaunchEssentials class not found.");
-            return false;
-        }
-        // Valid GUI
-        URL GameEssentials = Special.class.getResource("/GUI/GameEssentials.class");
-        if (GameEssentials == null || !(new File(GameEssentials.getPath()).exists())) {
-            System.err.println(io.GameTime.generateSimpleTime() + " Special Feature: GUI/GameEssentials class not found.");
-            return false;
-        }
         // Fetch version
         try{
             CURRENT_VERSION_MAJOR = Launcher.LaunchEssentials.currentGameVersion.major();
