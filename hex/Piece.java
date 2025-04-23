@@ -260,6 +260,32 @@ public class Piece implements HexGrid{
         return str + "}";
     }
     /**
+     * Returns a byte representation of the blocks in this {@code Piece}, if this piece confines
+     * to the standard of a 7-{@link Block} piece.
+     * <p>
+     * Empty blocks will be represented with 0s and filled blocks will be represented with 1s.
+     * This method does not record color.
+     * @return a byte representing this 7-block piece. The first bit is empty.
+     */
+    public byte toByte(){
+        byte mask = 0x7F;
+        byte data = 0;
+        if (getState(-1, -1)) data ++;
+        data = (byte) (data << 1);
+        if (getState(-1, 0)) data ++;
+        data = (byte) (data << 1);
+        if (getState(0, -1)) data ++;
+        data = (byte) (data << 1);
+        if (getState(0, 0)) data ++;
+        data = (byte) (data << 1);
+        if (getState(0, 1)) data ++;
+        data = (byte) (data << 1);
+        if (getState(1, 0)) data ++;
+        data = (byte) (data << 1);
+        if (getState(1, 1)) data ++;
+        return (byte) (data & mask);
+    }
+    /**
      * Compares this piece to another for equality.
      * Two pieces are equal if they have the same {@link #length()} and identical {@link Block} positions.
      * {@link Color} is not involved in this comparison.
