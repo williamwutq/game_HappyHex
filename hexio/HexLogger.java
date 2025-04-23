@@ -1,7 +1,5 @@
 package hexio;
 
-import hex.Block;
-
 import javax.json.*;
 import javax.json.stream.*;
 import java.io.IOException;
@@ -31,8 +29,8 @@ public class HexLogger {
         dataFile = dataDirectory + generateFileName(ID);
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
-    public HexLogger(String fileName){
-        dataFile = dataDirectory + fileName;
+    private HexLogger(String fileName){
+        dataFile = fileName;
     }
 
     /**
@@ -129,6 +127,30 @@ public class HexLogger {
         }
         return result;
     }
+    public static ArrayList<HexLogger> generateJsonLoggers(){
+        ArrayList<Path> paths = findGameJsonFiles();
+        ArrayList<HexLogger> result = new ArrayList<>();
+        for (Path path : paths){
+            result.add(new HexLogger(path.toString()));
+        }
+        return result;
+    }
+
+    /**
+     * Deletes the file related to this {@code HexLogger} if exists
+     *
+     * @return true if the file is deleted, false otherwise
+     */
+    public boolean deleteFile() {
+        boolean success = false;
+        Path filePath = Paths.get(dataFile);
+        try {
+            Files.deleteIfExists(filePath);
+            System.out.println(generateSimpleTime() + " HexLogger: JSON data file " + dataFile + " deleted successfully.");
+            success = true;
+        } catch (IOException e) {}
+        return success;
+    }
 
     /**
      * Attempts to read JSON log files from {@link #dataDirectory}.
@@ -188,11 +210,6 @@ public class HexLogger {
     }
 
     public static void main(String[] args){
-        HexLogger logger = new HexLogger();
-        // logger.writeJsonToFile(HexConverter.convertColoredBlock(Block.block(6, -2, new java.awt.Color(163, 202, 43))));
-        ArrayList<Path> gameFiles = findGameJsonFiles();
-        for (Path path : gameFiles) {
-            System.out.println(path.toAbsolutePath());
-        }
+
     }
 }
