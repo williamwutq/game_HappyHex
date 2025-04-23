@@ -5,6 +5,7 @@ import javax.json.*;
 /**
  * Represents a semantic version of the game in the format {@code major.minor.patch}.
  * Implements {@link Comparable} and {@link JsonConvertible} for sorting and JSON serialization.
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */

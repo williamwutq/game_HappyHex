@@ -4,4 +4,5 @@
 **/logs.json
 logs.json
 templogs.json
+**/*.hpyhex.json
 **/*.game.json

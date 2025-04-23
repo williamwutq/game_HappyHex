@@ -8,6 +8,7 @@ import javax.json.*;
  * an object of that class into a {@link javax.json.JsonObjectBuilder}. The interface also
  * provides method to convert into a {@link javax.json.JsonObject}.</p>
  * @see JsonObject
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */

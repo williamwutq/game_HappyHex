@@ -22,7 +22,7 @@ package hex;
  * or accessing specific positions using {@link #getBlock(int, int)}. Additional functionality includes
  * merging entire grids using the {@link #add(Hex, HexGrid)} method and checking in-bounds positions
  * with {@link #inRange(int, int)}.
- *
+ * @since 1.0
  * @author William Wu
  * @version 1.2
  */
@@ -96,6 +96,7 @@ public interface HexGrid {
      * @param k the K-line coordinate of the block whose neighbors are to be counted.
      * @param includeNull whether to treat {@code null} or out-of-bounds neighbors as occupied ({@code true}) or unoccupied ({@code false}).
      * @return the number of occupied neighbors surrounding the block at (i, k). Returns 0 if the center position itself is out of range.
+     * @since 1.2
      */
     default int countNeighbors(int i, int k, boolean includeNull){
         int count = 0;

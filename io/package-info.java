@@ -19,5 +19,6 @@
  * <p>
  * This package depends on {@link javax.json} for JSON handling, and ensures
  * consistent serialization through the {@link io.JsonConvertible} interface.
+ * @since 1.0
  */
 package io;

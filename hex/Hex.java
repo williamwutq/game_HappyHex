@@ -75,6 +75,7 @@ package hex;
  * It is recommended to use the factory method {@link #hex(int, int)} instead of direct constructors,
  * as it provides hexes correctly shifted in line coordinates according to hexagonal grid logic.
  * </p>
+ * @since 0.6
  * @author William Wu
  * @version 1.1
  */
@@ -522,6 +523,7 @@ public class Hex{
      * A clone of this {@code hex} object, with its hexagonal coordinates copied.
      * @return a clone of the hex object.
      * @throws CloneNotSupportedException if the class of this object is not {@code hex}.
+     * @since 1.1
      */
     public Hex clone() throws CloneNotSupportedException{
         if (this.getClass() != Hex.class) throw new CloneNotSupportedException("Clone only supported for hex");

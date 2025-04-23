@@ -33,6 +33,7 @@ import java.awt.Color;
  * @see Hex
  * @see HexGrid
  * @see Hex#getLines()
+ * @since 1.0
  * @author William Wu
  * @version 1.2
  */
@@ -116,6 +117,7 @@ public class Piece implements HexGrid{
      * @param k the K-line coordinate of the block to add.
      * @return {@code true} if the block was added; {@code false} if the piece is full.
      * @see #add(Block)
+     * @since 1.1
      */
     public boolean add(int i, int k){
         for(int index = 0; index < length(); index ++){

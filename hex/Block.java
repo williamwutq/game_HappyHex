@@ -20,6 +20,7 @@ import java.awt.Color;
  * subtracting coordinates, as well as modifying and retrieving the block's state and color.
  *
  * @see Hex
+ * @since 0.6
  * @author William Wu
  * @version 1.2
  */
@@ -129,6 +130,7 @@ public class Block extends Hex{
      * {@inheritDoc}
      * In addition, it also copies the state and color of this {@code Block}.
      * @return a clone of the {@code Block}.
+     * @since 1.1
      */
     public Block clone(){
         Block block;

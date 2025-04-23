@@ -21,6 +21,7 @@ import java.util.*;
  * This logger is game-specific and expects the root JSON object to have a `"Game": "HappyHex"` field.
  * The logger expect to have a json file at "logs.json" in the same directory, or it may create such a file.
  *
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */
@@ -113,7 +114,7 @@ public final class LaunchLogger {
      * It writes important messages to console.
      * @param jsonObject The JSON object to write.
      */
-    public static void writeJsonToFile(JsonObject jsonObject) {
+    private static void writeJsonToFile(JsonObject jsonObject) {
         StringWriter stringWriter = new StringWriter();
         JsonWriterFactory writerFactory = Json.createWriterFactory(
                 Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
