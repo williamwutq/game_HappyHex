@@ -128,6 +128,9 @@ public final class LaunchEssentials {
     public static String getCurrentPlayer(){
         return currentGameInfo.getPlayer().toString();
     }
+    public static long getCurrentPlayerID(){
+        return currentGameInfo.getPlayerID();
+    }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;

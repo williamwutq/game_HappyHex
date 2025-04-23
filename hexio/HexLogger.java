@@ -22,6 +22,8 @@ public class HexLogger {
 
     // Data
     private boolean completed;
+    private String player;
+    private long playerID;
     private HexEngine currentEngine;
     private Piece[] currentQueue;
     private ArrayList<Hex> moveOrigins;
@@ -33,12 +35,14 @@ public class HexLogger {
     /** Directory for storing game files. */
     private static final String dataDirectory = "data/";
     /** Constructs a {@code HexLogger} assigned to a specific file */
-    public HexLogger(){
+    public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
         currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Piece>();
+        this.player = playerName;
+        this.playerID = playerID;
         completed = false;
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
@@ -48,6 +52,8 @@ public class HexLogger {
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Piece>();
+        player = "Guest";
+        playerID = -1;
         completed = false;
     }
 
@@ -156,6 +162,22 @@ public class HexLogger {
      */
     public void completeGame(){
         completed = true;
+    }
+    /**
+     * Assigns a player name and corresponding player ID.
+     * Fallbacks to "Guest" (ID = {@code -1}) if input is not present or invalid.
+     *
+     * @param player the player name
+     * @param ID     the player ID
+     */
+    public void setPlayer(String player, long ID) {
+        if(player == null || player.equals("") || player.equals("Guest") || ID == 0 || ID == -1){
+            this.player = "Guest";
+            this.playerID = -1;
+        } else {
+            this.player = player;
+            this.playerID = ID;
+        }
     }
     /**
      * Set the current processed {@link HexEngine} to a copy of a new engine.
@@ -335,6 +357,10 @@ public class HexLogger {
         versionBuilder.add("Minor", HexIOInfo.minor);
         versionBuilder.add("Patch", HexIOInfo.patch);
         jsonObjectBuilder.add("Version", versionBuilder);
+
+        // Write player
+        jsonObjectBuilder.add("Player", player);
+        jsonObjectBuilder.add("PlayerID", Long.toHexString(playerID));
 
         // Write game statues
         jsonObjectBuilder.add("Completed", completed);

@@ -1,6 +1,7 @@
 package GUI;
 
 import GUI.animation.*;
+import Launcher.LaunchEssentials;
 import hex.HexEngine;
 import game.Queue;
 import hexio.HexLogger;
@@ -273,7 +274,7 @@ public final class GameEssentials {
         queue = new Queue(queueSize);
         window = frame;
         // Logger initialize
-        gameLogger = new HexLogger();
+        gameLogger = new HexLogger(LaunchEssentials.getCurrentPlayer(), LaunchEssentials.getCurrentPlayerID());
         gameLogger.setEngine(engine);
         gameLogger.setQueue(queue.getPieces());
         // Construct labels
@@ -351,7 +352,7 @@ public final class GameEssentials {
         clickedOnIndex = -1;
         turnLabel.setInfo(turn + "");
         scoreLabel.setInfo(score + "");
-        gameLogger = new HexLogger();
+        gameLogger = new HexLogger(LaunchEssentials.getCurrentPlayer(), LaunchEssentials.getCurrentPlayerID());
         engine.reset();
         queue.reset();
         gameLogger.setEngine(engine);
