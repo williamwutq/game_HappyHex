@@ -1,5 +1,6 @@
 package hexio;
 
+import hex.*;
 import javax.json.*;
 import javax.json.stream.*;
 import java.io.IOException;
@@ -19,6 +20,12 @@ public class HexLogger {
     /** A automatically generated unique identifier for the logger instance or environment. */
     private static final int ID = (int)obfuscate(PRIME);
 
+    // Data
+    private HexEngine currentEngine;
+    private Piece[] currentQueue;
+    private ArrayList<Hex> moveOrigins;
+    private ArrayList<Piece> movePieces;
+
     // JSON
     /** The file name this {@code HexLogger} is assigned to */
     private final String dataFile;
@@ -27,10 +34,16 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(){
         dataFile = dataDirectory + generateFileName(ID);
+        currentQueue = new Piece[0];
+        moveOrigins = new ArrayList<Hex>();
+        movePieces = new ArrayList<Piece>();
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     private HexLogger(String fileName){
         dataFile = fileName;
+        currentQueue = new Piece[0];
+        moveOrigins = new ArrayList<Hex>();
+        movePieces = new ArrayList<Piece>();
     }
 
     /**
@@ -102,8 +115,83 @@ public class HexLogger {
         return ID;
     }
 
-    // JSON
+    // Data
+    /**
+     * Returns the currently processed {@link HexEngine} in this {@code HexLogger}.
+     * @return The current processed {@link HexEngine} used for logging.
+     */
+    public HexEngine getEngine(){
+        return currentEngine;
+    }
+    /**
+     * Returns the currently processed {@link Piece} queue in this {@code HexLogger}.
+     * @return The current processed {@link Piece} queue used for logging.
+     */
+    public Piece[] getQueue(){
+        return currentQueue;
+    }
+    /**
+     * Returns the array of {@link Hex} coordinates of all the moves recorded in this {@code HexLogger}.
+     * @return The array of coordinates of all the moves.
+     */
+    public Hex[] getMoveOrigins(){
+        return moveOrigins.toArray(new Hex[0]);
+    }
+    /**
+     * Returns the array of {@link Piece} involved in the moves recorded in this {@code HexLogger}.
+     * @return The array of the pieces involved in the moves.
+     */
+    public Piece[] getMovePieces(){
+        return movePieces.toArray(new Piece[0]);
+    }
 
+    /**
+     * Set the current processed {@link HexEngine} to a copy of a new engine.
+     * This is a deep copy and will not receive updates from the game.
+     * <p>
+     * Normally, this method is not used except during initialization, instead,
+     * {@link #addMove(Hex, Piece)} is used for adding moves, which automatically change the engine.
+     * @return Whether the engine is changed.
+     */
+    public boolean setEngine(HexEngine engine){
+        boolean success = false;
+        try {
+            currentEngine = (HexEngine) engine.clone();
+            success = true;
+        } catch (CloneNotSupportedException e) {}
+        return success;
+    }
+    /**
+     * Set the current processed {@link Piece} queue to a copy of a new array of pieces.
+     * As pieces are not supposed to be modified, this array stores reference to pre-created pieces,
+     * and is generally safe to use safe.
+     * <p>
+     * It is necessary to update the queue after the ending of a game before logging.
+     */
+    public void setQueue(Piece[] queue){
+        currentQueue = queue.clone();
+    }
+    /**
+     * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
+     * representing the origin of the piece placement and a valid {@link Piece}. This will attempt to replicate the
+     * move with the current-holding engine, and if successful, the move would be considered valid and added to the
+     * move list. Otherwise, the method returns false.
+     * @return Whether the engine is changed and the move was successful.
+     */
+    public boolean addMove(Hex origin, Piece piece){
+        boolean success = false;
+        try {
+            currentEngine.add(origin, piece);
+            success = true;
+        } catch (IllegalArgumentException e) {}
+        if (success) {
+            moveOrigins.add(origin);
+            movePieces.add(piece);
+        }
+        return success;
+    }
+
+    // JSON
     /**
      * Scans the data directory for all files ending with ".game.json".
      *
