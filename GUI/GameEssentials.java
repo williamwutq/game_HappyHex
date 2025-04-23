@@ -370,6 +370,7 @@ public final class GameEssentials {
         Launcher.LaunchEssentials.fetchGameInfo();
         Launcher.LaunchEssentials.log();
         try {
+            if (gameEnds()) gameLogger.completeGame();
             gameLogger.setEngine(engine);
             gameLogger.setQueue(queue.getPieces());
             gameLogger.write();
