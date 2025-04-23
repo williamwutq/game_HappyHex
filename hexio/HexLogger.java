@@ -21,6 +21,7 @@ public class HexLogger {
     private static final int ID = (int)obfuscate(PRIME);
 
     // Data
+    private boolean completed;
     private HexEngine currentEngine;
     private Piece[] currentQueue;
     private ArrayList<Hex> moveOrigins;
@@ -38,6 +39,7 @@ public class HexLogger {
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Piece>();
+        completed = false;
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     private HexLogger(String fileName){
@@ -46,6 +48,7 @@ public class HexLogger {
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Piece>();
+        completed = false;
     }
 
     /**
@@ -148,6 +151,13 @@ public class HexLogger {
     }
 
     /**
+     * Completes the game recorded in this {@code HexLogger}. This means that this game will be registered
+     * as completed and no further data changes can be made to this {@code HexLogger}.
+     */
+    public void completeGame(){
+        completed = true;
+    }
+    /**
      * Set the current processed {@link HexEngine} to a copy of a new engine.
      * This is a deep copy and will not receive updates from the game.
      * <p>
@@ -156,6 +166,7 @@ public class HexLogger {
      * @return Whether the engine is changed.
      */
     public boolean setEngine(HexEngine engine){
+        if (completed) {return false;}
         boolean success = false;
         try {
             currentEngine = (HexEngine) engine.clone();
@@ -171,7 +182,9 @@ public class HexLogger {
      * It is necessary to update the queue after the ending of a game before logging.
      */
     public void setQueue(Piece[] queue){
-        currentQueue = queue.clone();
+        if (!completed){
+            currentQueue = queue.clone();
+        }
     }
     /**
      * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
@@ -181,6 +194,7 @@ public class HexLogger {
      * @return Whether the engine is changed and the move was successful.
      */
     public boolean addMove(Hex origin, Piece piece){
+        if (completed) {return false;}
         boolean success = false;
         try {
             currentEngine.add(origin, piece);
@@ -248,7 +262,7 @@ public class HexLogger {
      * @return The raw JSON content as a string, or {@code null} if not found.
      */
     private String readJsonFile(){
-        return null;
+        return null; // To be implemented
     }
 
     /**
@@ -321,6 +335,9 @@ public class HexLogger {
         versionBuilder.add("Minor", HexIOInfo.minor);
         versionBuilder.add("Patch", HexIOInfo.patch);
         jsonObjectBuilder.add("Version", versionBuilder);
+
+        // Write game statues
+        jsonObjectBuilder.add("Completed", completed);
 
         // Write engine
         jsonObjectBuilder.add("engine", HexConverter.convertEngine(currentEngine));
