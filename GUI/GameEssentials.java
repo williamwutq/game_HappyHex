@@ -3,9 +3,12 @@ package GUI;
 import GUI.animation.*;
 import hex.HexEngine;
 import game.Queue;
+import hexio.HexLogger;
+import io.GameTime;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * The {@link GameEssentials} class provides essential game utilities, including {@link #generateColor() color generation}
@@ -28,6 +31,8 @@ public final class GameEssentials {
     private static Queue queue;
     /** The main window of the game. */
     private static JFrame window;
+    /** The game logger used for data recording. */
+    private static HexLogger gameLogger;
     // Info panels and quit button
     private static GameInfoPanel turnLabel;
     private static GameInfoPanel scoreLabel;
@@ -267,6 +272,10 @@ public final class GameEssentials {
         engine = new HexEngine(size, gameBlockDefaultColor, getIndexedPieceColor(0)); // replace getIndexedPieceColor(0) with something else
         queue = new Queue(queueSize);
         window = frame;
+        // Logger initialize
+        gameLogger = new HexLogger();
+        gameLogger.setEngine(engine);
+        gameLogger.setQueue(queue.getPieces());
         // Construct labels
         turnLabel = new GameInfoPanel();
         scoreLabel = new GameInfoPanel();
@@ -342,8 +351,11 @@ public final class GameEssentials {
         clickedOnIndex = -1;
         turnLabel.setInfo(turn + "");
         scoreLabel.setInfo(score + "");
+        gameLogger = new HexLogger();
         engine.reset();
         queue.reset();
+        gameLogger.setEngine(engine);
+        gameLogger.setQueue(queue.getPieces());
         window.repaint();
     }
 
@@ -356,6 +368,13 @@ public final class GameEssentials {
         // Logs
         Launcher.LaunchEssentials.fetchGameInfo();
         Launcher.LaunchEssentials.log();
+        try {
+            gameLogger.setEngine(engine);
+            gameLogger.setQueue(queue.getPieces());
+            gameLogger.write();
+        } catch (IOException e) {
+            System.err.println(GameTime.generateSimpleTime() + " HexLogger: " + e.getMessage());
+        }
     }
 
     // Scoring
@@ -372,6 +391,9 @@ public final class GameEssentials {
     public static void incrementScore(int addedScore){
         score += addedScore;
         scoreLabel.setInfo(score + "");
+    }
+    public static void move(hex.Hex origin, hex.Piece piece){
+        gameLogger.addMove(origin, piece);
     }
 
     // Setters
