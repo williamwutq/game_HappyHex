@@ -270,6 +270,7 @@ public final class HexConverter {
         return piece;
     }
     // This will ignore all invalid blocks, only throw exception when engine cannot be constructed
+    // This ignore color recorded in the blocks and instead use empty and filled colors
     public static HexEngine convertEngine(JsonObject jsonObject) throws IOException {
         // Read radius, color, and create engine object
         java.awt.Color emptyColor = java.awt.Color.BLACK;
@@ -298,7 +299,7 @@ public final class HexConverter {
             try {
                 jsonArray = jsonObject.getJsonArray("piece");
             } catch (Exception ex) {
-                throw new IOException("Block array in \"Piece\" not found");
+                throw new IOException("Block array in \"HexEngine\" not found");
             }
         }
         int size = jsonArray.size();
