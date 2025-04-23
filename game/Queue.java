@@ -183,6 +183,12 @@ public class Queue{
         return pieces.length;
     }
     /**
+     * Returns all {@link Piece} stored in the {@code queue}.
+     * @return all pieces stored in the {@code queue}.
+     * @since 1.2
+     */
+    public Piece[] getPieces(){ return pieces;}
+    /**
      * Returns a string representation of the queue.
      * @return a string in the format {@code Queue[Pieces]}.
      */
