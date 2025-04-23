@@ -65,7 +65,7 @@ public final class HexConverter {
         }
         return convertBlock(block);
     }
-    public static JsonObject convertPiece(Piece piece){
+    public static JsonArray convertPiece(Piece piece){
         JsonArrayBuilder builder = Json.createArrayBuilder();
         builder.add(convertPieceBlock(-1, -1, piece));
         builder.add(convertPieceBlock(-1, 0, piece));
@@ -74,7 +74,7 @@ public final class HexConverter {
         builder.add(convertPieceBlock(0, 1, piece));
         builder.add(convertPieceBlock(1, 0, piece));
         builder.add(convertPieceBlock(1, 1, piece));
-        return builder.build().asJsonObject();
+        return builder.build();
     }
     private static JsonObject convertColoredPieceBlock(int i, int k, Piece piece){
         Block block = piece.getBlock(i, k);
@@ -85,7 +85,7 @@ public final class HexConverter {
         }
         return convertColoredBlock(block);
     }
-    public static JsonObject convertColoredPiece(Piece piece){
+    public static JsonArray convertColoredPiece(Piece piece){
         JsonArrayBuilder builder = Json.createArrayBuilder();
         builder.add(convertColoredPieceBlock(-1, -1, piece));
         builder.add(convertColoredPieceBlock(-1, 0, piece));
@@ -94,7 +94,7 @@ public final class HexConverter {
         builder.add(convertColoredPieceBlock(0, 1, piece));
         builder.add(convertColoredPieceBlock(1, 0, piece));
         builder.add(convertColoredPieceBlock(1, 1, piece));
-        return builder.build().asJsonObject();
+        return builder.build();
     }
     public static JsonObject convertEngine(HexEngine engine){
         JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
@@ -168,7 +168,7 @@ public final class HexConverter {
         if (i + j != k) {
             throw new IOException("Coordinate I, J, K does not match");
         } else {
-            return Hex.hex(i, j);
+            return Hex.hex(i, k);
         }
     }
     public static java.awt.Color convertColor(JsonObject jsonObject) throws IOException {
