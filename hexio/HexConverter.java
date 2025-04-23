@@ -290,6 +290,24 @@ public final class HexConverter {
             throw new IOException("Engine cannot be constructed because critical attribute radius in \"HexEngine\" is 0 or negative");
         }
         HexEngine engine = new HexEngine(radius, emptyColor, filledColor);
+        // Get array and populate engine
+        JsonArray jsonArray;
+        try {
+            jsonArray = jsonObject.getJsonArray("blocks");
+        } catch (Exception e) {
+            try {
+                jsonArray = jsonObject.getJsonArray("piece");
+            } catch (Exception ex) {
+                throw new IOException("Block array in \"Piece\" not found");
+            }
+        }
+        int size = jsonArray.size();
+        for (int i = 0; i < size; i ++){
+            try {
+                Block block = convertBlock(jsonArray.getJsonObject(i));
+                engine.setState(block.getLineI(), block.getLineK(), block.getState());
+            } catch (Exception e) {}
+        }
         return engine;
     }
 }
