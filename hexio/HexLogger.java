@@ -184,6 +184,7 @@ public class HexLogger {
         boolean success = false;
         try {
             currentEngine.add(origin, piece);
+            currentEngine.eliminate();
             success = true;
         } catch (IllegalArgumentException e) {}
         if (success) {
@@ -345,7 +346,7 @@ public class HexLogger {
             }
             jsonMoveArrayBuilder.add(jsonMoveBuilder);
         }
-        jsonObjectBuilder.add("moves", jsonQueueBuilder);
+        jsonObjectBuilder.add("moves", jsonMoveArrayBuilder);
 
         // write
         JsonObject resultingObject = jsonObjectBuilder.build();
