@@ -215,7 +215,7 @@ public final class HexConverter {
     }
     // Coordinate portion must be valid
     // Color and state portion can be missing, which will be default to BLACK and unoccupied (false)
-    public static Hex convertBlock(JsonObject jsonObject) throws IOException {
+    public static Block convertBlock(JsonObject jsonObject) throws IOException {
         if (jsonObject == null) throw new IOException("\"Block\" object is null or not found");
         Hex hex = convertHex(jsonObject);
         java.awt.Color color = java.awt.Color.BLACK;
@@ -227,5 +227,45 @@ public final class HexConverter {
             state = jsonObject.getBoolean("state");
         } catch (Exception e) {}
         return new Block(hex, color, state);
+    }
+    // Must contain at least one block
+    // Empty blocks can be missing
+    // See convertBlock
+    public static Piece convertPiece(JsonObject jsonObject) throws IOException {
+        // Get array
+        JsonArray jsonArray;
+        try {
+            jsonArray = jsonObject.getJsonArray("blocks");
+        } catch (Exception e) {
+            try {
+                jsonArray = jsonObject.getJsonArray("piece");
+            } catch (Exception ex) {
+                throw new IOException("Block array in \"Piece\" not found");
+            }
+        }
+        // Check first real block exists, and try to get color
+        int size = jsonArray.size();
+        int valid = 0;
+        java.awt.Color color = java.awt.Color.BLACK;
+        for (int i = 0; i < size; i ++){
+            try {
+                Block block = convertBlock(jsonArray.getJsonObject(i));
+                if (block.getState()) {
+                    if (valid == 0) color = block.color();
+                    valid++;
+                }
+            } catch (IOException e) {}
+        }
+        if (valid == 0) throw new IOException("\"Piece\" object does not contain valid blocks");
+        Piece piece = new Piece(jsonArray.size(), color);
+        for (JsonObject jsonBlock : jsonArray.getValuesAs(JsonObject.class)) {
+            try {
+                Block block = convertBlock(jsonBlock);
+                if (block.getState()) {
+                    piece.add(block);
+                }
+            } catch (IOException e) {}
+        }
+        return piece;
     }
 }
