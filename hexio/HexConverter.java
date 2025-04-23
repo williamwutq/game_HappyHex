@@ -97,7 +97,8 @@ public final class HexConverter {
 
     // Json to Hex
     public static Hex convertHex(JsonObject jsonObject) throws IOException {
-        int i = 0; int j = 0; int k = 0;
+        if (jsonObject == null) throw new IOException("\"Hex\" object is null or not found");
+        int i, j, k;
         try {
             i = jsonObject.getInt("I");
         } catch (Exception e) {
@@ -131,5 +132,62 @@ public final class HexConverter {
         } else {
             return Hex.hex(i, j);
         }
+    }
+    public static java.awt.Color convertColor(JsonObject jsonObject) throws IOException {
+        if (jsonObject == null) throw new IOException("\"Color\" object is null or not found");
+        int r, g, b;
+        try {
+            r = jsonObject.getInt("R");
+        } catch (Exception e) {
+            try {
+                r = jsonObject.getInt("r");
+            } catch (Exception ex) {
+                throw new IOException("Component R in \"Color\" not found");
+            }
+        }
+        try {
+            g = jsonObject.getInt("G");
+        } catch (Exception e) {
+            try {
+                g = jsonObject.getInt("g");
+            } catch (Exception ex) {
+                throw new IOException("Component G in \"Color\" not found");
+            }
+        }
+        try {
+            b = jsonObject.getInt("B");
+        } catch (Exception e) {
+            try {
+                b = jsonObject.getInt("b");
+            } catch (Exception ex) {
+                throw new IOException("Component B in \"Color\" not found");
+            }
+        }
+        // Check values
+        if (r > 255 || r < 0) {
+            throw new IOException("Component R in \"Color\" not in range of [0, 255]");
+        }
+        if (g > 255 || g < 0) {
+            throw new IOException("Component G in \"Color\" not in range of [0, 255]");
+        }
+        if (b > 255 || b < 0) {
+            throw new IOException("Component B in \"Color\" not in range of [0, 255]");
+        }
+        return new java.awt.Color(r, g, b);
+    }
+    // Coordinate portion must be valid
+    // Color and state portion can be missing, which will be default to BLACK and unoccupied (false)
+    public static Hex convertBlock(JsonObject jsonObject) throws IOException {
+        if (jsonObject == null) throw new IOException("\"Block\" object is null or not found");
+        Hex hex = convertHex(jsonObject);
+        java.awt.Color color = java.awt.Color.BLACK;
+        boolean state = false;
+        try {
+            color = convertColor(jsonObject);
+        } catch (Exception e) {}
+        try {
+            state = jsonObject.getBoolean("state");
+        } catch (Exception e) {}
+        return new Block(hex, color, state);
     }
 }
