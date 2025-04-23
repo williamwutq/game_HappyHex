@@ -187,6 +187,19 @@ public class Piece implements HexGrid{
         }
         return null;
     }
+    /**
+     * Retrieves the state of a {@link Block} at the specified line coordinates. If the block does not exist,
+     * it is counted as empty
+     * @param i the I-line coordinate of the target block
+     * @param k the K-line coordinate of the target block
+     * @return the block at the specified {@link Hex} line coordinate
+     * @see #getBlock(int, int)
+     * @since 1.2
+     */
+    public boolean getState(int i, int k){
+        Block block = getBlock(i, k);
+        return block != null && block.getState();
+    }
     /**{@inheritDoc}*/
     public Block getBlock(int index){
         return blocks[index];
