@@ -114,7 +114,7 @@ public final class LaunchLogger {
      * It writes important messages to console.
      * @param jsonObject The JSON object to write.
      */
-    public static void writeJsonToFile(JsonObject jsonObject) {
+    private static void writeJsonToFile(JsonObject jsonObject) {
         StringWriter stringWriter = new StringWriter();
         JsonWriterFactory writerFactory = Json.createWriterFactory(
                 Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
