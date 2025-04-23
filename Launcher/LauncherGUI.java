@@ -126,8 +126,8 @@ public class LauncherGUI {
     }
     public static void resetColor(){
         for (Component component : mainFrame.getContentPane().getComponents()){
-            if (component instanceof GUI.Recolorable){
-                ((GUI.Recolorable) component).resetColor();
+            if (component instanceof Recolorable){
+                ((Recolorable) component).resetColor();
             }
         }
     }

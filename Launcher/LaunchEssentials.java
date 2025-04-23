@@ -3,7 +3,7 @@ package Launcher;
 import GUI.GameEssentials;
 import io.*;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 
 /**
@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 2, 0);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 2, 2);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
@@ -23,9 +23,6 @@ public final class LaunchEssentials {
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
-
-    // Special
-    private static special.SpecialFeature fontStyle = special.FeatureFactory.createFeature(Font.class.getName());
 
     // Graphics Theme
     private static int themeIndex = 2;
@@ -50,14 +47,14 @@ public final class LaunchEssentials {
     public static Color launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN, "LaunchSlidingButtonOnColor");
     public static Color launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED, "LaunchSlidingButtonOffColor");
     public static Color launchSlidingButtonEmptyColor = GameEssentials.processColor(Color.WHITE, "LaunchSlidingButtonEmptyColor");
-    public static String launchTitleFont = (String) fontStyle.process(new Object[]{"Courier", "TitleFont"})[0];
-    public static String launchVersionFont = (String) fontStyle.process(new Object[]{"Comic Sans MS", "VersionFont"})[0];
-    public static String launchAuthorFont = "Helvetica";
-    public static String launchWWFont = "Georgia";
-    public static String launchButtonFont = (String) fontStyle.process(new Object[]{"Times New Roman", "ButtonFont"})[0];
-    public static String launchEnterUsernameFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
-    public static String launchSettingsFont = (String) fontStyle.process(new Object[]{"Courier", "MonoFont"})[0];
-    public static String launchSettingsSlidingButtonFont = (String) fontStyle.process(new Object[]{"Helvetica", "SlidingButtonFont"})[0];
+    public static final String launchAuthorFont = "Helvetica";
+    public static final String launchWWFont = "Georgia";
+    public static String launchTitleFont = GameEssentials.processFont("Courier", "TitleFont");
+    public static String launchVersionFont = GameEssentials.processFont("Comic Sans MS", "VersionFont");
+    public static String launchButtonFont = GameEssentials.processFont("Times New Roman", "ButtonFont");
+    public static String launchEnterUsernameFont = GameEssentials.processFont("Courier", "MonoFont");
+    public static String launchSettingsFont = GameEssentials.processFont("Courier", "MonoFont");
+    public static String launchSettingsSlidingButtonFont = GameEssentials.processFont("Helvetica", "SlidingButtonFont");
 
     public static int getRandomIndex(int length){
         return randomGenerator.nextInt(length);
@@ -90,6 +87,14 @@ public final class LaunchEssentials {
         launchSlidingButtonOnColor = GameEssentials.processColor(Color.GREEN, "LaunchSlidingButtonOnColor");
         launchSlidingButtonOffColor = GameEssentials.processColor(Color.RED, "LaunchSlidingButtonOffColor");
         launchSlidingButtonEmptyColor = GameEssentials.processColor(Color.WHITE, "LaunchSlidingButtonEmptyColor");
+    }
+    public static void refontAll(){
+        launchTitleFont = GameEssentials.processFont("Courier", "TitleFont");
+        launchVersionFont = GameEssentials.processFont("Comic Sans MS", "VersionFont");
+        launchButtonFont = GameEssentials.processFont("Times New Roman", "ButtonFont");
+        launchEnterUsernameFont = GameEssentials.processFont("Courier", "MonoFont");
+        launchSettingsFont = GameEssentials.processFont("Courier", "MonoFont");
+        launchSettingsSlidingButtonFont = GameEssentials.processFont("Helvetica", "SlidingButtonFont");
     }
 
     public static boolean isGameStarted(){
@@ -184,9 +189,6 @@ public final class LaunchEssentials {
     public static boolean isLargeMode(){
         return currentGameInfo.getGameMode() == GameMode.Large || currentGameInfo.getGameMode() == GameMode.LargeEasy;
     }
-    public static void fetchGameInfo(){
-        currentGameInfo = new GameInfo(GameEssentials.getTurn(), GameEssentials.getScore(), Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(), new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
-    }
     public static void updateRecent(){
         currentPlayerInfo.setRecentTurn(currentGameInfo.getTurn());
         currentPlayerInfo.setRecentScore(currentGameInfo.getScore());
@@ -253,13 +255,22 @@ public final class LaunchEssentials {
         return (int) Math.round(currentPlayerInfo.getAvgTurn());
     }
 
-    public static boolean log(){
+    public static boolean log(int turn, int score){
+        // Print to console
+        System.out.println(GameTime.generateSimpleTime() +
+                " GameEssentials: This game lasted for " + turn +
+                " turn" + (turn == 1 ? "" : "s") + ", resulting in a total score of " + score +
+                " point" + (score == 1 ? "" : "s") + ".");
+        // Try to read previous logs
         try {
             LaunchLogger.read();
         } catch (IOException e) {
             System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
         }
+        // Update current information
         currentPlayerInfo.eraseStats();
+        currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
+                new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
         LaunchLogger.addGame(currentGameInfo);
         updateRecent();
         updateHighest();

@@ -1,6 +1,6 @@
 package hex;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 
 /**

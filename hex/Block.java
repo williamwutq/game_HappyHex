@@ -1,6 +1,6 @@
 package hex;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * The {@code Block} class extends {@link Hex} and represents a colored block with an occupancy state
