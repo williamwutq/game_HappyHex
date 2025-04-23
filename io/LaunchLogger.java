@@ -21,6 +21,7 @@ import java.util.*;
  * This logger is game-specific and expects the root JSON object to have a `"Game": "HappyHex"` field.
  * The logger expect to have a json file at "logs.json" in the same directory, or it may create such a file.
  *
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */

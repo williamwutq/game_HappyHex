@@ -19,6 +19,7 @@ import java.util.Set;
  *
  * <p>The class is immutable after construction and ensures efficient comparison and hashing operations.
  *
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */

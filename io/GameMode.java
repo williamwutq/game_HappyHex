@@ -8,6 +8,7 @@ package io;
  * <p>
  * This enum also provide methods to {@link #determineGameMode} from size and difficulty, and determine {@link #getChar size}
  * and {@link #isEasy difficulty} from an enum constant.
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */

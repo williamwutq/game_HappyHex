@@ -18,6 +18,7 @@ import hex.Piece;
  * at specific indices (with shifting), but does not allow adding
  * externally-defined elements. New pieces are created via an
  * internal {@link #generate()} method.
+ * @since 0.6
  * @author William Wu
  * @version 1.2
  */
@@ -32,6 +33,7 @@ public class Queue{
      * This can be replaced dynamically at runtime to alter how pieces are generated in the system.
      * @see special.SpecialFeature
      * @see special.FeatureFactory
+     * @since 1.1
      */
     private static special.SpecialFeature pieceProcessor = special.FeatureFactory.createFeature();
     /**
@@ -41,6 +43,7 @@ public class Queue{
      * during the application's execution by injecting a new implementation of {@code SpecialFeature}.
      *
      * @param feature the new {@link special.SpecialFeature} to use for piece generation logic
+     * @since 1.1
      */
     public static void changePieceProcessor(special.SpecialFeature feature){
         pieceProcessor = feature;
@@ -51,6 +54,7 @@ public class Queue{
      *
      * @return the feature ID of the current {@code pieceProcessor}
      * @see special.SpecialFeature
+     * @since 1.1
      */
     public static int getPieceProcessorID(){
         return pieceProcessor.getFeatureID();
@@ -133,6 +137,7 @@ public class Queue{
      * @return a newly generated {@code Piece}.
      * @see PieceFactory#generatePiece()
      * @see #generate()
+     * @since 1.1
      */
     protected Piece generate(Piece dequeued){
         return (Piece) pieceProcessor.process(new Object[]{PieceFactory.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine(), dequeued})[0];
@@ -193,6 +198,7 @@ public class Queue{
      * Each {@link Piece} object contained in this instance is copied by reference.
      * Since {@code Queue} change its pieces by modifying references, this does not affect any operations.
      * @return a copy of this {@code Queue} object.
+     * @since 1.1
      */
     public Object clone() throws CloneNotSupportedException {
         return super.clone();

@@ -12,8 +12,8 @@
  *       including block lookup, grid reset, and elimination operations.</li>
  * </ul>
  * </p>
- *
+ * @since 1.0
  * @author William Wu
- * @version 1.1
+ * @version 1.2
  */
 package hex;
