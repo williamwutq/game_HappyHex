@@ -476,7 +476,7 @@ public class HexLogger {
             // Populate queue
             for (int i = 0; i < queueSize; i ++){
                 try {
-                    JsonObject pieceJson = queueJson.getJsonObject(i);
+                    JsonArray pieceJson = queueJson.getJsonArray(i);
                     currentQueue[i] = HexConverter.convertPiece(pieceJson);
                 } catch (Exception e) {
                     throw new IOException("Fail to read piece at index " + i + " in game queue");
@@ -506,13 +506,13 @@ public class HexLogger {
                     // Record move
                     Hex moveOrigin; Piece movePiece;
                     try {
-                        JsonObject moveOriginJson = movesJson.getJsonObject(i);
+                        JsonObject moveOriginJson = moveJson.getJsonObject("center");
                         moveOrigin = HexConverter.convertHex(moveOriginJson);
                     } catch (Exception e) {
                         throw new IOException("Fail to read move at index " + i + " in game moves due to failed center conversion");
                     }
                     try {
-                        JsonObject movePieceJson = movesJson.getJsonObject(i);
+                        JsonArray movePieceJson = moveJson.getJsonArray("piece");
                         movePiece = HexConverter.convertPiece(movePieceJson);
                     } catch (Exception e) {
                         throw new IOException("Fail to read move at index " + i + " in game moves due to failed piece conversion");
@@ -525,6 +525,7 @@ public class HexLogger {
                 }
             }
         } catch (Exception e) {
+            if (e instanceof IOException) throw e;
             throw new IOException("Fail to read game moves");
         }
     }
