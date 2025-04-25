@@ -232,6 +232,56 @@ public class HexLogger {
         }
         return success;
     }
+    /**
+     * Returns a String representation of the {@code HexLogger}, containing all its essential information.
+     * <p>
+     * This String representation contains the following elements:
+     * <ul>
+     *     <li>The path to the file that the logger is pointing to and operating for</li>
+     *     <li>The player of the recorded game and its ID</li>
+     *     <li>The complete status of the game contained in the logger and the file</li>
+     *     <li>The current {@link HexEngine} representing the recorded game field</li>
+     *     <li>The current {@link Piece} queue in the recorded game</li>
+     *     <li>The moves, containing centers {@link Hex} coordinates and {@link Piece} placed, in the recorded game</li>
+     * </ul>
+     * This method use the {@link Object#toString toString} method in the contained objects to generate string representations.
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder("GameLogger[type = HexLogger, path = ");
+        builder.append(dataFile);
+        builder.append(", data = HexData[player = ");
+        builder.append(player);
+        builder.append(", playerID = ");
+        builder.append(playerID);
+        builder.append(", engine = ");
+        builder.append(currentEngine);
+        builder.append(", queue = {");
+        if (currentQueue.length > 0){
+            builder.append(currentQueue[0]);
+        }
+        for (int i = 1; i < currentQueue.length; i++) {
+            builder.append(", ");
+            builder.append(currentQueue[i]);
+        }
+        builder.append("}, moves = {");
+        if (!movePieces.isEmpty() && !moveOrigins.isEmpty()){
+            builder.append("HexMove[center = ");
+            builder.append(moveOrigins.get(0));
+            builder.append(", piece = ");
+            builder.append(movePieces.get(0));
+            builder.append("]");
+        }
+        for (int i = 1; i < moveOrigins.size(); i++) {
+            builder.append(", HexMove[center = ");
+            builder.append(moveOrigins.get(i));
+            builder.append(", piece = ");
+            builder.append(movePieces.get(i));
+            builder.append("]");
+        }
+        builder.append("}]]");
+        return builder.toString();
+    }
 
     // JSON
     /**
