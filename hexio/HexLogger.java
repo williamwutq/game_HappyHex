@@ -1,7 +1,6 @@
 package hexio;
 
 import hex.*;
-import io.*;
 
 import javax.json.*;
 import javax.json.stream.*;
@@ -462,6 +461,29 @@ public class HexLogger {
         }
 
         // Read engine
+        try{
+            JsonObject engineJson = jsonObject.getJsonObject("engine");
+            currentEngine = HexConverter.convertEngine(engineJson);
+        } catch (Exception e) {
+            throw new IOException("Fail to read game engine");
+        }
 
+        // Read queue
+        try{
+            JsonArray queueJson = jsonObject.getJsonArray("queue");
+            int queueSize = queueJson.size();
+            currentQueue = new Piece[queueSize];
+            // Populate queue
+            for (int i = 0; i < queueSize; i ++){
+                try {
+                    JsonObject pieceJson = queueJson.getJsonObject(i);
+                    currentQueue[i] = HexConverter.convertPiece(pieceJson);
+                } catch (Exception e) {
+                    throw new IOException("Fail to read piece at index " + i + " in game queue");
+                }
+            }
+        } catch (Exception e) {
+            throw new IOException("Fail to read game queue");
+        }
     }
 }
