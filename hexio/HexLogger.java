@@ -3,6 +3,7 @@ package hexio;
 import hex.*;
 import javax.json.*;
 import javax.json.stream.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.*;
@@ -284,7 +285,16 @@ public class HexLogger {
      * @return The raw JSON content as a string, or {@code null} if not found.
      */
     private String readJsonFile(){
-        return null; // To be implemented
+        File file = new File(dataFile);
+        if (file.exists()) {
+            String result;
+            try{
+                result = new String(Files.readAllBytes(file.toPath()));
+            } catch (IOException e) {
+                return null;
+            }
+            return result;
+        } else return null;
     }
 
     /**
