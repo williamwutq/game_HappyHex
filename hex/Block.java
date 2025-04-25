@@ -116,15 +116,14 @@ public class Block extends Hex{
     }
 
     /**
-     * String representation of the block used for debugging
-     * <p>Format: {@code {Color = {r, g, b}; I,J,K = {i, j, k}; Line I,J,K = {i, j, k}; X,Y = {x, y}; State = state;}}</p>
+     * String representation of the block used for debugging. This use line coordinates.
+     * <p>Format: {@code [color = {r, g, b}, coordinates = {i, j, k}, State = state]}</p>
      * @return A string representation of the block, including color, coordinates, and state.
      */
     public String toString(){
-        return "{Color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
-                + "}; I,J,K = {" + I() + ", " + J() + ", " + K() +
-                "}; Line I,J,K = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
-                "}; X,Y = {" + X() + ", "+ Y() + "}; State = " + state + ";}";
+        return "Block[color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
+                + "}, coordinates = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
+                "}, state = " + state + "]";
     }
     /**
      * {@inheritDoc}
