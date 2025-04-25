@@ -253,9 +253,22 @@ public class Piece implements HexGrid{
      * @see Block#toString()
      */
     public String toString(){
-        StringBuilder str = new StringBuilder("{Piece: ");
-        for (Block block : blocks) {
-            str.append(block.getLines());
+        StringBuilder str = new StringBuilder("Piece{");
+        if (blocks.length > 0){
+            if (blocks[0] == null) {
+                str.append("null");
+            } else {
+                str.append(blocks[0].toBasicString());
+            }
+        }
+        for (int i = 1; i < blocks.length; i++) {
+            Block block = blocks[i];
+            str.append(", ");
+            if (block == null) {
+                str.append("null");
+            } else {
+                str.append(block.toBasicString());
+            }
         }
         return str + "}";
     }
