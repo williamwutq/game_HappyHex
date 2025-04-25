@@ -1,10 +1,13 @@
 package hexio;
 
 import hex.*;
+import io.*;
+
 import javax.json.*;
 import javax.json.stream.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.*;
 import java.time.*;
@@ -404,5 +407,61 @@ public class HexLogger {
         // write
         JsonObject resultingObject = jsonObjectBuilder.build();
         writeJsonToFile(resultingObject);
+    }
+
+    /**
+     * Reads the log file and parses it into memory.
+     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
+     * @throws IOException If reading or parsing fails or if the game type is unsupported.
+     */
+    public void read() throws IOException {
+        String jsonString = readJsonFile();
+        if (jsonString == null) {
+            throw new IOException("Failed to read JSON file because it is null");
+        }
+
+        JsonObject jsonObject;
+        try (JsonReader jsonReader = Json.createReader(new StringReader(jsonString))) {
+            jsonObject = jsonReader.readObject();
+        } catch (Exception e) {
+            throw new IOException("Failed to parse JSON file", e);
+        }
+
+        // Game Check
+        String game;
+        try {
+            game = jsonObject.getString("Game");
+        } catch (Exception e) {
+            throw new IOException("Game type is not found", e);
+        }
+        if (!"HappyHex".equals(game)) {
+            throw new IOException("Game type is not HappyHex");
+        }
+
+        // Read player
+        try{
+            playerID = Long.parseUnsignedLong(jsonObject.getString("PlayerID"), 16);
+        } catch (Exception e){
+            throw new IOException("Fail to read Player ID");
+        }
+        try{
+            player = jsonObject.getString("Player");
+        } catch (Exception e){
+            throw new IOException("Fail to read Player");
+        }
+
+        // Read completed (This support versions without completed)
+        try{
+            completed = jsonObject.getBoolean("completed");
+        } catch (Exception e){
+            try{
+                completed = jsonObject.getBoolean("Completed");
+            } catch (Exception ex){
+                completed = true;
+            }
+        }
+
+        // Read engine
+
     }
 }
