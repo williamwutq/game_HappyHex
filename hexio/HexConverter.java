@@ -447,6 +447,25 @@ public final class HexConverter {
                 throw new IOException("Block array in \"Piece\" not found");
             }
         }
+        return convertPiece(jsonArray);
+    }
+    /**
+     * Converts a JSON array to a {@link Piece}.
+     * The JSON array must contain an array of valid blocks, with at least one block having a true state.
+     * The piece's color is derived from the first valid block.
+     * <p>
+     * This is the inverse method of {@link #convertPiece(Piece)}.
+     *
+     * @param jsonArray the JSON array containing the piece data
+     * @return a {@code Piece} object
+     * @throws IOException if the JSON array is null or contains no valid blocks
+     * @see Piece#Piece
+     * @see #convertPiece(JsonObject)
+     * @see #convertColor(JsonObject)
+     * @see #convertBlock(JsonObject)
+     */
+    public static Piece convertPiece(JsonArray jsonArray) throws IOException {
+        if (jsonArray == null) throw new IOException("\"Piece\" object is null or not found");
         // Check first real block exists, and try to get color
         int size = jsonArray.size();
         int valid = 0;
@@ -462,7 +481,7 @@ public final class HexConverter {
         }
         if (valid == 0) throw new IOException("\"Piece\" object does not contain valid blocks");
         // Create piece object
-        Piece piece = new Piece(jsonArray.size(), color);
+        Piece piece = new Piece(valid, color);
         for (int i = 0; i < size; i ++){
             try {
                 Block block = convertBlock(jsonArray.getJsonObject(i));
