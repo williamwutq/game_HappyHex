@@ -483,6 +483,7 @@ public class HexLogger {
                 }
             }
         } catch (Exception e) {
+            if (e instanceof IOException) throw e;
             throw new IOException("Fail to read game queue");
         }
 
@@ -519,6 +520,7 @@ public class HexLogger {
                     moveOrigins.add(moveOrigin);
                     movePieces.add(movePiece);
                 } catch (Exception e) {
+                    if (e instanceof IOException) throw e;
                     throw new IOException("Fail to read move at index " + i + " in game moves");
                 }
             }
