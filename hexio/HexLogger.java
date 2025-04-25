@@ -485,5 +485,45 @@ public class HexLogger {
         } catch (Exception e) {
             throw new IOException("Fail to read game queue");
         }
+
+        // Read moves
+        try{
+            JsonArray movesJson = jsonObject.getJsonArray("moves");
+            int movesSize = movesJson.size();
+            // Populate moves
+            for (int i = 0; i < movesSize; i ++){
+                try {
+                    JsonObject moveJson = movesJson.getJsonObject(i);
+                    // Check move order
+                    int moveNumber = -1;
+                    try {
+                        moveNumber = moveJson.getInt("order");
+                    } catch (Exception e) {}
+                    if (moveNumber != i) {
+                        throw new IOException("Fail to read move at index " + i + " in game moves because move order does not match");
+                    }
+                    // Record move
+                    Hex moveOrigin; Piece movePiece;
+                    try {
+                        JsonObject moveOriginJson = movesJson.getJsonObject(i);
+                        moveOrigin = HexConverter.convertHex(moveOriginJson);
+                    } catch (Exception e) {
+                        throw new IOException("Fail to read move at index " + i + " in game moves due to failed center conversion");
+                    }
+                    try {
+                        JsonObject movePieceJson = movesJson.getJsonObject(i);
+                        movePiece = HexConverter.convertPiece(movePieceJson);
+                    } catch (Exception e) {
+                        throw new IOException("Fail to read move at index " + i + " in game moves due to failed piece conversion");
+                    }
+                    moveOrigins.add(moveOrigin);
+                    movePieces.add(movePiece);
+                } catch (Exception e) {
+                    throw new IOException("Fail to read move at index " + i + " in game moves");
+                }
+            }
+        } catch (Exception e) {
+            throw new IOException("Fail to read game moves");
+        }
     }
 }
