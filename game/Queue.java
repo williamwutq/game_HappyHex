@@ -84,6 +84,28 @@ public class Queue{
         }
     }
     /**
+     * Forcefully inject a {@link Piece} into a specific position in the queue.
+     * <p>
+     * If the piece is null or the index is out of bounds, the injection will be rejected and instead the queue will
+     * not change. The elements in the queue will not be shifted.
+     * <p>
+     * This operation is considered risky as it needs manual color generation and piece shape rule conforming.
+     * There is no guarantee that the piece would be a usual piece defined by the game.
+     * Use whenever necessary at your own risk.
+     * @return whether the injection is successful
+     * @since 1.2
+     */
+    public boolean inject(Piece piece, int index){
+        if(index == -1){
+            return inject(piece, pieces.length - 1);
+        } else if (piece == null || index >= pieces.length || index < -1){
+            return false; // Reject injection
+        } else {
+            pieces[index] = piece;
+            return true;
+        }
+    }
+    /**
      * Removes and returns the first {@link Piece} in the queue.
      * The remaining elements shift left by one, and a new {@code Piece} is generated and added to the end.
      * @return the first {@link Piece} in the queue.
@@ -194,8 +216,20 @@ public class Queue{
      */
     public String toString(){
         StringBuilder result = new StringBuilder("Queue[");
-        for (int i = 0; i < length(); i ++){
-            result.append(pieces[i].toString());
+        if (pieces.length > 0){
+            if (pieces[0] == null) {
+                result.append("null");
+            } else {
+                result.append(pieces[0]);
+            }
+        }
+        for (int i = 1; i < length(); i ++){
+            result.append(", ");
+            if (pieces[i] == null) {
+                result.append("null");
+            } else {
+                result.append(pieces[i]);
+            }
         }
         return result + "]";
     }

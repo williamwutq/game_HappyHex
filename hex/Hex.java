@@ -416,13 +416,13 @@ public class Hex{
     }
     /**
      * String representation of the hex coordinate used for debugging
-     * <p>Format: {@code {hex I,J,K = {i, j, k}, Line I,J,K = {i, j, k}, Rect X,Y = {x, y}}}</p>
+     * <p>Format: {@code Hex[raw = {i, j, k}, line = {i, j, k}, rect = {x, y}]}</p>
      * @return A string representation of the hex coordinate, including its rectangular conversion.
      */
     public String toString(){
-        return "{hex I,J,K = {" + I() + ", " + J() + ", " + K() +
-                "}, Line I,J,K = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
-                "}, Rect X,Y = {" + X() + ", "+ Y() + "}}";
+        return "Hex[raw = {" + I() + ", " + J() + ", " + K() +
+                "}, line = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
+                "}, rect = {" + X() + ", "+ Y() + "}]";
     }
 
     // Coordinate manipulation

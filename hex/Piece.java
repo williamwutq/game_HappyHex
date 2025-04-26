@@ -187,6 +187,19 @@ public class Piece implements HexGrid{
         }
         return null;
     }
+    /**
+     * Retrieves the state of a {@link Block} at the specified line coordinates. If the block does not exist,
+     * it is counted as empty
+     * @param i the I-line coordinate of the target block
+     * @param k the K-line coordinate of the target block
+     * @return the block at the specified {@link Hex} line coordinate
+     * @see #getBlock(int, int)
+     * @since 1.2
+     */
+    public boolean getState(int i, int k){
+        Block block = getBlock(i, k);
+        return block != null && block.getState();
+    }
     /**{@inheritDoc}*/
     public Block getBlock(int index){
         return blocks[index];
@@ -240,11 +253,50 @@ public class Piece implements HexGrid{
      * @see Block#toString()
      */
     public String toString(){
-        StringBuilder str = new StringBuilder("{Piece: ");
-        for (Block block : blocks) {
-            str.append(block.getLines());
+        StringBuilder str = new StringBuilder("Piece{");
+        if (blocks.length > 0){
+            if (blocks[0] == null) {
+                str.append("null");
+            } else {
+                str.append(blocks[0].toBasicString());
+            }
+        }
+        for (int i = 1; i < blocks.length; i++) {
+            Block block = blocks[i];
+            str.append(", ");
+            if (block == null) {
+                str.append("null");
+            } else {
+                str.append(block.toBasicString());
+            }
         }
         return str + "}";
+    }
+    /**
+     * Returns a byte representation of the blocks in this {@code Piece}, if this piece confines
+     * to the standard of a 7-{@link Block} piece.
+     * <p>
+     * Empty blocks will be represented with 0s and filled blocks will be represented with 1s.
+     * This method does not record color.
+     * @return a byte representing this 7-block piece. The first bit is empty.
+     */
+    public byte toByte(){
+        byte mask = 0x7F;
+        byte data = 0;
+        if (getState(-1, -1)) data ++;
+        data = (byte) (data << 1);
+        if (getState(-1, 0)) data ++;
+        data = (byte) (data << 1);
+        if (getState(0, -1)) data ++;
+        data = (byte) (data << 1);
+        if (getState(0, 0)) data ++;
+        data = (byte) (data << 1);
+        if (getState(0, 1)) data ++;
+        data = (byte) (data << 1);
+        if (getState(1, 0)) data ++;
+        data = (byte) (data << 1);
+        if (getState(1, 1)) data ++;
+        return (byte) (data & mask);
     }
     /**
      * Compares this piece to another for equality.

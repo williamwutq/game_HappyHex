@@ -6,6 +6,7 @@ import hex.Piece;
 import hex.Block;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.Color;
 
@@ -113,6 +114,20 @@ public class PieceTest {
     }
 
     @Test
+    void testGetState() {
+        Piece piece = new Piece(4, Color.RED);
+        piece.add(0, -1);
+        piece.add(-1, 0);
+        piece.add(1, 1);
+
+        assertFalse(piece.getState(0, 0), "Block state at (0,0) should be false");
+        assertTrue(piece.getState(0, -1), "Block state at (0,-1) should be true");
+        assertTrue(piece.getState(-1, 0), "Block state at (-1,0) should be true");
+        assertTrue(piece.getState(1, 1), "Block state at (1,1) should be true");
+        assertFalse(piece.getState(2, 0), "Block state at (2,0) should be false");
+    }
+
+    @Test
     void testGetBlockByIndex() {
         Piece piece = new Piece(2, Color.RED);
         piece.add(0, 0);
@@ -162,6 +177,16 @@ public class PieceTest {
 
         String expected = "{Piece: {I = 0, J = 0, K = 0}{I = 1, J = 0, K = 1}}";
         assertEquals(expected, piece.toString(), "toString output should match");
+    }
+
+    @Test
+    void testToByte() {
+        Piece piece = new Piece(3, Color.GREEN);
+        piece.add(1, 1);
+        piece.add(0, 0);
+        piece.add(0, 1);
+
+        assertEquals(piece.toByte(), 0b00001101, "toByte output should be 0b00001101");
     }
 
     @Test

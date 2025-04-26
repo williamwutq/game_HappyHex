@@ -559,19 +559,33 @@ public class HexEngine implements HexGrid{
 
 
     /**
-     * Returns a string representation of the grid and block states.
+     * Returns a string representation of the grid color and block states.
      * @return string showing block positions and states
      * @see Block#toString()
      */
     public String toString(){
-        StringBuilder str = new StringBuilder("{HexEngine: ");
-        for (Block block : blocks) {
-            str.append(block.getLines());
-            str.append(",");
-            str.append(block.getState());
-            str.append("; ");
+        StringBuilder str = new StringBuilder("HexEngine[empty = {");
+        str.append(emptyBlockColor.getRed());
+        str.append(", ");
+        str.append(emptyBlockColor.getGreen());
+        str.append(", ");
+        str.append(emptyBlockColor.getBlue());
+        str.append("}, filled = {");
+        str.append(filledBlockColor.getRed());
+        str.append(", ");
+        str.append(filledBlockColor.getGreen());
+        str.append(", ");
+        str.append(filledBlockColor.getBlue());
+        str.append("}, blocks = {");
+        if (blocks.length > 0){
+            str.append(blocks[0].toBasicString());
         }
-        return str + "}";
+        for (int i = 1; i < blocks.length; i++) {
+            Block block = blocks[i];
+            str.append(", ");
+            str.append(block.toBasicString());
+        }
+        return str + "}]";
     }
 
     /**

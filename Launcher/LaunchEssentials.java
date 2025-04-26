@@ -104,23 +104,23 @@ public final class LaunchEssentials {
         gameStarted = true;
         int delay = 250;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(8, 5));
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(11, 7));
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(8, 5));
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(11, 7));
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
-            System.err.println("Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
         } else {
-            System.err.println("Unknown GameMode detected.");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer());
+            System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Unknown GameMode detected.");
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
         }
     }
     public static void endGame(){
@@ -135,6 +135,25 @@ public final class LaunchEssentials {
     }
     public static long getCurrentPlayerID(){
         return currentGameInfo.getPlayerID();
+    }
+    public static hexio.HexLogger smartCreateLogger(int size, int queueSize){
+        hexio.HexLogger logger = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
+        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        // Search for incomplete games
+        if(!loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
+            for (hexio.HexLogger generatedLogger : loggers){
+                try {
+                    generatedLogger.read();
+                } catch (IOException e) {continue;}
+                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
+                        && generatedLogger.getQueue().length == queueSize
+                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()){
+                    System.out.println(GameTime.generateSimpleTime() + " HexLogger: Unfinished game found at file " + generatedLogger.getDataFileName() + ".");
+                    logger = generatedLogger;
+                }
+            }
+        }
+        return logger;
     }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
