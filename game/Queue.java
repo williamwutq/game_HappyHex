@@ -194,8 +194,20 @@ public class Queue{
      */
     public String toString(){
         StringBuilder result = new StringBuilder("Queue[");
-        for (int i = 0; i < length(); i ++){
-            result.append(pieces[i].toString());
+        if (pieces.length > 0){
+            if (pieces[0] == null) {
+                result.append("null");
+            } else {
+                result.append(pieces[0]);
+            }
+        }
+        for (int i = 1; i < length(); i ++){
+            result.append(", ");
+            if (pieces[i] == null) {
+                result.append("null");
+            } else {
+                result.append(pieces[i]);
+            }
         }
         return result + "]";
     }
