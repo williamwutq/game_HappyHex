@@ -108,6 +108,17 @@ public final class GameEssentials {
             return pieceColors[index];
         } else return null;
     }
+    public static Color getDefaultColor(){
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        for (Color color : pieceColors){
+            r += color.getRed();
+            g += color.getGreen();
+            b += color.getBlue();
+        }
+        return new Color(r/12, g/12, b/12);
+    }
     @Deprecated
     public static Color whitenColor(Color origin){
         return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
@@ -256,7 +267,7 @@ public final class GameEssentials {
         if(easy) {
             game.PieceFactory.setEasy();
         }
-        engine = new HexEngine(size, gameBlockDefaultColor, getIndexedPieceColor(0)); // replace getIndexedPieceColor(0) with something else
+        engine = new HexEngine(size, gameBlockDefaultColor, getDefaultColor());
         queue = new Queue(queueSize);
         window = frame;
         // Logger initialize
