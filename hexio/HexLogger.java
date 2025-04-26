@@ -417,6 +417,18 @@ public class HexLogger {
     }
 
     /**
+     * Erase the game data in this logger by reset them. This will not reset the file it points to or the player.
+     * This is almost equal to create another logger.
+     */
+    public void erase() {
+        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        currentQueue = new Piece[0];
+        moveOrigins = new ArrayList<Hex>();
+        movePieces = new ArrayList<Piece>();
+        completed = false;
+    }
+
+    /**
      * Deletes the file related to this {@code HexLogger} if exists
      *
      * @return true if the file is deleted, false otherwise
@@ -698,6 +710,8 @@ public class HexLogger {
         try{
             JsonArray movesJson = jsonObject.getJsonArray("moves");
             int movesSize = movesJson.size();
+            moveOrigins = new ArrayList<>(movesSize);
+            movePieces = new ArrayList<>(movesSize);
             // Populate moves
             for (int i = 0; i < movesSize; i ++){
                 try {
