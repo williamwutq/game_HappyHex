@@ -117,7 +117,7 @@ public final class GameEssentials {
             g += color.getGreen();
             b += color.getBlue();
         }
-        return new Color(r/12, g/12, b/12);
+        return interpolate(gameBackgroundColor, gameBlockDefaultColor, 2);
     }
     @Deprecated
     public static Color whitenColor(Color origin){
@@ -277,14 +277,16 @@ public final class GameEssentials {
             // Copy logger info to game
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
-                    engine.setState(block.getLineI(), block.getLineK(), true);
+                    hex.Block cloned = block.clone();
+                    cloned.setColor(generateColor());
+                    engine.setBlock(block.getLineI(), block.getLineK(), cloned);
                 }
             }
             Piece[] loggerQueue = logger.getQueue();
             for (int i = 0; i < loggerQueue.length; i++) {
                 Piece piece = loggerQueue[i];
                 if (piece != null) {
-                    piece.setColor(engine.getFilledBlockColor());
+                    piece.setColor(generateColor());
                     queue.inject(piece, i);
                 }
             }
