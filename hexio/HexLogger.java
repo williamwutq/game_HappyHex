@@ -14,6 +14,104 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.ArrayList;
 
+/**
+ * The {@code HexLogger} class is designed to log and manage game data for the "HappyHex" game,
+ * specifically handling the recording, storage, and retrieval of game state data in JSON format.
+ * It supports logging critical game elements such as the game engine, piece queue, and player moves,
+ * ensuring accurate tracking of game progress. The class also provides obfuscation mechanisms for
+ * generating unique identifiers and timestamps, enhancing data integrity and uniqueness.
+ *
+ * <h3>Purpose</h3>
+ * The primary purpose of {@code HexLogger} is to serve as a robust logging utility for the HappyHex game,
+ * enabling developers to save game states to JSON files, read them back, and manage game data efficiently.
+ * It is particularly useful for tracking player progress, debugging, and analyzing game sessions.
+ * The class supports the {@code hex.basic} and {@code hex} (unnamed) data formats, with plans to
+ * support additional formats in future releases.
+ *
+ * <h3>Function</h3>
+ * The {@code HexLogger} class provides the following key functionalities:
+ * <ul>
+ *     <li><b>Game State Logging:</b> Records the current state of the game, including the {@link HexEngine},
+ *         piece queue, and move history, into a JSON file with the {@code .hpyhex.json} extension.</li>
+ *     <li><b>Data Retrieval:</b> Reads and parses JSON log files to reconstruct game states in memory,
+ *         populating fields like the engine, queue, and moves.</li>
+ *     <li><b>Obfuscation:</b> Generates unique, obfuscated hashes and timestamps for filenames and identifiers
+ *         using bit-shifting and prime multiplication techniques to ensure uniqueness and security.</li>
+ *     <li><b>File Management:</b> Manages JSON files in the {@code /data/} directory, including creating,
+ *         reading, writing, and deleting game log files.</li>
+ *     <li><b>Player Management:</b> Tracks player information, including name and ID, with support for
+ *         guest profile for invalid or non-existent inputs.</li>
+ *     <li><b>Game Completion:</b> Marks games as completed to prevent further modifications, ensuring
+ *         data integrity for finalized game sessions.</li>
+ * </ul>
+ *
+ * <h3>Data Format</h3>
+ * This is version 1.2 of the {@code HexLogger} class, adhering to the {@code hex.basic} format standard.
+ * It currently supports reading and writing in the {@code hex.basic} and {@code hex} (unnamed) formats.
+ * Support for additional data formats is planned for future releases. See {@link #readHexData} for formats.
+ *
+ * <h3>Example Usage</h3>
+ * Below is an example demonstrating how to use the {@code HexLogger} class to log a game session,
+ * add moves, complete the game, and read the logged data:
+ *
+ * <pre>{@code
+ * // Initialize a HexLogger for a player
+ * HexLogger logger = new HexLogger("PlayerOne", 123456789L);
+ *
+ * // Set up the game engine and piece queue
+ * HexEngine engine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+ * logger.setEngine(engine);
+ * Piece[] queue = {piece, piece};
+ * logger.setQueue(queue);
+ *
+ * // Add a move
+ * Hex origin = new Hex(0, 0);
+ * boolean moveSuccess = logger.addMove(origin, piece);
+ * if (moveSuccess) {
+ *     System.out.println("Move added successfully.");
+ * }
+ *
+ * // Complete the game, lock data
+ * logger.completeGame();
+ *
+ * // Write the game data to a JSON file
+ * try {
+ *     logger.write();
+ *     System.out.println("Game data saved to: " + logger.getDataFileName());
+ * } catch (IOException e) {
+ *     System.err.println("Failed to save game data: " + e.getMessage());
+ * }
+ *
+ * // Read the game data from the JSON file
+ * HexLogger newLogger = new HexLogger(logger.getDataFileName());
+ * try {
+ *     newLogger.read();
+ *     System.out.println("Game data loaded: " + newLogger.toString());
+ * } catch (IOException e) {
+ *     System.err.println("Failed to load game data: " + e.getMessage());
+ * }
+ *
+ * // Delete the log file if no longer needed
+ * boolean deleted = logger.deleteFile();
+ * if (deleted) {
+ *     System.out.println("Log file deleted successfully.");
+ * }
+ * }</pre>
+ *
+ * <h3>Notes</h3>
+ * <ul>
+ *     <li>This class is dependent on {@link hex} package and its JSON conversion class {@link HexConverter}.</li>
+ *     <li>Files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
+ *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.</li>
+ *     <li>The {@link #read()} and {@link #write()} methods throw {@link IOException} if file operations
+ *         or JSON parsing fail, so proper exception handling is required.</li>
+ *     <li>Future versions will expand support for additional data formats beyond {@code hex.basic} and {@code hex}.</li>
+ * </ul>
+ *
+ * @author William Wu
+ * @version 1.2
+ * @since 1.2
+ */
 public class HexLogger {
     // Hashing
     /** Bit shift values used for the hashing obfuscation process. */
