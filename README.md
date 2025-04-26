@@ -9,7 +9,7 @@ This is a very happy and fun game, with some easter eggs, for everyone :)
 <b>Latest release:</b> [1.2.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.2)  
 
 > [!IMPORTANT]
-> This project need the following dependencies to run:
+> This project need the following [dependencies](#Dependencies) to run:
 > 1. `javax.json` package ([Source](https://docs.oracle.com/javaee/7/api/javax/json/package-summary.html)). 
 > 2. Implementation of `javax.json`, such as JSR-000374 Java API ([Download](https://download.oracle.com/otndocs/jcp/json_p-1_1-final-spec/index.html)). 
 > 3. (*For tests*) `org.junit.jupiter.api` package ([Source](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)).<br/>
@@ -29,6 +29,40 @@ and added increasingly attractive features. From version 0.4 to 1.2, it has grow
 launched through terminal commands and contained no color indication to a comprehensive and enjoyable game that features settings, themes, and animation.
 It has became that one project which I could not stop thinking about. Step by step improvements will be made in different aspects and merged together for
 revisions after revisions. In the end, I would incorperate intelligent autoplay systems, unlockable achievements, and even fancier graphics.
+
+## License
+Distributed under the MIT License
+
+[License Link](https://github.com/williamwutq/game_HappyHex/blob/main/LICENSE)
+
+## Usage
+How to download the game and play, or, if you want, compile it yourself.  
+1. Run the `.jar` file  
+   1. Find the Latest Release (See the [top](#HappyHex) of this document).  
+   2. Download the asset from the release.
+   3. Find `HappyHex_jar Version x.x.x.zip` zip file.  
+   4. Use a tool to decompress the zip file, which will create a folder named `HappyHex_jar`.  
+   5. Make sure that the folder contains:  
+      a. The main jar file, `game_HappyHex.jar`.  
+      b. The JSON utilities, `javax.json-1.1.4.jar` and `javax.json-api-1.1.jar`.  
+      c. The `data` folder.  
+   6. Double click or use a tool to run `game_HappyHex.jar`.  
+2. Download code from github.com  
+   1. Find the Latest Release (See the [top](#HappyHex) of this document).  
+   2. Download the asset from the release.
+   3. Download [dependencies](#Dependencies). You don't need `javax.swing` if it is already installed.
+   4. Set the downloaded dependencies as project dependencies or libraries.
+   4. Remove `HappyHex_jar Version x.x.x.zip` zip file, which contain a compiled jar.
+   5. If tests are not needed, remove the `tests` package.
+   6. Compile the program.
+   7. Run main method in `Main` class in the main directory, usually named `game_HappyHex`.
+
+### Dependencies
+- [javax.swing](https://docs.oracle.com/javase/7/docs/api/javax/swing/package-summary.html)
+- [javax.json](https://docs.oracle.com/javaee/7/api/javax/json/package-summary.html)
+- [javax.json api](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)
+- [org.junit.jupiter.api](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)
+
 
 ## Development
 ### Contribution
