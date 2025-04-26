@@ -24,7 +24,9 @@ import java.util.ArrayList;
  * <h3>Purpose</h3>
  * The primary purpose of {@code HexLogger} is to serve as a robust logging utility for the HappyHex game,
  * enabling developers to save game states to JSON files, read them back, and manage game data efficiently.
- * It is particularly useful for tracking player progress, debugging, and analyzing game sessions.
+ * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. This
+ * also record player information, which means data could be used for reviewing. For machine learning, the
+ * logged data could be used for training, helping future developers to build advanced autoplay systems.
  * The class supports the {@code hex.basic} and {@code hex} (unnamed) data formats, with plans to
  * support additional formats in future releases.
  *
@@ -167,6 +169,17 @@ public class HexLogger {
     public String getDataFileName() {
         return dataFile;
     }
+
+    /**
+     * Gets the name of the current player.
+     * @return the player's name
+     */
+    public String getPlayer() {return player;}
+    /**
+     * Gets the ID (long) of the current player.
+     * @return the player’s ID
+     */
+    public long getPlayerID(){return playerID;}
     // Hashing
     /**
      * Generates a string representing the current date and time in a simple format.
