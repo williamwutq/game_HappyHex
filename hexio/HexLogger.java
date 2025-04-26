@@ -37,6 +37,8 @@ public class HexLogger {
     private final String dataFile;
     /** Directory for storing game files. */
     private static final String dataDirectory = "data/";
+    /** Format of the data logged into the JSON file. */
+    private static final String dataFormat = "hex.basic";
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
@@ -424,8 +426,11 @@ public class HexLogger {
         jsonObjectBuilder.add("Player", player);
         jsonObjectBuilder.add("PlayerID", Long.toHexString(playerID));
 
+        // Write data format
+        jsonObjectBuilder.add("format", dataFormat);
+
         // Write game statues
-        jsonObjectBuilder.add("Completed", completed);
+        jsonObjectBuilder.add("completed", completed);
 
         // Write engine
         jsonObjectBuilder.add("engine", HexConverter.convertEngine(currentEngine));
@@ -499,6 +504,60 @@ public class HexLogger {
             throw new IOException("Fail to read Player");
         }
 
+        // Read data format (This support versions without format)
+        String dataFormat;
+        try {
+            dataFormat = jsonObject.getString("format");
+        } catch (Exception e) {
+            try {
+                dataFormat = jsonObject.getString("Format");
+            } catch (Exception ex) {
+                dataFormat = "hex";
+            }
+        }
+
+        if(dataFormat.substring(0, 3).equals("hex")) {
+            if(dataFormat.equals("hex")) {
+                readHexData(jsonObject);
+            } else if (dataFormat.equals("hex.basic")) {
+                readHexData(jsonObject);
+            } else {
+                throw new IOException("Data format is not compatible for this version of \"HexLogger\"");
+            }
+        } else throw new IOException("Data format is not \"hex\" for this version of \"HexLogger\"");
+    }
+
+    /**
+     * Reads the hexagonal grid data of a format {@code hex} or {@code hex.basic} data and parse it into memory.
+     * <p>
+     * The {@code hex} format contains:
+     * <ul>
+     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
+     *     radius, and blocks. The block record of the engine does not contain colors.</li>
+     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
+     *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
+     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a hex
+     *     coordinate representing the center, and the piece that is placed. The moves are automatically ordered.</li>
+     * </ul>
+     * <p>
+     * The {@code hex.simple} format contains:
+     * <ul>
+     *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
+     *     be non-modifiable.</li>
+     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
+     *     radius, and blocks. The block record of the engine does not contain colors.</li>
+     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
+     *     radius, and blocks. The block record of the engine does not contain colors.</li>
+     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
+     *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
+     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
+     *     number representing the move order, a hex coordinate representing the center, and the piece that is placed,
+     *     The moves are ordered according to move sequence</li>
+     * </ul>
+     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
+     * @throws IOException If reading or parsing fails or if the game type is unsupported.
+     */
+    public void readHexData(JsonObject jsonObject) throws IOException {
         // Read completed (This support versions without completed)
         try{
             completed = jsonObject.getBoolean("completed");
