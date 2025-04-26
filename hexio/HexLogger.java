@@ -169,7 +169,6 @@ public class HexLogger {
     public String getDataFileName() {
         return dataFile;
     }
-
     /**
      * Gets the name of the current player.
      * @return the player's name
@@ -180,6 +179,11 @@ public class HexLogger {
      * @return the player’s ID
      */
     public long getPlayerID(){return playerID;}
+    /**
+     * Whether this game have been completed. If it is completed, the game data cannot be further modified.
+     * @return true if this game is completed
+     */
+    public boolean isCompleted(){return completed;}
     // Hashing
     /**
      * Generates a string representing the current date and time in a simple format.
