@@ -4,7 +4,7 @@ A hexagonal Block Blast (e.g. Hex FRVR) implementation using java, build with cu
 This is a very happy and fun game, with some easter eggs, for everyone :)
 
 <b>Author:</b> William Wu  
-<b>Lauguages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))
+<b>Lauguages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
 <b>Last edited:</b> 26/04/2025  
 <b>Latest release:</b> [1.2.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.2)  
 
