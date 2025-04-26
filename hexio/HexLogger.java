@@ -250,11 +250,11 @@ public class HexLogger {
     public String toString() {
         StringBuilder builder = new StringBuilder("GameLogger[type = HexLogger, path = ");
         builder.append(dataFile);
-        builder.append(", data = HexData[player = ");
+        builder.append(", player = ");
         builder.append(player);
         builder.append(", playerID = ");
         builder.append(playerID);
-        builder.append(", engine = ");
+        builder.append(", data = HexData[engine = ");
         builder.append(currentEngine);
         builder.append(", queue = {");
         if (currentQueue.length > 0){
