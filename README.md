@@ -64,6 +64,53 @@ How to download the game and play, or, if you want, compile it yourself.
 - [org.junit.jupiter.api](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)
 
 ## Game Play
+### Theme, Color and Font
+This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](Special-Themes)
+section.
+#### Fonts
+The various sections of the game GUI use the following Fonts, they are stored as static variables in
+`GUI.GameEssentials` and `Launcher.LaunchEssentials`. They may be modified by [easter eggs](Eaaster-Eggs).
+
+- Fonts for author information and copyright on the button of launcher pages are always "Helvetica".  
+- Font for the mark "W.W" is always "Georgia".  
+- Font for the title, styled "Happy Hex", is "Courier".  
+- Font for the version string beneath the title is "Comic Sans MS".  
+- Font for the buttons to switch pages in the launcher or to start the game is "Times New Roman".  
+- Fonts for hints, displayed texts, username rules, etc. that require a mono font is "Courier".
+- Fonts for the sliding ON-OFF swtich in settings and theme pages are "Helvetica".
+- Fonts for quit button, user information, game turns and score inside the game page is "Courier".
+
+#### Normal Color Theme
+- Color for the background of any launcher page is `rgb(241, 243, 213)`.
+- Color for the background of the strip behind the title, styled "Happy Hex", is `rgb(219, 223, 151)`.
+- Colors for author information and copyright on the button of launcher pages are `rgb(0, 73, 54)`.
+- Colors for the mark "W.W" is `rgb(0, 0, 0)`.
+- Colors for game version string beneath the title is `rgb(0, 0, 0)`.
+- Colors for game hints string beneath the title is `rgb(128, 128, 128)`.
+- Color for the background of the log in field in the log in page in launcher is `rgb(247, 248, 238)`.
+- Color for the foreground of the log in field in the log in page in launcher, if the text is a logged in player name, is `rgb(136, 136, 0)`.
+- Color for the foreground of the log in field in the log in page in launcher, if the text is a prompt, is `rgb(0, 136, 0)`.
+- Color for the foreground of the log in field in the log in page in launcher, if the text is a warning or an error, is `rgb(136, 0, 0)`.
+- Color for the foreground of the log in field in the log in page in launcher, if the text is a special message, is `rgb(0, 136, 136)`.
+- Colors for the background of the buttons to switch pages in the launcher are `rgb(0, 0, 0)`.
+- Colors for the background of the buttons to quit to main page from another launcher page in the launcher are `rgb(255, 0, 0)`.
+- Color for the background of the button to confirm the information player inputted in the log in field in the launcehr is `rgb(0, 223, 39)`.
+- Colors for the foreground of the button to start a new game when a existing game [ends](#Game-Ending) are `rgb(0, 193, 211)`.
+- Colors for the empty portion of the sliding ON-OFF swtich in settings and theme pages are `rgb(255, 255, 255)`.
+- Colors for the foreground of the sliding ON-OFF swtich in settings and theme pages, when `ON`, are `rgb(0, 255, 0)`.
+- Colors for the foreground of the sliding ON-OFF swtich in settings and theme pages, when `OFF`, are `rgb(255, 0, 0)`.
+- Color for the background of the game field in game page is `rgb(213, 236, 230)`.
+- Color for the background of the piece queue in game page is `rgb(113, 129, 122)`.
+- Color for the background of the game over page is `rgb(163, 188, 180)`.
+- Color for texts displaying game username, turns, and score information, in game page, is `rgb(5, 34, 24)`.
+- Color for the [quit](#Game-Quitting) button in game page, is `rgb(136, 7, 7)`.
+- Colors for blocks in the game field, when they are not filled, are `rgb(0, 0, 0)`.
+- Color for the block selected in the piece selected in the piece queue, is `rgb(168, 213, 201)`.
+- The 12 Colors available for blocks, are, 
+`rgb(0, 0, 240)`, `rgb(0, 100, 190)`, `rgb(0, 180, 180)`, `rgb(0, 180, 120)`,
+`rgb(0, 210, 0)`, `rgb(100, 180, 0)`, `rgb(180, 180, 0)`, `rgb(200, 90, 0)`,
+`rgb(210, 0, 0)`, `rgb(200, 0, 120)`, `rgb(180, 0, 180)`, and `rgb(100, 0, 200)`.
+
 ### Game Rules
 These game rules are automatically enforced by game logic stored in the game code. Players do not need to pay special attentions to them, but it is a good idea
 to understand why the game bahaves the way it does. [Easter Eggs](#Easter-Eggs) can sometimes override game rules.
@@ -255,7 +302,7 @@ and turns, the highest score and turns, and the adverage score and turns can be 
 Future considerations in this include setting passwords for user accounts, adding an achievement and purchasable system that would be linked with graphic themes, 
 and providing a page for more detailed user game analysis. It is also considered to develop a separate runnable program derived from the current
 [Game Graphics](#develop--game-graphics), which can help the player to review their game. This may potentially also help with
-[Machine learning](#develop--machine-learning) and intelligent autoplay. For these reasons, it has its own tab [GameViewer](#develop--game-viewer).
+[Machine learning](#develop--machine-learning) and intelligent autoplay. For these reasons, it has its own tab [Game Viewer](#develop--game-viewer).
 3. <a name="develop--special-themes"><b>Special Themes</b></a>  
 These are themes that could only be activated during certain days, such as Halloween, Independence Day, or Christmas. Some of them also serve as memorial to 
 tragic events such as the September 11th attacks. These themes use the same injection interface as [SpecialModes](#develop--special-modes), and are packaged
@@ -264,7 +311,13 @@ in the same `special` package. Dedicated branches would be `special` and sometim
 Easter eggs modifying something fundamental in the game, whether it is piece generation, scoring and elimination rules, or others. Current implemented special
 modes include `GodMode` and `HardMode`, both of which change the difficulty of the game by change the piece generation logic. These themes use the same injection
 interface as [SpecialThemes](#develop--special-themes), and are packaged in the same `special` package. Dedicated branch for special modes is `special`.<br/>  
-4. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
+5. <a name="develop--game-viewer"><b>Game Viewer</b></a>  
+Develop a seperate runnable program that may read `.hpyhex.json` files and display them in a hexagonal grid without color.
+This program can be grayscale and simple to run with miminal dependencies.  
+The Game Viewer should feature inputs to select which file to view, buttons to increment and decrement the moves recorded in the game, and display
+real time game scores associated with the moves. The program may also feature a button to automaticly increment the game with timed intervals or buttons
+to skip a certain numbers of steps.<br/>  
+6. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
 A more precise way of describing this direction would be auto-game-play. This means a machine would be build to play the game while the player sit there and
 watch. This autoplay would be initially enabled through scoreing algorithms and later through trained artificial intelligence operated in Python. This is a feature
 of the future but current architecture is being designed around it. At the same time, scoring and reward functions are gradually comming online.<br/> 
