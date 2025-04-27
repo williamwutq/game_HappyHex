@@ -172,6 +172,22 @@ This theme can be activated in the launcher page themes, when the `White` switch
 - Color for the block selected in the piece selected in the piece queue, is `rgb(192, 192, 192)`.
 - The 12 Colors available for blocks, are the same colors as they are in the [Normal Theme](#Normal-Color-Theme)
 
+#### Screen Shots
+These are screenshots of various portions of the game as of [patch 1.1.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.1.3).
+The colors and fonts of the three basic themes have not changed since.  
+- [Normal Color Theme](#Normal-Color-Theme):<br/>
+  <img width="275" alt="Normal Theme Main Page" src="https://github.com/user-attachments/assets/febf09bb-7fd2-4824-b8c3-d65e578c41ad" />
+  <img width="275" alt="Normal Theme Login Page" src="https://github.com/user-attachments/assets/71475819-ab58-45d8-bba6-fd2bb540480f" />
+  <img width="275" alt="Normal Theme Game Board" src="https://github.com/user-attachments/assets/57bf32e7-c075-45be-ba20-82f9f00c1c81" />
+- [Dark Theme](#Dark-Theme):<br/>
+  <img width="275" alt="Dark Theme Main Page" src="https://github.com/user-attachments/assets/aec476f1-c8b6-4098-87df-44efd57d13f6" />
+  <img width="275" alt="Dark Theme Login Page" src="https://github.com/user-attachments/assets/bd17ed67-15b8-4b05-9a65-a91084d9bae5" />
+  <img width="275" alt="Dark Theme Game Board" src="https://github.com/user-attachments/assets/5b95363e-5a29-4102-8be7-23b19fe1bf79" />
+- [White Theme](#White-Theme):<br/>
+  <img width="275" alt="White Theme Main Page" src="https://github.com/user-attachments/assets/b59f8a39-24b2-43eb-bfc0-7badf9a549d7" />
+  <img width="275" alt="White Theme Login Page" src="https://github.com/user-attachments/assets/128afaa6-6f8c-44a3-9764-c180a4257286" />
+  <img width="275" alt="White Theme Game Board" src="https://github.com/user-attachments/assets/c3b3ba4f-b77a-46ed-abd8-860d73af28b9" />
+
 ### Game Rules
 These game rules are automatically enforced by game logic stored in the game code. Players do not need to pay special attentions to them, but it is a good idea
 to understand why the game behaves the way it does. [Easter Eggs](#Easter-Eggs) can sometimes override game rules.
