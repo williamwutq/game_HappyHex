@@ -6,7 +6,7 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
 <b>Last edited:</b> 27/04/2025  
-<b>Latest release:</b> [1.2.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.2)  
+<b>Latest release:</b> [1.2.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.3)  
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -19,7 +19,10 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 > [!NOTE]
 > The project may contain bugs:
 > - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).
-> - The most recent release have ***no*** detected bugs.
+> - The most recent release have ***one*** detected bugs:
+>   1. [Restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)
+       Statues: Temporarily fixed
+       Fixes: Disabled restart unfinished game feature.
 
 ## About
 This is just a cute project of mine. From early on after learning java in high school and helped the teacher taught its graphics library `javax.swing` I
@@ -345,7 +348,7 @@ These themes can change the color of every component in the game and the launche
 ### Contribution
 This is mostly my project under my design, and I am managing all branches.  
 
-Currently (As of Release 1.4), I have no plans for collaboration with others on this project. However, if you wish to contribute on this small game, please
+Currently (Before Release 1.4), I have no plans for collaboration with others on this project. However, if you wish to contribute on this small game, please
 feel free to contact me.  
 
 If you wish to suggest a feature, create an [issue](https://github.com/williamwutq/game_HappyHex/issues) and add appropriate tags. Please add the
@@ -401,14 +404,7 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.2.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.2)
-- Patch 1.2.3
-  - Add feature to automatically resume unfinished game
-  - Add read game data log capacity
-  - Add more tests for [Game Mechanics](#develop--game-mechanics)
-  - Add method to convert `Piece` to byte representation
-  - Add compiled jar
-  - Add README.md
+- Latest Release: [1.2.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.3)
 - Patch 1.2.4
   - Add more information to README.md
   - [Fix restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)
