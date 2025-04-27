@@ -81,6 +81,8 @@ The various sections of the game GUI use the following Fonts, they are stored as
 - Fonts for quit button, user information, game turns and score inside the game page is "Courier".
 
 #### Normal Color Theme
+This theme is the default game theme, or can be activated in the launcher page themes, when the `Normal` switch is set to `ON`.  
+
 - Color for the background of any launcher page is `rgb(241, 243, 213)`.
 - Color for the background of the strip behind the title, styled "Happy Hex", is `rgb(219, 223, 151)`.
 - Colors for author information and copyright on the button of launcher pages are `rgb(0, 73, 54)`.
@@ -110,6 +112,65 @@ The various sections of the game GUI use the following Fonts, they are stored as
 `rgb(0, 0, 240)`, `rgb(0, 100, 190)`, `rgb(0, 180, 180)`, `rgb(0, 180, 120)`,
 `rgb(0, 210, 0)`, `rgb(100, 180, 0)`, `rgb(180, 180, 0)`, `rgb(200, 90, 0)`,
 `rgb(210, 0, 0)`, `rgb(200, 0, 120)`, `rgb(180, 0, 180)`, and `rgb(100, 0, 200)`.
+
+#### Dark Theme
+This theme can be activated in the launcher page themes, when the `Dark` switch is set to `ON`.  
+- Color for the background of any launcher page is the inverted color of the [Normal Theme](#Normal-Color-Theme)..
+- Color for the background of the strip behind the title, styled "Happy Hex", is the inverted color of the [Normal Theme](#Normal-Color-Theme)..
+- Colors for author information and copyright on the button of launcher pages are `rgb(158, 157, 232)`.
+- Colors for the mark "W.W" is `rgb(204, 204, 204)`.
+- Colors for game version string beneath the title is `rgb(204, 204, 204)`.
+- Colors for game hints string beneath the title is `rgb(128, 128, 128)`.
+- Color for the background of the log-in field in the log-in page in launcher is the inverted color of the [Normal Theme](#Normal-Color-Theme).
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a logged in player name, is the inverted color of the [Normal Theme](#Normal-Color-Theme).
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a prompt, is the inverted color of the [Normal Theme](#Normal-Color-Theme).
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a warning or an error, is the inverted color of the [Normal Theme](#Normal-Color-Theme).
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a special message, is the inverted color of the [Normal Theme](#Normal-Color-Theme).
+- Colors for the background of the buttons to switch pages in the launcher are `rgb(0, 0, 0)`.
+- Colors for the background of the buttons to quit to main page from another launcher page in the launcher are `rgb(255, 0, 0)`.
+- Color for the background of the button to confirm the information player inputted in the login field in the launcher is `rgb(0, 223, 39)`.
+- Colors for the foreground of the button to start a new game when an existing game [ends](#Game-Ending) are the inverted colors of the [Normal Theme](#Normal-Color-Theme).
+- Colors for the empty portion of the sliding ON-OFF switch in settings and theme pages are `rgb(22, 22, 22)`.
+- Colors for the foreground of the sliding ON-OFF switch in settings and theme pages, when `ON`, are `rgb(0, 255, 0)`.
+- Colors for the foreground of the sliding ON-OFF switch in settings and theme pages, when `OFF`, are `rgb(255, 0, 0)`.
+- Color for the background of the game field in game page is `rgb(23, 23, 42)`.
+- Color for the background of the piece queue in game page is `rgb(63, 61, 112)`.
+- Color for the background of the game over page is `rgb(63, 61, 112)`.
+- Color for texts displaying game username, turns, and score information, in game page, is the inverted color of the [Normal Theme](#Normal-Color-Theme).
+- Color for the [quit](#Game-Quitting) button in game page, is `rgb(255, 144, 110)`.
+- Colors for blocks in the game field, when they are not filled, are `rgb(22, 22, 22)`.
+- Color for the block selected in the piece selected in the piece queue, is `rgb(36, 33, 101)`.
+- The 12 Colors available for blocks are the inverted colors of the [Normal Theme](#Normal-Color-Theme).
+
+#### White Theme
+This theme can be activated in the launcher page themes, when the `White` switch is set to `ON`.  
+
+- Color for the background of any launcher page is `rgb(255, 255, 255)`.
+- Color for the background of the strip behind the title, styled "Happy Hex", is `rgb(255, 255, 255)`.
+- Colors for author information and copyright on the button of launcher pages are `rgb(0, 73, 54)`.
+- Colors for the mark "W.W" is `rgb(0, 0, 0)`.
+- Colors for game version string beneath the title is `rgb(0, 0, 0)`.
+- Colors for game hints string beneath the title is `rgb(192, 192, 192)`.
+- Color for the background of the log-in field in the log-in page in launcher is `rgb(255, 255, 255)`.
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a logged in player name, is `rgb(136, 136, 0)`.
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a prompt, is `rgb(0, 136, 0)`.
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a warning or an error, is `rgb(136, 0, 0)`.
+- Color for the foreground of the log-in field in the log-in page in launcher, if the text is a special message, is `rgb(0, 136, 136)`.
+- Colors for the background of the buttons to switch pages in the launcher are `rgb(64, 64, 64)`.
+- Colors for the background of the buttons to quit to main page from another launcher page in the launcher are `rgb(64, 64, 64)`.
+- Color for the background of the button to confirm the information player inputted in the login field in the launcher is `rgb(64, 64, 64)`.
+- Colors for the foreground of the button to start a new game when an existing game [ends](#Game-Ending) are `rgb(64, 64, 64)`.
+- Colors for the empty portion of the sliding ON-OFF switch in settings and theme pages are `rgb(64, 64, 64)`.
+- Colors for the foreground of the sliding ON-OFF switch in settings and theme pages, when `ON`, are `rgb(0, 0, 0)`.
+- Colors for the foreground of the sliding ON-OFF switch in settings and theme pages, when `OFF`, are `rgb(0, 0, 0)`.
+- Color for the background of the game field in game page is `rgb(255, 255, 255)`.
+- Color for the background of the piece queue in game page is `rgb(255, 255, 255)`.
+- Color for the background of the game over page is `rgb(255, 255, 255)`.
+- Color for texts displaying game username, turns, and score information, in game page, is `rgb(64, 64, 64)`.
+- Color for the [quit](#Game-Quitting) button in game page, is `rgb(64, 64, 64)`.
+- Colors for blocks in the game field, when they are not filled, are `rgb(0, 0, 0)`.
+- Color for the block selected in the piece selected in the piece queue, is `rgb(192, 192, 192)`.
+- The 12 Colors available for blocks, are the same colors as they are in the [Normal Theme](#Normal-Color-Theme)
 
 ### Game Rules
 These game rules are automatically enforced by game logic stored in the game code. Players do not need to pay special attentions to them, but it is a good idea
