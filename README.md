@@ -66,6 +66,42 @@ How to download the game and play, or, if you want, compile it yourself.
 ## Game Play
 
 ### Easter Eggs  
+#### Prohibited Usernames  
+The following usernames are prohibited from inputting into the log in field in the log in page. This includes the capitalized and lowercase
+versions of all words in the following list.
+If the player attempts to log in with those names, the message "GAME KEYWORD PROHIBITED!" will be displayed.  
+
+However, under special circumstances (as activating an easter egg), they may do something else. In addition, "out", "log out", and "logout" are
+functional keywords the logs the current player out.   
+<details>
+<summary>Keyword List</summary>
+- player<br/>
+- default<br/>
+- dev<br/>
+- guest<br/>
+- host<br/>
+- user<br/>
+- driver<br/>
+- god<br/>
+- evil<br/>
+- devil<br/>
+- hard<br/>
+- easy<br/>
+- harmony<br/>
+- hash<br/>
+- code<br/>
+- game<br/>
+- gamer<br/>
+- happyhex<br/>
+- hex<br/>
+- name<br/>
+- club<br/>
+- event<br/>
+- out<br/>
+- logout<br/>
+- log out<br/>
+</details>
+
 #### Special Game Modes  
 Special game modes alter game mechanics, and they would not be affected by setting or change the setting of the game. Currently, they are for you to discover
 and unlock. There are not prerequisites for activation.  
@@ -103,7 +139,7 @@ They are normally not activated as it is for every other easter eggs, but it is 
      This will not change the game setting otherwise.
    </details>
 
-### Special Themes  
+#### Special Themes  
 These are themes that could only be activated during certain days. They will <b>always</b> activate regardless of the theme choosen or the game settings.
 When these themes are in activation, the theme switch button will still work but they will not change the theme.  
 
