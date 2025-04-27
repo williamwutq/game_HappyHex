@@ -441,6 +441,68 @@ of the future but current architecture is being designed around it. At the same 
   - Use machine learning to train AI for advanced autoplay
 
 ## Code packages
+The packages in the source code, their dependencies, and their functions.
 ### Mechanics
+package `hex`  
+<b>Dependencies</b>:  
+none  
+<b>Function</b>:  
+The backbone of the game. It provides classes and interfaces for managing a hexagonal grid system, including coordinate calculations,
+game engine operations, and game piece operations.  
+
+### Game Data
+package `game`  
+<b>Dependencies</b>:  
+`hex` `special`, and `Launcher`  
+<b>Function</b>:  
+Handles more complex data of the game build on `hex`. This includes game piece queue operations, game piece generations, and game engine simulations.
+
+### Game Data Logging
+package `hexio`  
+<b>Dependencies</b>:  
+`javax.json`  
+<b>Function</b>:  
+Provides utility methods for converting hexagonal game components such as Hex, Block, Piece, HexEngine, and game moves to and from
+JSON representations. It help developers to save game states to `hpyhex.json` files, read them back, and manage game data efficiently.
+It is not dependent on any other packages and use internal versioning separated from `Launcher`.  
+
+### Logging
+package `io`  
+<b>Dependencies</b>:  
+`javax.json`  
+<b>Function</b>:  
+Provide data storage structures, such as game information, player information, game time, and logging functionalities. This package enables reading, 
+writing, and converting game metadata, including player information, game sessions, and configuration presets into JSON format for persistent storage 
+or transmission. It is not dependent on any other packages.
+
 ### Graphics (GUI)
+package `GUI`  
+<b>Dependencies</b>:  
+`hex`, `hexio`, `Launcher`, `special`, and `javax.swing`  
+<b>Function</b>:  
+Provides game page graphics through Java Swing. It also record critical game information and serves fundamental game logic to make the game function.
+This includes functions for buttons, color indication generations, interaction with the launcher, timer for elimination, and more.  
+This graphics component support dynamic resizing.  
+
+### Launcher
+package `Launcher`  
+<b>Dependencies</b>:  
+`io`, `hexio`, `GUI`, `special`, and `javax.swing`  
+<b>Function</b>:  
+Provides game launcher graphics through Java Swing. This include the main page, the settings page, the login page, the game over page, and the themes page.
+It also provides links to setup evironment and start a [game](#Graphics-(GUI)). In addition, it calls to the internal game logger to read local data.
+This includes logging player scores and turns, loading previous unfinished games, calculate player average turns and score, and more.
+
 ### Tests
+package `tests`  
+<b>Dependencies</b>:  
+`hex`, `hexio`, and `org.junit.jupiter.api`.  
+<b>Function</b>:  
+Serves as a test package for the most fundamental functions of the game, ensuring the backbones are working as intended.
+
+### Special Features
+package `special`  
+<b>Dependencies</b>:  
+dynamic, can include everything
+<b>Function</b>:  
+Provide special themes, features, and Easter Eggs to the game. The generation is recorded in `special.FeatureFactory`.
