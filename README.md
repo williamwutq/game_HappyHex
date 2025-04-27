@@ -63,6 +63,70 @@ How to download the game and play, or, if you want, compile it yourself.
 - [javax.json api](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)
 - [org.junit.jupiter.api](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)
 
+## Game Play
+
+### Easter Eggs  
+#### Special Game Modes  
+Special game modes alter game mechanics, and they would not be affected by setting or change the setting of the game. Currently, they are for you to discover
+and unlock. There are not prerequisites for activation.  
+
+They are normally not activated as it is for every other easter eggs, but it is also possible to switch to normal after activation.
+1. <b>God Mode</b>  
+   A special game mode that alters the game piece generation. This mode effectively check the current game board statues and only generate pieces
+   that will be placeable. This ensures that you can basically never end or lose the game, except by force quitting.
+   
+   This mode is packaged inside `special.Logic` and contained in `special.FeatureFactory` with the class tag `hex.Piece` and hint tag `God`.  
+
+   <details>
+     <summary>Spoiler: Activation</summary>  
+     &emsp;To activate, go to settings and turn on easy mode. Then go to log in page and try log in as "God". This will display the message
+     "THE DIVINE INTERVENTION!".<br/>
+     &emsp;To quit out of special modes, regardless of the current game setting, type "Normal" into the log in field to switch back to normal.
+     This will not change the game setting otherwise.
+   </details>
+
+2. <b>Hard Mode</b>  
+   A special game mode that alters the game piece generation. This mode effectively attempts to generate the most difficult pieces to play. It usually favor 
+   pieces with 4 or more block but also accept pieces that are currently hard to play in the game field. Usually, if you can survive 25 moves in Hard Mode, you
+   will have proven to have real skills in <b>HappyHex</b>.
+   
+   This mode is packaged inside `special.Logic` and contained in `special.FeatureFactory` with the class tag `hex.Piece` and hint tag `Hard`.  
+
+   <details>
+     <summary>Spoiler: Activation</summary>  
+     &emsp;Method 1:<br/>
+     &emsp;&emsp;Go to log in page and try log in as "Hard" or "Evil". This will display the message "RELEASING THE HARD MODE!".<br/>
+     &emsp;Method 2:<br/>
+     &emsp;&emsp;Go to log in page and try log in as "Devil". This will display the message "PLACE UNBREAKABLE CURSE!".<br/>
+     &emsp;Quit:<br/>
+     &emsp;&emsp;To quit out of special modes, regardless of the current game setting, type "Normal" into the log in field to switch back to normal.
+     This will not change the game setting otherwise.
+   </details>
+
+### Special Themes  
+These are themes that could only be activated during certain days. They will <b>always</b> activate regardless of the theme choosen or the game settings.
+When these themes are in activation, the theme switch button will still work but they will not change the theme.  
+
+These themes can change the color of every components in the game and the launcher, and may also change the font of components.  
+1. <b>Grayscale</b>  
+   This theme turns everything on the game screen into grayscale. This theme is always activated on September 11th and has a 6% chance of activating on
+   a normal day.
+   
+   This theme is packaged inside `special.Styles` and contained in `special.FeatureFactory` with the class tag `java.awt.Color`.
+2. <b>Lovely Theme</b> (`FilledWithLove`)  
+   This is a Valentine's Day special theme. It turns the launcher and game board into primarily pink and purple color and also modify other colors
+   in other components. This theme also replaces the animation that is placed after piece elimination with a disappearing pink heart. It is always activated
+   only on Valentine's Day.
+
+   This theme is packaged inside `special.Valentine` and contained in `special.FeatureFactory` with the class tag `java.awt.Color` and
+   `GUI.animation.Animation`.
+3. <b>Spooky Theme</b>  
+   This is a Halloween theme. It turns the launcher and game board into primarily orange and red, with other colors populating other areas of the graphics.
+   This theme also replaces the font of the title, buttons, and display messages with spooky fonts to enhance effects of the holiday. It is always activated
+   only on Halloween.
+
+   This theme is packaged inside `special.Halloween` and contained in `special.FeatureFactory` with the class tag `java.awt.Color` and
+   `java.awt.Font`.
 
 ## Development
 ### Contribution
