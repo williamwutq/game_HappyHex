@@ -115,8 +115,8 @@ This theme is the default game theme, or can be activated in the launcher page t
 
 #### Dark Theme
 This theme can be activated in the launcher page themes, when the `Dark` switch is set to `ON`.  
-- Color for the background of any launcher page is the inverted color of the [Normal Theme](#Normal-Color-Theme)..
-- Color for the background of the strip behind the title, styled "Happy Hex", is the inverted color of the [Normal Theme](#Normal-Color-Theme)..
+- Color for the background of any launcher page is the inverted color of the [Normal Theme](#Normal-Color-Theme).
+- Color for the background of the strip behind the title, styled "Happy Hex", is the inverted color of the [Normal Theme](#Normal-Color-Theme).
 - Colors for author information and copyright on the button of launcher pages are `rgb(158, 157, 232)`.
 - Colors for the mark "W.W" is `rgb(204, 204, 204)`.
 - Colors for game version string beneath the title is `rgb(204, 204, 204)`.
