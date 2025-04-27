@@ -17,12 +17,12 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 >    See [Tests](#Tests) for more
 
 > [!NOTE]
-> The project may contain bugs:
-> - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).
-> - The most recent release have ***one*** detected bugs:
->   1. [Restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)
-       Statues: Temporarily fixed
-       Fixes: Disabled restart unfinished game feature.
+> The project may contain bugs:  
+> - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).  
+> - The most recent release have ***one*** detected bugs:  
+>   1. [Restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)  
+       Statues: Temporarily fixed  
+       Fixes: Disabled restart unfinished game feature.  
 
 ## About
 This is just a cute project of mine. From early on after learning java in high school and helped the teacher taught its graphics library `javax.swing` I
