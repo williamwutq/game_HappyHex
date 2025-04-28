@@ -40,7 +40,7 @@ Distributed under the MIT License
 
 ## Usage
 How to download the game and play, or, if you want, compile it yourself.  
-1. Run the `.jar` file  
+- Method 1: Run the [`.jar`](https://github.com/williamwutq/game_HappyHex/blob/main/HappyHex_jar%20Version%201.2.3.zip) file  
    1. Find the Latest Release (See the [top](#HappyHex) of this document).  
    2. Download the asset from the release.
    3. Find `HappyHex_jar Version x.x.x.zip` zip file.  
@@ -50,7 +50,7 @@ How to download the game and play, or, if you want, compile it yourself.
       b. The JSON utilities, `javax.json-1.1.4.jar` and `javax.json-api-1.1.jar`.  
       c. The `data` folder.  
    6. Double click or use a tool to run `game_HappyHex.jar`.  
-2. Download code from GitHub.com  
+- Method 2: Download code from GitHub.com  
    1. Find the Latest Release (See the [top](#HappyHex) of this document).  
    2. Download the asset from the release.
    3. Download [dependencies](#Dependencies). You don't need `javax.swing` if it is already installed.
