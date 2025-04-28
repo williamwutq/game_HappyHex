@@ -1,6 +1,7 @@
 package GUI;
 
 import GUI.animation.*;
+import Launcher.LaunchEssentials;
 import hex.HexEngine;
 import game.Queue;
 import hex.Piece;
@@ -390,9 +391,15 @@ public final class GameEssentials {
 
     // Logging at the end
     public static void logGame(){
-        Launcher.LaunchEssentials.log(turn, score);
+        boolean complete = gameEnds();
+        if (!complete){
+            System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
+        } else if (LaunchEssentials.getCurrentPlayerID() == -1) {
+            // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
+            Launcher.LaunchEssentials.log(turn, score);
+        }
         try {
-            if (gameEnds()) gameLogger.completeGame();
+            if (complete) gameLogger.completeGame();
             gameLogger.setEngine(engine);
             gameLogger.setQueue(queue.getPieces());
             gameLogger.write();
