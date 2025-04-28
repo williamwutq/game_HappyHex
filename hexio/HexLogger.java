@@ -133,7 +133,8 @@ public class HexLogger {
     private HexEngine currentEngine;
     private Piece[] currentQueue;
     private ArrayList<Hex> moveOrigins;
-    private ArrayList<Piece> movePieces;
+    private ArrayList<Piece[]> moveQueues;
+    private ArrayList<Integer> movePieces;
 
     // JSON
     /** The file name this {@code HexLogger} is assigned to */
@@ -148,7 +149,8 @@ public class HexLogger {
         currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
-        movePieces = new ArrayList<Piece>();
+        moveQueues = new ArrayList<Piece[]>();
+        movePieces = new ArrayList<Integer>();
         this.player = playerName;
         this.playerID = playerID;
         completed = false;
@@ -161,7 +163,8 @@ public class HexLogger {
         currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
-        movePieces = new ArrayList<Piece>();
+        moveQueues = new ArrayList<Piece[]>();
+        movePieces = new ArrayList<Integer>();
         player = "Guest";
         playerID = -1;
         completed = false;
@@ -366,7 +369,10 @@ public class HexLogger {
      * move list. This would also trigger automatic incrementation of the game score and turns with the engine logic.
      * Otherwise, the method returns false.
      * @return Whether the engine is changed and the move was successful.
+     * @deprecated Since 1.2.4 for implementation of recording queue at each move.
+     * @see #addMove(Hex, int, Piece[])
      */
+    @Deprecated
     public boolean addMove(Hex origin, Piece piece){
         if (completed) {return false;}
         boolean success = false;
@@ -378,7 +384,37 @@ public class HexLogger {
         } catch (IllegalArgumentException e) {}
         if (success) {
             moveOrigins.add(origin);
-            movePieces.add(piece);
+            moveQueues.add(new Piece[]{piece});
+            movePieces.add(0);
+            score += eliminated * 5;
+            turn++;
+        }
+        return success;
+    }
+    /**
+     * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
+     * representing the origin of the piece placement, and valid array of {@link Piece} representing the game queue,
+     * and a valid index of the piece in the game queue. This will attempt to replicate the move of placing the indexed
+     * piece with the current-holding engine, and if successful, the move would be considered valid and added to the
+     * move list. This would also trigger automatic incrementation of the game score and turns with the engine logic.
+     * Otherwise, the method returns false.
+     * @return Whether the engine is changed and the move was successful.
+     */
+    public boolean addMove(Hex origin, int index, Piece[] queue){
+        if (completed) {return false;}
+        boolean success = false;
+        int eliminated = 0;
+        Piece piece;
+        try {
+            piece = queue[index];
+            currentEngine.add(origin, piece);
+            eliminated = currentEngine.eliminate().length;
+            success = true;
+        } catch (IndexOutOfBoundsException | IllegalArgumentException e){}
+        if (success) {
+            moveOrigins.add(origin);
+            moveQueues.add(queue);
+            movePieces.add(index);
             score += eliminated * 5;
             turn++;
         }
@@ -482,7 +518,7 @@ public class HexLogger {
         currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
-        movePieces = new ArrayList<Piece>();
+        movePieces = new ArrayList<Integer>();
         completed = false;
         turn = 0;
         score = 0;
@@ -622,7 +658,12 @@ public class HexLogger {
             try {
                 jsonMoveBuilder.add("order", i);
                 jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
-                jsonMoveBuilder.add("piece", HexConverter.convertPiece(movePieces.get(i)));
+                jsonMoveBuilder.add("index", movePieces.get(i));
+                JsonArrayBuilder jsonMoveQueueBuilder = Json.createArrayBuilder();
+                for (Piece piece : moveQueues.get(i)) {
+                    jsonMoveQueueBuilder.add(HexConverter.convertPiece(piece));
+                }
+                jsonMoveBuilder.add("queue", jsonMoveQueueBuilder);
             } catch (Exception e) {
                 throw new IOException("Failed to create JSON objects for moves");
             }
@@ -920,7 +961,8 @@ public class HexLogger {
                         throw new IOException("Fail to read move at index " + i + " in game moves due to failed piece conversion");
                     }
                     moveOrigins.add(moveOrigin);
-                    movePieces.add(movePiece);
+                    movePieces.add(0);
+                    moveQueues.add(new Piece[]{movePiece});
                 } catch (Exception e) {
                     if (e instanceof IOException) throw e;
                     throw new IOException("Fail to read move at index " + i + " in game moves");
