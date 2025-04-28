@@ -735,7 +735,7 @@ public class HexLogger {
             } else if (dataFormat.equals("hex.basic")) {
                 readBasicHexData(jsonObject);
             } else if (dataFormat.equals("hex.uncolored")) {
-                readBasicHexData(jsonObject);
+                readUncoloredHexData(jsonObject);
             } else {
                 throw new IOException("Data format is not compatible for this version of \"HexLogger\"");
             }
@@ -763,20 +763,18 @@ public class HexLogger {
      * @since 1.2.4
      */
     public void readUncoloredHexData(JsonObject jsonObject) throws IOException {
-        // Read completed (This support versions without completed)
+        // Read completed
         try{
             completed = jsonObject.getBoolean("completed");
         } catch (Exception e){
             try{
                 completed = jsonObject.getBoolean("Completed");
             } catch (Exception ex){
-                completed = true;
+                throw new IOException("Fail to read game completion status");
             }
         }
 
         // Read score and turn
-        int score = 0;
-        int turn = 0;
         try{
             score = jsonObject.getInt("score");
         } catch (Exception e){
@@ -805,9 +803,10 @@ public class HexLogger {
         }
 
         // Read queue
+        int queueSize;
         try{
             JsonArray queueJson = jsonObject.getJsonArray("queue");
-            int queueSize = queueJson.size();
+            queueSize = queueJson.size();
             currentQueue = new Piece[queueSize];
             // Populate queue
             for (int i = 0; i < queueSize; i ++){
@@ -828,7 +827,9 @@ public class HexLogger {
             JsonArray movesJson = jsonObject.getJsonArray("moves");
             int movesSize = movesJson.size();
             // Check move number matching
-
+            if (turn != movesSize){
+                throw new IOException("Fail to read game moves because move array size does not match \"turn\"");
+            }
             moveOrigins = new ArrayList<>(movesSize);
             movePieces = new ArrayList<>(movesSize);
             // Populate moves
@@ -844,10 +845,47 @@ public class HexLogger {
                         throw new IOException("Fail to read move at index " + i + " in game moves because move order does not match");
                     }
                     // Record move queue
-
+                    Piece[] moveQueue;
+                    try{
+                        JsonArray moveQueueJson = moveJson.getJsonArray("queue");
+                        int moveQueueSize = moveQueueJson.size();
+                        // Check queue size
+                        if (moveQueueSize != queueSize){
+                            throw new IOException("Fail to read move at index " + i + " because move's queue array size does not match global game queue size");
+                        }
+                        moveQueue = new Piece[moveQueueSize];
+                        // Populate queue
+                        for (int j = 0; j < moveQueueSize; j++){
+                            try {
+                                JsonArray pieceJson = moveQueueJson.getJsonArray(j);
+                                moveQueue[j] = HexConverter.convertPiece(pieceJson);
+                            } catch (Exception e) {
+                                throw new IOException("Fail to read move at index \" + i + \" in game moves because queue cannot be read at index " + j);
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (e instanceof IOException) throw e;
+                        throw new IOException("Fail to read game queue");
+                    }
                     // Record move center
-
+                    Hex moveOrigin;
+                    try {
+                        JsonObject moveOriginJson = moveJson.getJsonObject("center");
+                        moveOrigin = HexConverter.convertHex(moveOriginJson);
+                    } catch (Exception e) {
+                        throw new IOException("Fail to read move at index " + i + " in game moves due to failed center conversion");
+                    }
                     // Record move
+                    int moveIndex = -1;
+                    try {
+                        moveIndex = moveJson.getInt("index");
+                    } catch (Exception e) {}
+                    if (moveIndex < 0 || moveIndex >= queueSize) {
+                        throw new IOException("Fail to read move at index " + i + " in game moves because move index is out of bounds");
+                    }
+                    // Addition
+                    moveQueues.add(moveQueue);
+                    moveOrigins.add(moveOrigin);
                 } catch (Exception e) {
                     if (e instanceof IOException) throw e;
                     throw new IOException("Fail to read move at index " + i + " in game moves");
@@ -972,5 +1010,7 @@ public class HexLogger {
             if (e instanceof IOException) throw e;
             throw new IOException("Fail to read game moves");
         }
+        turn = 0;
+        score = 0;
     }
 }
