@@ -416,8 +416,8 @@ public final class GameEssentials {
         score += addedScore;
         scoreLabel.setInfo(score + "");
     }
-    public static void move(hex.Hex origin, hex.Piece piece){
-        gameLogger.addMove(origin, piece);
+    public static void move(hex.Hex origin){
+        gameLogger.addMove(origin, selectedPieceIndex, queue.getPieces());
     }
 
     // Setters
