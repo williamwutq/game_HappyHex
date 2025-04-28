@@ -141,7 +141,7 @@ public class HexLogger {
     /** Directory for storing game files. */
     private static final String dataDirectory = "data/";
     /** Format of the data logged into the JSON file. */
-    private static final String dataFormat = "hex.basic";
+    private static final String dataFormat = "hex.uncolored";
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
@@ -194,11 +194,13 @@ public class HexLogger {
     /**
      * Returns the total turns occurred in the game.
      * @return the total turns in the game.
+     * @since 1.2.4
      */
     public int getTurn(){return turn;}
     /**
      * Returns the total score in the game earned by the player.
      * @return the total score in the game.
+     * @since 1.2.4
      */
     public int getScore(){return score;}
     // Hashing
@@ -303,11 +305,13 @@ public class HexLogger {
     /**
      * Set the turns played in this game. This will unconditionally accept the new number of turns.
      * @param turns the new score
+     * @since 1.2.4
      */
     public void setTurn(int turns) {this.turn = turns;}
     /**
      * Set the player’s score. This will unconditionally accept the new score.
      * @param score the new score
+     * @since 1.2.4
      */
     public void setScore(int score) {this.score = score;}
     /**
@@ -707,8 +711,6 @@ public class HexLogger {
      *     <li><b>{@code score}:</b> The score already obtained by the player in the game.</li>
      *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
      *     radius, and blocks. The block record of the engine does not contain colors.</li>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
-     *     radius, and blocks. The block record of the engine does not contain colors.</li>
      *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
      *      *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
      *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
@@ -717,6 +719,7 @@ public class HexLogger {
      * </ul>
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
      * @throws IOException If reading or parsing fails or if the game type is unsupported.
+     * @since 1.2.4
      */
     public void readUncoloredHexData(JsonObject jsonObject) throws IOException {
         // Read completed (This support versions without completed)
