@@ -108,6 +108,17 @@ public final class GameEssentials {
             return pieceColors[index];
         } else return null;
     }
+    public static Color getDefaultColor(){
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        for (Color color : pieceColors){
+            r += color.getRed();
+            g += color.getGreen();
+            b += color.getBlue();
+        }
+        return interpolate(gameBackgroundColor, gameBlockDefaultColor, 2);
+    }
     @Deprecated
     public static Color whitenColor(Color origin){
         return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
@@ -257,7 +268,7 @@ public final class GameEssentials {
         if(easy) {
             game.PieceFactory.setEasy();
         }
-        engine = new HexEngine(size, gameBlockDefaultColor, getIndexedPieceColor(0)); // replace getIndexedPieceColor(0) with something else
+        engine = new HexEngine(size, gameBlockDefaultColor, getDefaultColor());
         queue = new Queue(queueSize);
         window = frame;
         // Logger initialize
@@ -266,14 +277,16 @@ public final class GameEssentials {
             // Copy logger info to game
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
-                    engine.setState(block.getLineI(), block.getLineK(), true);
+                    hex.Block cloned = block.clone();
+                    cloned.setColor(generateColor());
+                    engine.setBlock(block.getLineI(), block.getLineK(), cloned);
                 }
             }
             Piece[] loggerQueue = logger.getQueue();
             for (int i = 0; i < loggerQueue.length; i++) {
                 Piece piece = loggerQueue[i];
                 if (piece != null) {
-                    piece.setColor(engine.getFilledBlockColor());
+                    piece.setColor(generateColor());
                     queue.inject(piece, i);
                 }
             }
