@@ -463,14 +463,14 @@ public class HexLogger {
             builder.append("HexMove[center = ");
             builder.append(moveOrigins.get(0));
             builder.append(", piece = ");
-            builder.append(movePieces.get(0));
+            builder.append(moveQueues.get(0)[movePieces.get(0)]);
             builder.append("]");
         }
         for (int i = 1; i < moveOrigins.size(); i++) {
             builder.append(", HexMove[center = ");
             builder.append(moveOrigins.get(i));
             builder.append(", piece = ");
-            builder.append(movePieces.get(i));
+            builder.append(moveQueues.get(i)[movePieces.get(i)]);
             builder.append("]");
         }
         builder.append("}]]");
