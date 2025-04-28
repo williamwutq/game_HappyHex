@@ -27,8 +27,8 @@ import java.util.ArrayList;
  * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. This
  * also record player information, which means data could be used for reviewing. For machine learning, the
  * logged data could be used for training, helping future developers to build advanced autoplay systems.
- * The class supports the {@code hex.basic} and {@code hex} (unnamed) data formats, with plans to
- * support additional formats in future releases.
+ * The class supports the {@code hex.basic}, {@code hex} (unnamed), and {@code hex.uncolored} data formats,
+ * with plans to support additional formats in future releases.
  *
  * <h3>Function</h3>
  * The {@code HexLogger} class provides the following key functionalities:
@@ -49,8 +49,9 @@ import java.util.ArrayList;
  *
  * <h3>Data Format</h3>
  * This is version 1.2.4 of the {@code HexLogger} class, adhering to the {@code hex.basic} format standard.
- * It currently supports reading and writing in the {@code hex.basic} and {@code hex} (unnamed) formats.
- * Support for additional data formats is planned for future releases. See {@link #readHexData} for formats.
+ * It currently supports reading in the {@code hex.basic}, {@code hex} (unnamed), and {@code hex.uncolored} formats,
+ * and writes in the {@code hex.uncolored} format.
+ * Support for additional data formats is planned for future releases. See {@link #readBasicHexData} for formats.
  *
  * <h3>Example Usage</h3>
  * Below is an example demonstrating how to use the {@code HexLogger} class to log a game session,
@@ -125,6 +126,8 @@ public class HexLogger {
 
     // Data
     private boolean completed;
+    private int turn;
+    private int score;
     private String player;
     private long playerID;
     private HexEngine currentEngine;
@@ -149,6 +152,8 @@ public class HexLogger {
         this.player = playerName;
         this.playerID = playerID;
         completed = false;
+        turn = 0;
+        score = 0;
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     private HexLogger(String fileName){
@@ -160,6 +165,8 @@ public class HexLogger {
         player = "Guest";
         playerID = -1;
         completed = false;
+        turn = 0;
+        score = 0;
     }
 
     /**
@@ -184,6 +191,16 @@ public class HexLogger {
      * @return true if this game is completed
      */
     public boolean isCompleted(){return completed;}
+    /**
+     * Returns the total turns occurred in the game.
+     * @return the total turns in the game.
+     */
+    public int getTurn(){return turn;}
+    /**
+     * Returns the total score in the game earned by the player.
+     * @return the total score in the game.
+     */
+    public int getScore(){return score;}
     // Hashing
     /**
      * Generates a string representing the current date and time in a simple format.
@@ -284,6 +301,16 @@ public class HexLogger {
         completed = true;
     }
     /**
+     * Set the turns played in this game. This will unconditionally accept the new number of turns.
+     * @param turns the new score
+     */
+    public void setTurn(int turns) {this.turn = turns;}
+    /**
+     * Set the player’s score. This will unconditionally accept the new score.
+     * @param score the new score
+     */
+    public void setScore(int score) {this.score = score;}
+    /**
      * Assigns a player name and corresponding player ID.
      * Fallbacks to "Guest" (ID = {@code -1}) if input is not present or invalid.
      *
@@ -332,20 +359,24 @@ public class HexLogger {
      * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
      * representing the origin of the piece placement and a valid {@link Piece}. This will attempt to replicate the
      * move with the current-holding engine, and if successful, the move would be considered valid and added to the
-     * move list. Otherwise, the method returns false.
+     * move list. This would also trigger automatic incrementation of the game score and turns with the engine logic.
+     * Otherwise, the method returns false.
      * @return Whether the engine is changed and the move was successful.
      */
     public boolean addMove(Hex origin, Piece piece){
         if (completed) {return false;}
         boolean success = false;
+        int eliminated = 0;
         try {
             currentEngine.add(origin, piece);
-            currentEngine.eliminate();
+            eliminated = currentEngine.eliminate().length;
             success = true;
         } catch (IllegalArgumentException e) {}
         if (success) {
             moveOrigins.add(origin);
             movePieces.add(piece);
+            score += eliminated * 5;
+            turn++;
         }
         return success;
     }
@@ -371,6 +402,12 @@ public class HexLogger {
         builder.append(player);
         builder.append(", playerID = ");
         builder.append(playerID);
+        builder.append(", completed = ");
+        builder.append(completed);
+        builder.append(", turn = ");
+        builder.append(turn);
+        builder.append(", score = ");
+        builder.append(score);
         builder.append(", data = HexData[engine = ");
         builder.append(currentEngine);
         builder.append(", queue = {");
@@ -443,6 +480,8 @@ public class HexLogger {
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Piece>();
         completed = false;
+        turn = 0;
+        score = 0;
     }
 
     /**
@@ -530,7 +569,7 @@ public class HexLogger {
     /**
      * Constructs a complete JSON object from the current logger information and writes it to a file.
      * This includes the basic game information, the current {@link HexEngine} statues, the current
-     * {@link Piece} queue statues, and the moves in the game.
+     * {@link Piece} queue statues, and the moves in the game. This use the {@code hex.uncolored} format.
      * @throws IOException If JSON creation or writing fails.
      */
     public void write() throws IOException {
@@ -558,6 +597,8 @@ public class HexLogger {
 
         // Write game statues
         jsonObjectBuilder.add("completed", completed);
+        jsonObjectBuilder.add("turn", turn);
+        jsonObjectBuilder.add("score", score);
 
         // Write engine
         jsonObjectBuilder.add("engine", HexConverter.convertEngine(currentEngine));
@@ -658,7 +699,7 @@ public class HexLogger {
 
     /**
      * Reads the hexagonal grid data of a format {@code hex.uncolored} data and parse it into memory.
-     * The {@code hex.hex.uncolored} format contains:
+     * The {@code hex.uncolored} format contains:
      * <ul>
      *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
      *     be non-modifiable.</li>
