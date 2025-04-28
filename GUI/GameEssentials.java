@@ -268,6 +268,12 @@ public final class GameEssentials {
         if(easy) {
             game.PieceFactory.setEasy();
         }
+        score = 0;
+        turn = 0;
+        selectedPieceIndex = -1;
+        selectedBlockIndex = -1;
+        hoveredOverIndex = -1;
+        clickedOnIndex = -1;
         engine = new HexEngine(size, gameBlockDefaultColor, getDefaultColor());
         queue = new Queue(queueSize);
         window = frame;
@@ -275,6 +281,8 @@ public final class GameEssentials {
         gameLogger = logger;
         if(logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize){
             // Copy logger info to game
+            score = logger.getScore();
+            turn = logger.getTurn();
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
@@ -294,6 +302,8 @@ public final class GameEssentials {
             // Copy info to logger
             gameLogger.setEngine(engine);
             gameLogger.setQueue(queue.getPieces());
+            gameLogger.setScore(0);
+            gameLogger.setTurn(0);
         }
         // Construct labels
         turnLabel = new GameInfoPanel();
