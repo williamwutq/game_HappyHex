@@ -885,6 +885,7 @@ public class HexLogger {
                     }
                     // Addition
                     moveQueues.add(moveQueue);
+                    movePieces.add(moveIndex);
                     moveOrigins.add(moveOrigin);
                 } catch (Exception e) {
                     if (e instanceof IOException) throw e;

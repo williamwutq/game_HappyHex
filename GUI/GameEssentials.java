@@ -313,8 +313,8 @@ public final class GameEssentials {
         turnLabel.setTitle("TURN");
         scoreLabel.setTitle("SCORE");
         playerLabel.setTitle("PLAYER");
-        turnLabel.setInfo("0");
-        scoreLabel.setInfo("0");
+        turnLabel.setInfo(turn + "");
+        scoreLabel.setInfo(score + "");
         playerLabel.setInfo(player);
         turnLabel.setBounds(0, 0, 100, 100);
         scoreLabel.setBounds(300, 0, 100, 100);
