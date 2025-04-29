@@ -96,8 +96,37 @@ The main page displays the game name, version, credits, game hints, and provides
   mechanics, serve as tips for navigating the launcher or obtaining a high score, provide a humorous evironment by providing insights as me the developer, 
   or unveil secrets in the game such as the [Easter Eggs](#Easter-Eggs).  
   They are mostly gray in most themes, but their colors may change.  
+  The hint message will change everytime the main page is refreshed, which can be done by relaunching the application or switch to another page and back.
   An example message is: "Try hover over blocks", which hints that hovering over blocks in the game field when a piece is selected reveals
   the potential placements of pieces in the game.  
+
+- <b>Buttons</b>  
+
+  The game provides clickable buttons for navigating to other pages. All buttons are resizable and are of the same height.  
+  
+  1. Login Button  
+     The login button has the word "LOG IN" written on it. It is intended to provide users for redirection to the [Login Page](#Login-Page).  
+     When the game launcher is first launched, the player will not be automatically logged it. To log in, click on the button.  
+  2. Settings Button  
+     The settings button has the word "SETTING" written on it. It is intended to provide users for redirection to the [Settings Page](#Settings-Page).  
+     Under the default setting, the game is playable, but the settings page offer player more options in game difficulty, board size, and whether to
+     restart an unfinished game if such games exist.
+  3. Themes Button  
+     The settings button has the word "THEMES" written on it. It is intended to provide users for redirection to the [Themes Page](#Themes-Page).  
+     The default [color theme](#Theme,-Color-and-Font) of the game is [Normal Theme](#Normal-Color-Theme), but the themes page enables players to 
+     swtich to other themes instead if they prefer to do so.  
+  4. Start Button  
+     The start button has the word "START" written on it. When clicked, it start a new game based on the settings provided,
+     modifiable via [Settings Page](#Settings-Page). If the player is logged in and an unfinished game exist, and the restart game setting is set to
+     be `ON`, the unfinished game will continue.  
+     The game play part is considered to be outside launcher. For detailed game rules, see [Game Rules](#Game-Rules).  
+
+- <b>Game Credits</b>  
+
+  On the button of the page there will be a section with the game credits to its [developers](#Contribution), which is currently just me.  
+  To the left of the section, the words "A W.W Game" can be seen, with the two Ws shown in a slightly larger font with a different color.  
+  To the right of the section, a copy right can been seen, attributing the game copyright to William Wu. See [License](#License) for details.  
+
 #### Login Page
 #### Settings Page
 #### Themes Page
