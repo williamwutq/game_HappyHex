@@ -193,6 +193,64 @@ The page contains the following elements:
   A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
 
 #### Settings Page
+
+The settings page allows the player to control over key game parameters, enhancing the game functionality while make HappyHex more fun.  
+
+The page contains the following elements:  
+
+- <b>Game Title</b>  
+  
+  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Settings Title</b>  
+  
+  Under the Game Title, there is a text "Settings", which indicates that this is the settings page.  
+
+- <b>Easy Mode Settings</b>  
+  
+  Turned `OFF` by default. Turning the switch `ON` enables Easy Mode, while turning it `OFF` disables Easy Mode.  
+  
+  This switch controls whether to enables "Easy Mode," which modifies [piece generation](#Piece-Generation) to make the game significantly easier.  
+  
+  Easy mode is compatible with all special game modes in the [Easter Eggs](#Easter-Eggs).  
+
+- <b>Restart Games Settings</b>  
+  
+  Turned `ON` by default. Turning the switch `ON` enables functionality to restart unfinished games, while turning it `OFF` disables it.  
+  
+  This switch controls whether to restart an unfinished game when it is possible to do so. When disabled, ever game will be new no matter how many previously
+  unfinished games the player have. When enabled, the game will try to find a previously unfinished game of the player in this particular setting, and if it
+  cannot find such games, it will start a new game.
+  
+  Disabling restart game will not in any ways affect the data logging of games, both in `logs.json` and in `.hyphex.json` data files.
+
+- <b>Game Board Size Setting</b>  
+
+> [!NOTE]  
+> Since first [Official Release](https://github.com/williamwutq/game_HappyHex/releases/v1.0.0) (v1.0.0), unspecified game mode creation is no longer supported.  
+
+  Players can choose between **Small**, **Medium**, and **Large** game board sizes for their next game. The default size is Small, and selecting
+  one option will automatically deselect the others. 
+
+  - The Small size will result in a game board radius of 5 and piece queue size of 3.  
+  - The Medium size will result in a game board radius of 8 and piece queue size of 5.  
+  - The Large size will result in a game board radius of 11 and piece queue size of 7.  
+
+  It is recommended to use the small size for beginners and players who do not want to spend a lot of time on a single game session. Large size often prolong
+  game session to over an hour, if played well at normal pace.
+
+- <b>Quit Button</b>  
+  
+  This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
+  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. All changes in settings will be saved.  
+
+- <b>Game Credits</b>  
+
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+
 #### Themes Page
 #### Start Game
 
