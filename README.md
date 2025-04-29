@@ -252,7 +252,52 @@ The page contains the following elements:
   A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
 
 #### Themes Page
+
+- <b>Game Title</b>  
+  
+  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Theme Setting</b>  
+  
+  For special themes, see in the [Easter Eggs](#Easter-Eggs) section. For detailed description on the themes, see the
+  [dedicated theme](Theme,-Color-and-Font) section.
+
+  Players can choose between **Normal**, **Dark**, and **White** game themes for displaying. These themes alters the color of all game graphics and are 
+  effective immediately. When a switch is flicked, the user can notice the change in the coloring of the theme page. All changes in the theme in theme
+  settings will be carried to all other pages, until the theme settings is modified again. The default theme is Normal.  
+
+  The theme settings has nothing to do with the game settings and will not affect game logic at all.  
+
+  The changes of theme maybe overriden by special dates dictated by [Special Themes](#Special-Themes). When a special theme is active, the buttons will still
+  work but the theme will remain the same.  
+
+  There's no superior theme among the three themes. Personally I prefer the Dark Theme, but the most classic one is the default theme, namely the Normal Theme.  
+
+- <b>Quit Button</b>  
+  
+  This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
+  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. All changes in theme settings will be saved.  
+
+- <b>Game Credits</b>  
+
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+
 #### Start Game
+
+This will direct the page out of the launcher and initialize the game components in a new game page.  
+
+Usually, the game page have separate colors and fonts as the launcher, and is made up from two panels instead of a single panel. This provide significant
+efficiency to the game execution and make the game play process much smoother.  
+
+The game page includes components such as:  
+- **Hexagonal Game Board**: The core game engine using hexagonal coordinates, where players can place blocks.  
+- **Piece Queue**: A set of randomly generated pieces with predefined shapes and colors. The difficulty level affects piece generation.  
+- **Game Information**: The current game turn and game score are displayed on the two top corners.  
+- **Player Information**: The current player name is displayed in the down right corner.  
+- **Quit Button**: Clicking on the quit button will enable you to quit the game. Current progress will be logged into `log.json` if a game has started.  
 
 ### Theme, Color and Font
 This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](Special-Themes)
