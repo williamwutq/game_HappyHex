@@ -392,11 +392,11 @@ public final class GameEssentials {
     // Logging at the end
     public static void logGame(){
         boolean complete = gameEnds();
-        if (!complete){
-            System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
-        } else if (LaunchEssentials.getCurrentPlayerID() == -1) {
+        if (LaunchEssentials.getCurrentPlayerID() == -1 || complete){
             // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
             Launcher.LaunchEssentials.log(turn, score);
+        } else {
+            System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
         }
         try {
             if (complete) gameLogger.completeGame();
