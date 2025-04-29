@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 27/04/2025  
-<b>Latest release:</b> [1.2.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.3)  
+<b>Last edited:</b> 28/04/2025  
+<b>Latest release:</b> [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)  
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -357,11 +357,11 @@ These themes can change the color of every component in the game and the launche
    `java.awt.Font`.
 
 ### Auto Play
-The auto play feature will be added in the future. With a click of a button, the player will be able to enjoy hands-off automatic piece placement in the 
-"HappyHex" game. There would a button starting and stopping the automatic playing of the game. Mainwhile, the player may also place pieces manually, and
+The autoplay feature will be added in the future. With a click of a button, the player will be able to enjoy hands-off automatic piece placement in the 
+"HappyHex" game. There would a button starting and stopping the automatic playing of the game. Meanwhile, the player may also place pieces manually, and
 Their intervention will pause the autoplay until the player starts it again. Separately, one button will enable the player to see engine suggestions of
 piece placements.  
-The first game engine will be build with random moves, and will not support suggestions. The more advanced version of Auto Play will feature methods to score
+The first game engine will be built with random moves, and will not support suggestions. The more advanced version of Auto Play will feature methods to score
 positions of placements and suggests placements accordingly. As for now, code in game piece and game engine are gradually build to support position scoring
 and future machine learning. The final result of Auto Play will incorporate [machine learning](#develop--machine-learning), which will enable better
 game results and even personalized game play.  
@@ -426,14 +426,12 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.2.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.3)
-- Patch 1.2.4
-  - Add more information to README.md
-  - [Fix restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)
+- Latest Release: [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)
 - Version 1.3
   - Add Independence Day special (color and font theme)
   - Add Thanksgiving special (color and font theme)
   - Finalize `.hpyhex.json` formats
+  - Add binary file format
   - Add feature to read all formats and write in the most recent one
 - Version 1.4
   - Add autoplay based on random, turn on via settings
