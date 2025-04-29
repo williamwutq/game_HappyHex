@@ -83,7 +83,7 @@ The main page displays the game name, version, credits, game hints, and provides
   The game name, or title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors.
   These 12 colors will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation.  
   The sequencing of the colors is randomized every time the page is refreshed, which can be done by relaunching the application or switch to another
-  page and back.
+  page and back.  
 
 - <b>Game Version</b>  
 
@@ -96,7 +96,7 @@ The main page displays the game name, version, credits, game hints, and provides
   mechanics, serve as tips for navigating the launcher or obtaining a high score, provide a humorous evironment by providing insights as me the developer, 
   or unveil secrets in the game such as the [Easter Eggs](#Easter-Eggs).  
   They are mostly gray in most themes, but their colors may change.  
-  The hint message will change everytime the main page is refreshed, which can be done by relaunching the application or switch to another page and back.
+  The hint message will change everytime the main page is refreshed, which can be done by relaunching the application or switch to another page and back.  
   An example message is: "Try hover over blocks", which hints that hovering over blocks in the game field when a piece is selected reveals
   the potential placements of pieces in the game.  
 
@@ -128,6 +128,70 @@ The main page displays the game name, version, credits, game hints, and provides
   To the right of the section, a copy right can been seen, attributing the game copyright to William Wu. See [License](#License) for details.  
 
 #### Login Page
+The login page enables the user to log in with their username. While no password is required, a unique username is recommended.
+User information is logged in `logs.json`, which stores past game records, including recent and highest scores and turns.  
+
+The page contains the following elements:  
+
+- <b>Game Title</b>  
+  
+  This is the exact same element as that in [Main Page](Main-Page), with the only differce being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Username Requirements</b>  
+  
+  The username requirements displays in monospaced font about the requirements for allowed usernames. The requirements read as follows:  
+
+  ```  
+  1. Must be between 3 - 24 characters long, inclusive.  
+  2. Only contain 1-9, A-Z, a-z, dash, underline or space.  
+  3. Must contain at least one letter.  
+  4. Special Symbols such as #%$ are not allowed.  
+  5. Cannot start or end with dash, underline or spaces.  
+  6. Cannot be one of the keywords used by the game system.  
+  ```  
+
+  The game keywords can be found in the [Prohibited-Usernames](#Prohibited-Usernames) section of this document, but note that [Easter Eggs](#Easter-Eggs)
+  may be connected to some of the keywords that is "prohibited". Generally speaking, however, keywords are considered to be invalid.
+
+- <b>Username Entering Field</b>  
+  
+  This is an interactive field for the player to enter their username.  
+
+  The length and composition of the username must follow the username rules described above of the username to be considered valid. This field provides
+  keyboard interaction, as the players may use their keyboard to enter their desired usernames.  
+  
+  When no player is logged in, this field will display a prompt "ENTER THE USERNAME HERE!". Deleting this prompt to enter the username.
+  On the other hand, when a player is logged in, this field will display the username of the logged in player in another color, as defined by the current
+  theme. To log out, the player may enter "Out", "Logout", or "Log out".
+
+  Whenever an action, such as clicking the Confirm Button, is performed, the field will display a short prompt for a limited period of time, then switch
+  back to normal. If the player attempts to enter an name with the incorrect format, the prompt will usually be red, stating "INCORRECT NAMING FORMAT!".
+  If the player attempts to one of the [keywords](#Prohibited-Usernames), the prompt will usually be red, stating "GAME KEYWORD PROHIBITED!". If the login
+  was successful, the field will display the short prompt, usually green, "SUCCESSFUL PLAYER LOGIN!" and then display the logged in player's username.  
+
+- <b>Confirm Button</b>  
+
+  This is a button similar to all the other redirection buttons, but appears usually in green and contains the text "ENTER".  
+  
+  When clicked, the launcher will check the current text inside the Username Entering Field. If the name is valid and matches the current logged in user,
+  nothing will happen. If the name is valid and representing a new login, the field will display "SUCCESSFUL PLAYER LOGIN!". If the name is one of the
+  [keywords](#Prohibited-Usernames), the field will displaying a red prompt stating "GAME KEYWORD PROHIBITED!". If the name does not meet the rules and
+  is not valid, the field will displaying a red prompt stating "INCORRECT NAMING FORMAT!".  
+
+  Player must click on this button to confirm their newly entered username when attempting login. Otherwise, nothing will happen.  
+
+- <b>Quit Button</b>  
+  
+  This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
+  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. Your inputs in the Username Entering Field may not be saved.  
+
+- <b>Game Credits</b>  
+
+  A section detailing the credit and copyright information of the HappyHex game, identicle to that in [Main Page](Main-Page).  
+
 #### Settings Page
 #### Themes Page
 #### Start Game
