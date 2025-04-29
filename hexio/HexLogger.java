@@ -106,9 +106,9 @@ import java.util.ArrayList;
  *     <li>This class is dependent on {@link hex} package and its JSON conversion class {@link HexConverter}.</li>
  *     <li>Files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
  *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.</li>
- *     <li>The {@link #read()} and {@link #write()} methods throw {@link IOException} if file operations
+ *     <li>The {@link #read()} and {@link #write(String)} methods throw {@link IOException} if file operations
  *         or JSON parsing fail, so proper exception handling is required.</li>
- *     <li>Future versions will expand support for additional data formats beyond {@code hex.basic} and {@code hex}.</li>
+ *     <li>Future versions will expand support for additional data formats beyond {@code hex.basic}, {@code hex}, and {@code hex.uncolored}.</li>
  * </ul>
  *
  * @author William Wu
@@ -609,10 +609,29 @@ public class HexLogger {
     /**
      * Constructs a complete JSON object from the current logger information and writes it to a file.
      * This includes the basic game information, the current {@link HexEngine} statues, the current
-     * {@link Piece} queue statues, and the moves in the game. This use the {@code hex.uncolored} format.
+     * {@link Piece} queue statues, and the moves in the game. Uses the default format {@code hex.uncolored}.
      * @throws IOException If JSON creation or writing fails.
+     * @see #createBasicData(JsonObjectBuilder)
+     * @see #createUncoloredData(JsonObjectBuilder)
+     * @see #read()
+     * @see #write(String)
      */
     public void write() throws IOException {
+        write(dataFormat);
+    }
+
+    /**
+     * Constructs a complete JSON object from the current logger information and writes it to a file.
+     * This includes the basic game information, the current {@link HexEngine} statues, the current
+     * {@link Piece} queue statues, and the moves in the game. This uses the specified format passed in.
+     * @param format The format of the JSON log. Default to the default format {@code hex.uncolored} if not valid.
+     * @throws IOException If JSON creation or writing fails.
+     * @see #createBasicData(JsonObjectBuilder)
+     * @see #createUncoloredData(JsonObjectBuilder)
+     * @see #read()
+     * @see #write()
+     */
+    public void write(String format) throws IOException {
         // Create JSON Object
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
         // Write basics
@@ -635,20 +654,84 @@ public class HexLogger {
         // Write data format
         jsonObjectBuilder.add("format", dataFormat);
 
+        // Write data
+        if(format.substring(0, 3).equals("hex")) {
+            if (format.equals("hex.uncolored")) {
+                createUncoloredData(jsonObjectBuilder);
+            } else {
+                createBasicData(jsonObjectBuilder);
+            }
+        } else throw new IOException("Data format is not \"hex\" for this version of \"HexLogger\"");
+
+        // Write to file
+        writeJsonToFile(jsonObjectBuilder.build());
+    }
+    /**
+     * Constructs a complete JSON object from the current logger information.
+     * This includes the basic game information, the current {@link HexEngine} statues, the current
+     * {@link Piece} queue statues, and the moves in the game. This use the {@code hex.basic} format.
+     * <p>
+     * This method appends information to the {@link JsonObjectBuilder} passed in as parameter.
+     * @param builder The builder to accept JSON information.
+     * @throws IOException If JSON creation fails.
+     * @see #write(String)
+     */
+    public void createBasicData(JsonObjectBuilder builder) throws IOException {
         // Write game statues
-        jsonObjectBuilder.add("completed", completed);
-        jsonObjectBuilder.add("turn", turn);
-        jsonObjectBuilder.add("score", score);
+        builder.add("completed", completed);
 
         // Write engine
-        jsonObjectBuilder.add("engine", HexConverter.convertEngine(currentEngine));
+        builder.add("engine", HexConverter.convertEngine(currentEngine));
 
         // Write queue
         JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
         for (Piece piece : currentQueue) {
             jsonQueueBuilder.add(HexConverter.convertPiece(piece));
         }
-        jsonObjectBuilder.add("queue", jsonQueueBuilder);
+        builder.add("queue", jsonQueueBuilder);
+
+        // Write moves
+        JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
+        int totalMoves = moveOrigins.size();
+        for (int i = 0; i < totalMoves; i ++) {
+            JsonObjectBuilder jsonMoveBuilder = Json.createObjectBuilder();
+            try {
+                jsonMoveBuilder.add("order", i);
+                jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
+                jsonMoveBuilder.add("piece", HexConverter.convertPiece(moveQueues.get(i)[movePieces.get(i)]));
+            } catch (Exception e) {
+                throw new IOException("Failed to create JSON objects for moves");
+            }
+            jsonMoveArrayBuilder.add(jsonMoveBuilder);
+        }
+        builder.add("moves", jsonMoveArrayBuilder);
+    }
+
+    /**
+     * Constructs a complete JSON object from the current logger information and writes it to a file.
+     * This includes the basic game information, the current {@link HexEngine} statues, the current
+     * {@link Piece} queue statues, and the moves in the game. This use the {@code hex.uncolored} format.
+     * <p>
+     * This method appends information to the {@link JsonObjectBuilder} passed in as parameter.
+     * @param builder The builder to accept JSON information.
+     * @throws IOException If JSON creation or writing fails.
+     * @see #write(String)
+     */
+    public void createUncoloredData(JsonObjectBuilder builder) throws IOException {
+        // Write game statues
+        builder.add("completed", completed);
+        builder.add("turn", turn);
+        builder.add("score", score);
+
+        // Write engine
+        builder.add("engine", HexConverter.convertEngine(currentEngine));
+
+        // Write queue
+        JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
+        for (Piece piece : currentQueue) {
+            jsonQueueBuilder.add(HexConverter.convertPiece(piece));
+        }
+        builder.add("queue", jsonQueueBuilder);
 
         // Write moves
         JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
@@ -669,17 +752,17 @@ public class HexLogger {
             }
             jsonMoveArrayBuilder.add(jsonMoveBuilder);
         }
-        jsonObjectBuilder.add("moves", jsonMoveArrayBuilder);
-
-        // write
-        JsonObject resultingObject = jsonObjectBuilder.build();
-        writeJsonToFile(resultingObject);
+        builder.add("moves", jsonMoveArrayBuilder);
     }
 
     /**
      * Reads the log file and parses it into memory.
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
      * @throws IOException If reading or parsing fails or if the game type is unsupported.
+     * @see #write()
+     * @see #readJsonFile()
+     * @see #readBasicHexData(JsonObject)
+     * @see #readUncoloredHexData(JsonObject)
      */
     public void read() throws IOException {
         String jsonString = readJsonFile();
@@ -760,6 +843,7 @@ public class HexLogger {
      * </ul>
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
      * @throws IOException If reading or parsing fails or if the game type is unsupported.
+     * @see #read()
      * @since 1.2.4
      */
     public void readUncoloredHexData(JsonObject jsonObject) throws IOException {
@@ -927,6 +1011,7 @@ public class HexLogger {
      * </ul>
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
      * @throws IOException If reading or parsing fails or if the game type is unsupported.
+     * @see #read()
      */
     public void readBasicHexData(JsonObject jsonObject) throws IOException {
         // Read completed (This support versions without completed)
