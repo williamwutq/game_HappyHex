@@ -72,8 +72,8 @@ The launcher is the window that opens after the application is opened. The game 
 start button. The [settings](#Settings-Page) and color [theme](#Themes-Page) can be changed through the launcher, which enhances the game experience for
 the player. In addition, [Easter Eggs](#Easter-Eggs) can also be activated with the launcher.  
 
-The launcher use an adjustable window, and all components contained in the window are dynamically resizable. That said, there is a minimum size limination
-of the game window, because otherwise the game cannot show all of its content. The limination is currently `400 * 400` pixels.
+The launcher use an adjustable window, and all components contained in the window are dynamically resizable. That said, there is a minimum size limitation
+of the game window, because otherwise the game cannot show all of its content. The limitation is currently `400 * 400` pixels.
 
 The launcher has the following pages:  
 #### Main Page
@@ -114,9 +114,9 @@ The main page displays the game name, version, credits, game hints, and provides
   3. Themes Button  
      The settings button has the word "THEMES" written on it. It is intended to provide users for redirection to the [Themes Page](#Themes-Page).  
      The default [color theme](#Theme,-Color-and-Font) of the game is [Normal Theme](#Normal-Color-Theme), but the themes page enables players to 
-     swtich to other themes instead if they prefer to do so.  
+     switch to other themes instead if they prefer to do so.  
   4. Start Button  
-     The start button has the word "START" written on it. When clicked, it start a new game based on the settings provided,
+     The start button has the word "START" written on it. When clicked, it starts a new game based on the settings provided,
      modifiable via [Settings Page](#Settings-Page). If the player is logged in and an unfinished game exist, and the restart game setting is set to
      be `ON`, the unfinished game will continue.  
      The game play part is considered to be outside launcher. For detailed game rules, see [Game Rules](#Game-Rules).  
@@ -125,7 +125,7 @@ The main page displays the game name, version, credits, game hints, and provides
 
   On the button of the page there will be a section with the game credits to its [developers](#Contribution), which is currently just me.  
   To the left of the section, the words "A W.W Game" can be seen, with the two Ws shown in a slightly larger font with a different color.  
-  To the right of the section, a copy right can been seen, attributing the game copyright to William Wu. See [License](#License) for details.  
+  To the right of the section, a copy right can be seen, attributing the game copyright to William Wu. See [License](#License) for details.  
 
 #### Login Page
 The login page enables the user to log in with their username. While no password is required, a unique username is recommended.
@@ -135,7 +135,7 @@ The page contains the following elements:
 
 - <b>Game Title</b>  
   
-  This is the exact same element as that in [Main Page](Main-Page), with the only differce being the elimination of the space above this title.
+  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
   The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
   which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
   The sequencing of the colors is randomized every time the page is refreshed.
@@ -168,7 +168,7 @@ The page contains the following elements:
   theme. To log out, the player may enter "Out", "Logout", or "Log out".
 
   Whenever an action, such as clicking the Confirm Button, is performed, the field will display a short prompt for a limited period of time, then switch
-  back to normal. If the player attempts to enter an name with the incorrect format, the prompt will usually be red, stating "INCORRECT NAMING FORMAT!".
+  back to normal. If the player attempts to enter a name with the incorrect format, the prompt will usually be red, stating "INCORRECT NAMING FORMAT!".
   If the player attempts to one of the [keywords](#Prohibited-Usernames), the prompt will usually be red, stating "GAME KEYWORD PROHIBITED!". If the login
   was successful, the field will display the short prompt, usually green, "SUCCESSFUL PLAYER LOGIN!" and then display the logged in player's username.  
 
@@ -176,10 +176,10 @@ The page contains the following elements:
 
   This is a button similar to all the other redirection buttons, but appears usually in green and contains the text "ENTER".  
   
-  When clicked, the launcher will check the current text inside the Username Entering Field. If the name is valid and matches the current logged in user,
+  When clicked, the launcher will check the current text inside the Username Entering Field. If the name is valid and matches the current logged-in user,
   nothing will happen. If the name is valid and representing a new login, the field will display "SUCCESSFUL PLAYER LOGIN!". If the name is one of the
-  [keywords](#Prohibited-Usernames), the field will displaying a red prompt stating "GAME KEYWORD PROHIBITED!". If the name does not meet the rules and
-  is not valid, the field will displaying a red prompt stating "INCORRECT NAMING FORMAT!".  
+  [keywords](#Prohibited-Usernames), the field will display a red prompt stating "GAME KEYWORD PROHIBITED!". If the name does not meet the rules and
+  is not valid, the field will display a red prompt stating "INCORRECT NAMING FORMAT!".  
 
   Player must click on this button to confirm their newly entered username when attempting login. Otherwise, nothing will happen.  
 
@@ -190,7 +190,7 @@ The page contains the following elements:
 
 - <b>Game Credits</b>  
 
-  A section detailing the credit and copyright information of the HappyHex game, identicle to that in [Main Page](Main-Page).  
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
 
 #### Settings Page
 #### Themes Page
