@@ -67,6 +67,18 @@ How to download the game and play, or, if you want, compile it yourself.
 - [org.junit.jupiter.api](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)
 
 ## Game Play
+### Launcher Navigation
+The launcher is the window that opens after the application is opened. The game is not directly played, but rather can be [started](#Start-Game) with a
+start button. The [settings](#Settings-Page) and color [theme](#Themes-Page) can be changed through the launcher, which enhances the game experience for
+the player. In addition, [Easter Eggs](#Easter-Eggs) can also be activated with the launcher.  
+
+The launcher has the following pages:  
+#### Main Page
+#### Login Page
+#### Settings Page
+#### Themes Page
+#### Start Game
+
 ### Theme, Color and Font
 This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](Special-Themes)
 section.
@@ -343,6 +355,16 @@ These themes can change the color of every component in the game and the launche
 
    This theme is packaged inside `special.Halloween` and contained in `special.FeatureFactory` with the class tag `java.awt.Color` and
    `java.awt.Font`.
+
+### Auto Play
+The auto play feature will be added in the future. With a click of a button, the player will be able to enjoy hands-off automatic piece placement in the 
+"HappyHex" game. There would a button starting and stopping the automatic playing of the game. Mainwhile, the player may also place pieces manually, and
+Their intervention will pause the autoplay until the player starts it again. Separately, one button will enable the player to see engine suggestions of
+piece placements.  
+The first game engine will be build with random moves, and will not support suggestions. The more advanced version of Auto Play will feature methods to score
+positions of placements and suggests placements accordingly. As for now, code in game piece and game engine are gradually build to support position scoring
+and future machine learning. The final result of Auto Play will incorporate [machine learning](#develop--machine-learning), which will enable better
+game results and even personalized game play.  
 
 ## Development
 ### Contribution
