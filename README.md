@@ -265,13 +265,13 @@ The page contains the following elements:
   For special themes, see in the [Easter Eggs](#Easter-Eggs) section. For detailed description on the themes, see the
   [dedicated theme](Theme,-Color-and-Font) section.
 
-  Players can choose between **Normal**, **Dark**, and **White** game themes for displaying. These themes alters the color of all game graphics and are 
+  Players can choose between **Normal**, **Dark**, and **White** game themes for displaying. These themes alter the color of all game graphics and are 
   effective immediately. When a switch is flicked, the user can notice the change in the coloring of the theme page. All changes in the theme in theme
   settings will be carried to all other pages, until the theme settings is modified again. The default theme is Normal.  
 
   The theme settings has nothing to do with the game settings and will not affect game logic at all.  
 
-  The changes of theme maybe overriden by special dates dictated by [Special Themes](#Special-Themes). When a special theme is active, the buttons will still
+  The changes of theme maybe override by special dates dictated by [Special Themes](#Special-Themes). When a special theme is active, the buttons will still
   work but the theme will remain the same.  
 
   There's no superior theme among the three themes. Personally I prefer the Dark Theme, but the most classic one is the default theme, namely the Normal Theme.  
@@ -289,7 +289,7 @@ The page contains the following elements:
 
 This will direct the page out of the launcher and initialize the game components in a new game page.  
 
-Usually, the game page have separate colors and fonts as the launcher, and is made up from two panels instead of a single panel. This provide significant
+Usually, the game page have separate colors and fonts as the launcher, and is made up from two panels instead of a single panel. This provides significant
 efficiency to the game execution and make the game play process much smoother.  
 
 The game page includes components such as:  
