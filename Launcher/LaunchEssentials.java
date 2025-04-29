@@ -23,6 +23,7 @@ public final class LaunchEssentials {
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
+    private static boolean restartGame = true; // Whether to restart previously ended game
 
     // Graphics Theme
     private static int themeIndex = 2;
@@ -100,6 +101,9 @@ public final class LaunchEssentials {
     public static boolean isGameStarted(){
         return gameStarted;
     }
+    public static boolean isRestartGame(){
+        return restartGame;
+    }
     public static void startGame(){
         gameStarted = true;
         int delay = 250;
@@ -126,6 +130,7 @@ public final class LaunchEssentials {
     public static void endGame(){
         gameStarted = false;
     }
+    public static void setRestartGame(boolean restartGame){LaunchEssentials.restartGame = restartGame;}
     public static void setCurrentPlayer(Username currentPlayer, long currentPlayerID) {
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
@@ -139,21 +144,21 @@ public final class LaunchEssentials {
     public static hexio.HexLogger smartCreateLogger(int size, int queueSize){
         hexio.HexLogger logger = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
         // The start unfinished game feature, implemented below, is disabled due to bugs
-//        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
-//        // Search for incomplete games
-//        if(!loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
-//            for (hexio.HexLogger generatedLogger : loggers){
-//                try {
-//                    generatedLogger.read();
-//                } catch (IOException e) {continue;}
-//                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
-//                        && generatedLogger.getQueue().length == queueSize
-//                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()){
-//                    System.out.println(GameTime.generateSimpleTime() + " HexLogger: Unfinished game found at file " + generatedLogger.getDataFileName() + ".");
-//                    logger = generatedLogger;
-//                }
-//            }
-//        }
+        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        // Search for incomplete games
+        if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
+            for (hexio.HexLogger generatedLogger : loggers){
+                try {
+                    generatedLogger.read();
+                } catch (IOException e) {continue;}
+                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
+                        && generatedLogger.getQueue().length == queueSize
+                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()){
+                    System.out.println(GameTime.generateSimpleTime() + " HexLogger: Unfinished game found at file " + generatedLogger.getDataFileName() + ".");
+                    logger = generatedLogger;
+                }
+            }
+        }
         return logger;
     }
     public static void initialize(){

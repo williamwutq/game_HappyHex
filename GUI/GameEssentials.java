@@ -1,6 +1,7 @@
 package GUI;
 
 import GUI.animation.*;
+import Launcher.LaunchEssentials;
 import hex.HexEngine;
 import game.Queue;
 import hex.Piece;
@@ -268,6 +269,12 @@ public final class GameEssentials {
         if(easy) {
             game.PieceFactory.setEasy();
         }
+        score = 0;
+        turn = 0;
+        selectedPieceIndex = -1;
+        selectedBlockIndex = -1;
+        hoveredOverIndex = -1;
+        clickedOnIndex = -1;
         engine = new HexEngine(size, gameBlockDefaultColor, getDefaultColor());
         queue = new Queue(queueSize);
         window = frame;
@@ -275,6 +282,8 @@ public final class GameEssentials {
         gameLogger = logger;
         if(logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize){
             // Copy logger info to game
+            score = logger.getScore();
+            turn = logger.getTurn();
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
@@ -294,6 +303,8 @@ public final class GameEssentials {
             // Copy info to logger
             gameLogger.setEngine(engine);
             gameLogger.setQueue(queue.getPieces());
+            gameLogger.setScore(0);
+            gameLogger.setTurn(0);
         }
         // Construct labels
         turnLabel = new GameInfoPanel();
@@ -303,8 +314,8 @@ public final class GameEssentials {
         turnLabel.setTitle("TURN");
         scoreLabel.setTitle("SCORE");
         playerLabel.setTitle("PLAYER");
-        turnLabel.setInfo("0");
-        scoreLabel.setInfo("0");
+        turnLabel.setInfo(turn + "");
+        scoreLabel.setInfo(score + "");
         playerLabel.setInfo(player);
         turnLabel.setBounds(0, 0, 100, 100);
         scoreLabel.setBounds(300, 0, 100, 100);
@@ -380,9 +391,15 @@ public final class GameEssentials {
 
     // Logging at the end
     public static void logGame(){
-        Launcher.LaunchEssentials.log(turn, score);
+        boolean complete = gameEnds();
+        if (LaunchEssentials.getCurrentPlayerID() == -1 || complete){
+            // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
+            Launcher.LaunchEssentials.log(turn, score);
+        } else {
+            System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
+        }
         try {
-            if (gameEnds()) gameLogger.completeGame();
+            if (complete) gameLogger.completeGame();
             gameLogger.setEngine(engine);
             gameLogger.setQueue(queue.getPieces());
             gameLogger.write();
@@ -406,8 +423,8 @@ public final class GameEssentials {
         score += addedScore;
         scoreLabel.setInfo(score + "");
     }
-    public static void move(hex.Hex origin, hex.Piece piece){
-        gameLogger.addMove(origin, piece);
+    public static void move(hex.Hex origin){
+        gameLogger.addMove(origin, selectedPieceIndex, queue.getPieces());
     }
 
     // Setters
