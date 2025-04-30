@@ -5,11 +5,6 @@ import special.SpecialFeature;
 import java.awt.*;
 
 public class AmericanWhiteTheme implements SpecialFeature {
-    private String[] whiteList = new String[]{
-            "Player",
-            "Author",
-            "WW",
-    };
     private boolean enable;
     private boolean valid;
     public AmericanWhiteTheme(){
@@ -70,40 +65,46 @@ public class AmericanWhiteTheme implements SpecialFeature {
             }
             if (isColorBaseArray){
                 return new Color[]{
-                        new Color(14, 20, 105),
-                        new Color(29, 40, 126),
                         new Color(31, 73, 192),
+                        new Color(29, 40, 126),
+                        new Color(14, 20, 105),
                         new Color(99, 29, 27),
                         new Color(131, 26, 27),
                         new Color(177, 66, 74),
-                        new Color(14, 20, 105),
-                        new Color(29, 40, 126),
                         new Color(31, 73, 192),
+                        new Color(29, 40, 126),
+                        new Color(14, 20, 105),
                         new Color(99, 29, 27),
                         new Color(131, 26, 27),
                         new Color(177, 66, 74),
                 };
             } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
                 String hint = (String) objects[1];
-                if(hint.contains("SlidingButtonOn") || hint.contains("SlidingButtonOff")){
-                    objects[0] = Color.BLACK;
-                } else if (hint.contains("GameQuitFont") || hint.contains("GameDisplayFont")) {
-                    objects[0] = Color.DARK_GRAY;
-                } else if (hint.contains("PieceSelected")){
-                    objects[0] = Color.LIGHT_GRAY;
-                } else if (hint.contains("Button") && !hint.contains("SlidingButtonEmpty")) {
-                    objects[0] = Color.DARK_GRAY;
-                } else if (hint.contains("Background") && !inWhiteList(hint)) {
-                    objects[0] = Color.WHITE;
-                } else if (!inWhiteList(hint)){
+                if (hint.contains("SlidingButtonOn")){
+                    objects[0] = new Color(2, 41, 116);
+                } else if (hint.contains("SlidingButtonOff")){
+                    objects[0] = new Color(106, 4, 4);
+                } else if (hint.contains("SlidingButtonEmpty")){
+                    objects[0] = new Color(228, 222, 221);
+                } else if (hint.contains("Selected")){
+                    objects[0] = new Color(76, 148, 174);
+                } else if (hint.contains("Button") || hint.contains("Author")){
+                    objects[0] = new Color(6, 51, 136);
+                } else if (hint.contains("TitlePanel")){
+                    objects[0] = new Color(217, 206, 193);
+                } else if (hint.contains("GamePiecePanel") || hint.contains("GameOverBackground")){
+                    objects[0] = new Color(133, 187, 205);
+                } else if (hint.contains("GameBackground")){
+                    objects[0] = new Color(180, 210, 220);
+                } else if (hint.contains("Background")){
+                    objects[0] = new Color(228, 222, 221);
+                } else if (hint.contains("DisplayFont") || hint.contains("QuitFont")){
+                    objects[0] = new Color(85, 38, 38);
+                } else if (objects[0].equals(Color.BLACK)){
+                    objects[0] = new Color(36,36,36);
                 }
             }
         }
         return objects;
-    }
-    private boolean inWhiteList(String str){
-        for(String ignore : whiteList){
-            if(str.contains(ignore)) return true;
-        } return false;
     }
 }
