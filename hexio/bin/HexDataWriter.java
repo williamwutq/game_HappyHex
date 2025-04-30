@@ -267,6 +267,29 @@ public class HexDataWriter {
     }
 
     /**
+     * Add a defined length of spacing hexadecimal characters ("0")
+     * to the data stored in the {@code HexDataWriter}.
+     * @param length the length of the spacing, or number of 0s wanted.
+     * @see #add()
+     */
+    public void addSpace(int length){
+        for(int i = 0; i < length; i ++){
+            data += "0";
+        }
+    }
+    /**
+     * Add a defined length of hexadecimal character divider ("FF")
+     * to the data stored in the {@code HexDataWriter}.
+     * @param length the length of the dividers, which
+     *               is half of the number of characters added.
+     */
+    public void addDivider(int length){
+        for(int i = 0; i < length; i ++){
+            data += "FF";
+        }
+    }
+
+    /**
      * Add an encoded {@link String} of hexadecimal characters
      * to the data stored in the {@code HexDataWriter}.
      * <p>
