@@ -13,7 +13,7 @@ public class AmericanWhiteTheme implements SpecialFeature {
         validate();
     }
     public int getFeatureID() {
-        return 5;
+        return 65;
     }
     public int getGroupID() {
         return 999; // EventSpecial
@@ -25,7 +25,7 @@ public class AmericanWhiteTheme implements SpecialFeature {
         return "EventSpecial";
     }
     public String getFeatureDescription() {
-        return "Use white theme coloring for all GUI elements";
+        return "Bright independence theme";
     }
     public String getFeatureTarget() {
         return "GUI, LaunchGUI, LauncherEssentials, GameEssentials";
@@ -94,7 +94,7 @@ public class AmericanWhiteTheme implements SpecialFeature {
                     objects[0] = new Color(217, 206, 193);
                 } else if (hint.contains("GamePiecePanel") || hint.contains("GameOverBackground")){
                     objects[0] = new Color(133, 187, 205);
-                } else if (hint.contains("GameBackground")){
+                } else if (hint.contains("GamePanelBackground")){
                     objects[0] = new Color(180, 210, 220);
                 } else if (hint.contains("Background")){
                     objects[0] = new Color(228, 222, 221);
