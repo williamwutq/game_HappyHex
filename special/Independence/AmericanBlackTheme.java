@@ -87,21 +87,21 @@ public class AmericanBlackTheme implements SpecialFeature {
                 } else if (hint.contains("SlidingButtonEmpty")){
                     objects[0] = new Color(1, 33, 51);
                 } else if (hint.contains("Selected")){
-                    objects[0] = new Color(76, 148, 174);
+                    objects[0] = new Color(179, 81, 60);
                 } else if (hint.contains("Button") || hint.contains("Author")){
                     objects[0] = new Color(174, 57, 70);
                 } else if (hint.contains("TitlePanel")){
                     objects[0] = new Color(3, 53, 81);
                 } else if (hint.contains("GamePiecePanel") || hint.contains("GameOverBackground")){
-                    objects[0] = new Color(106, 4, 4);
+                    objects[0] = new Color(97, 20, 3);
                 } else if (hint.contains("GamePanelBackground")){
-                    objects[0] = new Color(67, 2, 2);
+                    objects[0] = new Color(67, 14, 2);
                 } else if (hint.contains("Background")){
                     objects[0] = new Color(1, 33, 51);
                 } else if (hint.contains("DisplayFont") || hint.contains("QuitFont")){
-                    objects[0] = new Color(85, 38, 38);
+                    objects[0] = new Color(125, 124, 207);
                 } else if (objects[0].equals(Color.BLACK)){
-                    objects[0] = new Color(214,214,214);
+                    objects[0] = new Color(189, 189, 189);
                 }
             }
         }
