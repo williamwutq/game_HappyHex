@@ -80,12 +80,15 @@ public class HexDataWriter {
     public void writeAsBinary() throws IOException {
         Path path = Path.of(getFullPath());
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        for (char c : data.toCharArray()) {
-            int value = Character.digit(c, 16);
-            if (value == -1) continue; // skip non-hex characters, which should never happen
-            for (int i = 3; i >= 0; i--) {
-                output.write((value >> i) & 1);
-            }
+        if(data.length() % 2 != 0) data += "0"; // Add 0 to the end if needed
+        char[] charArray = data.toCharArray();
+        for (int i = 0, charArrayLength = charArray.length; i < charArrayLength; i+=2) {
+            int value1 = Character.digit(charArray[i], 16);
+            int value2 = Character.digit(charArray[i+1], 16);
+            // For invalid hex numbers, use 0. This should never be reached.
+            if (value1 == -1) value1 = 0;
+            if (value2 == -1) value2 = 0;
+            output.write(value1 << 4 | value2);
         }
         Files.write(path, output.toByteArray(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
