@@ -336,6 +336,7 @@ public final class HexConverter {
      * This is the inverse method of {@link #convertEngine(JsonObject)}.
      *
      * @param engine the {@code HexEngine} object to convert
+     * @param indexes the indexes of the colors of the blocks
      * @return a {@code JsonObject} representing the index colored engine
      * @see HexEngine#HexEngine
      * @see #convertIndexColoredBlock(Block, int)
@@ -398,6 +399,31 @@ public final class HexConverter {
         builder.add("order", moveOrder);
         builder.add("center", convertHex(center));
         builder.add("piece", convertColoredPiece(piece));
+        return builder.build();
+    }
+    /**
+     * Converts an index colored game move to a JSON object.
+     * The JSON object includes the move order, center coordinate, and index colored piece.
+     * <p>
+     * For non-colored generation, see {@link #convertMove(int, Hex, Piece)}.
+     * For RGB colored generation, see {@link #convertColoredMove(int, Hex, Piece)}.
+     * This method has no direct inverse method, but a combination of {@link JsonObject#getInt(String)},
+     * {@link #convertHex(JsonObject)}, and {@link #convertPiece(JsonObject)} can do the job.
+     *
+     * @param moveOrder the number of the move order
+     * @param center    the {@code Hex} center coordinate of the move
+     * @param piece     the {@code Piece} involved in the move
+     * @param index     the color index representing the color in use for this piece
+     * @return a {@code JsonObject} representing the index colored move
+     * @see #convertHex(Hex)
+     * @see #convertIndexColoredPiece(Piece, int)
+     * @since 1.3
+     */
+    public static JsonObject convertIndexColoredMove(int moveOrder, Hex center, Piece piece, int index){
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("order", moveOrder);
+        builder.add("center", convertHex(center));
+        builder.add("piece", convertIndexColoredPiece(piece, index));
         return builder.build();
     }
 
