@@ -11,7 +11,7 @@ import java.nio.file.*;
  * or arrays of such data and write the data to files in either text or binary format.
  * It also provides direct accumulation and serialization of already encoded hexadecimal Strings
  * or character arrays, as well as convenience methods for adding spacing and dividers.
- * It supports flexible file path, suffix configuration, and data comparison.
+ * It supports flexible file path, suffix configuration, data comparison, and data removal.
  * <p>
  * The class maintains an internal string buffer ({@code data}) to store hexadecimal characters
  * (0-9, A-F) and provides methods to add data in a controlled manner, ensuring proper hexadecimal
@@ -317,6 +317,22 @@ public class HexDataWriter {
     public void addDivider(int length){
         for(int i = 0; i < length; i ++){
             data += "FF";
+        }
+    }
+
+    /**
+     * Removes a specified number of hexadecimal characters
+     * from the end of the data stored in this {@code HexDataWriter}.
+     * <p>
+     * If the specified length is greater than or
+     * equal to the current data length, all data is removed.
+     * @param length the number of hexadecimal characters to remove from the end of the data.
+     */
+    public void remove(int length) {
+        if (length >= data.length()) {
+            data = "";
+        } else {
+            data = data.substring(0, data.length() - length);
         }
     }
 
