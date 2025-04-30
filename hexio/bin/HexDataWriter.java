@@ -132,56 +132,149 @@ public class HexDataWriter {
         return data;
     }
 
+    /**
+     * Add an empty hexadecimal character to the data stored in the {@code HexDataWriter}.
+     */
     public void add() {
         data += "0";
     }
-
+    /**
+     * Add a {@code long} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This will add 16 hexadecimal characters.
+     * @param value the {@code long} value to be added.
+     */
     public void add(long value) {
         data += String.format("%016X", value);
     }
-
+    /**
+     * Add a {@code int} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This will add 8 hexadecimal characters.
+     * @param value the {@code int} value to be added.
+     */
     public void add(int value) {
         data += String.format("%08X", value);
     }
-
+    /**
+     * Add a {@code char} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This method can also be used to convert characters in {@link String}.
+     * This will add 4 hexadecimal characters.
+     * @param value the {@code char} value to be added.
+     */
     public void add(char value) {
         data += String.format("%04X", (int) value);
     }
-
+    /**
+     * Add a {@link String} encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The string will be converted to an array of characters, which will each be added by {@link #add(char)}.
+     * The characters in the {@code String} will be added sequentially in the order of appearance,
+     * each value will add 4 hexadecimal characters to the data.
+     * @param value the {@link String} to be added.
+     */
     public void add(String value) {
         for (char c : value.toCharArray()) {
             add(c);
         }
     }
-
+    /**
+     * Add a {@code byte} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This will add 2 hexadecimal characters.
+     * @param value the {@code byte} value to be added.
+     */
     public void add(byte value) {
         data += String.format("%02X", value);
     }
-
+    /**
+     * Add an array of {@code long} values encoded in hexadecimal character
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The values will be added sequentially in the order of appearance in the array,
+     * each value will add 16 hexadecimal characters to the data.
+     * There is no separation characters in between values.
+     * @param values the {@code long} values to be added.
+     * @see #add(long)
+     */
     public void add(long[] values) {
         for (long value : values) {
             add(value);
         }
     }
-
+    /**
+     * Add an array of {@code int} values encoded in hexadecimal character
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The values will be added sequentially in the order of appearance in the array,
+     * each value will add 8 hexadecimal characters to the data.
+     * There is no separation characters in between values.
+     * @param values the {@code int} values to be added.
+     * @see #add(int)
+     */
     public void add(int[] values) {
         for (int value : values) {
             add(value);
         }
     }
-
+    /**
+     * Add an array of {@code char} values encoded in hexadecimal character
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The values will be added sequentially in the order of appearance in the array,
+     * each value will add 4 hexadecimal characters to the data.
+     * There is no separation characters in between values.
+     * <p>
+     * This method can also be used to convert characters in {@link String},
+     * although {@link #add(String)} is preferred over this.
+     * @param values the {@code char} values to be added.
+     * @see #add(char)
+     */
     public void add(char[] values) {
         for (char value : values) {
             add(value);
         }
     }
-
+    /**
+     * Add an array of {@code byte} values encoded in hexadecimal character
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The values will be added sequentially in the order of appearance in the array,
+     * each value will add 2 hexadecimal characters to the data.
+     * There is no separation characters in between values.
+     * @param values the {@code byte} values to be added.
+     * @see #add(byte)
+     */
     public void add(byte[] values) {
         for (byte value : values) {
             add(value);
         }
     }
+    /**
+     * Add an array of {@link String} encoded in hexadecimal character
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The strings will be added sequentially in the order of appearance in the array.
+     * There is no separation characters in between the input strings.
+     * @param values the {@code String} inputs to be added.
+     * @see #add(String)
+     */
+    public void add(String[] values) {
+        for (String value : values) {
+            add(value);
+        }
+    }
 
+    /**
+     * Add an encoded {@link String} of hexadecimal characters
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This will check the content of the input and purify
+     * it by rejecting all invalid characters as 0.
+     * @param hex the hexadecimal {@link String} encoding information to be added.
+     * @see #addHex(char[])
+     */
     public void addHex(String hex) {
         for (char c : hex.toUpperCase().toCharArray()) {
             if (Character.digit(c, 16) != -1) {
@@ -191,13 +284,32 @@ public class HexDataWriter {
             }
         }
     }
-
+    /**
+     * Add a series of encoded {@link String} of hexadecimal characters
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This will check the content of the inputs and purify
+     * them by rejecting all invalid characters as 0.
+     * <p>
+     * The inputs will be added sequentially in the order of appearance in the array,
+     * there is no separation characters in between input hexadecimal strings.
+     * @param hexStrings array of all hexadecimal {@link String} encoding information to be added.
+     * @see #addHex(String)
+     */
     public void addHex(String[] hexStrings) {
         for (String hex : hexStrings) {
             addHex(hex);
         }
     }
-
+    /**
+     * Add an encoded hexadecimal character array
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This will check the content of the input and purify
+     * it by rejecting all invalid characters as 0.
+     * @param hexChars the hexadecimal character array encoding information to be added.
+     * @see #addHex(String)
+     */
     public void addHex(char[] hexChars) {
         for (char c : hexChars) {
             if (Character.digit(c, 16) != -1) {
