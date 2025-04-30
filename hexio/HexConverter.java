@@ -90,6 +90,7 @@ public final class HexConverter {
      * @return a {@code JsonObject} representing the block
      * @see Block#block
      * @see #convertHex(Hex)
+     * @since 1.3
      */
     public static JsonObject convertIndexColoredBlock(Block block, int index){
         JsonObjectBuilder builder = Json.createObjectBuilder();
@@ -232,6 +233,55 @@ public final class HexConverter {
         return builder.build();
     }
     /**
+     * Converts a specific block from a {@link Piece} to a JSON object based on its coordinates.
+     * If the block at the specified coordinates is null, a new block is created with the piece's color.
+     *
+     * @param i     the I-coordinate of the block
+     * @param k     the K-coordinate of the block
+     * @param piece the {@code Piece} containing the block
+     * @param index the color index representing the color in use for this piece
+     * @return a {@code JsonObject} representing the block
+     * @see Piece#Piece
+     * @see #convertIndexColoredBlock(Block, int)
+     * @see #convertIndexColoredPiece(Piece, int)
+     * @since 1.3
+     */
+    private static JsonObject convertIndexColoredPieceBlock(int i, int k, Piece piece, int index){
+        Block block = piece.getBlock(i, k);
+        if (block == null){
+            block = Block.block(i, k, piece.getColor());
+        } else {
+            block = block.clone();
+        }
+        return convertIndexColoredBlock(block, index);
+    }
+    /**
+     * Converts a {@link Piece} to a JSON array of index colored blocks.
+     * The array includes JSON objects for blocks at specific coordinates relative to the piece.
+     * <p>
+     * For non-colored generation, see {@link #convertPiece(Piece)}.
+     * For RGB colored generation, see {@link #convertColoredPiece(Piece)}.
+     * This is the inverse method of {@link #convertPiece(JsonObject)}.
+     *
+     * @param piece the {@code Piece} object to convert
+     * @param index the color index representing the color in use for this piece
+     * @return a {@code JsonArray} of index colored block JSON objects
+     * @see Piece#Piece
+     * @see #convertIndexColoredBlock(Block, int)
+     * @since 1.3
+     */
+    public static JsonArray convertIndexColoredPiece(Piece piece, int index){
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+        builder.add(convertIndexColoredPieceBlock(-1, -1, piece, index));
+        builder.add(convertIndexColoredPieceBlock(-1, 0, piece, index));
+        builder.add(convertIndexColoredPieceBlock(0, -1, piece, index));
+        builder.add(convertIndexColoredPieceBlock(0, 0, piece, index));
+        builder.add(convertIndexColoredPieceBlock(0, 1, piece, index));
+        builder.add(convertIndexColoredPieceBlock(1, 0, piece, index));
+        builder.add(convertIndexColoredPieceBlock(1, 1, piece, index));
+        return builder.build();
+    }
+    /**
      * Converts a {@link HexEngine} to a JSON object.
      * The JSON object includes the engine's radius and an array of blocks.
      * <p>
@@ -273,6 +323,35 @@ public final class HexConverter {
         // Add array of blocks
         for (int i = 0; i < engine.length(); i ++){
             arrayBuilder.add(convertColoredBlock(engine.getBlock(i)));
+        }
+        objectBuilder.add("blocks", arrayBuilder);
+        return objectBuilder.build();
+    }
+    /**
+     * Converts an index colored {@link HexEngine} to a JSON object.
+     * The JSON object includes the engine's radius and an array of index colored blocks.
+     * <p>
+     * For non-colored generation, see {@link #convertEngine(HexEngine)}.
+     * For RGB colored generation, see {@link #convertColoredEngine(HexEngine)}.
+     * This is the inverse method of {@link #convertEngine(JsonObject)}.
+     *
+     * @param engine the {@code HexEngine} object to convert
+     * @return a {@code JsonObject} representing the index colored engine
+     * @see HexEngine#HexEngine
+     * @see #convertIndexColoredBlock(Block, int)
+     * @throws IndexOutOfBoundsException if length of {@code indexes} array does not match {@code engine}
+     * @since 1.3
+     */
+    public static JsonObject convertIndexColoredEngine(HexEngine engine, int[] indexes){
+        JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        objectBuilder.add("radius", engine.getRadius());
+        if(indexes.length != engine.length()){
+            throw new IndexOutOfBoundsException("Length of input index array " + indexes.length + " does not match engine size");
+        }
+        // Add array of blocks
+        for (int i = 0; i < engine.length(); i ++){
+            arrayBuilder.add(convertIndexColoredBlock(engine.getBlock(i), indexes[i]));
         }
         objectBuilder.add("blocks", arrayBuilder);
         return objectBuilder.build();
