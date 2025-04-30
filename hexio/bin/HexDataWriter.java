@@ -4,6 +4,37 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
 
+/**
+ * A utility class for recording and writing data in hexadecimal format to files.
+ * The {@code HexDataWriter} class provides methods to accumulate hexadecimal data
+ * from primitive data types (e.g., {@code long}, {@code int}, {@code char}, {@code byte}, {@code String})
+ * or arrays of such data and write the data to files in either text or binary format.
+ * It also provides direct accumulation and serialization of already encoded hexadecimal Strings
+ * or character arrays, as well as convenience methods for adding spacing and dividers.
+ * It supports flexible file path, suffix configuration, and data comparison.
+ * <p>
+ * The class maintains an internal string buffer ({@code data}) to store hexadecimal characters
+ * (0-9, A-F) and provides methods to add data in a controlled manner, ensuring proper hexadecimal
+ * encoding. It also supports writing the accumulated data to a file with a specified path and suffix,
+ * either as a human-readable text file (with a .txt extension) or as a binary file.
+ * <p>
+ * This class is particularly useful for applications that need to log or store data in hexadecimal
+ * format, such as debugging, data serialization, and efficient data storage for low level programs.
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ *     HexDataWriter writer = new HexDataWriter("output", "bin");
+ *     writer.add(255); // Adds "000000FF" (8 hex characters for an int)
+ *     writer.addHex("A56C"); // Adds "A56C" (add hexadecimal encoded String directly)
+ *     writer.add("Hello"); // Adds hexadecimal encoding of "Hello"
+ *     writer.writeAsBinary(); // Writes data to "output.bin"
+ *     writer.writeAsText(); // Writes data to "output.bin.txt"
+ * }</pre>
+ *
+ * @author William Wu
+ * @version 1.3
+ * @since 1.3
+ */
 public class HexDataWriter {
     private String data;
     private String filePath;
