@@ -1,5 +1,9 @@
 package hexio.bin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.*;
+
 public class HexDataWriter {
     private String data;
     private String filePath;
@@ -7,6 +11,7 @@ public class HexDataWriter {
 
     /**
      * Create an empty {@code HexDataWriter} that can be used to record and write data.
+     * The default file will be named data with no suffix.
      */
     public HexDataWriter(){
         data = "";
@@ -41,6 +46,12 @@ public class HexDataWriter {
         this.filePath = filePath;
     }
     /**
+     * Remove all data from this logger.
+     */
+    public void clear(){
+        this.data = "";
+    }
+    /**
      * Change the file path of the {@code HexDataWriter}.
      * @return the full file path of the file written to, include the suffix.
      */
@@ -48,6 +59,35 @@ public class HexDataWriter {
         if (suffix.isEmpty()) {
             return filePath;
         } else return filePath + "." + suffix;
+    }
+
+    /**
+     * Writes the data stored in this logger to the appropriate text file.
+     * If an existing file is found, it writes to it; otherwise, it creates a new one.
+     * The suffix of the file will be the .{@code s}.txt for easier recognition, s
+     * represents the suffix of the file defined for this particular logger.
+     * @throws IOException If writing data to file fails due to other issues.
+     */
+    public void writeAsText() throws IOException {
+        Path path = Path.of(getFullPath() + ".txt");
+        Files.writeString(path, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+    /**
+     * Writes the data stored in this logger to the appropriate binary file.
+     * If an existing file is found, it writes to it; otherwise, it creates a new one.
+     * @throws IOException If writing data to file fails due to other issues.
+     */
+    public void writeAsBinary() throws IOException {
+        Path path = Path.of(getFullPath());
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (char c : data.toCharArray()) {
+            int value = Character.digit(c, 16);
+            if (value == -1) continue; // skip non-hex characters, which should never happen
+            for (int i = 3; i >= 0; i--) {
+                output.write((value >> i) & 1);
+            }
+        }
+        Files.write(path, output.toByteArray(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     /**
