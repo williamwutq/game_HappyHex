@@ -131,4 +131,80 @@ public class HexDataWriter {
     public String toString(){
         return data;
     }
+
+    public void add() {
+        data += "0";
+    }
+
+    public void add(long value) {
+        data += String.format("%016X", value);
+    }
+
+    public void add(int value) {
+        data += String.format("%08X", value);
+    }
+
+    public void add(char value) {
+        data += String.format("%04X", (int) value);
+    }
+
+    public void add(String value) {
+        for (char c : value.toCharArray()) {
+            add(c);
+        }
+    }
+
+    public void add(byte value) {
+        data += String.format("%02X", value);
+    }
+
+    public void add(long[] values) {
+        for (long value : values) {
+            add(value);
+        }
+    }
+
+    public void add(int[] values) {
+        for (int value : values) {
+            add(value);
+        }
+    }
+
+    public void add(char[] values) {
+        for (char value : values) {
+            add(value);
+        }
+    }
+
+    public void add(byte[] values) {
+        for (byte value : values) {
+            add(value);
+        }
+    }
+
+    public void addHex(String hex) {
+        for (char c : hex.toUpperCase().toCharArray()) {
+            if (Character.digit(c, 16) != -1) {
+                data += c;
+            } else {
+                data += '0';
+            }
+        }
+    }
+
+    public void addHex(String[] hexStrings) {
+        for (String hex : hexStrings) {
+            addHex(hex);
+        }
+    }
+
+    public void addHex(char[] hexChars) {
+        for (char c : hexChars) {
+            if (Character.digit(c, 16) != -1) {
+                data += Character.toUpperCase(c);
+            } else {
+                data += '0';
+            }
+        }
+    }
 }
