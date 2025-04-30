@@ -83,7 +83,7 @@ public class HexDataWriter {
         this.data = "";
     }
     /**
-     * Change the file path of the {@code HexDataWriter}.
+     * Get the full file path of the {@code HexDataWriter}.
      * @return the full file path of the file written to, include the suffix.
      */
     public String getFullPath(){
