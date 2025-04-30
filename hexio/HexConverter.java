@@ -13,7 +13,7 @@ import java.io.IOException;
  * storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
  * and provides robust error handling for invalid JSON data.
  *
- * @version 1.2
+ * @version 1.3
  * @author William Wu
  * @since 1.2
  */
@@ -52,7 +52,7 @@ public final class HexConverter {
      * The JSON object includes the block's I, J, K coordinates and its state (occupied or not).
      * If the input is null, returns a JSON object with coordinates set to 0 and state set to false.
      * <p>
-     * For non-colored generation, see {@link #convertColoredBlock(Block)}.
+     * For colored generation, see {@link #convertColoredBlock(Block)}.
      * This is the inverse method of {@link #convertBlock(JsonObject)}.
      *
      * @param block the {@code Block} object to convert
@@ -71,6 +71,39 @@ public final class HexConverter {
             builder.add("I", block.getLineI());
             builder.add("J", block.getLineJ());
             builder.add("K", block.getLineK());
+            builder.add("state", block.getState());
+        }
+        return builder.build();
+    }
+    /**
+     * Converts a {@code Block} to a JSON object.
+     * The JSON object includes the block's I, J, K coordinates, index of color used, and state.
+     * If the input is null, returns a JSON object with coordinates set to 0, color index set to -1,
+     * and state set to false.
+     * <p>
+     * For non-colored generation, see {@link #convertBlock(Block)}.
+     * For RGB colored generation, see {@link #convertColoredBlock(Block)}.
+     * This is the inverse method of {@link #convertBlock(JsonObject)}.
+     *
+     * @param block the {@code Block} object to convert
+     * @param index the color index representing the color in use
+     * @return a {@code JsonObject} representing the block
+     * @see Block#block
+     * @see #convertHex(Hex)
+     */
+    public static JsonObject convertIndexColoredBlock(Block block, int index){
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        if (block == null) {
+            builder.add("I", 0);
+            builder.add("J", 0);
+            builder.add("K", 0);
+            builder.add("C", 0);
+            builder.add("state", false);
+        } else {
+            builder.add("I", block.getLineI());
+            builder.add("J", block.getLineJ());
+            builder.add("K", block.getLineK());
+            builder.add("C", index);
             builder.add("state", block.getState());
         }
         return builder.build();
