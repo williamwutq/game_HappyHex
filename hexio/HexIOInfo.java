@@ -5,9 +5,9 @@ public final class HexIOInfo {
     /** The major version number of the current {@link hexio}. */
     public static final int major = 1;
     /** The minor version number of the current {@link hexio}. */
-    public static final int minor = 2;
+    public static final int minor = 3;
     /** The patch version number of the current {@link hexio}. */
-    public static final int patch = 4;
+    public static final int patch = 0;
     /** The name of the current running game. */
     public static final String gameName = "HappyHex";
     /** The evironment of the current running game. */
