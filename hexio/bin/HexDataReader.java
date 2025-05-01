@@ -45,6 +45,27 @@ public class HexDataReader {
         this.pointer = 0;
     }
     /**
+     * Constructs a {@code HexDataReader} with a specified file path and suffix, and preloaded data.
+     * Use this constructor with caution, as it may not reflect the state of the real file.
+     * @param data     the initial data of the reader
+     * @param filePath the relative path to the file to read from
+     * @param suffix   the file suffix (extension) to use for reading
+     * @see #HexDataReader(String, String)
+     */
+    public HexDataReader(String filePath, String suffix, String data) {
+        this.filePath = filePath;
+        this.suffix = suffix;
+        StringBuilder builder = new StringBuilder();
+        for (char c : data.toUpperCase().toCharArray()) {
+            if (Character.digit(c, 16) != -1) {
+                builder.append(c);
+            } else {
+                builder.append('0');
+            }
+        }
+        this.data = builder.toString();
+    }
+    /**
      * Get the full file path of the {@code HexDataWriter}.
      * @return the full file path of the file written to, include the suffix.
      */

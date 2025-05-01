@@ -83,6 +83,15 @@ public class HexDataWriter {
         this.data = "";
     }
     /**
+     * Returns a new {@link HexDataReader} with the same file path, suffix, and data.
+     * This bypasses writing to file by directly pass the data to {@code HexDataReader}.
+     * @return a {@code HexDataReader} initialized with current state.
+     * @see HexDataReader
+     */
+    public HexDataReader getHexDataReader() {
+        return new HexDataReader(filePath, suffix, data);
+    }
+    /**
      * Get the full file path of the {@code HexDataWriter}.
      * @return the full file path of the file written to, include the suffix.
      */
