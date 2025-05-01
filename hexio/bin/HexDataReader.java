@@ -117,14 +117,14 @@ public class HexDataReader {
         if (index < 0){
             start = 0;
         } else if (index >= data.length()){
-            start = data.length()-1;
+            start = data.length();
         } else {
             start = index;
         }
         if (length <= 0){
             end = start;
         } else if (index + length >= data.length()){
-            end = data.length()-1;
+            end = data.length();
         } else {
             end = index + length;
         }
