@@ -1,4 +1,4 @@
-package hexio.bin;
+package hexio.hexdata;
 
 import java.io.IOException;
 
