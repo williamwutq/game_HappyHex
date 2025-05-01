@@ -107,6 +107,7 @@ public class HexDataReader {
     /**
      * Returns a substring of the data from a specified index and length.
      * This handles out of bounds indexes automatically.
+     * Replaces any out of bound portion with 0s. If the length is 0, returns an empty string.
      * @param index  the starting index.
      * @param length the number of characters to extract.
      * @return a hexadecimal substring.
@@ -199,6 +200,32 @@ public class HexDataReader {
         return builder.toString();
     }
 
+    /**
+     * Return the current index of reading (the pointer).
+     * The pointer is automatically undated when {@link #next} methods are called, or can be
+     * explicitly incremented with the {@link #advance} methods. Pointers can not move backward
+     * @return the pointer points to the current index in the hexadecimal data string.
+     */
+    public int pointer(){
+        return pointer;
+    }
+    /**
+     * Increment the index pointer to the current index in the hexadecimal data string by one.
+     * This equals skipping one hexadecimal character.
+     * @see #advance(int)
+     */
+    public void advance(){
+        pointer ++;
+    }
+    /**
+     * Increment the index pointer of the hexadecimal data string by a specific length.
+     * This equals skipping the hexadecimal characters in this range.
+     * @param length the length of the characters to skip.
+     * @see #advance()
+     */
+    public void advance(int length){
+        pointer += length;
+    }
     /**
      * Reads the next hexadecimal character and advances the pointer.
      * @return the next hexadecimal character
