@@ -112,23 +112,45 @@ public class HexDataReader {
      * @return a hexadecimal substring.
      */
     public String get(int index, int length) {
-        int start;
-        int end;
-        if (index < 0){
-            start = 0;
-        } else if (index >= data.length()){
-            start = data.length();
-        } else {
-            start = index;
+        StringBuilder result = new StringBuilder();
+        if (length < 0){
+            index += length;
+            length = -length;
         }
-        if (length <= 0){
-            end = start;
-        } else if (index + length >= data.length()){
-            end = data.length();
+        if (index >= 0){
+            if (index + length <= data.length()){
+                result.append(data, index, index + length);
+            } else if (index <= data.length()){
+                result.append(data, index, data.length());
+                for (int i = 0; i < index + length - data.length(); i ++){
+                    result.append("0");
+                }
+            } else {
+                for (int i = 0; i < length; i ++){
+                    result.append("0");
+                }
+            }
+        } else if (index + length >= 0){
+            if (index + length <= data.length()) {
+                for (int i = index; i < 0; i++) {
+                    result.append("0");
+                }
+                result.append(data, 0, index + length);
+            } else {
+                for (int i = index; i < 0; i++) {
+                    result.append("0");
+                }
+                result.append(data, 0, data.length());
+                for (int i = 0; i < index + length - data.length(); i++) {
+                    result.append("0");
+                }
+            }
         } else {
-            end = index + length;
+            for (int i = 0; i < length; i ++){
+                result.append("0");
+            }
         }
-        return data.substring(start, end);
+        return result.toString();
     }
 
     /**
@@ -153,7 +175,7 @@ public class HexDataReader {
      * @return the decoded {@code char} value.
      */
     public char getChar(int index) {
-        return (char) Integer.parseInt(get(index, 4), 16);
+        return (char) Integer.parseUnsignedInt(get(index, 4), 16);
     }
     /**
      * Returns a {@code byte} decoded from 2 hexadecimal characters at the given index.
@@ -161,7 +183,7 @@ public class HexDataReader {
      * @return the decoded {@code byte} value.
      */
     public byte getByte(int index) {
-        return Byte.parseByte(get(index, 2), 16);
+        return (byte) Integer.parseUnsignedInt(get(index, 2), 16);
     }
     /**
      * Returns a string by reading a sequence of {@code char}s from the data.
