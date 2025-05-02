@@ -604,7 +604,7 @@ public final class HexConverter {
      * @return a {@code Block} object
      * @throws IOException if the JSON object is null or contains invalid coordinates
      * @see Block#block
-     * @see #convertColor(JsonObject)
+     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
      * @see #convertHex(JsonObject)
      */
     public static Block convertBlock(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
@@ -654,6 +654,38 @@ public final class HexConverter {
         return convertPiece(jsonArray);
     }
     /**
+     * Converts a JSON object to a {@link Piece}.
+     * The JSON object must contain an array of valid blocks, with at least one block having a true state.
+     * The piece's color is derived from the first valid block.
+     * This method will prioritize color index. If color index does not exist, it will use the RGB color.
+     * <p>
+     * This is the inverse method of {@link #convertIndexColoredPiece(Piece, int)}.
+     *
+     * @param jsonObject the JSON object containing the piece data
+     * @param baseColor the base color to default to if the color index is -1
+     * @param colorArray the array of colors to choose from
+     * @return a {@code Piece} object
+     * @throws IOException if the JSON object is null, lacks a block array, or contains no valid blocks
+     * @see Piece#Piece
+     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     */
+    public static Piece convertPiece(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+        if (jsonObject == null) throw new IOException("\"Piece\" object is null or not found");
+        // Get array
+        JsonArray jsonArray;
+        try {
+            jsonArray = jsonObject.getJsonArray("blocks");
+        } catch (Exception e) {
+            try {
+                jsonArray = jsonObject.getJsonArray("piece");
+            } catch (Exception ex) {
+                throw new IOException("Block array in \"Piece\" not found");
+            }
+        }
+        return convertPiece(jsonArray, baseColor, colorArray);
+    }
+    /**
      * Converts a JSON array to a {@link Piece}.
      * The JSON array must contain an array of valid blocks, with at least one block having a true state.
      * The piece's color is derived from the first valid block.
@@ -689,6 +721,52 @@ public final class HexConverter {
         for (int i = 0; i < size; i ++){
             try {
                 Block block = convertBlock(jsonArray.getJsonObject(i));
+                if (block.getState()) {
+                    piece.add(block);
+                }
+            } catch (Exception e) {}
+        }
+        return piece;
+    }
+    /**
+     * Converts a JSON array to a {@link Piece}.
+     * The JSON array must contain an array of valid blocks, with at least one block having a true state.
+     * The piece's color is derived from the first valid block.
+     * This method will prioritize color index. If color index does not exist, it will use the RGB color.
+     * <p>
+     * This is the inverse method of {@link #convertIndexColoredPiece(Piece, int)}.
+     *
+     * @param jsonArray the JSON array containing the piece data
+     * @param baseColor the base color to default to if the color index is -1
+     * @param colorArray the array of colors to choose from
+     * @return a {@code Piece} object
+     * @throws IOException if the JSON array is null or contains no valid blocks
+     * @see Piece#Piece
+     * @see #convertPiece(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     */
+    public static Piece convertPiece(JsonArray jsonArray, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+        if (jsonArray == null) throw new IOException("\"Piece\" object is null or not found");
+        // Check first real block exists, and try to get color
+        int size = jsonArray.size();
+        int valid = 0;
+        java.awt.Color color = java.awt.Color.BLACK;
+        for (int i = 0; i < size; i ++){
+            try {
+                Block block = convertBlock(jsonArray.getJsonObject(i), baseColor, colorArray);
+                if (block.getState()) {
+                    if (valid == 0) color = block.color();
+                    valid++;
+                }
+            } catch (Exception e) {}
+        }
+        if (valid == 0) throw new IOException("\"Piece\" object does not contain valid blocks");
+        // Create piece object
+        Piece piece = new Piece(valid, color);
+        for (int i = 0; i < size; i ++){
+            try {
+                Block block = convertBlock(jsonArray.getJsonObject(i), baseColor, colorArray);
                 if (block.getState()) {
                     piece.add(block);
                 }
@@ -748,6 +826,77 @@ public final class HexConverter {
                 Block block = convertBlock(jsonArray.getJsonObject(i));
                 engine.setState(block.getLineI(), block.getLineK(), block.getState());
             } catch (Exception e) {}
+        }
+        return engine;
+    }
+    /**
+     * Converts a JSON object to a {@link HexEngine}.
+     * The JSON object must contain a radius and an array of blocks. Invalid blocks are ignored.
+     * The engine's empty and filled colors are optional, defaulting to black and white. When encountering colors,
+     * this method will prioritize color index. If color index does not exist, it will use the RGB color.
+     * <p>
+     * This is the inverse method of {@link #convertIndexColoredEngine(HexEngine, int[])}.
+     *
+     * @param jsonObject the JSON object containing the engine data
+     * @param baseColor the base color to default to in any data if the color index is -1
+     * @param colorArray the array of colors to choose from
+     * @return a {@code HexEngine} object
+     * @throws IOException if the JSON object is null, lacks a radius, or contains an invalid radius
+     * @see HexEngine#HexEngine
+     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     */
+    public static HexEngine convertEngine(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+        if (jsonObject == null) throw new IOException("\"HexEngine\" object is null or not found");
+        // Read radius, color, and create engine object
+        java.awt.Color emptyColor = java.awt.Color.BLACK;
+        java.awt.Color filledColor = java.awt.Color.WHITE;
+        int radius = 0;
+        try {
+            emptyColor = convertColorIndex(jsonObject.getJsonObject("empty"), baseColor, colorArray);
+        } catch (Exception e) {
+            try {
+                emptyColor = convertColor(jsonObject.getJsonObject("empty"));
+            } catch (Exception ex) {}
+        }
+        try {
+            filledColor = convertColorIndex(jsonObject.getJsonObject("filled"), baseColor, colorArray);
+        } catch (Exception e) {
+            try {
+                filledColor = convertColor(jsonObject.getJsonObject("filled"));
+            } catch (Exception ex) {}
+        }
+        try {
+            radius = jsonObject.getInt("radius");
+        } catch (Exception e) {
+            throw new IOException("Engine cannot be constructed because critical attribute radius in \"HexEngine\" not found");
+        }
+        if (radius < 1) {
+            throw new IOException("Engine cannot be constructed because critical attribute radius in \"HexEngine\" is 0 or negative");
+        }
+        HexEngine engine = new HexEngine(radius, emptyColor, filledColor);
+        // Get array and populate engine
+        JsonArray jsonArray;
+        try {
+            jsonArray = jsonObject.getJsonArray("blocks");
+        } catch (Exception e) {
+            try {
+                jsonArray = jsonObject.getJsonArray("piece");
+            } catch (Exception ex) {
+                throw new IOException("Block array in \"HexEngine\" not found");
+            }
+        }
+        int size = jsonArray.size();
+        for (int i = 0; i < size; i ++){
+            try {
+                Block block = convertBlock(jsonArray.getJsonObject(i), baseColor, colorArray);
+                engine.setState(block.getLineI(), block.getLineK(), block.getState());
+            } catch (Exception e) {
+                try {
+                    Block block = convertBlock(jsonArray.getJsonObject(i));
+                    engine.setState(block.getLineI(), block.getLineK(), block.getState());
+                } catch (Exception ex) {}
+            }
         }
         return engine;
     }
