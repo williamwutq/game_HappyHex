@@ -542,6 +542,7 @@ public final class HexConverter {
      * @param colorArray the array of colors to choose from
      * @return a {@code Color} object as represented by the color index
      * @throws IOException if the JSON object is null or contains invalid values
+     * @since 1.3
      */
     public static java.awt.Color convertColorIndex(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("Color index object is null or not found");
@@ -607,6 +608,7 @@ public final class HexConverter {
      * @see Block#block
      * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
      * @see #convertHex(JsonObject)
+     * @since 1.3
      */
     public static Block convertBlock(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("\"Block\" object is null or not found");
@@ -670,6 +672,7 @@ public final class HexConverter {
      * @see Piece#Piece
      * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
      * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     * @since 1.3
      */
     public static Piece convertPiece(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("\"Piece\" object is null or not found");
@@ -746,6 +749,7 @@ public final class HexConverter {
      * @see #convertPiece(JsonObject, java.awt.Color, java.awt.Color[])
      * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
      * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     * @since 1.3
      */
     public static Piece convertPiece(JsonArray jsonArray, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
         if (jsonArray == null) throw new IOException("\"Piece\" object is null or not found");
@@ -846,6 +850,7 @@ public final class HexConverter {
      * @see HexEngine#HexEngine
      * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
      * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     * @since 1.3
      */
     public static HexEngine convertEngine(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("\"HexEngine\" object is null or not found");
