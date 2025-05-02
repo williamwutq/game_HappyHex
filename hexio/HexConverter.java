@@ -8,12 +8,13 @@ import java.io.IOException;
 /**
  * The {@code HexConverter} class provides utility methods for converting hexagonal game components
  * (such as {@link Hex}, {@link Block}, {@link Piece}, {@link HexEngine}, and game moves) to and from
- * {@link javax.json JSON} representations. This class serves as an add-on package for the {@link hex}
+ * {@link javax.json JSON} representations. It supports both explicit RGB colors and indexed colors if
+ * the base color and a color array is passed in. This class serves as an add-on package for the {@link hex}
  * package, facilitating serialization and deserialization of hexagonal grid-based game data for
  * storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
  * and provides robust error handling for invalid JSON data.
  *
- * @version 1.3
+ * @version 1.4
  * @author William Wu
  * @since 1.2
  */
