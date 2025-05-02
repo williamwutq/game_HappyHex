@@ -14,7 +14,7 @@ import java.io.IOException;
  * storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
  * and provides robust error handling for invalid JSON data.
  *
- * @version 1.4
+ * @version 1.3
  * @author William Wu
  * @since 1.2
  */
