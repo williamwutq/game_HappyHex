@@ -532,6 +532,38 @@ public final class HexConverter {
         return new java.awt.Color(r, g, b);
     }
     /**
+     * Converts a JSON object to a color index.
+     * The color index must be -1 or be a valid index to the color array.
+     * Index of 0 will return the base color.
+     *
+     * @param jsonObject the JSON object containing the color index
+     * @param baseColor the base color to default to if the color index is -1
+     * @param colorArray the array of colors to choose from
+     * @return a {@code Color} object as represented by the color index
+     * @throws IOException if the JSON object is null or contains invalid values
+     */
+    public static java.awt.Color convertColorIndex(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+        if (jsonObject == null) throw new IOException("Color index object is null or not found");
+        int c;
+        try {
+            c = jsonObject.getInt("C");
+        } catch (Exception e) {
+            try {
+                c = jsonObject.getInt("c");
+            } catch (Exception ex) {
+                throw new IOException("Color index in object not found");
+            }
+        }
+        // Check values
+        if (c < -1 || c >= colorArray.length) {
+            throw new IOException("Color index in object out of bounds for range [0, " + colorArray.length + ")");
+        } else if (c == -1){
+            return baseColor;
+        } else {
+            return colorArray[c];
+        }
+    }
+    /**
      * Converts a JSON object to a {@link Block}.
      * The JSON object must contain valid I, J, K coordinates. Color and state are optional, defaulting
      * to black and false (unoccupied) if missing.
@@ -553,6 +585,40 @@ public final class HexConverter {
         try {
             color = convertColor(jsonObject);
         } catch (Exception e) {}
+        try {
+            state = jsonObject.getBoolean("state");
+        } catch (Exception e) {}
+        return new Block(hex, color, state);
+    }
+    /**
+     * Converts a JSON object to a {@link Block}.
+     * The JSON object must contain valid I, J, K coordinates. Color and state are optional, defaulting
+     * to black and false (unoccupied) if missing.
+     * This method will prioritize color index. If color index does not exist, it will use the RGB color.
+     * <p>
+     * This is the inverse method of {@link #convertIndexColoredBlock(Block, int)}.
+     *
+     * @param baseColor the base color to default to if the color index is -1
+     * @param colorArray the array of colors to choose from
+     * @param jsonObject the JSON object containing the block data
+     * @return a {@code Block} object
+     * @throws IOException if the JSON object is null or contains invalid coordinates
+     * @see Block#block
+     * @see #convertColor(JsonObject)
+     * @see #convertHex(JsonObject)
+     */
+    public static Block convertBlock(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+        if (jsonObject == null) throw new IOException("\"Block\" object is null or not found");
+        Hex hex = convertHex(jsonObject);
+        java.awt.Color color = java.awt.Color.BLACK;
+        boolean state = false;
+        try {
+            color = convertColorIndex(jsonObject, baseColor, colorArray);
+        } catch (Exception e) {
+            try {
+                color = convertColor(jsonObject);
+            } catch (IOException ex) {}
+        }
         try {
             state = jsonObject.getBoolean("state");
         } catch (Exception e) {}
