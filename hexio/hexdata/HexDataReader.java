@@ -220,6 +220,28 @@ public class HexDataReader {
         }
         return builder.toString();
     }
+    /**
+     * Returns a {@code double} decoded from 16 hexadecimal characters at the given index.
+     * <p>
+     * The 16 hexadecimal characters are parsed as a long value, which is then converted
+     * to a double using {@link Double#longBitsToDouble(long)}.
+     * @param index the starting index.
+     * @return the decoded {@code double} value.
+     */
+    public double getDouble(int index) {
+        return Double.longBitsToDouble(Long.parseUnsignedLong(get(index, 16), 16));
+    }
+    /**
+     * Returns a {@code float} decoded from 8 hexadecimal characters at the given index.
+     * <p>
+     * The 8 hexadecimal characters are parsed as an int value, which is then converted
+     * to a float using {@link Float#intBitsToFloat(int)}.
+     * @param index the starting index.
+     * @return the decoded {@code float} value.
+     */
+    public float getFloat(int index) {
+        return Float.intBitsToFloat(Integer.parseUnsignedInt(get(index, 8), 16));
+    }
 
     /**
      * Return the current index of reading (the pointer).
@@ -300,6 +322,30 @@ public class HexDataReader {
     public String nextString(int length) {
         String result = getString(pointer, length);
         pointer += length * 4;
+        return result;
+    }
+    /**
+     * Reads the next {@code double} value and advances the pointer.
+     * <p>
+     * Decodes 16 hexadecimal characters starting at the current pointer as a double.
+     * and advances the pointer by 16.
+     * @return the next {@code double} value.
+     */
+    public double nextDouble() {
+        double result = getDouble(pointer);
+        pointer += 16;
+        return result;
+    }
+    /**
+     * Reads the next {@code float} value and advances the pointer.
+     * <p>
+     * Decodes 8 hexadecimal characters starting at the current pointer as a float.
+     * and advances the pointer by 8.
+     * @return the next {@code float} value.
+     */
+    public float nextFloat() {
+        float result = getFloat(pointer);
+        pointer += 8;
         return result;
     }
     /**

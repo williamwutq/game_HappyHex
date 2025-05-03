@@ -229,6 +229,27 @@ public class HexDataWriter {
         data += String.format("%02X", value);
     }
     /**
+     * Add a {@code double} value encoded in hexadecimal characters to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The double value is converted to its raw long bits using {@link Double#doubleToRawLongBits(double)},
+     * and then encoded as 16 hexadecimal characters.
+     * @param value the {@code double} value to be added.
+     */
+    public void add(double value) {
+        data += String.format("%016X", Double.doubleToRawLongBits(value));
+    }
+
+    /**
+     * Add a {@code float} value encoded in hexadecimal characters to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The float value is converted to its raw int bits using {@link Float#floatToRawIntBits(float)},
+     * and then encoded as 8 hexadecimal characters.
+     * @param value the {@code float} value to be added.
+     */
+    public void add(float value) {
+        data += String.format("%08X", Float.floatToRawIntBits(value));
+    }
+    /**
      * Add an array of {@code long} values encoded in hexadecimal character
      * to the data stored in the {@code HexDataWriter}.
      * <p>
@@ -302,6 +323,36 @@ public class HexDataWriter {
      */
     public void add(String[] values) {
         for (String value : values) {
+            add(value);
+        }
+    }
+    /**
+     * Add an array of {@code double} values encoded in hexadecimal characters
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The values will be added sequentially in the order of appearance in the array,
+     * each value will add 16 hexadecimal characters to the data.
+     * There is no separation characters in between values.
+     * @param values the {@code double} values to be added.
+     * @see #add(double)
+     */
+    public void add(double[] values) {
+        for (double value : values) {
+            add(value);
+        }
+    }
+    /**
+     * Add an array of {@code float} values encoded in hexadecimal characters
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The values will be added sequentially in the order of appearance in the array,
+     * each value will add 8 hexadecimal characters to the data.
+     * There is no separation characters in between values.
+     * @param values the {@code float} values to be added.
+     * @see #add(float)
+     */
+    public void add(float[] values) {
+        for (float value : values) {
             add(value);
         }
     }
