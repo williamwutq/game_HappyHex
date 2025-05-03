@@ -98,4 +98,24 @@ public class HexDataConverter {
         }
         return builder.toString();
     }
+    /**
+     * Converts a game move to a hexadecimal string.
+     * The hexadecimal string includes the move order, center coordinate, and piece.
+     *
+     * @param moveOrder the order of the move
+     * @param center    the {@code Hex} center coordinate of the move
+     * @param piece     the {@code Piece} involved in the move
+     * @return a hexadecimal string representing the move
+     * @see #convertHex(Hex)
+     * @see #convertBooleanPiece(Piece)
+     */
+    public static String convertBooleanMove(int moveOrder, Hex center, Piece piece){
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("%08X", moveOrder));
+        builder.append("FF");
+        builder.append(convertHex(center));
+        builder.append("FF");
+        builder.append(convertBooleanPiece(piece));
+        return builder.toString();
+    }
 }
