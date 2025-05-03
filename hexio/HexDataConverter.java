@@ -1,6 +1,5 @@
 package hexio;
 
-import hexio.hexdata.*;
 import hex.*;
 
 /**
@@ -18,13 +17,13 @@ import hex.*;
 public class HexDataConverter {
     /**
      * Converts a {@code Hex} coordinate to a hexadecimal string.
-     * The JSON object contains the I and K line coordinates of the hexagonal grid.
+     * The hexadecimal string contains the I and K line coordinates of the hexagonal grid.
      * These coordinates are stored as integers and J coordinate can be calculated.
      * If the input is null, returns a hexadecimal string with all coordinates set to 0.
      * <p>
      *
      * @param hex the {@code Hex} object to convert
-     * @return a {@code JsonObject} representing the hexagonal coordinates
+     * @return a hexadecimal string representing the hexagonal coordinates
      * @see Hex#hex
      */
     public static String convertHex(Hex hex){
@@ -37,5 +36,43 @@ public class HexDataConverter {
             builder.append(String.format("%08X", hex.getLineK()));
         }
         return builder.toString();
+    }
+    /**
+     * Converts a {@code Block} to a hexadecimal string.
+     * The hexadecimal string includes the block's I and K coordinates and its state (occupied or not).
+     * These coordinates are stored as integers and J coordinate can be calculated.
+     * If the input is null, returns a hexadecimal string with coordinates set to 0 and state set to false.
+     * <p>
+     *
+     * @param block the {@code Block} object to convert
+     * @return a hexadecimal string representing the block
+     * @see Block#block
+     * @see #convertHex(Hex)
+     */
+    public static String convertBlock(Block block){
+        StringBuilder builder = new StringBuilder();
+        if (block == null) {
+            builder.append(String.format("%08X", 0));
+            builder.append(String.format("%08X", 0));
+            builder.append("0");
+        } else {
+            builder.append(String.format("%08X", block.getLineI()));
+            builder.append(String.format("%08X", block.getLineK()));
+            builder.append(String.format(block.getState() ? "F" : "0"));
+        }
+        return builder.toString();
+    }
+    /**
+     * Converts a {@link Piece} to a hexadecimal string.
+     * This conversion use the internal build conversion methods to get an ordinary piece's byte representation
+     * and convert it into hexadecimal string. It has nothing to do with {@link #convertBlock(Block)}.
+     * <p>
+     *
+     * @param piece the {@code Piece} object to convert
+     * @see Piece#Piece
+     * @see Piece#toByte()
+     */
+    public static String convertPiece(Piece piece){
+        return String.format("%02X", piece.toByte());
     }
 }
