@@ -20,7 +20,6 @@ public class HexDataConverter {
      * The hexadecimal string contains the I and K line coordinates of the hexagonal grid.
      * These coordinates are stored as integers and J coordinate can be calculated.
      * If the input is null, returns a hexadecimal string with all coordinates set to 0.
-     * <p>
      *
      * @param hex the {@code Hex} object to convert
      * @return a hexadecimal string representing the hexagonal coordinates
@@ -42,7 +41,6 @@ public class HexDataConverter {
      * The hexadecimal string includes the block's I and K coordinates and its state (occupied or not).
      * These coordinates are stored as integers and J coordinate can be calculated.
      * If the input is null, returns a hexadecimal string with coordinates set to 0 and state set to false.
-     * <p>
      *
      * @param block the {@code Block} object to convert
      * @return a hexadecimal string representing the block
@@ -66,13 +64,38 @@ public class HexDataConverter {
      * Converts a {@link Piece} to a hexadecimal string.
      * This conversion use the internal build conversion methods to get an ordinary piece's byte representation
      * and convert it into hexadecimal string. It has nothing to do with {@link #convertBlock(Block)}.
-     * <p>
      *
      * @param piece the {@code Piece} object to convert
+     * @return a hexadecimal string representing the piece
      * @see Piece#Piece
      * @see Piece#toByte()
      */
-    public static String convertPiece(Piece piece){
+    public static String convertBooleanPiece(Piece piece){
         return String.format("%02X", piece.toByte());
+    }
+    /**
+     * Converts a {@link HexEngine} to a hexadecimal string.
+     * This conversion convert the engine's radius into an int value and {@link Block} state into an array of booleans
+     * and convert it into hexadecimal string. It has nothing to do with {@link #convertBlock(Block)}.
+     *
+     * @param engine the {@code HexEngine} object to convert
+     * @return a hexadecimal string representing the engine
+     * @see HexEngine#HexEngine
+     */
+    public static String convertBooleanEngine(HexEngine engine){
+        int length = engine.length();
+        StringBuilder builder = new StringBuilder(String.format("%08X", engine.getRadius()));
+        int fullLength = (length + 3) / 4 * 4; // Round up to multiple of 4
+        for (int i = 0; i < fullLength; i += 4) {
+            int hexValue = 0;
+            for (int j = 0; j < 4 && i + j < length; j++) {
+                if (engine.getBlock(i + j).getState()) {
+                    // Set bit j for true
+                    hexValue |= (1 << j);
+                }
+            }
+            builder.append(String.format("%X", hexValue));
+        }
+        return builder.toString();
     }
 }
