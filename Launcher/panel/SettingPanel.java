@@ -10,11 +10,13 @@ import java.awt.*;
 public class SettingPanel extends UniversalPanel {
     private JLabel launchSettingTitleLabel;
     private JLabel launchSettingEasyModeLabel;
+    private JLabel launchSettingRestartGameLabel;
     private JLabel launchSettingGameSizeLabel;
     private JLabel launchSettingGameSmallLabel;
     private JLabel launchSettingGameMediumLabel;
     private JLabel launchSettingGameLargeLabel;
     private SlidingButton launchSettingEasyModeButton;
+    private SlidingButton launchSettingRestartGameButton;
     private SlidingButton launchSettingGameSmallButton;
     private SlidingButton launchSettingGameMediumButton;
     private SlidingButton launchSettingGameLargeButton;
@@ -34,7 +36,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         launchSettingTitleLabel.setBorder(new EmptyBorder(12, 0, 6, 0));
 
-        launchSettingEasyModeLabel = new JLabel("Easy Mode | ");
+        launchSettingEasyModeLabel = new JLabel("    Easy Mode | ");
         launchSettingEasyModeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchSettingEasyModeLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         launchSettingEasyModeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -62,6 +64,34 @@ public class SettingPanel extends UniversalPanel {
         launchSettingEasyModePanel.add(launchSettingEasyModeButton);
         launchSettingEasyModePanel.add(Box.createHorizontalGlue());
 
+        launchSettingRestartGameLabel = new JLabel("Restart Games | ");
+        launchSettingRestartGameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchSettingRestartGameLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        launchSettingRestartGameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        launchSettingRestartGameLabel.setVerticalAlignment(SwingConstants.CENTER);
+        launchSettingRestartGameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        launchSettingRestartGameButton = new SlidingButton(){
+            @Override
+            protected void turnedOn() {
+                super.turnedOn();
+                LaunchEssentials.setRestartGame(true);
+            }
+            @Override
+            protected void turnedOff(){
+                super.turnedOff();
+                LaunchEssentials.setRestartGame(false);
+            }
+        };
+        launchSettingRestartGameButton.setState(LaunchEssentials.isRestartGame());
+
+        JPanel launchSettingRestartGamePanel = new JPanel();
+        launchSettingRestartGamePanel.setBackground(this.getBackground());
+        launchSettingRestartGamePanel.setLayout(new BoxLayout(launchSettingRestartGamePanel, BoxLayout.X_AXIS));
+        launchSettingRestartGamePanel.add(Box.createHorizontalGlue());
+        launchSettingRestartGamePanel.add(launchSettingRestartGameLabel);
+        launchSettingRestartGamePanel.add(launchSettingRestartGameButton);
+        launchSettingRestartGamePanel.add(Box.createHorizontalGlue());
+
         launchSettingGameSizeLabel = new JLabel("- Game Size -");
         launchSettingGameSizeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchSettingGameSizeLabel.setForeground(LaunchEssentials.launchVersionFontColor);
@@ -70,7 +100,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameSizeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         launchSettingGameSizeLabel.setBorder(new EmptyBorder(16, 0, 16, 0));
 
-        launchSettingGameSmallLabel = new JLabel("Small  | ");
+        launchSettingGameSmallLabel = new JLabel(" Small  (R=5) | ");
         launchSettingGameSmallLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchSettingGameSmallLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         launchSettingGameSmallLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -100,7 +130,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameSmallPanel.add(launchSettingGameSmallButton);
         launchSettingGameSmallPanel.add(Box.createHorizontalGlue());
 
-        launchSettingGameMediumLabel = new JLabel("Medium | ");
+        launchSettingGameMediumLabel = new JLabel("Medium  (R=8) | ");
         launchSettingGameMediumLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchSettingGameMediumLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         launchSettingGameMediumLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -130,7 +160,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameMediumPanel.add(launchSettingGameMediumButton);
         launchSettingGameMediumPanel.add(Box.createHorizontalGlue());
 
-        launchSettingGameLargeLabel = new JLabel("Large  | ");
+        launchSettingGameLargeLabel = new JLabel(" Large (R=11) | ");
         launchSettingGameLargeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchSettingGameLargeLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         launchSettingGameLargeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -160,7 +190,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargePanel.add(launchSettingGameLargeButton);
         launchSettingGameLargePanel.add(Box.createHorizontalGlue());
 
-        return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(), launchSettingEasyModePanel, launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel, new QuitButton(), (JComponent) Box.createVerticalGlue()};
+        return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(), launchSettingEasyModePanel, launchSettingRestartGamePanel, launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel, new QuitButton(), (JComponent) Box.createVerticalGlue()};
     }
     private void setThreeStates(){
         launchSettingGameSmallButton.setState(LaunchEssentials.isSmallMode());
@@ -179,6 +209,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingTitleLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/150.0)*2, 0, (int)Math.round(referenceGameNameSize/150.0), 0));
         Font labelFont = new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/24.0));
         launchSettingEasyModeLabel.setFont(labelFont);
+        launchSettingRestartGameLabel.setFont(labelFont);
         launchSettingGameSizeLabel.setFont(labelFont);
         launchSettingGameSmallLabel.setFont(labelFont);
         launchSettingGameMediumLabel.setFont(labelFont);
@@ -187,6 +218,7 @@ public class SettingPanel extends UniversalPanel {
 
         Dimension buttonSize = new Dimension((int)Math.round(referenceStartButtonSize/4), (int)Math.round(referenceStartButtonSize/12));
         launchSettingEasyModeButton.mandateSize(buttonSize);
+        launchSettingRestartGameButton.mandateSize(buttonSize);
         launchSettingGameSmallButton.mandateSize(buttonSize);
         launchSettingGameMediumButton.mandateSize(buttonSize);
         launchSettingGameLargeButton.mandateSize(buttonSize);

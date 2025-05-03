@@ -1,11 +1,16 @@
 package GUI;
 
 import GUI.animation.*;
+import Launcher.LaunchEssentials;
 import hex.HexEngine;
 import game.Queue;
+import hex.Piece;
+import hexio.HexLogger;
+import io.GameTime;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * The {@link GameEssentials} class provides essential game utilities, including {@link #generateColor() color generation}
@@ -24,6 +29,8 @@ public final class GameEssentials {
     private static Queue queue;
     /** The main window of the game. */
     private static JFrame window;
+    /** The game logger used for data recording. */
+    private static HexLogger gameLogger;
     // Info panels and quit button
     private static GameInfoPanel turnLabel;
     private static GameInfoPanel scoreLabel;
@@ -101,6 +108,17 @@ public final class GameEssentials {
         if(index < 12 && index >= 0){
             return pieceColors[index];
         } else return null;
+    }
+    public static Color getDefaultColor(){
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        for (Color color : pieceColors){
+            r += color.getRed();
+            g += color.getGreen();
+            b += color.getBlue();
+        }
+        return interpolate(gameBackgroundColor, gameBlockDefaultColor, 2);
     }
     @Deprecated
     public static Color whitenColor(Color origin){
@@ -246,13 +264,48 @@ public final class GameEssentials {
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
     // Initializing
-    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player){
+    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player, HexLogger logger){
+        System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
         if(easy) {
             game.PieceFactory.setEasy();
         }
-        engine = new HexEngine(size, gameBlockDefaultColor, getIndexedPieceColor(0)); // replace getIndexedPieceColor(0) with something else
+        score = 0;
+        turn = 0;
+        selectedPieceIndex = -1;
+        selectedBlockIndex = -1;
+        hoveredOverIndex = -1;
+        clickedOnIndex = -1;
+        engine = new HexEngine(size, gameBlockDefaultColor, getDefaultColor());
         queue = new Queue(queueSize);
         window = frame;
+        // Logger initialize
+        gameLogger = logger;
+        if(logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize){
+            // Copy logger info to game
+            score = logger.getScore();
+            turn = logger.getTurn();
+            for (hex.Block block : logger.getEngine().blocks()){
+                if (block != null && block.getState()) {
+                    hex.Block cloned = block.clone();
+                    cloned.setColor(generateColor());
+                    engine.setBlock(block.getLineI(), block.getLineK(), cloned);
+                }
+            }
+            Piece[] loggerQueue = logger.getQueue();
+            for (int i = 0; i < loggerQueue.length; i++) {
+                Piece piece = loggerQueue[i];
+                if (piece != null) {
+                    piece.setColor(generateColor());
+                    queue.inject(piece, i);
+                }
+            }
+        } else {
+            // Copy info to logger
+            gameLogger.setEngine(engine);
+            gameLogger.setQueue(queue.getPieces());
+            gameLogger.setScore(0);
+            gameLogger.setTurn(0);
+        }
         // Construct labels
         turnLabel = new GameInfoPanel();
         scoreLabel = new GameInfoPanel();
@@ -261,8 +314,8 @@ public final class GameEssentials {
         turnLabel.setTitle("TURN");
         scoreLabel.setTitle("SCORE");
         playerLabel.setTitle("PLAYER");
-        turnLabel.setInfo("0");
-        scoreLabel.setInfo("0");
+        turnLabel.setInfo(turn + "");
+        scoreLabel.setInfo(score + "");
         playerLabel.setInfo(player);
         turnLabel.setBounds(0, 0, 100, 100);
         scoreLabel.setBounds(300, 0, 100, 100);
@@ -328,14 +381,31 @@ public final class GameEssentials {
         clickedOnIndex = -1;
         turnLabel.setInfo(turn + "");
         scoreLabel.setInfo(score + "");
+        gameLogger = new HexLogger(Launcher.LaunchEssentials.getCurrentPlayer(), Launcher.LaunchEssentials.getCurrentPlayerID());
         engine.reset();
         queue.reset();
+        gameLogger.setEngine(engine);
+        gameLogger.setQueue(queue.getPieces());
         window.repaint();
     }
 
     // Logging at the end
     public static void logGame(){
-        Launcher.LaunchEssentials.log(turn, score);
+        boolean complete = gameEnds();
+        if (LaunchEssentials.getCurrentPlayerID() == -1 || complete){
+            // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
+            Launcher.LaunchEssentials.log(turn, score);
+        } else {
+            System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
+        }
+        try {
+            if (complete) gameLogger.completeGame();
+            gameLogger.setEngine(engine);
+            gameLogger.setQueue(queue.getPieces());
+            gameLogger.write();
+        } catch (IOException e) {
+            System.err.println(GameTime.generateSimpleTime() + " HexLogger: " + e.getMessage());
+        }
     }
 
     // Scoring
@@ -352,6 +422,9 @@ public final class GameEssentials {
     public static void incrementScore(int addedScore){
         score += addedScore;
         scoreLabel.setInfo(score + "");
+    }
+    public static void move(hex.Hex origin){
+        gameLogger.addMove(origin, selectedPieceIndex, queue.getPieces());
     }
 
     // Setters

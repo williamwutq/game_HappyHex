@@ -27,6 +27,7 @@ import javax.json.*;
  * @see java.time.LocalDateTime
  * @see Username
  * @see GameTime
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */

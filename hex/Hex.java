@@ -75,6 +75,7 @@ package hex;
  * It is recommended to use the factory method {@link #hex(int, int)} instead of direct constructors,
  * as it provides hexes correctly shifted in line coordinates according to hexagonal grid logic.
  * </p>
+ * @since 0.6
  * @author William Wu
  * @version 1.1
  */
@@ -415,13 +416,13 @@ public class Hex{
     }
     /**
      * String representation of the hex coordinate used for debugging
-     * <p>Format: {@code {hex I,J,K = {i, j, k}, Line I,J,K = {i, j, k}, Rect X,Y = {x, y}}}</p>
+     * <p>Format: {@code Hex[raw = {i, j, k}, line = {i, j, k}, rect = {x, y}]}</p>
      * @return A string representation of the hex coordinate, including its rectangular conversion.
      */
     public String toString(){
-        return "{hex I,J,K = {" + I() + ", " + J() + ", " + K() +
-                "}, Line I,J,K = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
-                "}, Rect X,Y = {" + X() + ", "+ Y() + "}}";
+        return "Hex[raw = {" + I() + ", " + J() + ", " + K() +
+                "}, line = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
+                "}, rect = {" + X() + ", "+ Y() + "}]";
     }
 
     // Coordinate manipulation
@@ -522,6 +523,7 @@ public class Hex{
      * A clone of this {@code hex} object, with its hexagonal coordinates copied.
      * @return a clone of the hex object.
      * @throws CloneNotSupportedException if the class of this object is not {@code hex}.
+     * @since 1.1
      */
     public Hex clone() throws CloneNotSupportedException{
         if (this.getClass() != Hex.class) throw new CloneNotSupportedException("Clone only supported for hex");

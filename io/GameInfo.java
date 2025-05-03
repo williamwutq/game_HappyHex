@@ -26,6 +26,7 @@ import javax.json.*;
  *
  * @see JsonConvertible
  * @see JsonObjectBuilder
+ * @since 1.0
  * @author William Wu
  * @version 1.1
  */

@@ -63,6 +63,7 @@ public class EngineButton extends HexButton {
             // Check this position, if good then add
             if (GameEssentials.engine().checkAdd(position, piece)) {
                 GameEssentials.incrementScore(piece.length());
+                GameEssentials.move(position);
                 GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
                 // Generate animation
                 for (int i = 0; i < piece.length(); i ++){

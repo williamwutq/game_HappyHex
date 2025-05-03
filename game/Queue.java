@@ -18,6 +18,7 @@ import hex.Piece;
  * at specific indices (with shifting), but does not allow adding
  * externally-defined elements. New pieces are created via an
  * internal {@link #generate()} method.
+ * @since 0.6
  * @author William Wu
  * @version 1.2
  */
@@ -32,6 +33,7 @@ public class Queue{
      * This can be replaced dynamically at runtime to alter how pieces are generated in the system.
      * @see special.SpecialFeature
      * @see special.FeatureFactory
+     * @since 1.1
      */
     private static special.SpecialFeature pieceProcessor = special.FeatureFactory.createFeature();
     /**
@@ -41,6 +43,7 @@ public class Queue{
      * during the application's execution by injecting a new implementation of {@code SpecialFeature}.
      *
      * @param feature the new {@link special.SpecialFeature} to use for piece generation logic
+     * @since 1.1
      */
     public static void changePieceProcessor(special.SpecialFeature feature){
         pieceProcessor = feature;
@@ -51,6 +54,7 @@ public class Queue{
      *
      * @return the feature ID of the current {@code pieceProcessor}
      * @see special.SpecialFeature
+     * @since 1.1
      */
     public static int getPieceProcessorID(){
         return pieceProcessor.getFeatureID();
@@ -77,6 +81,28 @@ public class Queue{
     public void reset(){
         for (int i = 0; i < pieces.length; i ++){
             pieces[i] = generate();
+        }
+    }
+    /**
+     * Forcefully inject a {@link Piece} into a specific position in the queue.
+     * <p>
+     * If the piece is null or the index is out of bounds, the injection will be rejected and instead the queue will
+     * not change. The elements in the queue will not be shifted.
+     * <p>
+     * This operation is considered risky as it needs manual color generation and piece shape rule conforming.
+     * There is no guarantee that the piece would be a usual piece defined by the game.
+     * Use whenever necessary at your own risk.
+     * @return whether the injection is successful
+     * @since 1.2
+     */
+    public boolean inject(Piece piece, int index){
+        if(index == -1){
+            return inject(piece, pieces.length - 1);
+        } else if (piece == null || index >= pieces.length || index < -1){
+            return false; // Reject injection
+        } else {
+            pieces[index] = piece;
+            return true;
         }
     }
     /**
@@ -133,6 +159,7 @@ public class Queue{
      * @return a newly generated {@code Piece}.
      * @see PieceFactory#generatePiece()
      * @see #generate()
+     * @since 1.1
      */
     protected Piece generate(Piece dequeued){
         return (Piece) pieceProcessor.process(new Object[]{PieceFactory.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine(), dequeued})[0];
@@ -178,13 +205,31 @@ public class Queue{
         return pieces.length;
     }
     /**
+     * Returns all {@link Piece} stored in the {@code queue}.
+     * @return all pieces stored in the {@code queue}.
+     * @since 1.2
+     */
+    public Piece[] getPieces(){ return pieces;}
+    /**
      * Returns a string representation of the queue.
      * @return a string in the format {@code Queue[Pieces]}.
      */
     public String toString(){
         StringBuilder result = new StringBuilder("Queue[");
-        for (int i = 0; i < length(); i ++){
-            result.append(pieces[i].toString());
+        if (pieces.length > 0){
+            if (pieces[0] == null) {
+                result.append("null");
+            } else {
+                result.append(pieces[0]);
+            }
+        }
+        for (int i = 1; i < length(); i ++){
+            result.append(", ");
+            if (pieces[i] == null) {
+                result.append("null");
+            } else {
+                result.append(pieces[i]);
+            }
         }
         return result + "]";
     }
@@ -193,6 +238,7 @@ public class Queue{
      * Each {@link Piece} object contained in this instance is copied by reference.
      * Since {@code Queue} change its pieces by modifying references, this does not affect any operations.
      * @return a copy of this {@code Queue} object.
+     * @since 1.1
      */
     public Object clone() throws CloneNotSupportedException {
         return super.clone();

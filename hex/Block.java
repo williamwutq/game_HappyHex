@@ -1,6 +1,6 @@
 package hex;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * The {@code Block} class extends {@link Hex} and represents a colored block with an occupancy state
@@ -20,6 +20,7 @@ import java.awt.*;
  * subtracting coordinates, as well as modifying and retrieving the block's state and color.
  *
  * @see Hex
+ * @since 0.6
  * @author William Wu
  * @version 1.2
  */
@@ -115,20 +116,28 @@ public class Block extends Hex{
     }
 
     /**
-     * String representation of the block used for debugging
-     * <p>Format: {@code {Color = {r, g, b}; I,J,K = {i, j, k}; Line I,J,K = {i, j, k}; X,Y = {x, y}; State = state;}}</p>
+     * String representation of the block used for debugging. This use line coordinates.
+     * <p>Format: {@code Block[color = {r, g, b}, coordinates = {i, j, k}, State = state]}</p>
      * @return A string representation of the block, including color, coordinates, and state.
      */
     public String toString(){
-        return "{Color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
-                + "}; I,J,K = {" + I() + ", " + J() + ", " + K() +
-                "}; Line I,J,K = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
-                "}; X,Y = {" + X() + ", "+ Y() + "}; State = " + state + ";}";
+        return "Block[color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
+                + "}, coordinates = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
+                "}, state = " + state + "]";
+    }
+    /**
+     * String representation of the block used for debugging with less information. This use line coordinates.
+     * <p>Format: {@code {i, j, k, state}}</p>
+     * @return A string representation of the block, including only coordinates and state.
+     */
+    public String toBasicString(){
+        return "{" + getLineI() + ", " + getLineJ() + ", " + getLineK() + ", " + state + "}";
     }
     /**
      * {@inheritDoc}
      * In addition, it also copies the state and color of this {@code Block}.
      * @return a clone of the {@code Block}.
+     * @since 1.1
      */
     public Block clone(){
         Block block;

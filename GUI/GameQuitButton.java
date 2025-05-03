@@ -11,6 +11,8 @@ public final class GameQuitButton extends SimpleButton {
             if (GameEssentials.getTurn() != 0) {
                 System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
                 GameEssentials.logGame();
+            } else {
+                System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game quits without change.");
             }
             GameEssentials.resetGame();
         }

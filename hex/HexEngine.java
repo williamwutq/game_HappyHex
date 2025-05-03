@@ -1,6 +1,6 @@
 package hex;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 
 /**
@@ -59,6 +59,7 @@ import java.util.ArrayList;
  * Rewarding effective gap-filling and spatial efficiency is made possible through the {@link #computeDenseIndex(Hex, HexGrid)}
  * method. This computes a normalized score (0 to 1) representing how densely the placed grid would interact
  * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
+ * @since 1.0
  * @author William Wu
  * @version 1.2
  */
@@ -211,6 +212,7 @@ public class HexEngine implements HexGrid{
      * @param i I coordinate
      * @param k K coordinate
      * @param state the new state of the block (true = occupied).
+     * @since 1.2
      */
     public void setState(int i, int k, boolean state){
         if(inRange(i, k)){
@@ -264,6 +266,7 @@ public class HexEngine implements HexGrid{
      *
      * @param emptyBlockColor the color used for blocks in the empty (false) state
      * @param filledBlockColor the color used for blocks in the filled (true) state
+     * @since 1.2
      */
     public void setDefaultBlockColors(Color emptyBlockColor, Color filledBlockColor){
         this.emptyBlockColor = emptyBlockColor;
@@ -272,6 +275,7 @@ public class HexEngine implements HexGrid{
     /**
      * Returns the current default color used for {@link Block} in the empty (false) state.
      * @return the default filled block color
+     * @since 1.2
      */
     public Color getEmptyBlockColor(){
         return emptyBlockColor;
@@ -279,6 +283,7 @@ public class HexEngine implements HexGrid{
     /**
      * Returns the current default color used for {@link Block} in the filled (true) state.
      * @return the default filled block color
+     * @since 1.2
      */
     public Color getFilledBlockColor(){
         return filledBlockColor;
@@ -526,6 +531,7 @@ public class HexEngine implements HexGrid{
      * @param other the {@link HexGrid} representing a piece to be evaluated for placement.
      * @return a density index between 0 and 1. Returns 0 if placement is invalid or no potential neighbors exist.
      * @see #countNeighbors(int, int, boolean)
+     * @since 1.2
      */
     public double computeDenseIndex(Hex origin, HexGrid other){
         int totalPossible = 0;
@@ -553,19 +559,33 @@ public class HexEngine implements HexGrid{
 
 
     /**
-     * Returns a string representation of the grid and block states.
+     * Returns a string representation of the grid color and block states.
      * @return string showing block positions and states
      * @see Block#toString()
      */
     public String toString(){
-        StringBuilder str = new StringBuilder("{HexEngine: ");
-        for (Block block : blocks) {
-            str.append(block.getLines());
-            str.append(",");
-            str.append(block.getState());
-            str.append("; ");
+        StringBuilder str = new StringBuilder("HexEngine[empty = {");
+        str.append(emptyBlockColor.getRed());
+        str.append(", ");
+        str.append(emptyBlockColor.getGreen());
+        str.append(", ");
+        str.append(emptyBlockColor.getBlue());
+        str.append("}, filled = {");
+        str.append(filledBlockColor.getRed());
+        str.append(", ");
+        str.append(filledBlockColor.getGreen());
+        str.append(", ");
+        str.append(filledBlockColor.getBlue());
+        str.append("}, blocks = {");
+        if (blocks.length > 0){
+            str.append(blocks[0].toBasicString());
         }
-        return str + "}";
+        for (int i = 1; i < blocks.length; i++) {
+            Block block = blocks[i];
+            str.append(", ");
+            str.append(block.toBasicString());
+        }
+        return str + "}]";
     }
 
     /**
