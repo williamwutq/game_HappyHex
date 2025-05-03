@@ -7,7 +7,8 @@ import java.nio.file.*;
 /**
  * A utility class for recording and writing data in hexadecimal format to files.
  * The {@code HexDataWriter} class provides methods to accumulate hexadecimal data
- * from primitive data types (e.g., {@code long}, {@code int}, {@code char}, {@code byte}, {@code String})
+ * from primitive data types (e.g., {@code boolean},{@code long}, {@code int}, {@code char},
+ * {@code byte}, {@code String}, {@code float}, {@code double})
  * or arrays of such data and write the data to files in either text or binary format.
  * It also provides direct accumulation and serialization of already encoded hexadecimal Strings
  * or character arrays, as well as convenience methods for adding spacing and dividers.
@@ -179,6 +180,15 @@ public class HexDataWriter {
         data += "0";
     }
     /**
+     * Add a {@code boolean} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The boolean value is encoded as a single hexadecimal character: 'F' for true and '0' for false.
+     * @param value the {@code boolean} value to be added.
+     */
+    public void add(boolean value) {
+        data += value ? "F" : "0";
+    }
+    /**
      * Add a {@code long} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
      * <p>
      * This will add 16 hexadecimal characters.
@@ -238,7 +248,6 @@ public class HexDataWriter {
     public void add(double value) {
         data += String.format("%016X", Double.doubleToRawLongBits(value));
     }
-
     /**
      * Add a {@code float} value encoded in hexadecimal characters to the data stored in the {@code HexDataWriter}.
      * <p>
@@ -248,6 +257,31 @@ public class HexDataWriter {
      */
     public void add(float value) {
         data += String.format("%08X", Float.floatToRawIntBits(value));
+    }
+
+    /**
+     * Add an array of {@code boolean} values encoded in hexadecimal characters
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * Every four boolean values are encoded into a single hexadecimal character.
+     * If the array length is not divisible by 4, false values are appended to complete
+     * the last character. The boolean values are packed in little-endian order, where
+     * the first boolean corresponds to the least significant bit.
+     * @param values the {@code boolean} values to be added.
+     * @see #add(boolean)
+     */
+    public void add(boolean[] values) {
+        int fullLength = (values.length + 3) / 4 * 4; // Round up to multiple of 4
+        for (int i = 0; i < fullLength; i += 4) {
+            int hexValue = 0;
+            for (int j = 0; j < 4 && i + j < values.length; j++) {
+                if (values[i + j]) {
+                    // Set bit j for true
+                    hexValue |= (1 << j);
+                }
+            }
+            data += String.format("%X", hexValue);
+        }
     }
     /**
      * Add an array of {@code long} values encoded in hexadecimal character

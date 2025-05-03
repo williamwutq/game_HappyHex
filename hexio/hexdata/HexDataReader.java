@@ -9,7 +9,8 @@ import java.nio.file.Path;
  * The {@code HexDataReader} class complements {@link HexDataWriter} by reading
  * data from files written in hexadecimal format, whether as text or binary files.
  * It supports extraction of various primitive data types encoded in hexadecimal
- * (e.g., {@code long}, {@code int}, {@code char}, {@code byte}, {@code String}),
+ * (e.g. {@code boolean}, {@code long}, {@code int}, {@code char}, {@code byte},
+ * {@code String}, {@code float}, {@code double})
  * along with internal tracking to support sequential reading.
  * <p>
  * It also supports utility methods for data comparison, file path matching, and
@@ -176,6 +177,37 @@ public class HexDataReader {
     }
 
     /**
+     * Returns a {@code boolean} decoded from a single hexadecimal character at the given index.
+     * <p>
+     * The hexadecimal character is parsed to an integer. If the value is odd, returns true;
+     * if even, returns false. This is equivalent to checking the least significant bit.
+     * @param index the starting index.
+     * @return the decoded {@code boolean} value.
+     */
+    public boolean getBoolean(int index) {
+        int value = Integer.parseInt(get(index, 1), 16);
+        return (value % 2) == 1;
+    }
+    /**
+     * Returns a {@code boolean} decoded from a specific bit position within a single
+     * hexadecimal character at the given index.
+     * <p>
+     * The hexadecimal character is parsed to an integer, and the bit at the specified
+     * position (0-3, where 0 is the least significant bit) is checked. Returns true if
+     * the bit is 1, false if the bit is 0.
+     * @param index the starting index of the hexadecimal character.
+     * @param position the bit position (0-3) to decode, where 0 is the least significant bit.
+     * @return the decoded {@code boolean} value at the specified bit position.
+     * @throws IllegalArgumentException if position is not between 0 and 3.
+     */
+    public boolean getBooleanAtBit(int index, int position) {
+        if (position < 0 || position > 3) {
+            throw new IllegalArgumentException("Boolean position must be between 0 and 3");
+        }
+        int value = Integer.parseInt(get(index, 1), 16);
+        return ((value >> position) & 1) == 1;
+    }
+    /**
      * Returns a {@code long} decoded from 16 hexadecimal characters at the given index.
      * @param index the starting index.
      * @return the decoded {@code long} value.
@@ -275,6 +307,18 @@ public class HexDataReader {
      */
     public String next() {
         String result = get(pointer, 1);
+        pointer ++;
+        return result;
+    }
+    /**
+     * Reads the next {@code boolean} value and advances the pointer.
+     * <p>
+     * Decodes a single hexadecimal character at the current pointer.
+     * Returns true if the parsed value is odd, false if even, and advances the pointer.
+     * @return the next {@code boolean} value.
+     */
+    public boolean nextBoolean() {
+        boolean result = getBoolean(pointer);
         pointer ++;
         return result;
     }
