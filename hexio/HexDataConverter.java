@@ -66,6 +66,7 @@ public class HexDataConverter {
      * Converts a {@link Piece} to a hexadecimal string.
      * This conversion use the internal build conversion methods to get an ordinary piece's byte representation
      * and convert it into hexadecimal string. It has nothing to do with {@link #convertBlock(Block)}.
+     * If the input is null, returns a hexadecimal string containing no blocks.
      *
      * @param piece the {@code Piece} object to convert
      * @return a hexadecimal string representing the piece
@@ -73,18 +74,21 @@ public class HexDataConverter {
      * @see Piece#toByte()
      */
     public static String convertBooleanPiece(Piece piece){
+        if (piece == null) return "00";
         return String.format("%02X", piece.toByte());
     }
     /**
      * Converts a {@link HexEngine} to a hexadecimal string.
      * This conversion convert the engine's radius into an int value and {@link Block} state into an array of booleans
      * and convert it into hexadecimal string. It has nothing to do with {@link #convertBlock(Block)}.
+     * If the input is null, returns a hexadecimal string as a HexEngine with radius one and state false.
      *
      * @param engine the {@code HexEngine} object to convert
      * @return a hexadecimal string representing the engine
      * @see HexEngine#HexEngine
      */
     public static String convertBooleanEngine(HexEngine engine){
+        if (engine == null) return "000000010";
         int length = engine.length();
         StringBuilder builder = new StringBuilder(String.format("%08X", engine.getRadius()));
         int fullLength = (length + 3) / 4 * 4; // Round up to multiple of 4
