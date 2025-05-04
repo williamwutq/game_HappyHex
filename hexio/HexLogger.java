@@ -442,7 +442,7 @@ public class HexLogger {
         } catch (IndexOutOfBoundsException | IllegalArgumentException e){}
         if (success) {
             moveOrigins.add(origin);
-            moveQueues.add(queue);
+            moveQueues.add(queue.clone());
             movePieces.add(index);
             score += eliminated * 5;
             turn++;
