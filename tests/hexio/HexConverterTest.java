@@ -1,12 +1,10 @@
-package tests.hexio;
+package hexio;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import hexio.HexConverter;
 import javax.json.*;
 import hex.*;
-import java.awt.Color;
 import java.io.IOException;
 
 public class HexConverterTest {
@@ -26,7 +24,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertBlock() {
-        Block block = Block.block(2, -1, Color.RED);
+        Block block = Block.block(2, -1, SolidColor.RED);
         block.setState(true);
         JsonObject json = HexConverter.convertBlock(block);
         assertEquals(2, json.getInt("I"), "I coordinate should be 2");
@@ -43,7 +41,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertColoredBlock() {
-        Block block = Block.block(3, 4, Color.RED);
+        Block block = Block.block(3, 4, SolidColor.RED);
         block.setState(true);
         JsonObject json = HexConverter.convertColoredBlock(block);
         assertEquals(3, json.getInt("I"), "I coordinate should be 3");
@@ -63,7 +61,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertPiece() {
-        Piece piece = new Piece(2, Color.BLUE);
+        Piece piece = new Piece(2, SolidColor.BLUE);
         piece.add(0, 0);
         piece.add(1, 1);
 
@@ -85,7 +83,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertColoredPiece() {
-        Piece piece = new Piece(2, Color.BLUE);
+        Piece piece = new Piece(2, SolidColor.BLUE);
         piece.add(0, 0);
         piece.add(1, 1);
 
@@ -102,7 +100,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertEngine() {
-        HexEngine engine = new HexEngine(2, Color.GRAY, Color.BLUE);
+        HexEngine engine = new HexEngine(2, SolidColor.GRAY, SolidColor.BLUE);
         engine.setState(0, 0, true);
 
         JsonObject json = HexConverter.convertEngine(engine);
@@ -118,7 +116,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertColoredEngine() {
-        HexEngine engine = new HexEngine(2, Color.GRAY, Color.BLUE);
+        HexEngine engine = new HexEngine(2, SolidColor.GRAY, SolidColor.BLUE);
         engine.setState(0, 0, true);
 
         JsonObject json = HexConverter.convertColoredEngine(engine);
@@ -138,7 +136,7 @@ public class HexConverterTest {
     @Test
     void testConvertMove() {
         Hex center = Hex.hex(1, 2);
-        Piece piece = new Piece(1, Color.RED);
+        Piece piece = new Piece(1, SolidColor.RED);
         piece.add(0, 0);
 
         JsonObject json = HexConverter.convertMove(1, center, piece);
@@ -154,7 +152,7 @@ public class HexConverterTest {
     @Test
     void testConvertColoredMove() {
         Hex center = Hex.hex(1, 2);
-        Piece piece = new Piece(1, Color.RED);
+        Piece piece = new Piece(1, SolidColor.RED);
         piece.add(0, 0);
 
         JsonObject json = HexConverter.convertColoredMove(1, center, piece);
@@ -197,13 +195,13 @@ public class HexConverterTest {
         builder.add("R", 255).add("G", 0).add("B", 0);
         JsonObject json = builder.build();
 
-        Color color = HexConverter.convertColor(json);
-        assertEquals(Color.RED, color, "Converted color should be RED");
+        SolidColor color = HexConverter.convertColor(json);
+        assertEquals(SolidColor.RED, color, "Converted color should be RED");
 
         builder = Json.createObjectBuilder();
         builder.add("r", 0).add("g", 255).add("b", 0);
         color = HexConverter.convertColor(builder.build());
-        assertEquals(Color.GREEN, color, "Converted color with lowercase keys should work");
+        assertEquals(SolidColor.GREEN, color, "Converted color with lowercase keys should work");
 
         JsonObject invalidJson = Json.createObjectBuilder().add("R", 300).add("G", 0).add("B", 0).build();
         assertThrows(IOException.class, () -> HexConverter.convertColor(invalidJson),
@@ -225,14 +223,14 @@ public class HexConverterTest {
         assertEquals(1, block.getLineI(), "Converted block I should be 1");
         assertEquals(1, block.getLineJ(), "Converted block J should be 1");
         assertEquals(2, block.getLineK(), "Converted block K should be 2");
-        assertEquals(Color.RED, block.color(), "Converted block color should be RED");
+        assertEquals(SolidColor.RED, block.color(), "Converted block color should be RED");
         assertTrue(block.getState(), "Converted block state should be true");
 
         // Test with missing color and state
         builder = Json.createObjectBuilder();
         builder.add("I", 0).add("J", 0).add("K", 0);
         block = HexConverter.convertBlock(builder.build());
-        assertEquals(Color.BLACK, block.color(), "Missing color should default to BLACK");
+        assertEquals(SolidColor.BLACK, block.color(), "Missing color should default to BLACK");
         assertFalse(block.getState(), "Missing state should default to false");
 
         assertThrows(IOException.class, () -> HexConverter.convertBlock((JsonObject) null),
@@ -257,7 +255,7 @@ public class HexConverterTest {
 
         Piece piece = HexConverter.convertPiece(json);
         assertEquals(3, piece.length(), "Piece should have length 3");
-        assertEquals(Color.RED, piece.getColor(), "Piece color should be RED");
+        assertEquals(SolidColor.RED, piece.getColor(), "Piece color should be RED");
         assertNotNull(piece.getBlock(0, 0), "Block at (0,0) should exist");
         assertNotNull(piece.getBlock(-1, 1), "Block at (-1,1) should exist");
         assertTrue(piece.getBlock(0, 0).getState(), "Block at (0,0) should be occupied");
@@ -293,11 +291,11 @@ public class HexConverterTest {
 
         HexEngine engine = HexConverter.convertEngine(json);
         assertEquals(2, engine.getRadius(), "Engine radius should be 2");
-        assertEquals(Color.GRAY, engine.getEmptyBlockColor(), "Empty color should be GRAY");
-        assertEquals(Color.BLUE, engine.getFilledBlockColor(), "Filled color should be BLUE");
+        assertEquals(SolidColor.GRAY, engine.getEmptyBlockColor(), "Empty color should be GRAY");
+        assertEquals(SolidColor.BLUE, engine.getFilledBlockColor(), "Filled color should be BLUE");
         assertEquals(7, engine.length(), "Engine should have 7 blocks");
         assertTrue(engine.getBlock(0, 0).getState(), "Block at (0,0) should be occupied");
-        assertEquals(Color.BLUE, engine.getBlock(0, 0).color(), "Block at (0,0) should be BLUE");
+        assertEquals(SolidColor.BLUE, engine.getBlock(0, 0).color(), "Block at (0,0) should be BLUE");
 
         // Test with missing radius
         jsonBuilder = Json.createObjectBuilder().add("blocks", arrayBuilder);

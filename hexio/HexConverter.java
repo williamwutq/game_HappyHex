@@ -31,11 +31,11 @@ import java.io.IOException;
 
 /**
  * The {@code HexConverter} class provides utility methods for converting hexagonal game components
- * (such as {@link Hex}, {@link Block}, {@link Piece}, {@link HexEngine}, and game moves) to and from
- * {@link javax.json JSON} representations. It supports both explicit RGB colors and indexed colors if
- * the base color and a color array is passed in. This class serves as an add-on package for the {@link hex}
- * package, facilitating serialization and deserialization of hexagonal grid-based game data for
- * storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
+ * (such as {@link Hex}, {@link SolidColor}, {@link Block}, {@link Piece}, {@link HexEngine}, and game moves)
+ * to and from {@link javax.json JSON} representations. It supports both explicit RGB colors and indexed
+ * colors if the base color and a color array is passed in. This class serves as an add-on package for the
+ * {@link hex} package, facilitating serialization and deserialization of hexagonal grid-based game data
+ * for storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
  * and provides robust error handling for invalid JSON data.
  *
  * @version 1.3
@@ -506,15 +506,15 @@ public final class HexConverter {
         }
     }
     /**
-     * Converts a JSON object to a {@link java.awt.Color Color} object.
+     * Converts a JSON object to a {@link SolidColor} object.
      * The JSON object must contain R, G, and B components in the range [0, 255].
      *
      * @param jsonObject the JSON object containing the color components
-     * @return a {@code Color} object
+     * @return a {@code SolidColor} object
      * @throws IOException if the JSON object is null, missing required components, or contains invalid values
-     * @see java.awt.Color#Color
+     * @see SolidColor
      */
-    public static java.awt.Color convertColor(JsonObject jsonObject) throws IOException {
+    public static SolidColor convertColor(JsonObject jsonObject) throws IOException {
         if (jsonObject == null) throw new IOException("\"Color\" object is null or not found");
         int r, g, b;
         try {
@@ -554,7 +554,7 @@ public final class HexConverter {
         if (b > 255 || b < 0) {
             throw new IOException("Component B in \"Color\" not in range of [0, 255]");
         }
-        return new java.awt.Color(r, g, b);
+        return new SolidColor(r, g, b);
     }
     /**
      * Converts a JSON object to a color index.
@@ -564,11 +564,11 @@ public final class HexConverter {
      * @param jsonObject the JSON object containing the color index
      * @param baseColor the base color to default to if the color index is -1
      * @param colorArray the array of colors to choose from
-     * @return a {@code Color} object as represented by the color index
+     * @return a {@code SolidColor} object as represented by the color index
      * @throws IOException if the JSON object is null or contains invalid values
      * @since 1.3
      */
-    public static java.awt.Color convertColorIndex(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+    public static SolidColor convertColorIndex(JsonObject jsonObject, SolidColor baseColor, SolidColor[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("Color index object is null or not found");
         int c;
         try {
@@ -606,7 +606,7 @@ public final class HexConverter {
     public static Block convertBlock(JsonObject jsonObject) throws IOException {
         if (jsonObject == null) throw new IOException("\"Block\" object is null or not found");
         Hex hex = convertHex(jsonObject);
-        java.awt.Color color = java.awt.Color.BLACK;
+        SolidColor color = SolidColor.BLACK;
         boolean state = false;
         try {
             color = convertColor(jsonObject);
@@ -630,14 +630,14 @@ public final class HexConverter {
      * @return a {@code Block} object
      * @throws IOException if the JSON object is null or contains invalid coordinates
      * @see Block#block
-     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertColorIndex(JsonObject, SolidColor, SolidColor[])
      * @see #convertHex(JsonObject)
      * @since 1.3
      */
-    public static Block convertBlock(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+    public static Block convertBlock(JsonObject jsonObject, SolidColor baseColor, SolidColor[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("\"Block\" object is null or not found");
         Hex hex = convertHex(jsonObject);
-        java.awt.Color color = java.awt.Color.BLACK;
+        SolidColor color = SolidColor.BLACK;
         boolean state = false;
         try {
             color = convertColorIndex(jsonObject, baseColor, colorArray);
@@ -694,11 +694,11 @@ public final class HexConverter {
      * @return a {@code Piece} object
      * @throws IOException if the JSON object is null, lacks a block array, or contains no valid blocks
      * @see Piece#Piece
-     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
-     * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertColorIndex(JsonObject, SolidColor, SolidColor[])
+     * @see #convertBlock(JsonObject, SolidColor, SolidColor[])
      * @since 1.3
      */
-    public static Piece convertPiece(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+    public static Piece convertPiece(JsonObject jsonObject, SolidColor baseColor, SolidColor[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("\"Piece\" object is null or not found");
         // Get array
         JsonArray jsonArray;
@@ -733,7 +733,7 @@ public final class HexConverter {
         // Check first real block exists, and try to get color
         int size = jsonArray.size();
         int valid = 0;
-        java.awt.Color color = java.awt.Color.BLACK;
+        SolidColor color = SolidColor.BLACK;
         for (int i = 0; i < size; i ++){
             try {
                 Block block = convertBlock(jsonArray.getJsonObject(i));
@@ -770,17 +770,17 @@ public final class HexConverter {
      * @return a {@code Piece} object
      * @throws IOException if the JSON array is null or contains no valid blocks
      * @see Piece#Piece
-     * @see #convertPiece(JsonObject, java.awt.Color, java.awt.Color[])
-     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
-     * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertPiece(JsonObject, SolidColor, SolidColor[])
+     * @see #convertColorIndex(JsonObject, SolidColor, SolidColor[])
+     * @see #convertBlock(JsonObject, SolidColor, SolidColor[])
      * @since 1.3
      */
-    public static Piece convertPiece(JsonArray jsonArray, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+    public static Piece convertPiece(JsonArray jsonArray, SolidColor baseColor, SolidColor[] colorArray) throws IOException {
         if (jsonArray == null) throw new IOException("\"Piece\" object is null or not found");
         // Check first real block exists, and try to get color
         int size = jsonArray.size();
         int valid = 0;
-        java.awt.Color color = java.awt.Color.BLACK;
+        SolidColor color = SolidColor.BLACK;
         for (int i = 0; i < size; i ++){
             try {
                 Block block = convertBlock(jsonArray.getJsonObject(i), baseColor, colorArray);
@@ -820,8 +820,8 @@ public final class HexConverter {
     public static HexEngine convertEngine(JsonObject jsonObject) throws IOException {
         if (jsonObject == null) throw new IOException("\"HexEngine\" object is null or not found");
         // Read radius, color, and create engine object
-        java.awt.Color emptyColor = java.awt.Color.BLACK;
-        java.awt.Color filledColor = java.awt.Color.WHITE;
+        SolidColor emptyColor = SolidColor.BLACK;
+        SolidColor filledColor = SolidColor.WHITE;
         int radius = 0;
         try {
             emptyColor = convertColor(jsonObject.getJsonObject("empty"));
@@ -872,15 +872,15 @@ public final class HexConverter {
      * @return a {@code HexEngine} object
      * @throws IOException if the JSON object is null, lacks a radius, or contains an invalid radius
      * @see HexEngine#HexEngine
-     * @see #convertColorIndex(JsonObject, java.awt.Color, java.awt.Color[])
-     * @see #convertBlock(JsonObject, java.awt.Color, java.awt.Color[])
+     * @see #convertColorIndex(JsonObject, SolidColor, SolidColor[])
+     * @see #convertBlock(JsonObject, SolidColor, SolidColor[])
      * @since 1.3
      */
-    public static HexEngine convertEngine(JsonObject jsonObject, java.awt.Color baseColor, java.awt.Color[] colorArray) throws IOException {
+    public static HexEngine convertEngine(JsonObject jsonObject, SolidColor baseColor, SolidColor[] colorArray) throws IOException {
         if (jsonObject == null) throw new IOException("\"HexEngine\" object is null or not found");
         // Read radius, color, and create engine object
-        java.awt.Color emptyColor = java.awt.Color.BLACK;
-        java.awt.Color filledColor = java.awt.Color.WHITE;
+        SolidColor emptyColor = SolidColor.BLACK;
+        SolidColor filledColor = SolidColor.WHITE;
         int radius = 0;
         try {
             emptyColor = convertColorIndex(jsonObject.getJsonObject("empty"), baseColor, colorArray);
