@@ -50,6 +50,12 @@ public class HexDataReaderTest {
     }
 
     @Test
+    void testGetShort() {
+        reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "FFFB");
+        assertEquals(-5, reader.getShort(0));
+    }
+
+    @Test
     void testGetChar() {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "0041");
         assertEquals('A', reader.getChar(0));
@@ -123,6 +129,13 @@ public class HexDataReaderTest {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "000000FF");
         assertEquals(255, reader.nextInt());
         assertEquals(8, reader.pointer());
+    }
+
+    @Test
+    void testNextShort() {
+        reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "FFFB");
+        assertEquals(-5, reader.nextShort());
+        assertEquals(4, reader.pointer());
     }
 
     @Test

@@ -10,7 +10,7 @@ import java.nio.file.Path;
  * data from files written in hexadecimal format, whether as text or binary files.
  * It supports extraction of various primitive data types encoded in hexadecimal
  * (e.g. {@code boolean}, {@code long}, {@code int}, {@code char}, {@code byte},
- * {@code String}, {@code float}, {@code double})
+ * {@code short}, {@code String}, {@code float}, {@code double})
  * along with internal tracking to support sequential reading.
  * <p>
  * It also supports utility methods for data comparison, file path matching, and
@@ -213,7 +213,7 @@ public class HexDataReader {
      * @return the decoded {@code long} value.
      */
     public long getLong(int index) {
-        return Long.parseUnsignedLong(get(index, 16), 16);
+        return Long.parseLong(get(index, 16), 16);
     }
     /**
      * Returns an {@code int} decoded from 8 hexadecimal characters at the given index.
@@ -221,7 +221,15 @@ public class HexDataReader {
      * @return the decoded {@code int} value.
      */
     public int getInt(int index) {
-        return Integer.parseUnsignedInt(get(index, 8), 16);
+        return Integer.parseInt(get(index, 8), 16);
+    }
+    /**
+     * Returns a {@code short} decoded from 4 hexadecimal characters at the given index.
+     * @param index the starting index.
+     * @return the decoded {@code short} value.
+     */
+    public short getShort(int index) {
+        return (short) Integer.parseInt(get(index, 4), 16);
     }
     /**
      * Returns a {@code char} decoded from 4 hexadecimal characters at the given index.
@@ -237,7 +245,7 @@ public class HexDataReader {
      * @return the decoded {@code byte} value.
      */
     public byte getByte(int index) {
-        return (byte) Integer.parseUnsignedInt(get(index, 2), 16);
+        return (byte) Integer.parseInt(get(index, 2), 16);
     }
     /**
      * Returns a string by reading a sequence of {@code char}s from the data.
@@ -348,6 +356,15 @@ public class HexDataReader {
     public int nextInt() {
         int result = getInt(pointer);
         pointer += 8;
+        return result;
+    }
+    /**
+     * Reads the next {@code short} value and advances the pointer.
+     * @return the next {@code short} value.
+     */
+    public short nextShort() {
+        short result = getShort(pointer);
+        pointer += 4;
         return result;
     }
     /**

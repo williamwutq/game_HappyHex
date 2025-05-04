@@ -33,6 +33,12 @@ public class HexDataWriterTest {
     }
 
     @Test
+    void testAddShort() {
+        writer.add((short)-45);
+        assertEquals("FFD3", writer.toString());
+    }
+
+    @Test
     void testAddChar() {
         writer.add('A');
         assertEquals("0041", writer.toString());
@@ -60,6 +66,12 @@ public class HexDataWriterTest {
     void testAddIntArray() {
         writer.add(new int[]{255, 256});
         assertEquals("000000FF00000100", writer.toString());
+    }
+
+    @Test
+    void testAddShortArray() {
+        writer.add(new short[]{255, -256});
+        assertEquals("00FFFF00", writer.toString());
     }
 
     @Test

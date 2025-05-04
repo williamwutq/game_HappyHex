@@ -8,7 +8,7 @@ import java.nio.file.*;
  * A utility class for recording and writing data in hexadecimal format to files.
  * The {@code HexDataWriter} class provides methods to accumulate hexadecimal data
  * from primitive data types (e.g., {@code boolean},{@code long}, {@code int}, {@code char},
- * {@code byte}, {@code String}, {@code float}, {@code double})
+ * {@code short}, {@code byte}, {@code String}, {@code float}, {@code double})
  * or arrays of such data and write the data to files in either text or binary format.
  * It also provides direct accumulation and serialization of already encoded hexadecimal Strings
  * or character arrays, as well as convenience methods for adding spacing and dividers.
@@ -207,6 +207,16 @@ public class HexDataWriter {
         data += String.format("%08X", value);
     }
     /**
+     * Add a {@code short} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * This method can also be used to convert characters in {@link String}.
+     * This will add 4 hexadecimal characters.
+     * @param value the {@code short} value to be added.
+     */
+    public void add(short value) {
+        data += String.format("%04X", value);
+    }
+    /**
      * Add a {@code char} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
      * <p>
      * This method can also be used to convert characters in {@link String}.
@@ -310,6 +320,21 @@ public class HexDataWriter {
      */
     public void add(int[] values) {
         for (int value : values) {
+            add(value);
+        }
+    }
+    /**
+     * Add an array of {@code short} values encoded in hexadecimal character
+     * to the data stored in the {@code HexDataWriter}.
+     * <p>
+     * The values will be added sequentially in the order of appearance in the array,
+     * each value will add 4 hexadecimal characters to the data.
+     * There is no separation characters in between values.
+     * @param values the {@code short} values to be added.
+     * @see #add(short)
+     */
+    public void add(short[] values) {
+        for (short value : values) {
             add(value);
         }
     }
