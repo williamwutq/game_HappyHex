@@ -53,7 +53,7 @@ public class EngineButton extends HexButton {
         if(blockIndex != -1) {
             // If is the range of potential blocks for adding
             if(isPotentialPieceBlock(getIndex())){
-                Color color = GameEssentials.queue().get(pieceIndex).getColor();
+                Color color = GameEssentials.queue().get(pieceIndex).getColor().getColor();
                 return GameEssentials.interpolate(color, GameEssentials.gameBackgroundColor, 1);
             }
             // Get piece

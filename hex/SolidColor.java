@@ -110,5 +110,6 @@ public class SolidColor {
     public static final SolidColor CYAN = new SolidColor(-2, 0, 255, 255);
     public static final SolidColor BLUE = new SolidColor(-2, 0, 0, 255);
     public static final SolidColor MAGENTA = new SolidColor(-2, 255, 0, 255);
+    public static final SolidColor GRAY = new SolidColor(-2, 128, 128, 128);
     public static final SolidColor WHITE = new SolidColor(-2, 255, 255, 255);
 }

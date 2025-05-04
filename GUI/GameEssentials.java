@@ -29,6 +29,7 @@ import Launcher.LaunchEssentials;
 import hex.HexEngine;
 import game.Queue;
 import hex.Piece;
+import hex.SolidColor;
 import hexio.HexLogger;
 import io.GameTime;
 
@@ -121,12 +122,11 @@ public final class GameEssentials {
         return actionDelay;
     }
     /**
-     * Generates a random color from a predefined set of 12 distinct colors.
-     *
-     * @return a randomly selected {@code Color} object.
+     * Generates a random {@link SolidColor} from a predefined set of 12 distinct colors.
+     * @return a randomly selected {@code SolidColor} object.
      */
-    public static Color generateColor() {
-        return pieceColors[(int) (Math.random() * 12)];
+    public static SolidColor generateColor() {
+        return new SolidColor(pieceColors[(int) (Math.random() * 12)]);
     }
     public static Color getIndexedPieceColor(int index){
         if(index < 12 && index >= 0){
@@ -299,7 +299,7 @@ public final class GameEssentials {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
-        engine = new HexEngine(size, gameBlockDefaultColor, getDefaultColor());
+        engine = new HexEngine(size, new hex.SolidColor(gameBlockDefaultColor), new hex.SolidColor(getDefaultColor()));
         queue = new Queue(queueSize);
         window = frame;
         // Logger initialize
