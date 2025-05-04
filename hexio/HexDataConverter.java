@@ -2,6 +2,8 @@ package hexio;
 
 import hex.*;
 
+import java.io.IOException;
+
 /**
  * The {@code HexDataConverter} class provides utility methods for converting hexagonal game components
  * (such as {@link Hex}, {@link Block}, {@link Piece}, {@link HexEngine}, and game moves) to and from
@@ -117,5 +119,72 @@ public class HexDataConverter {
         builder.append("FF");
         builder.append(convertBooleanPiece(piece));
         return builder.toString();
+    }
+
+    /**
+     * Converts a hexadecimal string to a {@link Hex} coordinate.
+     * The hexadecimal string must follow the format for the coordinate and be of 16 characters long.
+     * This conversion use line coordinates.
+     * <p>
+     * This is the inverse method of {@link #convertHex(Hex)}.
+     *
+     * @param hexString the hexadecimal string containing the hex coordinates
+     * @return a {@code Hex} object
+     * @throws IOException if the hexadecimal string is null, or missing hexadecimal characters
+     * @see Hex#hex
+     * @see #convertBlock(String)
+     * @see #convertPiece(String)
+     * @see #convertEngine(String)
+     */
+    public static Hex convertHex(String hexString) throws IOException {
+        if (hexString == null) {
+            throw new IOException("\"Hex\" object is null or not found");
+        } else if (hexString.length() != 16){
+            throw new IOException("\"Hex\" object hexadecimal string length is not 16");
+        }
+        int i; int k;
+        try {
+            i = Integer.parseUnsignedInt(hexString.substring(0, 8), 16);
+            k = Integer.parseUnsignedInt(hexString.substring(8, 16), 16);
+        } catch (NumberFormatException e) {
+            throw new IOException("\"Hex\" object hexadecimal string format is invalid");
+        }
+        return Hex.hex(i, k);
+    }
+    /**
+     * Converts a hexadecimal string to a {@link Block}.
+     * The hexadecimal string must contain two integer represent the coordinates and the state of the block.
+     * Color is ignored and replaced with black. The length of the string must be 17.
+     * <p>
+     * This is the inverse method of {@link #convertBlock(Block)}.
+     *
+     * @param hexString the hexadecimal string containing the block data
+     * @return a {@code Block} object
+     * @throws IOException if the hexadecimal string is null or is not of length 17
+     * @see Block#block
+     * @see #convertColor(String)
+     * @see #convertHex(String)
+     */
+    public static Block convertBlock(String hexString) throws IOException {
+        if (hexString == null) {
+            throw new IOException("\"Block\" object is null or not found");
+        } else if (hexString.length() != 17){
+            throw new IOException("\"Block\" object hexadecimal string length is not 17");
+        }
+        Hex hex = convertHex(hexString.substring(0,16));
+        boolean state;
+        try {
+            char stateChar = hexString.charAt(16);
+            if (stateChar == 'F'){
+                state = true;
+            } else if (stateChar == '0'){
+                state = false;
+            } else {
+                throw new IOException("\"Block\" object does not contain valid state");
+            }
+        } catch (NumberFormatException e) {
+            throw new IOException("\"Block\" object does not contain valid state");
+        }
+        return new Block(hex, java.awt.Color.BLACK, state);
     }
 }
