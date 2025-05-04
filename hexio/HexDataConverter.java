@@ -30,11 +30,11 @@ public class HexDataConverter {
     public static String convertHex(Hex hex){
         StringBuilder builder = new StringBuilder();
         if (hex == null) {
-            builder.append(String.format("%08X", 0));
-            builder.append(String.format("%08X", 0));
+            builder.append(String.format("%04X", 0));
+            builder.append(String.format("%04X", 0));
         } else {
-            builder.append(String.format("%08X", hex.getLineI()));
-            builder.append(String.format("%08X", hex.getLineK()));
+            builder.append(String.format("%04X", (short)hex.getLineI()));
+            builder.append(String.format("%04X", (short)hex.getLineK()));
         }
         return builder.toString();
     }
@@ -52,12 +52,12 @@ public class HexDataConverter {
     public static String convertBlock(Block block){
         StringBuilder builder = new StringBuilder();
         if (block == null) {
-            builder.append(String.format("%08X", 0));
-            builder.append(String.format("%08X", 0));
+            builder.append(String.format("%04X", 0));
+            builder.append(String.format("%04X", 0));
             builder.append("0");
         } else {
-            builder.append(String.format("%08X", block.getLineI()));
-            builder.append(String.format("%08X", block.getLineK()));
+            builder.append(String.format("%04X", (short)block.getLineI()));
+            builder.append(String.format("%04X", (short)block.getLineK()));
             builder.append(String.format(block.getState() ? "F" : "0"));
         }
         return builder.toString();
@@ -88,9 +88,9 @@ public class HexDataConverter {
      * @see HexEngine#HexEngine
      */
     public static String convertBooleanEngine(HexEngine engine){
-        if (engine == null) return "000000010";
+        if (engine == null) return "00010";
         int length = engine.length();
-        StringBuilder builder = new StringBuilder(String.format("%08X", engine.getRadius()));
+        StringBuilder builder = new StringBuilder(String.format("%04X", (short)engine.getRadius()));
         int fullLength = (length + 3) / 4 * 4; // Round up to multiple of 4
         for (int i = 0; i < fullLength; i += 4) {
             int hexValue = 0;
@@ -106,28 +106,24 @@ public class HexDataConverter {
     }
     /**
      * Converts a game move to a hexadecimal string.
-     * The hexadecimal string includes the move order, center coordinate, and piece.
+     * The hexadecimal string includes the move center coordinate and piece.
      *
-     * @param moveOrder the order of the move
      * @param center    the {@code Hex} center coordinate of the move
      * @param piece     the {@code Piece} involved in the move
      * @return a hexadecimal string representing the move
      * @see #convertHex(Hex)
      * @see #convertBooleanPiece(Piece)
      */
-    public static String convertBooleanMove(int moveOrder, Hex center, Piece piece){
+    public static String convertBooleanMove(Hex center, Piece piece){
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("%08X", moveOrder));
-        builder.append("FF");
         builder.append(convertHex(center));
-        builder.append("FF");
         builder.append(convertBooleanPiece(piece));
         return builder.toString();
     }
 
     /**
      * Converts a hexadecimal string to a {@link Hex} coordinate.
-     * The hexadecimal string must follow the format for the coordinate and be of 16 characters long.
+     * The hexadecimal string must follow the format for the coordinate and be of 8 characters long.
      * This conversion use line coordinates.
      * <p>
      * This is the inverse method of {@link #convertHex(Hex)}.
@@ -143,13 +139,13 @@ public class HexDataConverter {
     public static Hex convertHex(String hexString) throws IOException {
         if (hexString == null) {
             throw new IOException("\"Hex\" object is null or not found");
-        } else if (hexString.length() != 16){
+        } else if (hexString.length() != 8){
             throw new IOException("\"Hex\" object hexadecimal string length is not 16");
         }
-        int i; int k;
+        short i; short k;
         try {
-            i = Integer.parseUnsignedInt(hexString.substring(0, 8), 16);
-            k = Integer.parseUnsignedInt(hexString.substring(8, 16), 16);
+            i = (short) Integer.parseInt(hexString.substring(0, 4), 16);
+            k = (short) Integer.parseInt(hexString.substring(4, 8), 16);
         } catch (NumberFormatException e) {
             throw new IOException("\"Hex\" object hexadecimal string format is invalid");
         }
@@ -158,26 +154,26 @@ public class HexDataConverter {
     /**
      * Converts a hexadecimal string to a {@link Block}.
      * The hexadecimal string must contain two integer represent the coordinates and the state of the block.
-     * Color is ignored and replaced with black. The length of the string must be 17.
+     * Color is ignored and replaced with black. The length of the string must be 9.
      * <p>
      * This is the inverse method of {@link #convertBlock(Block)}.
      *
      * @param hexString the hexadecimal string containing the block data
      * @return a {@code Block} object
-     * @throws IOException if the hexadecimal string is null or is not of length 17
+     * @throws IOException if the hexadecimal string is null or is not of length 9
      * @see Block#block
      * @see #convertHex(String)
      */
     public static Block convertBlock(String hexString) throws IOException {
         if (hexString == null) {
             throw new IOException("\"Block\" object is null or not found");
-        } else if (hexString.length() != 17){
+        } else if (hexString.length() != 9){
             throw new IOException("\"Block\" object hexadecimal string length is not 17");
         }
-        Hex hex = convertHex(hexString.substring(0,16));
+        Hex hex = convertHex(hexString.substring(0,8));
         boolean state;
         try {
-            char stateChar = hexString.charAt(16);
+            char stateChar = hexString.charAt(8);
             if (stateChar == 'F'){
                 state = true;
             } else if (stateChar == '0'){
@@ -233,24 +229,24 @@ public class HexDataConverter {
     public static HexEngine convertEngine(String hexString) throws IOException {
         if (hexString == null) {
             throw new IOException("\"HexEngine\" object is null or not found");
-        } else if (hexString.length() < 9){
+        } else if (hexString.length() < 5){
             throw new IOException("\"HexEngine\" object hexadecimal string length is invalid");
         }
         // Get radius
-        int radius;
+        short radius;
         try {
-            radius = Integer.parseUnsignedInt(hexString.substring(0, 8), 16);
+            radius = (short) Integer.parseUnsignedInt(hexString.substring(0, 4), 16);
         } catch (NumberFormatException e) {
             throw new IOException("\"HexEngine\" object cannot be generated because radius cannot be read");
         }
         if (radius <= 0) throw new IOException("\"HexEngine\" object cannot be generated because radius is negative or 0");
         // Create engine
         HexEngine engine = new HexEngine(radius, java.awt.Color.BLACK, java.awt.Color.WHITE);
-        if ((engine.length()+3)/4 != hexString.length() - 8){
+        if ((engine.length()+3)/4 != hexString.length() - 4){
             throw new IOException("\"HexEngine\" object cannot be generated because input string have incorrect length");
         }
         int index = 0;
-        for (int i = 8; i < hexString.length(); i++) {
+        for (int i = 4; i < hexString.length(); i++) {
             int hexValue = Character.digit(hexString.charAt(i), 16);
             for (int bit = 0; bit < 4 && index < engine.length(); bit++) {
                 boolean state = (hexValue & (1 << bit)) != 0;

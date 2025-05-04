@@ -12,20 +12,20 @@ public class HexDataConverterTest {
     void testConvertHex() {
         Hex hex = Hex.hex(-4, 5);
         String hexString = HexDataConverter.convertHex(hex);
-        assertEquals("FFFFFFFC00000005", hexString, "Converted string should be FFFFFFFC00000005");
+        assertEquals("FFFC0005", hexString, "Converted string should be FFFC0005");
 
         hexString = HexDataConverter.convertHex((Hex) null);
-        assertEquals("0000000000000000", hexString, "Null hex I should be all 0s");
+        assertEquals("00000000", hexString, "Null hex I should be all 0s");
     }
     @Test
     void testConvertBlock() {
         Block block = Block.block(3, 23, Color.BLACK);
         block.setState(true);
         String hexString = HexDataConverter.convertBlock(block);
-        assertEquals("0000000300000017F", hexString, "Converted string should be 0000000300000017F");
+        assertEquals("00030017F", hexString, "Converted string should be 00030017F");
 
         hexString = HexDataConverter.convertBlock((Block) null);
-        assertEquals("00000000000000000", hexString, "Null block I should be all 0s");
+        assertEquals("000000000", hexString, "Null block I should be all 0s");
     }
     @Test
     void testConvertPiece() {
@@ -46,10 +46,10 @@ public class HexDataConverterTest {
         engine.setState(1, 2, true);
         engine.setState(2, 3, true);
         String hexString = HexDataConverter.convertBooleanEngine(engine);
-        assertEquals("0000000312400", hexString, "Converted string should be 0000000312400");
+        assertEquals("000312400", hexString, "Converted string should be 000312400");
 
         hexString = HexDataConverter.convertBooleanEngine((HexEngine) null);
-        assertEquals("000000010", hexString, "Null piece I should be all 0s");
+        assertEquals("00010", hexString, "Null piece I should be all 0s");
     }
     @Test
     void testConvertMove() {
@@ -57,19 +57,19 @@ public class HexDataConverterTest {
         piece.add(1, 1);
         piece.add(0, 0);
         piece.add(0, 1);
-        String hexString = HexDataConverter.convertBooleanMove(138, Hex.hex(5, 4), piece);
-        assertEquals("0000008AFF0000000500000004FF0D", hexString, "Converted string should be 0000008AFF0000000500000004FF0D");
+        String hexString = HexDataConverter.convertBooleanMove(Hex.hex(5, 4), piece);
+        assertEquals("000500040D", hexString, "Converted string should be 000500040D");
     }
     @Test
     void testConvertHexFromString() throws IOException {
-        Hex hex = HexDataConverter.convertHex("FFFFFFFC00000005");
+        Hex hex = HexDataConverter.convertHex("FFFC0005");
         assertEquals(-4, hex.getLineI(), "Converted hex I should be -4");
         assertEquals(9, hex.getLineJ(), "Converted hex J should be 9");
         assertEquals(5, hex.getLineK(), "Converted hex K should be 5");
     }
     @Test
     void testConvertBlockFromString() throws IOException {
-        Block block = HexDataConverter.convertBlock("0000000300000017F");
+        Block block = HexDataConverter.convertBlock("00030017F");
         assertTrue(block.getState(), "Converted block state should be true");
         assertEquals(3, block.getLineI(), "Converted block I should be 3");
         assertEquals(20, block.getLineJ(), "Converted block J should be 20");
@@ -88,7 +88,7 @@ public class HexDataConverterTest {
     }
     @Test
     void testConvertEngineFromString() throws IOException {
-        HexEngine engine = HexDataConverter.convertEngine("0000000312400");
+        HexEngine engine = HexDataConverter.convertEngine("000312400");
         assertEquals(3, engine.getRadius(), "Converted engine radius should be 3");
         assertTrue(engine.getBlock(0, 0).getState(), "Block at (0,0) should be occupied");
         assertFalse(engine.getBlock(1, 1).getState(), "Block at (1,1) should be unoccupied");
@@ -96,6 +96,6 @@ public class HexDataConverterTest {
         assertTrue(engine.getBlock(2, 3).getState(), "Block at (2,3) should be occupied");
         assertFalse(engine.getBlock(3, 3).getState(), "Block at (3,3) should be unoccupied");
         String hexString = HexDataConverter.convertBooleanEngine(engine);
-        assertEquals("0000000312400", hexString, "Reverse conversion should work");
+        assertEquals("000312400", hexString, "Reverse conversion should work");
     }
 }
