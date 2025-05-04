@@ -224,6 +224,7 @@ public class HexDataConverter {
      * @return a {@code HexEngine} object
      * @throws IOException if the hexadecimal string is null, have invalid radius, or size does not match
      * @see HexEngine#HexEngine
+     * @since 1.3
      */
     public static HexEngine convertEngine(String hexString) throws IOException {
         if (hexString == null) {
@@ -241,7 +242,6 @@ public class HexDataConverter {
         if (radius <= 0) throw new IOException("\"HexEngine\" object cannot be generated because radius is negative or 0");
         // Create engine
         HexEngine engine = new HexEngine(radius, java.awt.Color.BLACK, java.awt.Color.WHITE);
-        int blockCount = (hexString.length() - 8) * 4;
         int index = 0;
         for (int i = 8; i < hexString.length(); i++) {
             int hexValue = Character.digit(hexString.charAt(i), 16);
