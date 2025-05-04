@@ -834,7 +834,58 @@ public class HexLogger {
     public void readBinary() throws IOException {
         String jsonName = getDataFileName();
         HexDataReader reader = HexDataFactory.read(jsonName.substring(0, jsonName.length()-12), "hpyhex");
+        // Format check
+        if (!reader.next(32).equals("4B874B1E5A0F5A0F5A964B874B5A5A87")) {
+            throw new IOException("Fail to read binary data because file header is corrupted");
+        }
+        long code = reader.nextLong();
+        reader.advance(24); // Skip generator and version
+        int id = reader.nextInt();
+        if (!reader.next(16).equals("214845582D42494E")) {
+            throw new IOException("Fail to read binary data because file data start header is corrupted");
+        }
+        int turnData = reader.nextInt();
+        int scoreData = reader.nextInt();
+        // try encoding
+        long obfScore = obfuscate(interleaveIntegers(scoreData * scoreData, id ^ turnData));
+        long obfTurn = obfuscate(interleaveIntegers(turnData * turnData, id ^ scoreData));
+        long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
+        obfCombined = obfuscate(ID * 43L ^ obfCombined ^ obfTurn) ^ obfScore;
+        if (obfCombined != code){
+            throw new IOException("Fail to read binary data because file data encoding is corrupted or version is not supported");
+        }
+        if (!reader.next(4).equals("FFFF")) {
+            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+        }
+        HexEngine engineData;
+        try {
+            int radius = reader.getShort(reader.pointer());
+            int l = (3*(radius)*(radius-1))/4 + 5;
+            engineData = HexDataConverter.convertEngine(reader.next(l));
+        } catch (IOException e) {
+            throw new IOException("Fail to read engine data in binary data");
+        }
+        if (!reader.next(2).equals("FF")) {
+            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+        }
+        Piece[] queueData;
+        try {
+            int length = reader.nextShort();
+            queueData = new Piece[length];
+            for (int i = 0; i < length; i ++){
+                queueData[i] = HexDataConverter.convertPiece(reader.next(2));
+            }
+        } catch (IOException e) {
+            throw new IOException("Fail to read queue data in binary data");
+        }
+        if (!reader.next(2).equals("FF")) {
+            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+        }
 
+        currentQueue = queueData.clone();
+        currentEngine = engineData;
+        turn = turnData;
+        score = scoreData;
     }
 
     /**
