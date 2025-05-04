@@ -1,6 +1,5 @@
-package tests.hex;
+package hex;
 
-import hex.Hex;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
