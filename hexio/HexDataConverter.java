@@ -242,6 +242,9 @@ public class HexDataConverter {
         if (radius <= 0) throw new IOException("\"HexEngine\" object cannot be generated because radius is negative or 0");
         // Create engine
         HexEngine engine = new HexEngine(radius, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        if ((engine.length()+3)/4 != hexString.length() - 8){
+            throw new IOException("\"HexEngine\" object cannot be generated because input string have incorrect length");
+        }
         int index = 0;
         for (int i = 8; i < hexString.length(); i++) {
             int hexValue = Character.digit(hexString.charAt(i), 16);
