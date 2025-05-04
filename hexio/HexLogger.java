@@ -551,7 +551,6 @@ public class HexLogger {
 
     /**
      * Deletes the file related to this {@code HexLogger} if exists
-     *
      * @return true if the file is deleted, false otherwise
      */
     public boolean deleteFile() {
@@ -861,7 +860,7 @@ public class HexLogger {
      *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
      *     radius, and blocks. The block record of the engine does not contain colors.</li>
      *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
-     *      *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
+     *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
      *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
      *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
      *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>
