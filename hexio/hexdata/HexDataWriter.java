@@ -209,7 +209,6 @@ public class HexDataWriter {
     /**
      * Add a {@code short} value encoded in hexadecimal character to the data stored in the {@code HexDataWriter}.
      * <p>
-     * This method can also be used to convert characters in {@link String}.
      * This will add 4 hexadecimal characters.
      * @param value the {@code short} value to be added.
      */

@@ -682,7 +682,7 @@ public class HexLogger {
             writer.addDivider(2);
             writer.addHex(HexDataConverter.convertBooleanEngine(currentEngine));
             writer.addDivider(1);
-            writer.add((byte)currentQueue.length);
+            writer.add((short)currentQueue.length);
             for (Piece piece : currentQueue){
                 writer.addHex(HexDataConverter.convertBooleanPiece(piece));
             }
@@ -696,7 +696,7 @@ public class HexLogger {
                 }
             }
             writer.addDivider(2);
-            writer.add((byte) (obfuscate(ID) << 5));
+            writer.add((short) (obfuscate(ID) << 5));
             HexDataFactory.write(writer);
         } else {
             // Create JSON Object
