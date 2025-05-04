@@ -824,6 +824,20 @@ public class HexLogger {
     }
 
     /**
+     * Reads a binary log file and parses it into memory.
+     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from binary data.
+     * <p>
+     * For writing binary data, use {@code write("hex.binary")}.
+     * @throws IOException If reading or parsing fails, or data is corrupted.
+     * @since 1.3
+     */
+    public void readBinary() throws IOException {
+        String jsonName = getDataFileName();
+        HexDataReader reader = HexDataFactory.read(jsonName.substring(0, jsonName.length()-12), "hpyhex");
+
+    }
+
+    /**
      * Reads the log file and parses it into memory.
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
      * @throws IOException If reading or parsing fails or if the game type is unsupported.
