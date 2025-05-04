@@ -876,12 +876,42 @@ public class HexLogger {
                 queueData[i] = HexDataConverter.convertPiece(reader.next(2));
             }
         } catch (IOException e) {
-            throw new IOException("Fail to read queue data in binary data");
+            throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
         }
         if (!reader.next(2).equals("FF")) {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
         }
+        ArrayList<Hex> moveOriginsData = new ArrayList<Hex>(turnData);
+        ArrayList<Piece[]> moveQueuesData = new ArrayList<Piece[]>(turnData);
+        ArrayList<Integer> movePiecesData = new ArrayList<Integer>(turnData);
+        for (int i = 0; i < turnData; i ++){
+            try{
+                moveOriginsData.add(HexDataConverter.convertHex(reader.next(8)));
+            } catch (IOException e) {
+                throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
+            }
+            int index = reader.nextByte();
+            if (index < 0 || index >= queueData.length) {
+                throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
+            } else movePiecesData.add(index);
+            Piece[] moveQueueData;
+            try {
+                moveQueueData = new Piece[queueData.length];
+                for (int j = 0; j < queueData.length; j++){
+                    moveQueueData[j] = HexDataConverter.convertPiece(reader.next(2));
+                }
+            } catch (IOException e) {
+                throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+            }
+            moveQueuesData.add(moveQueueData.clone());
+        }
+        if (!reader.next(4).equals("FFFF")) {
+            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+        }
 
+        moveOrigins = moveOriginsData;
+        moveQueues = moveQueuesData;
+        movePieces = movePiecesData;
         currentQueue = queueData.clone();
         currentEngine = engineData;
         turn = turnData;
