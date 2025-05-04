@@ -1,6 +1,7 @@
 package hexio;
 
 import hex.*;
+import hexio.hexdata.*;
 
 import javax.json.*;
 import javax.json.stream.*;
@@ -258,6 +259,33 @@ public class HexLogger {
         input *= PRIME;
         input ^= (input << SHIFTS[6]) | (input >>> SHIFTS[7]);
         return input;
+    }
+    /**
+     * Interleaves the bits of two 32-bit integers into a single 64-bit long.
+     * It is superior to just combining two integers together.
+     * <p>
+     * The first integer contributes its bits to the even-numbered bit positions
+     * (0, 2, 4, ...) of the result, while the second integer contributes its bits
+     * to the odd-numbered bit positions (1, 3, 5, ...).
+     * @param even the 32-bit integer whose bits will be placed in the even bit positions of the result
+     * @param odd  the 32-bit integer whose bits will be placed in the odd bit positions of the result
+     * @return a 64-bit long value with bits from {@code even} and {@code odd} interleaved
+     * @since 1.3
+     */
+    public static long interleaveIntegers(int even, int odd) {
+        long eL = even & 0xFFFFFFFFL;
+        long oL = odd & 0xFFFFFFFFL;
+        eL = (eL | (eL << 16)) & 0x0000FFFF0000FFFFL;
+        oL = (oL | (oL << 16)) & 0x0000FFFF0000FFFFL;
+        eL = (eL | (eL << 8)) & 0x00FF00FF00FF00FFL;
+        oL = (oL | (oL << 8)) & 0x00FF00FF00FF00FFL;
+        eL = (eL | (eL << 4)) & 0x0F0F0F0F0F0F0F0FL;
+        oL = (oL | (oL << 4)) & 0x0F0F0F0F0F0F0F0FL;
+        eL = (eL | (eL << 2)) & 0x3333333333333333L;
+        oL = (oL | (oL << 2)) & 0x3333333333333333L;
+        eL = (eL | (eL << 1)) & 0x5555555555555555L;
+        oL = (oL | (oL << 1)) & 0x5555555555555555L;
+        return eL ^ oL << 1;
     }
     /**
      * Retrieves the static identifier used by the logger.
@@ -622,9 +650,10 @@ public class HexLogger {
     }
 
     /**
-     * Constructs a complete JSON object from the current logger information and writes it to a file.
-     * This includes the basic game information, the current {@link HexEngine} statues, the current
-     * {@link Piece} queue statues, and the moves in the game. This uses the specified format passed in.
+     * Constructs a complete JSON object or hexadecimal string from the current logger information
+     * and writes it to a JSON or binary file. This includes the basic game information, the current
+     * {@link HexEngine} statues, the current {@link Piece} queue statues, and the moves in the game.
+     * This uses the specified format passed in. If the format is {@code hex.binary}, it out put a .bin file.
      * @param format The format of the JSON log. Default to the default format {@code hex.uncolored} if not valid.
      * @throws IOException If JSON creation or writing fails.
      * @see #createBasicData(JsonObjectBuilder)
@@ -633,39 +662,77 @@ public class HexLogger {
      * @see #write()
      */
     public void write(String format) throws IOException {
-        // Create JSON Object
-        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-        // Write basics
-        jsonObjectBuilder.add("Game", HexIOInfo.gameName);
-        jsonObjectBuilder.add("Environment", HexIOInfo.gameEnvironment);
-        jsonObjectBuilder.add("Generator", "HexLogger");
-        jsonObjectBuilder.add("GeneratorID", ID);
-
-        // Write version
-        JsonObjectBuilder versionBuilder = Json.createObjectBuilder();
-        versionBuilder.add("Major", HexIOInfo.major);
-        versionBuilder.add("Minor", HexIOInfo.minor);
-        versionBuilder.add("Patch", HexIOInfo.patch);
-        jsonObjectBuilder.add("Version", versionBuilder);
-
-        // Write player
-        jsonObjectBuilder.add("Player", player);
-        jsonObjectBuilder.add("PlayerID", Long.toHexString(playerID));
-
-        // Write data format
-        jsonObjectBuilder.add("format", dataFormat);
-
-        // Write data
-        if(format.substring(0, 3).equals("hex")) {
-            if (format.equals("hex.uncolored")) {
-                createUncoloredData(jsonObjectBuilder);
-            } else {
-                createBasicData(jsonObjectBuilder);
+        if (format.equals("hex.binary")) {
+            String jsonName = getDataFileName();
+            HexDataWriter writer = HexDataFactory.createWriter(jsonName.substring(0, jsonName.length()-12), "hpyhex");
+            long obfScore = obfuscate(interleaveIntegers(score * score, ID ^ turn));
+            long obfTurn = obfuscate(interleaveIntegers(turn * turn, ID ^ score));
+            long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
+            writer.addHex("4B874B1E5A0F5A0F" + "5A964B874B5A5A87");
+            writer.add(obfuscate(ID * 43L ^ obfCombined ^ obfTurn) ^ obfScore);
+            writer.addHex("4A41564148584C47");
+            writer.add((byte)HexIOInfo.major);
+            writer.add((byte)HexIOInfo.minor);
+            writer.add((byte)HexIOInfo.patch);
+            writer.addDivider(1);
+            writer.add(ID);
+            writer.addHex("214845582D42494E");
+            writer.add(turn);
+            writer.add(score);
+            writer.addDivider(2);
+            writer.addHex(HexDataConverter.convertBooleanEngine(currentEngine));
+            writer.addDivider(1);
+            writer.add((byte)currentQueue.length);
+            for (Piece piece : currentQueue){
+                writer.addHex(HexDataConverter.convertBooleanPiece(piece));
             }
-        } else throw new IOException("Data format is not \"hex\" for this version of \"HexLogger\"");
+            writer.addDivider(1);
+            int totalMoves = moveOrigins.size();
+            for (int i = 0; i < totalMoves; i ++) {
+                writer.addHex(HexDataConverter.convertHex(moveOrigins.get(i)));
+                writer.add((byte)(int)(movePieces.get(i)));
+                for (Piece piece : moveQueues.get(i)) {
+                    writer.addHex(HexDataConverter.convertBooleanPiece(piece));
+                }
+            }
+            writer.addDivider(2);
+            writer.add((byte) (obfuscate(ID) << 5));
+            HexDataFactory.write(writer);
+        } else {
+            // Create JSON Object
+            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+            // Write basics
+            jsonObjectBuilder.add("Game", HexIOInfo.gameName);
+            jsonObjectBuilder.add("Environment", HexIOInfo.gameEnvironment);
+            jsonObjectBuilder.add("Generator", "HexLogger");
+            jsonObjectBuilder.add("GeneratorID", ID);
 
-        // Write to file
-        writeJsonToFile(jsonObjectBuilder.build());
+            // Write version
+            JsonObjectBuilder versionBuilder = Json.createObjectBuilder();
+            versionBuilder.add("Major", HexIOInfo.major);
+            versionBuilder.add("Minor", HexIOInfo.minor);
+            versionBuilder.add("Patch", HexIOInfo.patch);
+            jsonObjectBuilder.add("Version", versionBuilder);
+
+            // Write player
+            jsonObjectBuilder.add("Player", player);
+            jsonObjectBuilder.add("PlayerID", Long.toHexString(playerID));
+
+            // Write data format
+            jsonObjectBuilder.add("format", dataFormat);
+
+            // Write data
+            if (format.substring(0, 3).equals("hex")) {
+                if (format.equals("hex.uncolored")) {
+                    createUncoloredData(jsonObjectBuilder);
+                } else {
+                    createBasicData(jsonObjectBuilder);
+                }
+            } else throw new IOException("Data format is not \"hex\" for this version of \"HexLogger\"");
+
+            // Write to file
+            writeJsonToFile(jsonObjectBuilder.build());
+        }
     }
     /**
      * Constructs a complete JSON object from the current logger information.
