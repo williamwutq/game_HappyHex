@@ -1,14 +1,8 @@
-package tests.hex;
+package hex;
 
-import hex.Hex;
-import hex.HexGrid;
-import hex.Piece;
-import hex.Block;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.awt.Color;
 
 public class PieceTest {
 
@@ -16,7 +10,7 @@ public class PieceTest {
     void testDefaultConstructor() {
         Piece piece = new Piece();
         assertEquals(1, piece.length(), "Length should be 1");
-        assertEquals(Color.BLACK, piece.getColor(), "Color should be BLACK");
+        assertEquals(SolidColor.BLACK, piece.getColor(), "SolidColor should be BLACK");
         assertNotNull(piece.getBlock(0), "Block at index 0 should not be null");
         assertEquals(0, piece.getBlock(0).getLineI(), "Block I coordinate should be 0");
         assertEquals(0, piece.getBlock(0).getLineK(), "Block K coordinate should be 0");
@@ -25,50 +19,50 @@ public class PieceTest {
 
     @Test
     void testConstructorWithLengthAndColor() {
-        Piece piece = new Piece(3, Color.BLUE);
+        Piece piece = new Piece(3, SolidColor.BLUE);
         assertEquals(3, piece.length(), "Length should be 3");
-        assertEquals(Color.BLUE, piece.getColor(), "Color should be BLUE");
+        assertEquals(SolidColor.BLUE, piece.getColor(), "SolidColor should be BLUE");
         assertNull(piece.getBlock(0), "Blocks should initially be null");
     }
 
     @Test
     void testConstructorWithInvalidLength() {
-        Piece piece = new Piece(0, Color.RED);
+        Piece piece = new Piece(0, SolidColor.RED);
         assertEquals(1, piece.length(), "Length should be 1 when invalid length provided");
-        assertEquals(Color.RED, piece.getColor(), "Color should be RED");
+        assertEquals(SolidColor.RED, piece.getColor(), "SolidColor should be RED");
     }
 
     @Test
     void testSetColor() {
-        Piece piece = new Piece(2, Color.GREEN);
-        piece.add(Block.block(0, 0, Color.GREEN));
-        piece.add(Block.block(1, 1, Color.GREEN));
+        Piece piece = new Piece(2, SolidColor.GREEN);
+        piece.add(Block.block(0, 0, SolidColor.GREEN));
+        piece.add(Block.block(1, 1, SolidColor.GREEN));
 
-        piece.setColor(Color.YELLOW);
-        assertEquals(Color.YELLOW, piece.getColor(), "Piece color should be YELLOW");
-        assertEquals(Color.YELLOW, piece.getBlock(0).color(), "First block color should be YELLOW");
-        assertEquals(Color.YELLOW, piece.getBlock(1).color(), "Second block color should be YELLOW");
+        piece.setColor(SolidColor.YELLOW);
+        assertEquals(SolidColor.YELLOW, piece.getColor(), "Piece color should be YELLOW");
+        assertEquals(SolidColor.YELLOW, piece.getBlock(0).color(), "First block color should be YELLOW");
+        assertEquals(SolidColor.YELLOW, piece.getBlock(1).color(), "Second block color should be YELLOW");
     }
 
     @Test
     void testAddBlock() {
-        Piece piece = new Piece(2, Color.BLUE);
-        Block block1 = Block.block(0, 0, Color.BLUE);
-        Block block2 = Block.block(1, 1, Color.BLUE);
+        Piece piece = new Piece(2, SolidColor.BLUE);
+        Block block1 = Block.block(0, 0, SolidColor.BLUE);
+        Block block2 = Block.block(1, 1, SolidColor.BLUE);
 
         assertTrue(piece.add(block1), "Adding first block should succeed");
         assertTrue(piece.add(block2), "Adding second block should succeed");
-        assertFalse(piece.add(Block.block(2, 2, Color.BLUE)), "Adding to full piece should fail");
+        assertFalse(piece.add(Block.block(2, 2, SolidColor.BLUE)), "Adding to full piece should fail");
 
         assertEquals(block1, piece.getBlock(0), "First block should match");
         assertEquals(block2, piece.getBlock(1), "Second block should match");
-        assertEquals(Color.BLUE, piece.getBlock(0).color(), "First block color should be BLUE");
+        assertEquals(SolidColor.BLUE, piece.getBlock(0).color(), "First block color should be BLUE");
         assertTrue(piece.getBlock(0).getState(), "First block should be occupied");
     }
 
     @Test
     void testAddBlockByCoordinates() {
-        Piece piece = new Piece(2, Color.RED);
+        Piece piece = new Piece(2, SolidColor.RED);
         assertTrue(piece.add(0, 0), "Adding block at (0,0) should succeed");
         assertTrue(piece.add(1, 1), "Adding block at (1,1) should succeed");
         assertFalse(piece.add(2, 2), "Adding to full piece should fail");
@@ -76,13 +70,13 @@ public class PieceTest {
         Block block1 = piece.getBlock(0);
         assertEquals(0, block1.getLineI(), "First block I coordinate should be 0");
         assertEquals(0, block1.getLineK(), "First block K coordinate should be 0");
-        assertEquals(Color.RED, block1.color(), "First block color should be RED");
+        assertEquals(SolidColor.RED, block1.color(), "First block color should be RED");
         assertTrue(block1.getState(), "First block should be occupied");
     }
 
     @Test
     void testBlocksMethod() {
-        Piece piece = new Piece(5, Color.GREEN);
+        Piece piece = new Piece(5, SolidColor.GREEN);
         piece.add(1, 1);
         piece.add(0, 0);
         // Leave three slots null
@@ -92,12 +86,12 @@ public class PieceTest {
         assertEquals(0, blocks[0].getLineI(), "First block I should be 0");
         assertEquals(1, blocks[1].getLineI(), "Second block I should be 1");
         assertEquals(0, blocks[2].getLineI(), "Third block (dummy) I should be 0");
-        assertEquals(Color.GREEN, blocks[2].color(), "Dummy block should have piece color");
+        assertEquals(SolidColor.GREEN, blocks[2].color(), "Dummy block should have piece color");
     }
 
     @Test
     void testInRangeAndGetBlock() {
-        Piece piece = new Piece(2, Color.BLUE);
+        Piece piece = new Piece(2, SolidColor.BLUE);
         piece.add(0, 0);
         piece.add(1, 1);
 
@@ -115,7 +109,7 @@ public class PieceTest {
 
     @Test
     void testGetState() {
-        Piece piece = new Piece(4, Color.RED);
+        Piece piece = new Piece(4, SolidColor.RED);
         piece.add(0, -1);
         piece.add(-1, 0);
         piece.add(1, 1);
@@ -129,7 +123,7 @@ public class PieceTest {
 
     @Test
     void testGetBlockByIndex() {
-        Piece piece = new Piece(2, Color.RED);
+        Piece piece = new Piece(2, SolidColor.RED);
         piece.add(0, 0);
         piece.add(1, 1);
 
@@ -142,8 +136,8 @@ public class PieceTest {
 
     @Test
     void testAddHexGridThrowsException() {
-        Piece piece = new Piece(2, Color.BLUE);
-        HexGrid other = new Piece(1, Color.RED);
+        Piece piece = new Piece(2, SolidColor.BLUE);
+        HexGrid other = new Piece(1, SolidColor.RED);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             piece.add(new Hex(), other);
@@ -154,7 +148,7 @@ public class PieceTest {
 
     @Test
     void testSort() {
-        Piece piece = new Piece(3, Color.GREEN);
+        Piece piece = new Piece(3, SolidColor.GREEN);
         piece.add(1, 1);
         piece.add(0, 0);
         piece.add(0, 1);
@@ -171,7 +165,7 @@ public class PieceTest {
 
     @Test
     void testToString() {
-        Piece piece = new Piece(2, Color.BLUE);
+        Piece piece = new Piece(2, SolidColor.BLUE);
         piece.add(0, 0);
         piece.add(1, 1);
 
@@ -181,7 +175,7 @@ public class PieceTest {
 
     @Test
     void testToByte() {
-        Piece piece = new Piece(3, Color.GREEN);
+        Piece piece = new Piece(3, SolidColor.GREEN);
         piece.add(1, 1);
         piece.add(0, 0);
         piece.add(0, 1);
@@ -191,22 +185,22 @@ public class PieceTest {
 
     @Test
     void testEquals() {
-        Piece piece1 = new Piece(2, Color.BLUE);
+        Piece piece1 = new Piece(2, SolidColor.BLUE);
         piece1.add(0, 0);
         piece1.add(1, 1);
 
-        Piece piece2 = new Piece(2, Color.RED); // Different color, but same structure
+        Piece piece2 = new Piece(2, SolidColor.RED); // Different color, but same structure
         piece2.add(1, 1);
         piece2.add(0, 0);
 
-        Piece piece3 = new Piece(2, Color.BLUE);
+        Piece piece3 = new Piece(2, SolidColor.BLUE);
         piece3.add(0, 0);
         piece3.add(2, 2); // Different structure
 
         assertTrue(piece1.equals(piece2), "Pieces with same structure should be equal");
         assertFalse(piece1.equals(piece3), "Pieces with different structure should not be equal");
 
-        Piece piece4 = new Piece(3, Color.BLUE); // Different length
+        Piece piece4 = new Piece(3, SolidColor.BLUE); // Different length
         piece4.add(0, 0);
         piece4.add(1, 1);
         assertFalse(piece1.equals(piece4), "Pieces with different lengths should not be equal");
