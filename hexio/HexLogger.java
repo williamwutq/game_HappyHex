@@ -72,7 +72,7 @@ import java.util.ArrayList;
  * </ul>
  *
  * <h3>Data Format</h3>
- * This is version 1.2.4 of the {@code HexLogger} class, adhering to the {@code hex.basic} format standard.
+ * This is version 1.3 of the {@code HexLogger} class, adhering to the {@code hex.basic} format standard.
  * It currently supports reading in the {@code hex.basic}, {@code hex} (unnamed), and {@code hex.uncolored} formats,
  * and writes in the {@code hex.uncolored} format.
  * Support for additional data formats is planned for future releases. See {@link #readBasicHexData} for formats.
@@ -136,7 +136,7 @@ import java.util.ArrayList;
  * </ul>
  *
  * @author William Wu
- * @version 1.2.4
+ * @version 1.3
  * @since 1.2
  */
 public class HexLogger {
@@ -170,7 +170,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
-        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        currentEngine = new HexEngine(1, SolidColor.BLACK, SolidColor.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         moveQueues = new ArrayList<Piece[]>();
@@ -184,7 +184,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     private HexLogger(String fileName){
         dataFile = fileName;
-        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        currentEngine = new HexEngine(1, SolidColor.BLACK, SolidColor.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         moveQueues = new ArrayList<Piece[]>();
@@ -540,7 +540,7 @@ public class HexLogger {
      * This is almost equal to create another logger.
      */
     public void erase() {
-        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        currentEngine = new HexEngine(1, SolidColor.BLACK, SolidColor.WHITE);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Integer>();
