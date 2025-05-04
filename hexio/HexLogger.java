@@ -17,31 +17,32 @@ import java.util.ArrayList;
 
 /**
  * The {@code HexLogger} class is designed to log and manage game data for the "HappyHex" game,
- * specifically handling the recording, storage, and retrieval of game state data in JSON format.
+ * specifically handling the recording, storage, and retrieval of game state data in JSON and binary format.
  * It supports logging critical game elements such as the game engine, piece queue, and player moves,
  * ensuring accurate tracking of game progress. The class also provides obfuscation mechanisms for
  * generating unique identifiers and timestamps, enhancing data integrity and uniqueness.
  *
  * <h3>Purpose</h3>
  * The primary purpose of {@code HexLogger} is to serve as a robust logging utility for the HappyHex game,
- * enabling developers to save game states to JSON files, read them back, and manage game data efficiently.
- * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. This
+ * enabling developers to save game states to JSON or binary files, read them back, and manage game data efficiently.
+ * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. JSON files
  * also record player information, which means data could be used for reviewing. For machine learning, the
- * logged data could be used for training, helping future developers to build advanced autoplay systems.
- * The class supports the {@code hex.basic}, {@code hex} (unnamed), and {@code hex.uncolored} data formats,
- * with plans to support additional formats in future releases.
+ * logged data, especially in binary format, could be used for training, helping future developers to build
+ * advanced autoplay systems. The class supports the {@code hex.basic}, {@code hex} (unnamed), {@code hex.uncolored}
+ * and {@code hex.binary} data formats, with plans to support additional formats in future releases.
  *
  * <h3>Function</h3>
  * The {@code HexLogger} class provides the following key functionalities:
  * <ul>
  *     <li><b>Game State Logging:</b> Records the current state of the game, including the {@link HexEngine},
- *         piece queue, and move history, into a JSON file with the {@code .hpyhex.json} extension.</li>
- *     <li><b>Data Retrieval:</b> Reads and parses JSON log files to reconstruct game states in memory,
- *         populating fields like the engine, queue, and moves.</li>
+ *         piece queue, and move history, into a JSON file with the {@code .hpyhex.json} extension or
+ *         into a binary file with the {@code .hpyhex} extension.</li>
+ *     <li><b>Data Retrieval:</b> Reads and parses JSON and binary log files to reconstruct game states in
+ *         memory, populating fields like the engine, queue, and moves.</li>
  *     <li><b>Obfuscation:</b> Generates unique, obfuscated hashes and timestamps for filenames and identifiers
  *         using bit-shifting and prime multiplication techniques to ensure uniqueness and security.</li>
- *     <li><b>File Management:</b> Manages JSON files in the {@code /data/} directory, including creating,
- *         reading, writing, and deleting game log files.</li>
+ *     <li><b>File Management:</b> Manages JSON and binary files in the {@code /data/} directory, including
+ *         creating, reading, writing, and deleting game log files.</li>
  *     <li><b>Player Management:</b> Tracks player information, including name and ID, with support for
  *         guest profile for invalid or non-existent inputs.</li>
  *     <li><b>Game Completion:</b> Marks games as completed to prevent further modifications, ensuring
@@ -49,9 +50,11 @@ import java.util.ArrayList;
  * </ul>
  *
  * <h3>Data Format</h3>
- * This is version 1.2.4 of the {@code HexLogger} class, adhering to the {@code hex.basic} format standard.
+ * This is version 1.3 of the {@code HexLogger} class, adhering to the {@code hex.basic} format standard.
  * It currently supports reading in the {@code hex.basic}, {@code hex} (unnamed), and {@code hex.uncolored} formats,
  * and writes in the {@code hex.uncolored} format.
+ * In addition to ordinary json data, it also supports reading and writing binary data in the format {@code hex.binary},
+ * stored in files with suffix {@code .hpyhex}.
  * Support for additional data formats is planned for future releases. See {@link #readBasicHexData} for formats.
  *
  * <h3>Example Usage</h3>
@@ -86,10 +89,27 @@ import java.util.ArrayList;
  *     System.err.println("Failed to save game data: " + e.getMessage());
  * }
  *
+ * // Write the game data to a binary file
+ * try {
+ *     logger.writeBinary();
+ *     System.out.println("Game data saved to binary file");
+ * } catch (IOException e) {
+ *     System.err.println("Failed to save game data: " + e.getMessage());
+ * }
+ *
  * // Read the game data from the JSON file
  * HexLogger newLogger = new HexLogger(logger.getDataFileName());
  * try {
  *     newLogger.read();
+ *     System.out.println("Game data loaded: " + newLogger.toString());
+ * } catch (IOException e) {
+ *     System.err.println("Failed to load game data: " + e.getMessage());
+ * }
+ *
+ * // Read the game data from the binary file (This does not include user information)
+ * HexLogger newLogger = new HexLogger(logger.getDataFileName());
+ * try {
+ *     newLogger.read("hex.binary");
  *     System.out.println("Game data loaded: " + newLogger.toString());
  * } catch (IOException e) {
  *     System.err.println("Failed to load game data: " + e.getMessage());
@@ -105,15 +125,17 @@ import java.util.ArrayList;
  * <h3>Notes</h3>
  * <ul>
  *     <li>This class is dependent on {@link hex} package and its JSON conversion class {@link HexConverter}.</li>
- *     <li>Files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
- *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.</li>
- *     <li>The {@link #read()} and {@link #write(String)} methods throw {@link IOException} if file operations
- *         or JSON parsing fail, so proper exception handling is required.</li>
+ *     <li>This class is dependent on its {@link hexio.hexdata} package and its hexadecimal conversion class {@link HexDataConverter}.</li>
+ *     <li>JSON files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
+ *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.
+ *         Binary files are stored in the same directory with the same naming, but with suffix {@code .hpyhex}.</li>
+ *     <li>The {@link #read()}, {@link #readBinary()}, and {@link #write(String)} methods throw {@link IOException} if file operations
+ *         or JSON/binary parsing fail, so proper exception handling is required.</li>
  *     <li>Future versions will expand support for additional data formats beyond {@code hex.basic}, {@code hex}, and {@code hex.uncolored}.</li>
  * </ul>
  *
  * @author William Wu
- * @version 1.2.4
+ * @version 1.3
  * @since 1.2
  */
 public class HexLogger {
@@ -507,10 +529,11 @@ public class HexLogger {
     }
 
     // JSON
+
     /**
-     * Scans the data directory for all files ending with ".game.json".
+     * Scans the data directory for all files ending with ".hpyhex.json".
      *
-     * @return a list of {@link Path} objects representing the .game.json files found;
+     * @return a list of {@link Path} objects representing the .hpyhex.json files found;
      *         returns an empty list if none are found or if the directory is invalid
      */
     public static ArrayList<Path> findGameJsonFiles() {
@@ -532,6 +555,39 @@ public class HexLogger {
     }
     public static ArrayList<HexLogger> generateJsonLoggers(){
         ArrayList<Path> paths = findGameJsonFiles();
+        ArrayList<HexLogger> result = new ArrayList<>();
+        for (Path path : paths){
+            result.add(new HexLogger(path.toString()));
+        }
+        return result;
+    }
+
+    // Binary
+    /**
+     * Scans the data directory for all files ending with ".hpyhex".
+     *
+     * @return a list of {@link Path} objects representing the .hpyhex files found;
+     *         returns an empty list if none are found or if the directory is invalid
+     */
+    public static ArrayList<Path> findGameBinaryFiles() {
+        ArrayList<Path> result = new ArrayList<>();
+        Path dir = Paths.get(dataDirectory);
+        if (!Files.isDirectory(dir)) {
+            return result; // Return empty list if not a directory
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{hpyhex}")) {
+            for (Path path : stream) {
+                if (path.getFileName().toString().endsWith(".hpyhex")) {
+                    result.add(path);
+                }
+            }
+        } catch (IOException | DirectoryIteratorException e) {
+            System.err.println(generateSimpleTime() + " HexLogger: Error occurred finding reading all game data files.");
+        }
+        return result;
+    }
+    public static ArrayList<HexLogger> generateBinaryLoggers(){
+        ArrayList<Path> paths = findGameBinaryFiles();
         ArrayList<HexLogger> result = new ArrayList<>();
         for (Path path : paths){
             result.add(new HexLogger(path.toString()));
