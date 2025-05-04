@@ -231,7 +231,26 @@ public class HexDataConverter {
         } else if (hexString.length() < 9){
             throw new IOException("\"HexEngine\" object hexadecimal string length is invalid");
         }
-        // TO BE IMPLEMENTED
-        return new HexEngine(3, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        // Get radius
+        int radius;
+        try {
+            radius = Integer.parseUnsignedInt(hexString.substring(0, 8), 16);
+        } catch (NumberFormatException e) {
+            throw new IOException("\"HexEngine\" object cannot be generated because radius cannot be read");
+        }
+        if (radius <= 0) throw new IOException("\"HexEngine\" object cannot be generated because radius is negative or 0");
+        // Create engine
+        HexEngine engine = new HexEngine(radius, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        int blockCount = (hexString.length() - 8) * 4;
+        int index = 0;
+        for (int i = 8; i < hexString.length(); i++) {
+            int hexValue = Character.digit(hexString.charAt(i), 16);
+            for (int bit = 0; bit < 4 && index < engine.length(); bit++) {
+                boolean state = (hexValue & (1 << bit)) != 0;
+                engine.getBlock(index).setState(state);
+                index ++;
+            }
+        }
+        return engine;
     }
 }
