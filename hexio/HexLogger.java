@@ -850,13 +850,14 @@ public class HexLogger {
         long obfScore = obfuscate(interleaveIntegers(scoreData * scoreData, id ^ turnData));
         long obfTurn = obfuscate(interleaveIntegers(turnData * turnData, id ^ scoreData));
         long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
-        obfCombined = obfuscate(ID * 43L ^ obfCombined ^ obfTurn) ^ obfScore;
+        obfCombined = obfuscate(id * 43L ^ obfCombined ^ obfTurn) ^ obfScore;
         if (obfCombined != code){
             throw new IOException("Fail to read binary data because file data encoding is corrupted or version is not supported");
         }
         if (!reader.next(4).equals("FFFF")) {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
         }
+        // Read engine
         HexEngine engineData;
         try {
             int radius = reader.getShort(reader.pointer());
@@ -868,6 +869,7 @@ public class HexLogger {
         if (!reader.next(2).equals("FF")) {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
         }
+        // Read queue
         Piece[] queueData;
         try {
             int length = reader.nextShort();
@@ -881,6 +883,7 @@ public class HexLogger {
         if (!reader.next(2).equals("FF")) {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
         }
+        // Read moves
         ArrayList<Hex> moveOriginsData = new ArrayList<Hex>(turnData);
         ArrayList<Piece[]> moveQueuesData = new ArrayList<Piece[]>(turnData);
         ArrayList<Integer> movePiecesData = new ArrayList<Integer>(turnData);
@@ -908,7 +911,11 @@ public class HexLogger {
         if (!reader.next(4).equals("FFFF")) {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
         }
-
+        // Final check
+        if ((short) (obfuscate(id) << 5) != reader.nextShort()){
+            throw new IOException("Fail to read binary data because file data encoding is corrupted or version is not supported");
+        }
+        // Record data to this object
         moveOrigins = moveOriginsData;
         moveQueues = moveQueuesData;
         movePieces = movePiecesData;
