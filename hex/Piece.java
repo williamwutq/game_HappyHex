@@ -279,6 +279,7 @@ public class Piece implements HexGrid{
      * Empty blocks will be represented with 0s and filled blocks will be represented with 1s.
      * This method does not record color.
      * @return a byte representing this 7-block piece. The first bit is empty.
+     * @since 1.1
      */
     public byte toByte(){
         byte mask = 0x7F;
@@ -297,6 +298,37 @@ public class Piece implements HexGrid{
         data = (byte) (data << 1);
         if (getState(1, 1)) data ++;
         return (byte) (data & mask);
+    }
+    /**
+     * Construct a standard 7 or less {@link Block} piece from a byte data.
+     * Throws {@link IllegalArgumentException} if the byte data represent an empty piece or have an extra bit.
+     * <p>
+     * The byte data conversion is in accordance with the {@link #toByte()} method.
+     * @param data the byte data used to create this {@code piece}.
+     * @param color the {@link Color} for this piece's blocks.
+     * @return a piece constructed from the byte data with the input color applied to its {@link Block}s.
+     * @since 1.3
+     */
+    public static Piece pieceFromByte(byte data, Color color) throws IllegalArgumentException{
+        if (data < 0){
+            throw new IllegalArgumentException ("Data must have empty most significant bit");
+        } else if (data == 0){
+            throw new IllegalArgumentException ("Data must contain at least one block");
+        } else {
+            int count = 0;
+            for (int i = 0; i < 7; i++) {
+                count += (data >> i) & 1;
+            }
+            Piece piece = new Piece(count, color);
+            if ((data >> 6 & 1) == 1) piece.add(-1, -1);
+            if ((data >> 5 & 1) == 1) piece.add(-1, 0);
+            if ((data >> 4 & 1) == 1) piece.add(0, -1);
+            if ((data >> 3 & 1) == 1) piece.add(0, 0);
+            if ((data >> 2 & 1) == 1) piece.add(0, 1);
+            if ((data >> 1 & 1) == 1) piece.add(1, 0);
+            if ((data & 1) == 1) piece.add(1, 1);
+            return piece;
+        }
     }
     /**
      * Compares this piece to another for equality.
