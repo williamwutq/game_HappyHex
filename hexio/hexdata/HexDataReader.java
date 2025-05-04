@@ -303,11 +303,21 @@ public class HexDataReader {
     }
     /**
      * Reads the next hexadecimal character and advances the pointer.
-     * @return the next hexadecimal character
+     * @return the next hexadecimal character.
      */
     public String next() {
         String result = get(pointer, 1);
         pointer ++;
+        return result;
+    }
+    /**
+     * Reads the next string of hexadecimal characters and advances the pointer.
+     * @param length the length of the hexadecimal string to read.
+     * @return the next hexadecimal string of the certain length.
+     */
+    public String next(int length) {
+        String result = get(pointer, length);
+        pointer += length;
         return result;
     }
     /**
