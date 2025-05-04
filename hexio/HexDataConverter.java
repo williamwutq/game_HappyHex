@@ -162,7 +162,6 @@ public class HexDataConverter {
      * @return a {@code Block} object
      * @throws IOException if the hexadecimal string is null or is not of length 17
      * @see Block#block
-     * @see #convertColor(String)
      * @see #convertHex(String)
      */
     public static Block convertBlock(String hexString) throws IOException {
@@ -186,5 +185,53 @@ public class HexDataConverter {
             throw new IOException("\"Block\" object does not contain valid state");
         }
         return new Block(hex, java.awt.Color.BLACK, state);
+    }
+    /**
+     * Converts a hexadecimal string to a {@link Piece}.
+     * The hexadecimal string must be of length 2 and following the format for piece.
+     * <p>
+     * This is the inverse method of {@link #convertBooleanPiece(Piece)}.
+     * This method is not related to {@link #convertBlock(String)}.
+     *
+     * @param hexString the hexadecimal string containing the piece data
+     * @return a {@code Piece} object
+     * @throws IOException if the hexadecimal string is null, is not 2 characters long, or contain invalid characters
+     * @see Piece#Piece
+     */
+    public static Piece convertPiece(String hexString) throws IOException {
+        if (hexString == null) {
+            throw new IOException("\"Piece\" object is null or not found");
+        } else if (hexString.length() != 2){
+            throw new IOException("\"Piece\" object hexadecimal string length is not 2");
+        }
+        Piece piece;
+        try {
+            piece = Piece.pieceFromByte((byte) Integer.parseUnsignedInt(hexString, 16), java.awt.Color.BLACK);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("\"Piece\" object creation failed due to invalid format or missing blocks");
+        }
+        return piece;
+    }
+    /**
+     * Converts a hexadecimal string to a {@link HexEngine}.
+     * The hexadecimal string must contain a radius and an array of boolean representing blocks.
+     * The total length of the hexadecimal string must match the engine size.
+     * <p>
+     * This is the inverse method of {@link #convertBooleanEngine(HexEngine)}.
+     * This method is not related to {@link #convertBlock(String)}.
+     *
+     * @param hexString the hexadecimal string containing the engine data
+     * @return a {@code HexEngine} object
+     * @throws IOException if the hexadecimal string is null, have invalid radius, or size does not match
+     * @see HexEngine#HexEngine
+     */
+    public static HexEngine convertEngine(String hexString) throws IOException {
+        if (hexString == null) {
+            throw new IOException("\"HexEngine\" object is null or not found");
+        } else if (hexString.length() < 9){
+            throw new IOException("\"HexEngine\" object hexadecimal string length is invalid");
+        }
+        // TO BE IMPLEMENTED
+        return new HexEngine(3, java.awt.Color.BLACK, java.awt.Color.WHITE);
     }
 }
