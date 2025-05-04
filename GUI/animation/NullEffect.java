@@ -42,6 +42,9 @@ import java.awt.*;
  * this instance will immediately complete without rendering, halting a series of animations
  * at a specific point, allowing subsequent actions or cleanup to occur without additional
  * visual effects. That said, be careful injecting this animation to a linked series of animations.
+ * @since 1.1
+ * @author William Wu
+ * @version 1.1
  */
 public final class NullEffect extends Animation {
     /**

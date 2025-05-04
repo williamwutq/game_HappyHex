@@ -36,6 +36,9 @@ import java.awt.*;
  * per frame. The polygon's shape resembles a wave, with crests and troughs that oscillate, creating a pattern where
  * crests periodically transform into troughs and vice versa. This effect is ideal for visually indicating the
  * disappearance or dissolution of hexagonal blocks in the game.
+ * @since 1.1
+ * @author William Wu
+ * @version 1.1
  */
 public class DisappearEffect extends Animation {
     private hex.Hex hex;

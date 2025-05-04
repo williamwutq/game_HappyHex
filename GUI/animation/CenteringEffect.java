@@ -38,6 +38,9 @@ import java.awt.*;
  * defined by the block's X and Y coordinates. The animation uses a fixed duration of 2000 frames
  * with a 1ms delay between frames, creating a smooth transition effect suitable for highlighting
  * a specific block in the game.
+ * @since 1.1
+ * @author William Wu
+ * @version 1.1
  */
 public class CenteringEffect extends Animation {
     private hex.Block block;
