@@ -24,8 +24,6 @@
 
 package hex;
 
-import java.awt.Color;
-
 /**
  * Represents a shape or unit made up of multiple {@link Block} instances,
  * typically forming a logical structure such as a game piece.
@@ -45,7 +43,7 @@ import java.awt.Color;
  * <p>
  * A typical creation sequence might look like:
  * <pre>{@code
- * Piece p = new Piece(3, Color.BLUE);
+ * Piece p = new Piece(3, new SolidColor(0, 0, 255));
  * p.add(Block.block(0, 0));
  * p.add(Block.block(0, 1));
  * p.add(Block.block(1, 1));
@@ -53,23 +51,23 @@ import java.awt.Color;
  * This produces a shape containing blocks at line coordinates (0,0), (0,1), and (1,1).
  *
  * @see Block
- * @see Color
+ * @see SolidColor
  * @see Hex
  * @see HexGrid
  * @see Hex#getLines()
  * @since 1.0
  * @author William Wu
- * @version 1.2
+ * @version 1.3
  */
 public class Piece implements HexGrid{
     private Block[] blocks;
-    private Color color;
+    private SolidColor color;
 
     // Constructor
     /** Constructs a default {@code Piece} with a single {@link Block} at (0,0) and color black. */
     public Piece(){
         this.blocks = new Block[1];
-        this.color = Color.BLACK;
+        this.color = new SolidColor(0,0,0);
         this.blocks[0] = new Block(0, 0, color);
         this.blocks[0].setState(true);
     }
@@ -78,11 +76,11 @@ public class Piece implements HexGrid{
      * The piece can later be filled using {@link #add(Block)}.
      *
      * @param length the number of blocks this piece can hold; must be greater or equal to 1.
-     * @param color  the {@link Color} for this piece's blocks.
+     * @param color  the {@link SolidColor} for this piece's blocks.
      * @see #length()
      * @see HexGrid
      */
-    public Piece(int length, Color color){
+    public Piece(int length, SolidColor color){
         if(length < 1){
             length = 1;
         }
@@ -93,9 +91,9 @@ public class Piece implements HexGrid{
     // Color
     /**
      * Sets the color of this piece and applies it to all current blocks.
-     * @param color the new {@link Color} to assign.
+     * @param color the new {@link SolidColor} to assign.
      */
-    public void setColor(Color color){
+    public void setColor(SolidColor color){
         this.color = color;
         // write to all
         for(int i = 0; i < length(); i ++){
@@ -105,11 +103,11 @@ public class Piece implements HexGrid{
         }
     }
     /**
-     * Returns the current {@link Color} of this piece.
+     * Returns the current {@link SolidColor} of this piece.
      * The color applies for all {@link Block} in this piece.
      * @return the color of the piece.
      */
-    public Color getColor(){
+    public SolidColor getColor(){
         return color;
     }
 
@@ -325,7 +323,7 @@ public class Piece implements HexGrid{
     /**
      * Compares this piece to another for equality.
      * Two pieces are equal if they have the same {@link #length()} and identical {@link Block} positions.
-     * {@link Color} is not involved in this comparison.
+     * {@link SolidColor Color} is not involved in this comparison.
      * @param piece the other piece to compare to.
      * @return {@code true} if both pieces are structurally equal; {@code false} otherwise.
      */

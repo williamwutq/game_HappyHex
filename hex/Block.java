@@ -24,8 +24,6 @@
 
 package hex;
 
-import java.awt.Color;
-
 /**
  * The {@code Block} class extends {@link Hex} and represents a colored block with an occupancy state
  * within the hexagonal grid system.
@@ -35,7 +33,7 @@ import java.awt.Color;
  * <p>
  * In addition to the coordinate functionality provided by {@link Hex}, each {@code Block} instance encapsulates:
  * <ul>
- *   <li>A {@link Color} indicating the block's color.</li>
+ *   <li>A {@link SolidColor} indicating the block's color.</li>
  *   <li>A boolean state representing whether the block is occupied (true) or unoccupied (false).</li>
  * </ul>
  * <p>
@@ -46,10 +44,10 @@ import java.awt.Color;
  * @see Hex
  * @since 0.6
  * @author William Wu
- * @version 1.2
+ * @version 1.3
  */
 public class Block extends Hex{
-    private Color color;
+    private SolidColor color;
     private boolean state;
 
     // Basic constructors
@@ -60,7 +58,7 @@ public class Block extends Hex{
      * @param k The k-coordinate.
      * @param color The color of the block.
      */
-    public Block(int i, int k, Color color){
+    public Block(int i, int k, SolidColor color){
         // Complete constructor
         super(i, k);
         this.state = false;
@@ -74,7 +72,7 @@ public class Block extends Hex{
      * @param color The color of the block.
      * @param state The state of the block.
      */
-    public Block(int i, int k, Color color, boolean state){
+    public Block(int i, int k, SolidColor color, boolean state){
         // Complete constructor
         super(i, k);
         this.color = color;
@@ -86,7 +84,7 @@ public class Block extends Hex{
      * @param hex the coordinate.
      * @param color The color of the block.
      */
-    public Block(Hex hex, Color color){
+    public Block(Hex hex, SolidColor color){
         // Complete constructor
         super();
         super.set(hex);
@@ -100,7 +98,7 @@ public class Block extends Hex{
      * @param color The color of the block.
      * @param state The state of the block.
      */
-    public Block(Hex hex, Color color, boolean state){
+    public Block(Hex hex, SolidColor color, boolean state){
         // Complete constructor
         super();
         super.set(hex);
@@ -119,7 +117,7 @@ public class Block extends Hex{
      * @param color The color of the block.
      * @return A new block positioned according to the given line indices with the specified color.
      */
-    public static Block block(int i, int k, Color color){
+    public static Block block(int i, int k, SolidColor color){
         return new Block(0,0, color).shiftI(k).shiftK(i);
     }
 
@@ -128,7 +126,7 @@ public class Block extends Hex{
      * Color of the block
      * @return The color of the block.
      */
-    public Color color(){
+    public SolidColor color(){
         return color;
     }
     /**
@@ -167,9 +165,9 @@ public class Block extends Hex{
         Block block;
         try{
             block = (Block) super.clone();
-            block.setColor(new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue()));
+            block.setColor(this.color.clone());
         } catch (CloneNotSupportedException e) {
-            block = new Block(this.thisHex(), new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue()));
+            block = new Block(this.thisHex(), this.color.clone());
         }
         block.state = this.state;
         return block;
@@ -181,7 +179,7 @@ public class Block extends Hex{
      *
      * @param color The new color of the block.
      */
-    public void setColor(Color color){
+    public void setColor(SolidColor color){
         this.color = color;
     }
     /**

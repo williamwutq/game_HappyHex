@@ -24,7 +24,6 @@
 
 package hex;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 /**
@@ -85,11 +84,11 @@ import java.util.ArrayList;
  * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
  * @since 1.0
  * @author William Wu
- * @version 1.2
+ * @version 1.3
  */
 public class HexEngine implements HexGrid{
-    private Color emptyBlockColor;
-    private Color filledBlockColor;
+    private SolidColor emptyBlockColor;
+    private SolidColor filledBlockColor;
     private int radius;
     private Block[] blocks;
     /**
@@ -108,7 +107,7 @@ public class HexEngine implements HexGrid{
      * @see HexGrid
      * @see Block
      */
-    public HexEngine(int radius, Color emptyBlockColor, Color filledBlockColor){
+    public HexEngine(int radius, SolidColor emptyBlockColor, SolidColor filledBlockColor){
         this.radius = radius;
         this.emptyBlockColor = emptyBlockColor;
         this.filledBlockColor = filledBlockColor;
@@ -292,7 +291,7 @@ public class HexEngine implements HexGrid{
      * @param filledBlockColor the color used for blocks in the filled (true) state
      * @since 1.2
      */
-    public void setDefaultBlockColors(Color emptyBlockColor, Color filledBlockColor){
+    public void setDefaultBlockColors(SolidColor emptyBlockColor, SolidColor filledBlockColor){
         this.emptyBlockColor = emptyBlockColor;
         this.filledBlockColor = filledBlockColor;
     }
@@ -301,7 +300,7 @@ public class HexEngine implements HexGrid{
      * @return the default filled block color
      * @since 1.2
      */
-    public Color getEmptyBlockColor(){
+    public SolidColor getEmptyBlockColor(){
         return emptyBlockColor;
     }
     /**
@@ -309,7 +308,7 @@ public class HexEngine implements HexGrid{
      * @return the default filled block color
      * @since 1.2
      */
-    public Color getFilledBlockColor(){
+    public SolidColor getFilledBlockColor(){
         return filledBlockColor;
     }
     /**
