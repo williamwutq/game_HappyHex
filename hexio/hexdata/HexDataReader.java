@@ -213,7 +213,7 @@ public class HexDataReader {
      * @return the decoded {@code long} value.
      */
     public long getLong(int index) {
-        return Long.parseLong(get(index, 16), 16);
+        return Long.parseUnsignedLong(get(index, 16), 16);
     }
     /**
      * Returns an {@code int} decoded from 8 hexadecimal characters at the given index.
@@ -221,7 +221,7 @@ public class HexDataReader {
      * @return the decoded {@code int} value.
      */
     public int getInt(int index) {
-        return Integer.parseInt(get(index, 8), 16);
+        return Integer.parseUnsignedInt(get(index, 8), 16);
     }
     /**
      * Returns a {@code short} decoded from 4 hexadecimal characters at the given index.
