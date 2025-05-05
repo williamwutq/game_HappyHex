@@ -5,8 +5,9 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 28/04/2025  
+<b>Last edited:</b> 05/05/2025  
 <b>Latest release:</b> [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)  
+<b>Development option:</b> [1.3.0-binary](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0-binary)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -19,16 +20,13 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 > [!NOTE]
 > The project may contain bugs:  
 > - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).  
-> - The most recent release have ***one*** detected bugs:  
->   1. [Restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)  
-       Statues: Temporarily fixed  
-       Fixes: Disabled restart unfinished game feature.  
+> - The most recent release have ***zero*** detected bugs.  
 
 ## About
 This is just a cute project of mine. From early on after learning java in high school and helped the teacher taught its graphics library `javax.swing` I
 felt compelled to actually program a functional game. Combined with my earlier ideas of designing a hexagonal grid coordinate system, the rough picture of
 what would be future `HappyHex` formed in my mind. In my spare time, I gradually developed this project through following my [timeline](#Future-Timeline)
-and added increasingly attractive features. From version 0.4 to 1.2, it has grown from just a game page with buggy information display that had to be
+and added increasingly attractive features. From version 0.4 to 1.3, it has grown from just a game page with buggy information display that had to be
 launched through terminal commands and contained no color indication to a comprehensive and enjoyable game that features settings, themes, and animation.
 It has become that one project which I could not stop thinking about. Step by step improvements will be made in different aspects and merged together for
 revisions after revisions. In the end, I would incorporate intelligent autoplay systems, unlockable achievements, and even fancier graphics.
@@ -575,6 +573,12 @@ These themes can change the color of every component in the game and the launche
 
    This theme is packaged inside `special.Halloween` and contained in `special.FeatureFactory` with the class tag `java.awt.Color` and
    `java.awt.Font`.
+4. <b>Independence Day Theme</b>  
+   Active on Independence Day. This theme contains two themes, one white and one dark, which can be toggled through the use of the
+   [theme settings](#Themes-Page). These two themes populate every pixel of the game with the colors of the flag, namely white, blue, and red.
+   Game pieces colors will be reduced to six colors, three blue and three red. It is automatically activated on July Fourth.
+
+   This theme is packaged inside `special.Independence` and contained in `special.FeatureFactory` with the class tag `java.awt.Color`.  
 
 ### Auto Play
 The autoplay feature will be added in the future. With a click of a button, the player will be able to enjoy hands-off automatic piece placement in the 
@@ -611,6 +615,10 @@ and cannot run on its own. All code for this section is currently under the `GUI
 The robust linear animation handler [animation](https://github.com/williamwutq/game_HappyHex/blob/main/GUI/animation/Animation.java) is tested and documented.
 The handler is designed for simple temporary effects such as fading, expanding, or progress animations and implemented use `java.awt` package and `java.awt.event`.
 It is lightweight and not a Swing component. You are welcome to use it for your own project. Follow the javadoc in the source code for more details.<br/>
+4. <a name="develop--special-modes"><b>Special Modes</b></a>  
+Easter eggs modifying something fundamental in the game, whether it is piece generation, scoring and elimination rules, or others. Current implemented special
+modes include `GodMode` and `HardMode`, both of which change the difficulty of the game by change the piece generation logic. These game modes use the same 
+injection interface as [SpecialThemes](#develop--special-themes), and are packaged in the same `special` package. Dedicated branch for special modes is `special`.<br/>  
 
 ### Directions of Development
 The developing process are mainly separated into the following parts:
@@ -628,18 +636,14 @@ and providing a page for more detailed user game analysis. It is also considered
 3. <a name="develop--special-themes"><b>Special Themes</b></a>  
 These are themes that could only be activated during certain days, such as Halloween, Independence Day, or Christmas. Some of them also serve as memorial to 
 tragic events such as the September 11th attacks. These themes use the same injection interface as [SpecialModes](#develop--special-modes), and are packaged
-in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`.<br/>  
-4. <a name="develop--special-modes"><b>Special Modes</b></a>  
-Easter eggs modifying something fundamental in the game, whether it is piece generation, scoring and elimination rules, or others. Current implemented special
-modes include `GodMode` and `HardMode`, both of which change the difficulty of the game by change the piece generation logic. These themes use the same injection
-interface as [SpecialThemes](#develop--special-themes), and are packaged in the same `special` package. Dedicated branch for special modes is `special`.<br/>  
-5. <a name="develop--game-viewer"><b>Game Viewer</b></a>  
+in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`. Only Christmas theme is to be developed.<br/>  
+4. <a name="develop--game-viewer"><b>Game Viewer</b></a>  
 Develop a separate runnable program that may read `.hpyhex.json` files and display them in a hexagonal grid without color.
-This program can be grayscale and simple to run with minimal dependencies.  
+This program can be grayscale and simple to run with minimal dependencies. This viewer may read binary files.  
 The Game Viewer should feature inputs to select which file to view, buttons to increment and decrement the moves recorded in the game, and display
 real time game scores associated with the moves. The program may also feature a button to automatically increment the game with timed intervals or buttons
-to skip a certain numbers of steps.<br/>  
-6. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
+to skip a certain numbers of steps. Current development is in branch `viewer`.<br/>  
+5. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
 A more precise way of describing this direction would be auto-game-play. This means a machine would be build to play the game while the player sit there and
 watch. This autoplay would be initially enabled through scoring algorithms and later through trained artificial intelligence operated in Python. This is a feature
 of the future but current architecture is being designed around it. At the same time, scoring and reward functions are gradually coming online.<br/> 
@@ -647,12 +651,16 @@ of the future but current architecture is being designed around it. At the same 
 ### Future Timeline
 > This timeline is subject to frequent change
 - Latest Release: [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)
-- Version 1.3
-  - Add Independence Day special (color and font theme)
-  - Add Thanksgiving special (color and font theme)
+- Development version: [1.3.0-binary](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0-binary)
+- Version 1.3.0
+  - Add Independence Day special (color theme)
   - Finalize `.hpyhex.json` formats
   - Add binary file format
   - Add feature to read all formats and write in the most recent one
+- Version 1.3.1
+  - Add Thanksgiving special (color and font theme)
+  - Add basic panel to select game to continue
+  - Add fundamentals to game viewer
 - Version 1.4
   - Add autoplay based on random, turn on via settings
   - Add and compiled game viewer
@@ -681,7 +689,7 @@ The packages in the source code, their dependencies, and their functions.
 ### Mechanics
 package `hex`  
 <b>Dependencies</b>:  
-none  
+`java.awt.Color`  
 <b>Function</b>:  
 The backbone of the game. It provides classes and interfaces for managing a hexagonal grid system, including coordinate calculations,
 game engine operations, and game piece operations.  
