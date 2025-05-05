@@ -33,7 +33,8 @@ package hex;
  * <p>
  * In addition to the coordinate functionality provided by {@link Hex}, each {@code Block} instance encapsulates:
  * <ul>
- *   <li>A {@link SolidColor} indicating the block's color.</li>
+ *   <li>A color index indicating the block's color. -1 represent is the typical empty color for the block,
+ *       -2 is the default filled color for the block, 0-n represent the real colors generated.</li>
  *   <li>A boolean state representing whether the block is occupied (true) or unoccupied (false).</li>
  * </ul>
  * <p>
@@ -47,44 +48,80 @@ package hex;
  * @version 1.3
  */
 public class Block extends Hex{
-    private SolidColor color;
+    private int color;
     private boolean state;
 
     // Basic constructors
     /**
-     * Constructs a block at the specified (i, k) coordinates with a specified color and unoccupied state.
+     * Constructs a block at the specified (i, k) coordinates with an unoccupied state.
      *
+     * @param i The i-coordinate.
+     * @param k The k-coordinate.
+     * @since 1.3
+     */
+    public Block(int i, int k){
+        // Complete constructor
+        super(i, k);
+        this.state = false;
+        this.color = -1;
+    }
+    /**
+     * Constructs a block at the specified (i, k) coordinates with a specified color and unoccupied state.
      * @param i The i-coordinate.
      * @param k The k-coordinate.
      * @param color The color of the block.
      */
-    public Block(int i, int k, SolidColor color){
+    public Block(int i, int k, int color){
         // Complete constructor
         super(i, k);
         this.state = false;
         this.color = color;
     }
     /**
+     * Constructs a block at the specified (i, k) coordinates with a specified state.
+     * @param i The i-coordinate.
+     * @param k The k-coordinate.
+     * @param state The state of the block.
+     * @since 1.3
+     */
+    public Block(int i, int k, boolean state){
+        // Complete constructor
+        super(i, k);
+        if (state){
+            this.color = -2;
+        } else this.color = -1;
+        this.state = state;
+    }
+    /**
      * Constructs a block at the specified (i, k) coordinates with a specified color and state.
-     *
      * @param i The i-coordinate.
      * @param k The k-coordinate.
      * @param color The color of the block.
      * @param state The state of the block.
      */
-    public Block(int i, int k, SolidColor color, boolean state){
+    public Block(int i, int k, int color, boolean state){
         // Complete constructor
         super(i, k);
         this.color = color;
         this.state = state;
     }
     /**
+     * Constructs a block at the specified hex coordinates with unoccupied color and state
+     * @param hex the coordinate.
+     */
+    public Block(Hex hex){
+        // Complete constructor
+        super();
+        super.set(hex);
+        this.state = false;
+        this.color = -1;
+    }
+    /**
      * Constructs a block at the specified hex coordinates with a specified color and unoccupied state.
-     *
      * @param hex the coordinate.
      * @param color The color of the block.
      */
-    public Block(Hex hex, SolidColor color){
+    public Block(Hex hex, int color){
         // Complete constructor
         super();
         super.set(hex);
@@ -98,7 +135,7 @@ public class Block extends Hex{
      * @param color The color of the block.
      * @param state The state of the block.
      */
-    public Block(Hex hex, SolidColor color, boolean state){
+    public Block(Hex hex, int color, boolean state){
         // Complete constructor
         super();
         super.set(hex);
@@ -117,7 +154,7 @@ public class Block extends Hex{
      * @param color The color of the block.
      * @return A new block positioned according to the given line indices with the specified color.
      */
-    public static Block block(int i, int k, SolidColor color){
+    public static Block block(int i, int k, int color){
         return new Block(0,0, color).shiftI(k).shiftK(i);
     }
 
@@ -126,7 +163,7 @@ public class Block extends Hex{
      * Color of the block
      * @return The color of the block.
      */
-    public SolidColor color(){
+    public int getColor(){
         return color;
     }
     /**
@@ -139,12 +176,11 @@ public class Block extends Hex{
 
     /**
      * String representation of the block used for debugging. This use line coordinates.
-     * <p>Format: {@code Block[color = {r, g, b}, coordinates = {i, j, k}, State = state]}</p>
+     * <p>Format: {@code Block[color = c, coordinates = {i, j, k}, State = state]}</p>
      * @return A string representation of the block, including color, coordinates, and state.
      */
     public String toString(){
-        return "Block[color = {" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue()
-                + "}, coordinates = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
+        return "Block[color = " + color + ", coordinates = {" + getLineI() + ", " + getLineJ() + ", " + getLineK() +
                 "}, state = " + state + "]";
     }
     /**
@@ -165,9 +201,9 @@ public class Block extends Hex{
         Block block;
         try{
             block = (Block) super.clone();
-            block.setColor(this.color.clone());
+            block.setColor(this.color);
         } catch (CloneNotSupportedException e) {
-            block = new Block(this.thisHex(), this.color.clone());
+            block = new Block(this.thisHex(), this.color);
         }
         block.state = this.state;
         return block;
@@ -175,11 +211,11 @@ public class Block extends Hex{
 
     // Setters
     /**
-     * Sets the color of the block.
+     * Sets the color index of the block.
      *
-     * @param color The new color of the block.
+     * @param color The new color index of the block.
      */
-    public void setColor(SolidColor color){
+    public void setColor(int color){
         this.color = color;
     }
     /**
