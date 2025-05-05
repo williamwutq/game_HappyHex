@@ -22,6 +22,8 @@ import hex.Piece;
  * This class is stateless aside from the global difficulty setting and is not intended to be instantiated.
  * This class migrates all static generation code from {@link Piece}.
  * @version 1.2
+ * @author William Wu
+ * @since 1.2
  * @see Piece
  */
 public final class PieceFactory {
