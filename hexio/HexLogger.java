@@ -735,6 +735,7 @@ public class HexLogger {
             writer.addHex("214845582D42494E");
             writer.add(turn);
             writer.add(score);
+            writer.add(completed);
             writer.addDivider(2);
             writer.addHex(HexDataConverter.convertBooleanEngine(currentEngine));
             writer.addDivider(1);
@@ -902,6 +903,7 @@ public class HexLogger {
         }
         int turnData = reader.nextInt();
         int scoreData = reader.nextInt();
+        boolean completeBooleanData = reader.nextBoolean();
         // try encoding
         long obfScore = obfuscate(interleaveIntegers(scoreData * scoreData, id ^ turnData));
         long obfTurn = obfuscate(interleaveIntegers(turnData * turnData, id ^ scoreData));
@@ -977,6 +979,7 @@ public class HexLogger {
         movePieces = movePiecesData;
         currentQueue = queueData.clone();
         currentEngine = engineData;
+        completed = completeBooleanData;
         turn = turnData;
         score = scoreData;
     }
