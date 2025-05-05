@@ -70,7 +70,7 @@ public final class GameEssentials {
     private static Color[] pieceColors = (Color[]) colorProcessor.process(getRawPieceColors());
 
     public static String gameDisplayFont = GameEssentials.processFont("Courier", "GameDisplayFont");
-    public static Color gameBackgroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GameBackgroundColor");
+    public static Color gameBackgroundColor = GameEssentials.processColor(new Color(213, 236, 230), "GamePanelBackgroundColor");
     public static Color gameOverBackgroundColor = GameEssentials.processColor(new Color(163, 188, 180), "GameOverBackgroundColor");
     public static Color gameBlockDefaultColor = GameEssentials.processColor(Color.BLACK, "GameBlockDefaultColor");
     public static Color gamePiecePanelColor = GameEssentials.processColor(new Color(113, 129, 122), "GamePiecePanelColor");
