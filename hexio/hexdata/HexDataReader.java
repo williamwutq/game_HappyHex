@@ -183,10 +183,15 @@ public class HexDataReader {
      * if even, returns false. This is equivalent to checking the least significant bit.
      * @param index the starting index.
      * @return the decoded {@code boolean} value.
+     * @throws IOException if the decoding fails.
      */
-    public boolean getBoolean(int index) {
-        int value = Integer.parseInt(get(index, 1), 16);
-        return (value % 2) == 1;
+    public boolean getBoolean(int index) throws IOException {
+        try {
+            int value = Integer.parseInt(get(index, 1), 16);
+            return (value % 2) == 1;
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode boolean at index " + index, e);
+        }
     }
     /**
      * Returns a {@code boolean} decoded from a specific bit position within a single
@@ -199,64 +204,99 @@ public class HexDataReader {
      * @param position the bit position (0-3) to decode, where 0 is the least significant bit.
      * @return the decoded {@code boolean} value at the specified bit position.
      * @throws IllegalArgumentException if position is not between 0 and 3.
+     * @throws IOException if the decoding fails.
      */
-    public boolean getBooleanAtBit(int index, int position) {
+    public boolean getBooleanAtBit(int index, int position) throws IOException {
         if (position < 0 || position > 3) {
             throw new IllegalArgumentException("Boolean position must be between 0 and 3");
         }
-        int value = Integer.parseInt(get(index, 1), 16);
-        return ((value >> position) & 1) == 1;
+        try {
+            int value = Integer.parseInt(get(index, 1), 16);
+            return ((value >> position) & 1) == 1;
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode boolean bit at index " + index + ", position " + position, e);
+        }
     }
     /**
      * Returns a {@code long} decoded from 16 hexadecimal characters at the given index.
      * @param index the starting index.
      * @return the decoded {@code long} value.
+     * @throws IOException if the decoding fails.
      */
-    public long getLong(int index) {
-        return Long.parseUnsignedLong(get(index, 16), 16);
+    public long getLong(int index) throws IOException {
+        try {
+            return Long.parseUnsignedLong(get(index, 16), 16);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode long at index " + index, e);
+        }
     }
     /**
      * Returns an {@code int} decoded from 8 hexadecimal characters at the given index.
      * @param index the starting index.
      * @return the decoded {@code int} value.
+     * @throws IOException if the decoding fails.
      */
-    public int getInt(int index) {
-        return Integer.parseUnsignedInt(get(index, 8), 16);
+    public int getInt(int index) throws IOException {
+        try {
+            return Integer.parseUnsignedInt(get(index, 8), 16);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode int at index " + index, e);
+        }
     }
     /**
      * Returns a {@code short} decoded from 4 hexadecimal characters at the given index.
      * @param index the starting index.
      * @return the decoded {@code short} value.
+     * @throws IOException if the decoding fails.
      */
-    public short getShort(int index) {
-        return (short) Integer.parseInt(get(index, 4), 16);
+    public short getShort(int index) throws IOException {
+        try {
+            return (short) Integer.parseInt(get(index, 4), 16);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode short at index " + index, e);
+        }
     }
     /**
      * Returns a {@code char} decoded from 4 hexadecimal characters at the given index.
      * @param index the starting index.
      * @return the decoded {@code char} value.
+     * @throws IOException if the decoding fails.
      */
-    public char getChar(int index) {
-        return (char) Integer.parseUnsignedInt(get(index, 4), 16);
+    public char getChar(int index) throws IOException {
+        try {
+            return (char) Integer.parseUnsignedInt(get(index, 4), 16);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode char at index " + index, e);
+        }
     }
     /**
      * Returns a {@code byte} decoded from 2 hexadecimal characters at the given index.
      * @param index the starting index.
      * @return the decoded {@code byte} value.
+     * @throws IOException if the decoding fails.
      */
-    public byte getByte(int index) {
-        return (byte) Integer.parseInt(get(index, 2), 16);
+    public byte getByte(int index) throws IOException {
+        try {
+            return (byte) Integer.parseInt(get(index, 2), 16);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode byte at index " + index, e);
+        }
     }
     /**
      * Returns a string by reading a sequence of {@code char}s from the data.
      * @param index the starting index.
      * @param stringLength number of characters in the string.
      * @return the decoded {@code String}.
+     * @throws IOException if the decoding fails.
      */
-    public String getString(int index, int stringLength) {
+    public String getString(int index, int stringLength) throws IOException {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < stringLength; i++) {
-            builder.append(getChar(index + i * 4));
+        try {
+            for (int i = 0; i < stringLength; i++) {
+                builder.append(getChar(index + i * 4));
+            }
+        } catch (IOException e) {
+            throw new IOException("Failed to decode string at index " + index + " with length " + stringLength, e);
         }
         return builder.toString();
     }
@@ -267,9 +307,14 @@ public class HexDataReader {
      * to a double using {@link Double#longBitsToDouble(long)}.
      * @param index the starting index.
      * @return the decoded {@code double} value.
+     * @throws IOException if the decoding fails.
      */
-    public double getDouble(int index) {
-        return Double.longBitsToDouble(Long.parseUnsignedLong(get(index, 16), 16));
+    public double getDouble(int index) throws IOException {
+        try {
+            return Double.longBitsToDouble(Long.parseUnsignedLong(get(index, 16), 16));
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode double at index " + index, e);
+        }
     }
     /**
      * Returns a {@code float} decoded from 8 hexadecimal characters at the given index.
@@ -278,9 +323,14 @@ public class HexDataReader {
      * to a float using {@link Float#intBitsToFloat(int)}.
      * @param index the starting index.
      * @return the decoded {@code float} value.
+     * @throws IOException if the decoding fails.
      */
-    public float getFloat(int index) {
-        return Float.intBitsToFloat(Integer.parseUnsignedInt(get(index, 8), 16));
+    public float getFloat(int index) throws IOException {
+        try {
+            return Float.intBitsToFloat(Integer.parseUnsignedInt(get(index, 8), 16));
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to decode float value at index " + index, e);
+        }
     }
 
     /**
@@ -334,8 +384,9 @@ public class HexDataReader {
      * Decodes a single hexadecimal character at the current pointer.
      * Returns true if the parsed value is odd, false if even, and advances the pointer.
      * @return the next {@code boolean} value.
+     * @throws IOException if the decoding fails.
      */
-    public boolean nextBoolean() {
+    public boolean nextBoolean() throws IOException {
         boolean result = getBoolean(pointer);
         pointer ++;
         return result;
@@ -343,8 +394,9 @@ public class HexDataReader {
     /**
      * Reads the next {@code long} value and advances the pointer.
      * @return the next {@code long} value.
+     * @throws IOException if the decoding fails.
      */
-    public long nextLong() {
+    public long nextLong() throws IOException {
         long result = getLong(pointer);
         pointer += 16;
         return result;
@@ -352,8 +404,9 @@ public class HexDataReader {
     /**
      * Reads the next {@code int} value and advances the pointer.
      * @return the next {@code int} value.
+     * @throws IOException if the decoding fails.
      */
-    public int nextInt() {
+    public int nextInt() throws IOException {
         int result = getInt(pointer);
         pointer += 8;
         return result;
@@ -361,8 +414,9 @@ public class HexDataReader {
     /**
      * Reads the next {@code short} value and advances the pointer.
      * @return the next {@code short} value.
+     * @throws IOException if the decoding fails.
      */
-    public short nextShort() {
+    public short nextShort() throws IOException {
         short result = getShort(pointer);
         pointer += 4;
         return result;
@@ -370,8 +424,9 @@ public class HexDataReader {
     /**
      * Reads the next {@code char} value and advances the pointer.
      * @return the next {@code char} value.
+     * @throws IOException if the decoding fails.
      */
-    public char nextChar() {
+    public char nextChar() throws IOException {
         char result = getChar(pointer);
         pointer += 4;
         return result;
@@ -379,8 +434,9 @@ public class HexDataReader {
     /**
      * Reads the next {@code byte} value and advances the pointer.
      * @return the next {@code byte} value.
+     * @throws IOException if the decoding fails.
      */
-    public byte nextByte() {
+    public byte nextByte() throws IOException {
         byte result = getByte(pointer);
         pointer += 2;
         return result;
@@ -389,8 +445,9 @@ public class HexDataReader {
      * Reads the next {@code String} of specified length and advances the pointer.
      * @param length number of characters in the string.
      * @return the decoded {@code String}.
+     * @throws IOException if the decoding fails.
      */
-    public String nextString(int length) {
+    public String nextString(int length) throws IOException {
         String result = getString(pointer, length);
         pointer += length * 4;
         return result;
@@ -401,8 +458,9 @@ public class HexDataReader {
      * Decodes 16 hexadecimal characters starting at the current pointer as a double.
      * and advances the pointer by 16.
      * @return the next {@code double} value.
+     * @throws IOException if the decoding fails.
      */
-    public double nextDouble() {
+    public double nextDouble() throws IOException {
         double result = getDouble(pointer);
         pointer += 16;
         return result;
@@ -413,8 +471,9 @@ public class HexDataReader {
      * Decodes 8 hexadecimal characters starting at the current pointer as a float.
      * and advances the pointer by 8.
      * @return the next {@code float} value.
+     * @throws IOException if the decoding fails.
      */
-    public float nextFloat() {
+    public float nextFloat() throws IOException {
         float result = getFloat(pointer);
         pointer += 8;
         return result;

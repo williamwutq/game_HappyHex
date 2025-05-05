@@ -38,67 +38,67 @@ public class HexDataReaderTest {
     }
 
     @Test
-    void testGetLong() {
+    void testGetLong() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "00000000000000FF");
         assertEquals(255L, reader.getLong(0));
     }
 
     @Test
-    void testGetInt() {
+    void testGetInt() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "000000FF");
         assertEquals(255, reader.getInt(0));
     }
 
     @Test
-    void testGetShort() {
+    void testGetShort() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "FFFB");
         assertEquals(-5, reader.getShort(0));
     }
 
     @Test
-    void testGetChar() {
+    void testGetChar() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "0041");
         assertEquals('A', reader.getChar(0));
     }
 
     @Test
-    void testGetByte() {
+    void testGetByte() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "FF");
         assertEquals((byte) 255, reader.getByte(0));
     }
 
     @Test
-    void testGetString() {
+    void testGetString() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "00480069");
         assertEquals("Hi", reader.getString(0, 2));
     }
 
     @Test
-    void testGetDouble() {
+    void testGetDouble() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "3FF0000000000000");
         assertEquals(1.0, reader.getDouble(0));
     }
 
     @Test
-    void testGetFloat() {
+    void testGetFloat() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "3F800000");
         assertEquals(1.0f, reader.getFloat(0));
     }
 
     @Test
-    void testGetBooleanTrue() {
+    void testGetBooleanTrue() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "F");
         assertTrue(reader.getBoolean(0));
     }
 
     @Test
-    void testGetBooleanFalse() {
+    void testGetBooleanFalse() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "0");
         assertFalse(reader.getBoolean(0));
     }
 
     @Test
-    void testGetBooleanAtBit() {
+    void testGetBooleanAtBit() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "A");
         assertTrue(reader.getBooleanAtBit(0, 1));
         assertFalse(reader.getBooleanAtBit(0, 2));
@@ -118,63 +118,63 @@ public class HexDataReaderTest {
     }
 
     @Test
-    void testNextLong() {
+    void testNextLong() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "00000000000000FF");
         assertEquals(255L, reader.nextLong());
         assertEquals(16, reader.pointer());
     }
 
     @Test
-    void testNextInt() {
+    void testNextInt() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "000000FF");
         assertEquals(255, reader.nextInt());
         assertEquals(8, reader.pointer());
     }
 
     @Test
-    void testNextShort() {
+    void testNextShort() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "FFFB");
         assertEquals(-5, reader.nextShort());
         assertEquals(4, reader.pointer());
     }
 
     @Test
-    void testNextChar() {
+    void testNextChar() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "0041");
         assertEquals('A', reader.nextChar());
         assertEquals(4, reader.pointer());
     }
 
     @Test
-    void testNextByte() {
+    void testNextByte() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "FF");
         assertEquals((byte) 255, reader.nextByte());
         assertEquals(2, reader.pointer());
     }
 
     @Test
-    void testNextString() {
+    void testNextString() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "00480069");
         assertEquals("Hi", reader.nextString(2));
         assertEquals(8, reader.pointer());
     }
 
     @Test
-    void testNextDouble() {
+    void testNextDouble() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "3FF0000000000000");
         assertEquals(1.0, reader.nextDouble());
         assertEquals(16, reader.pointer());
     }
 
     @Test
-    void testNextFloat() {
+    void testNextFloat() throws IOException {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "3F800000");
         assertEquals(1.0f, reader.nextFloat());
         assertEquals(8, reader.pointer());
     }
 
     @Test
-    void testNextBoolean() {
+    void testNextBoolean() throws IOException  {
         reader = new HexDataReader(TEST_FILE_PATH, TEST_SUFFIX, "F");
         assertTrue(reader.nextBoolean());
         assertEquals(1, reader.pointer());
