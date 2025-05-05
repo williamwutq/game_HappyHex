@@ -403,6 +403,7 @@ public final class GameEssentials {
             gameLogger.setEngine(engine);
             gameLogger.setQueue(queue.getPieces());
             gameLogger.write();
+            gameLogger.write("hex.binary");
         } catch (IOException e) {
             System.err.println(GameTime.generateSimpleTime() + " HexLogger: " + e.getMessage());
         }
