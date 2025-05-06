@@ -29,7 +29,6 @@ import Launcher.LaunchEssentials;
 import hex.HexEngine;
 import game.Queue;
 import hex.Piece;
-import hex.SolidColor;
 import hexio.HexLogger;
 import io.GameTime;
 
@@ -38,7 +37,7 @@ import java.awt.*;
 import java.io.IOException;
 
 /**
- * The {@link GameEssentials} class provides essential game utilities, including {@link #generateColor() color generation}
+ * The {@link GameEssentials} class provides essential game utilities, including {@link #generateColor(int) color generation}
  * and {@link #paintHexagon(Graphics, Color, double, double, double, double) methods} for efficiently rendering hexagons.
  * <p>
  * This class is final and cannot be extended.
@@ -122,11 +121,16 @@ public final class GameEssentials {
         return actionDelay;
     }
     /**
-     * Generates a random {@link SolidColor} from a predefined set of 12 distinct colors.
+     * Generates a random {@link Color} from a predefined set of 12 distinct colors.
      * @return a randomly selected {@code SolidColor} object.
      */
-    public static SolidColor generateColor() {
-        return new SolidColor(pieceColors[(int) (Math.random() * 12)]);
+    public static Color generateColor(int index) {
+        if (index == -1){
+            return gameBlockDefaultColor;
+        } else if (index == -2){
+            return pieceColors[(int)(Math.random()*12)];
+        }
+        return pieceColors[index];
     }
     public static Color getIndexedPieceColor(int index){
         if(index < 12 && index >= 0){
@@ -299,7 +303,7 @@ public final class GameEssentials {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
-        engine = new HexEngine(size, new hex.SolidColor(gameBlockDefaultColor), new hex.SolidColor(getDefaultColor()));
+        engine = new HexEngine(size);
         queue = new Queue(queueSize);
         window = frame;
         // Logger initialize
@@ -311,7 +315,7 @@ public final class GameEssentials {
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
-                    cloned.setColor(generateColor());
+                    cloned.setColor(-2);
                     engine.setBlock(block.getLineI(), block.getLineK(), cloned);
                 }
             }
@@ -319,7 +323,7 @@ public final class GameEssentials {
             for (int i = 0; i < loggerQueue.length; i++) {
                 Piece piece = loggerQueue[i];
                 if (piece != null) {
-                    piece.setColor(generateColor());
+                    piece.setColor(-2);
                     queue.inject(piece, i);
                 }
             }
