@@ -5,14 +5,14 @@ import hex.HexEngine;
 
 import java.awt.*;
 
-public class Engine extends Panel {
+public class GamePanel extends Panel {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     private HexEngine engine;
     private double size;
     private double widthExtension;
     private double heightExtension;
-    public Engine(HexEngine engine){
+    public GamePanel(HexEngine engine){
         this.engine = engine;
         resetSize();
     }
@@ -70,6 +70,6 @@ public class Engine extends Panel {
         g.fillPolygon(xPoints, yPoints, 6);
     }
     public static void main(String[] args){
-        viewer.Viewer.test(new Engine(new HexEngine(9)));
+        viewer.Viewer.test(new GamePanel(new HexEngine(9)));
     }
 }
