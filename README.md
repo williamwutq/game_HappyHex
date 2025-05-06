@@ -5,8 +5,9 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 27/04/2025  
-<b>Latest release:</b> [1.2.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.3)  
+<b>Last edited:</b> 05/05/2025  
+<b>Latest release:</b> [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)  
+<b>Development option:</b> [1.3.0-binary](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0-binary)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -19,16 +20,13 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 > [!NOTE]
 > The project may contain bugs:  
 > - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).  
-> - The most recent release have ***one*** detected bugs:  
->   1. [Restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)  
-       Statues: Temporarily fixed  
-       Fixes: Disabled restart unfinished game feature.  
+> - The most recent release have ***zero*** detected bugs.  
 
 ## About
 This is just a cute project of mine. From early on after learning java in high school and helped the teacher taught its graphics library `javax.swing` I
 felt compelled to actually program a functional game. Combined with my earlier ideas of designing a hexagonal grid coordinate system, the rough picture of
 what would be future `HappyHex` formed in my mind. In my spare time, I gradually developed this project through following my [timeline](#Future-Timeline)
-and added increasingly attractive features. From version 0.4 to 1.2, it has grown from just a game page with buggy information display that had to be
+and added increasingly attractive features. From version 0.4 to 1.3, it has grown from just a game page with buggy information display that had to be
 launched through terminal commands and contained no color indication to a comprehensive and enjoyable game that features settings, themes, and animation.
 It has become that one project which I could not stop thinking about. Step by step improvements will be made in different aspects and merged together for
 revisions after revisions. In the end, I would incorporate intelligent autoplay systems, unlockable achievements, and even fancier graphics.
@@ -40,7 +38,7 @@ Distributed under the MIT License
 
 ## Usage
 How to download the game and play, or, if you want, compile it yourself.  
-1. Run the `.jar` file  
+- Method 1: Run the [`.jar`](https://github.com/williamwutq/game_HappyHex/blob/main/HappyHex_jar%20Version%201.2.3.zip) file  
    1. Find the Latest Release (See the [top](#HappyHex) of this document).  
    2. Download the asset from the release.
    3. Find `HappyHex_jar Version x.x.x.zip` zip file.  
@@ -50,7 +48,7 @@ How to download the game and play, or, if you want, compile it yourself.
       b. The JSON utilities, `javax.json-1.1.4.jar` and `javax.json-api-1.1.jar`.  
       c. The `data` folder.  
    6. Double click or use a tool to run `game_HappyHex.jar`.  
-2. Download code from GitHub.com  
+- Method 2: Download code from GitHub.com  
    1. Find the Latest Release (See the [top](#HappyHex) of this document).  
    2. Download the asset from the release.
    3. Download [dependencies](#Dependencies). You don't need `javax.swing` if it is already installed.
@@ -67,6 +65,238 @@ How to download the game and play, or, if you want, compile it yourself.
 - [org.junit.jupiter.api](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/package-summary.html)
 
 ## Game Play
+### Launcher Navigation
+The launcher is the window that opens after the application is opened. The game is not directly played, but rather can be [started](#Start-Game) with a
+start button. The [settings](#Settings-Page) and color [theme](#Themes-Page) can be changed through the launcher, which enhances the game experience for
+the player. In addition, [Easter Eggs](#Easter-Eggs) can also be activated with the launcher.  
+
+The launcher use an adjustable window, and all components contained in the window are dynamically resizable. That said, there is a minimum size limitation
+of the game window, because otherwise the game cannot show all of its content. The limitation is currently `400 * 400` pixels.
+
+The launcher has the following pages:  
+#### Main Page
+The main page displays the game name, version, credits, game hints, and provides buttons for navigating to other pages.
+- <b>Game Name</b>  
+
+  The game name, or title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors.
+  These 12 colors will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation.  
+  The sequencing of the colors is randomized every time the page is refreshed, which can be done by relaunching the application or switch to another
+  page and back.  
+
+- <b>Game Version</b>  
+
+  The game version is displayed underneath the game title with an italic font. The version should say "Version x.x.x". This version corresponds to all other
+  game versions presented in the game logs, messages, data recordings generated by this specific instance of the game HappyHex.  
+
+- <b>Game Hints</b>  
+
+  The game hints are hint messages that are displayed in the main page under the game version and game title. These messages either hint at a specific game
+  mechanics, serve as tips for navigating the launcher or obtaining a high score, provide a humorous evironment by providing insights as me the developer, 
+  or unveil secrets in the game such as the [Easter Eggs](#Easter-Eggs).  
+  They are mostly gray in most themes, but their colors may change.  
+  The hint message will change everytime the main page is refreshed, which can be done by relaunching the application or switch to another page and back.  
+  An example message is: "Try hover over blocks", which hints that hovering over blocks in the game field when a piece is selected reveals
+  the potential placements of pieces in the game.  
+
+- <b>Buttons</b>  
+
+  The game provides clickable buttons for navigating to other pages. All buttons are resizable and are of the same height.  
+  
+  1. Login Button  
+     The login button has the word "LOG IN" written on it. It is intended to provide users for redirection to the [Login Page](#Login-Page).  
+     When the game launcher is first launched, the player will not be automatically logged it. To log in, click on the button.  
+  2. Settings Button  
+     The settings button has the word "SETTING" written on it. It is intended to provide users for redirection to the [Settings Page](#Settings-Page).  
+     Under the default setting, the game is playable, but the settings page offer player more options in game difficulty, board size, and whether to
+     restart an unfinished game if such games exist.
+  3. Themes Button  
+     The settings button has the word "THEMES" written on it. It is intended to provide users for redirection to the [Themes Page](#Themes-Page).  
+     The default [color theme](#Theme,-Color-and-Font) of the game is [Normal Theme](#Normal-Color-Theme), but the themes page enables players to 
+     switch to other themes instead if they prefer to do so.  
+  4. Start Button  
+     The start button has the word "START" written on it. When clicked, it starts a new game based on the settings provided,
+     modifiable via [Settings Page](#Settings-Page). If the player is logged in and an unfinished game exist, and the restart game setting is set to
+     be `ON`, the unfinished game will continue.  
+     The game play part is considered to be outside launcher. For detailed game rules, see [Game Rules](#Game-Rules).  
+
+- <b>Game Credits</b>  
+
+  On the button of the page there will be a section with the game credits to its [developers](#Contribution), which is currently just me.  
+  To the left of the section, the words "A W.W Game" can be seen, with the two Ws shown in a slightly larger font with a different color.  
+  To the right of the section, a copy right can be seen, attributing the game copyright to William Wu. See [License](#License) for details.  
+
+#### Login Page
+The login page enables the user to log in with their username. While no password is required, a unique username is recommended.
+User information is logged in `logs.json`, which stores past game records, including recent and highest scores and turns.  
+
+The page contains the following elements:  
+
+- <b>Game Title</b>  
+  
+  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Username Requirements</b>  
+  
+  The username requirements displays in monospaced font about the requirements for allowed usernames. The requirements read as follows:  
+
+  ```  
+  1. Must be between 3 - 24 characters long, inclusive.  
+  2. Only contain 1-9, A-Z, a-z, dash, underline or space.  
+  3. Must contain at least one letter.  
+  4. Special Symbols such as #%$ are not allowed.  
+  5. Cannot start or end with dash, underline or spaces.  
+  6. Cannot be one of the keywords used by the game system.  
+  ```  
+
+  The game keywords can be found in the [Prohibited-Usernames](#Prohibited-Usernames) section of this document, but note that [Easter Eggs](#Easter-Eggs)
+  may be connected to some of the keywords that is "prohibited". Generally speaking, however, keywords are considered to be invalid.
+
+- <b>Username Entering Field</b>  
+  
+  This is an interactive field for the player to enter their username.  
+
+  The length and composition of the username must follow the username rules described above of the username to be considered valid. This field provides
+  keyboard interaction, as the players may use their keyboard to enter their desired usernames.  
+  
+  When no player is logged in, this field will display a prompt "ENTER THE USERNAME HERE!". Deleting this prompt to enter the username.
+  On the other hand, when a player is logged in, this field will display the username of the logged in player in another color, as defined by the current
+  theme. To log out, the player may enter "Out", "Logout", or "Log out".
+
+  Whenever an action, such as clicking the Confirm Button, is performed, the field will display a short prompt for a limited period of time, then switch
+  back to normal. If the player attempts to enter a name with the incorrect format, the prompt will usually be red, stating "INCORRECT NAMING FORMAT!".
+  If the player attempts to one of the [keywords](#Prohibited-Usernames), the prompt will usually be red, stating "GAME KEYWORD PROHIBITED!". If the login
+  was successful, the field will display the short prompt, usually green, "SUCCESSFUL PLAYER LOGIN!" and then display the logged in player's username.  
+
+- <b>Confirm Button</b>  
+
+  This is a button similar to all the other redirection buttons, but appears usually in green and contains the text "ENTER".  
+  
+  When clicked, the launcher will check the current text inside the Username Entering Field. If the name is valid and matches the current logged-in user,
+  nothing will happen. If the name is valid and representing a new login, the field will display "SUCCESSFUL PLAYER LOGIN!". If the name is one of the
+  [keywords](#Prohibited-Usernames), the field will display a red prompt stating "GAME KEYWORD PROHIBITED!". If the name does not meet the rules and
+  is not valid, the field will display a red prompt stating "INCORRECT NAMING FORMAT!".  
+
+  Player must click on this button to confirm their newly entered username when attempting login. Otherwise, nothing will happen.  
+
+- <b>Quit Button</b>  
+  
+  This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
+  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. Your inputs in the Username Entering Field may not be saved.  
+
+- <b>Game Credits</b>  
+
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+
+#### Settings Page
+
+The settings page allows the player to control over key game parameters, enhancing the game functionality while make HappyHex more fun.  
+
+The page contains the following elements:  
+
+- <b>Game Title</b>  
+  
+  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Settings Title</b>  
+  
+  Under the Game Title, there is a text "Settings", which indicates that this is the settings page.  
+
+- <b>Easy Mode Settings</b>  
+  
+  Turned `OFF` by default. Turning the switch `ON` enables Easy Mode, while turning it `OFF` disables Easy Mode.  
+  
+  This switch controls whether to enables "Easy Mode," which modifies [piece generation](#Piece-Generation) to make the game significantly easier.  
+  
+  Easy mode is compatible with all special game modes in the [Easter Eggs](#Easter-Eggs).  
+
+- <b>Restart Games Settings</b>  
+  
+  Turned `ON` by default. Turning the switch `ON` enables functionality to restart unfinished games, while turning it `OFF` disables it.  
+  
+  This switch controls whether to restart an unfinished game when it is possible to do so. When disabled, ever game will be new no matter how many previously
+  unfinished games the player have. When enabled, the game will try to find a previously unfinished game of the player in this particular setting, and if it
+  cannot find such games, it will start a new game.
+  
+  Disabling restart game will not in any ways affect the data logging of games, both in `logs.json` and in `.hyphex.json` data files.
+
+- <b>Game Board Size Setting</b>  
+
+> [!NOTE]  
+> Since first [Official Release](https://github.com/williamwutq/game_HappyHex/releases/v1.0.0) (v1.0.0), unspecified game mode creation is no longer supported.  
+
+  Players can choose between **Small**, **Medium**, and **Large** game board sizes for their next game. The default size is Small, and selecting
+  one option will automatically deselect the others. 
+
+  - The Small size will result in a game board radius of 5 and piece queue size of 3.  
+  - The Medium size will result in a game board radius of 8 and piece queue size of 5.  
+  - The Large size will result in a game board radius of 11 and piece queue size of 7.  
+
+  It is recommended to use the small size for beginners and players who do not want to spend a lot of time on a single game session. Large size often prolong
+  game session to over an hour, if played well at normal pace.
+
+- <b>Quit Button</b>  
+  
+  This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
+  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. All changes in settings will be saved.  
+
+- <b>Game Credits</b>  
+
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+
+#### Themes Page
+
+- <b>Game Title</b>  
+  
+  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Theme Setting</b>  
+  
+  For special themes, see in the [Easter Eggs](#Easter-Eggs) section. For detailed description on the themes, see the
+  [dedicated theme](Theme,-Color-and-Font) section.
+
+  Players can choose between **Normal**, **Dark**, and **White** game themes for displaying. These themes alter the color of all game graphics and are 
+  effective immediately. When a switch is flicked, the user can notice the change in the coloring of the theme page. All changes in the theme in theme
+  settings will be carried to all other pages, until the theme settings is modified again. The default theme is Normal.  
+
+  The theme settings has nothing to do with the game settings and will not affect game logic at all.  
+
+  The changes of theme maybe override by special dates dictated by [Special Themes](#Special-Themes). When a special theme is active, the buttons will still
+  work but the theme will remain the same.  
+
+  There's no superior theme among the three themes. Personally I prefer the Dark Theme, but the most classic one is the default theme, namely the Normal Theme.  
+
+- <b>Quit Button</b>  
+  
+  This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
+  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. All changes in theme settings will be saved.  
+
+- <b>Game Credits</b>  
+
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+
+#### Start Game
+
+This will direct the page out of the launcher and initialize the game components in a new game page.  
+
+Usually, the game page have separate colors and fonts as the launcher, and is made up from two panels instead of a single panel. This provides significant
+efficiency to the game execution and make the game play process much smoother.  
+
+The game page includes components such as:  
+- **Hexagonal Game Board**: The core game engine using hexagonal coordinates, where players can place blocks.  
+- **Piece Queue**: A set of randomly generated pieces with predefined shapes and colors. The difficulty level affects piece generation.  
+- **Game Information**: The current game turn and game score are displayed on the two top corners.  
+- **Player Information**: The current player name is displayed in the down right corner.  
+- **Quit Button**: Clicking on the quit button will enable you to quit the game. Current progress will be logged into `log.json` if a game has started.  
+
 ### Theme, Color and Font
 This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](Special-Themes)
 section.
@@ -343,6 +573,22 @@ These themes can change the color of every component in the game and the launche
 
    This theme is packaged inside `special.Halloween` and contained in `special.FeatureFactory` with the class tag `java.awt.Color` and
    `java.awt.Font`.
+4. <b>Independence Day Theme</b>  
+   Active on Independence Day. This theme contains two themes, one white and one dark, which can be toggled through the use of the
+   [theme settings](#Themes-Page). These two themes populate every pixel of the game with the colors of the flag, namely white, blue, and red.
+   Game pieces colors will be reduced to six colors, three blue and three red. It is automatically activated on July Fourth.
+
+   This theme is packaged inside `special.Independence` and contained in `special.FeatureFactory` with the class tag `java.awt.Color`.  
+
+### Auto Play
+The autoplay feature will be added in the future. With a click of a button, the player will be able to enjoy hands-off automatic piece placement in the 
+"HappyHex" game. There would a button starting and stopping the automatic playing of the game. Meanwhile, the player may also place pieces manually, and
+Their intervention will pause the autoplay until the player starts it again. Separately, one button will enable the player to see engine suggestions of
+piece placements.  
+The first game engine will be built with random moves, and will not support suggestions. The more advanced version of Auto Play will feature methods to score
+positions of placements and suggests placements accordingly. As for now, code in game piece and game engine are gradually build to support position scoring
+and future machine learning. The final result of Auto Play will incorporate [machine learning](#develop--machine-learning), which will enable better
+game results and even personalized game play.  
 
 ## Development
 ### Contribution
@@ -369,6 +615,10 @@ and cannot run on its own. All code for this section is currently under the `GUI
 The robust linear animation handler [animation](https://github.com/williamwutq/game_HappyHex/blob/main/GUI/animation/Animation.java) is tested and documented.
 The handler is designed for simple temporary effects such as fading, expanding, or progress animations and implemented use `java.awt` package and `java.awt.event`.
 It is lightweight and not a Swing component. You are welcome to use it for your own project. Follow the javadoc in the source code for more details.<br/>
+4. <a name="develop--special-modes"><b>Special Modes</b></a>  
+Easter eggs modifying something fundamental in the game, whether it is piece generation, scoring and elimination rules, or others. Current implemented special
+modes include `GodMode` and `HardMode`, both of which change the difficulty of the game by change the piece generation logic. These game modes use the same 
+injection interface as [SpecialThemes](#develop--special-themes), and are packaged in the same `special` package. Dedicated branch for special modes is `special`.<br/>  
 
 ### Directions of Development
 The developing process are mainly separated into the following parts:
@@ -386,33 +636,31 @@ and providing a page for more detailed user game analysis. It is also considered
 3. <a name="develop--special-themes"><b>Special Themes</b></a>  
 These are themes that could only be activated during certain days, such as Halloween, Independence Day, or Christmas. Some of them also serve as memorial to 
 tragic events such as the September 11th attacks. These themes use the same injection interface as [SpecialModes](#develop--special-modes), and are packaged
-in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`.<br/>  
-4. <a name="develop--special-modes"><b>Special Modes</b></a>  
-Easter eggs modifying something fundamental in the game, whether it is piece generation, scoring and elimination rules, or others. Current implemented special
-modes include `GodMode` and `HardMode`, both of which change the difficulty of the game by change the piece generation logic. These themes use the same injection
-interface as [SpecialThemes](#develop--special-themes), and are packaged in the same `special` package. Dedicated branch for special modes is `special`.<br/>  
-5. <a name="develop--game-viewer"><b>Game Viewer</b></a>  
+in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`. Only Christmas theme is to be developed.<br/>  
+4. <a name="develop--game-viewer"><b>Game Viewer</b></a>  
 Develop a separate runnable program that may read `.hpyhex.json` files and display them in a hexagonal grid without color.
-This program can be grayscale and simple to run with minimal dependencies.  
+This program can be grayscale and simple to run with minimal dependencies. This viewer may read binary files.  
 The Game Viewer should feature inputs to select which file to view, buttons to increment and decrement the moves recorded in the game, and display
 real time game scores associated with the moves. The program may also feature a button to automatically increment the game with timed intervals or buttons
-to skip a certain numbers of steps.<br/>  
-6. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
+to skip a certain numbers of steps. Current development is in branch `viewer`.<br/>  
+5. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
 A more precise way of describing this direction would be auto-game-play. This means a machine would be build to play the game while the player sit there and
 watch. This autoplay would be initially enabled through scoring algorithms and later through trained artificial intelligence operated in Python. This is a feature
 of the future but current architecture is being designed around it. At the same time, scoring and reward functions are gradually coming online.<br/> 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.2.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.3)
-- Patch 1.2.4
-  - Add more information to README.md
-  - [Fix restarted game score remain at 0](https://github.com/williamwutq/game_HappyHex/issues/32)
-- Version 1.3
-  - Add Independence Day special (color and font theme)
-  - Add Thanksgiving special (color and font theme)
+- Latest Release: [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)
+- Development version: [1.3.0-binary](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0-binary)
+- Version 1.3.0
+  - Add Independence Day special (color theme)
   - Finalize `.hpyhex.json` formats
+  - Add binary file format
   - Add feature to read all formats and write in the most recent one
+- Version 1.3.1
+  - Add Thanksgiving special (color and font theme)
+  - Add basic panel to select game to continue
+  - Add fundamentals to game viewer
 - Version 1.4
   - Add autoplay based on random, turn on via settings
   - Add and compiled game viewer
@@ -441,7 +689,7 @@ The packages in the source code, their dependencies, and their functions.
 ### Mechanics
 package `hex`  
 <b>Dependencies</b>:  
-none  
+`java.awt.Color`  
 <b>Function</b>:  
 The backbone of the game. It provides classes and interfaces for managing a hexagonal grid system, including coordinate calculations,
 game engine operations, and game piece operations.  
