@@ -1067,7 +1067,7 @@ public class HexLogger {
      * @see #write()
      * @see #readJsonFile()
      * @see #readBasicHexData(JsonObject)
-     * @see #readUncoloredHexData(JsonObject)
+     * @see #readAdvancedHexData(JsonObject)
      */
     public void read() throws IOException {
         String jsonString = readJsonFile();
@@ -1123,7 +1123,9 @@ public class HexLogger {
             } else if (dataFormat.equals("hex.basic")) {
                 readBasicHexData(jsonObject);
             } else if (dataFormat.equals("hex.uncolored")) {
-                readUncoloredHexData(jsonObject);
+                readAdvancedHexData(jsonObject);
+            } else if (dataFormat.equals("hex.colored")) {
+                readAdvancedHexData(jsonObject);
             } else {
                 throw new IOException("Data format is not compatible for this version of \"HexLogger\"");
             }
@@ -1131,14 +1133,18 @@ public class HexLogger {
     }
 
     /**
-     * Reads the hexagonal grid data of a format {@code hex.uncolored} data and parse it into memory.
+     * Reads the hexagonal grid data of a format {@code hex.uncolored} or {@code hex.uncolored} data and parse it into memory.
+     * <p>
+     * To reflect the fact that it can read both colored and uncolored formats, the method is renamed from
+     * {@code readUncoloredHexData(JsonObject)} to {@code readAdvancedHexData(JsonObject)}.
+     * <p>
      * The {@code hex.uncolored} format contains:
      * <ul>
      *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
      *     be non-modifiable.</li>
      *     <li><b>{@code turn}:</b> The number of turns already occurred in the game.</li>
      *     <li><b>{@code score}:</b> The score already obtained by the player in the game.</li>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
+     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its
      *     radius, and blocks. The block record of the engine does not contain colors.</li>
      *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
      *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
@@ -1146,12 +1152,26 @@ public class HexLogger {
      *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
      *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>
      * </ul>
+     * The {@code hex.uncolored} format contains:
+     * <ul>
+     *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
+     *     be non-modifiable.</li>
+     *     <li><b>{@code turn}:</b> The number of turns already occurred in the game.</li>
+     *     <li><b>{@code score}:</b> The score already obtained by the player in the game.</li>
+     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
+     *     radius, and blocks. The block record of the engine does contain colors.</li>
+     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple colored
+     *     seven-block pieces, each represented by an array of blocks. The queue is colored and not ordered</li>
+     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
+     *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
+     *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>
+     * </ul>
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
      * @throws IOException If reading or parsing fails or if the game type is unsupported.
      * @see #read()
-     * @since 1.2.4
+     * @since 1.3
      */
-    public void readUncoloredHexData(JsonObject jsonObject) throws IOException {
+    public void readAdvancedHexData(JsonObject jsonObject) throws IOException {
         // Read completed
         try{
             completed = jsonObject.getBoolean("completed");
