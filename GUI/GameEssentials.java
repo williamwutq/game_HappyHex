@@ -125,9 +125,9 @@ public final class GameEssentials {
      * @return a randomly selected {@code SolidColor} object.
      */
     public static Color generateColor(int index) {
-        if (index == -1){
+        if (index == -1 || index < -2){
             return gameBlockDefaultColor;
-        } else if (index == -2){
+        } else if (index == -2 || index >= pieceColors.length){
             return getDefaultColor();
         } else return pieceColors[index];
     }
