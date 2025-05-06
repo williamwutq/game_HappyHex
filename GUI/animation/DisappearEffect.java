@@ -46,7 +46,7 @@ public class DisappearEffect extends Animation {
     public DisappearEffect(hex.Block block){
         super(2000, 1);
         this.hex = block.thisHex();
-        this.color = new Color(block.color().getRed(), block.color().getGreen(), block.color().getBlue());
+        this.color = GameEssentials.generateColor(block.getColor());
         resetSize();
     }
     /**

@@ -104,7 +104,7 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
         Block block = fetchBlock();
         if(block == null) {
             return new Color(0,0,0,0);
-        } else return fetchBlock().getColor();
+        } else return GameEssentials.generateColor(fetchBlock().getColor());
     }
     protected void clicked(){}
     protected void hovered(){}

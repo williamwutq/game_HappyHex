@@ -81,7 +81,7 @@ public class HardMode implements SpecialFeature{
         return enable && valid;
     }
     private static Piece hollow(){
-        Piece p = new Piece(6, GUI.GameEssentials.generateColor());
+        Piece p = new Piece(6, (int)(Math.random() * 12));
         p.add(-1, -1);
         p.add(-1, 0);
         p.add(0, -1);
