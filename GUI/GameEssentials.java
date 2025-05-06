@@ -128,7 +128,7 @@ public final class GameEssentials {
         if (index == -1){
             return gameBlockDefaultColor;
         } else if (index == -2){
-            return pieceColors[(int)(Math.random()*12)];
+            return getDefaultColor();
         } else return pieceColors[index];
     }
     public static Color getIndexedPieceColor(int index){
