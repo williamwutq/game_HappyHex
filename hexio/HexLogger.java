@@ -170,7 +170,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
-        currentEngine = new HexEngine(1, SolidColor.BLACK, SolidColor.WHITE);
+        currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         moveQueues = new ArrayList<Piece[]>();
@@ -184,7 +184,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     private HexLogger(String fileName){
         dataFile = fileName;
-        currentEngine = new HexEngine(1, SolidColor.BLACK, SolidColor.WHITE);
+        currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         moveQueues = new ArrayList<Piece[]>();
@@ -540,7 +540,7 @@ public class HexLogger {
      * This is almost equal to create another logger.
      */
     public void erase() {
-        currentEngine = new HexEngine(1, SolidColor.BLACK, SolidColor.WHITE);
+        currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Integer>();
