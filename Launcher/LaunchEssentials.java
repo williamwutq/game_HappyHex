@@ -174,7 +174,7 @@ public final class LaunchEssentials {
             for (hexio.HexLogger generatedLogger : loggers){
                 try {
                     generatedLogger.read();
-                    generatedLogger.readBinary();
+                    // generatedLogger.readBinary(); /* DISABLED BECAUSE IT DOES NOT READ COLOR */
                 } catch (IOException e) {continue;}
                 if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
                         && generatedLogger.getQueue().length == queueSize
