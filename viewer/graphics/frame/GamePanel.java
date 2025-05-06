@@ -51,13 +51,13 @@ public class GamePanel extends Panel {
         for (int i = 0; i < queue.length; i ++){
             for (int j = 0; j < queue[i].length(); j ++){
                 if (queue[i].getBlock(j)!= null) {
-                    paintHexagon(g, queue[i].getBlock(j), i);
+                    paintHexagon(g.create(), queue[i].getBlock(j), i);
                 }
             }
         }
         // Paint engine
         for (int i = 0; i < engine.length(); i ++){
-            paintHexagon(g, engine.getBlock(i));
+            paintHexagon(g.create(), engine.getBlock(i));
         }
     }
     /**
@@ -83,6 +83,7 @@ public class GamePanel extends Panel {
             yPoints[i] = 3 + (int) Math.round(engineHeightExtension + size * (y + 1.0 + Math.cos(angle) * 0.9));
         }
         g.fillPolygon(xPoints, yPoints, 6);
+        g.dispose();
     }
     /**
      * Paints a simple hexagon based the state and position of a {@link Block} in the game queue.
@@ -108,6 +109,7 @@ public class GamePanel extends Panel {
             yPoints[i] = 3 + (int) Math.round(queueHeightExtension + size * (y + 1.0 + Math.cos(angle) * 0.9));
         }
         g.fillPolygon(xPoints, yPoints, 6);
+        g.dispose();
     }
     public static void main(String[] args){
         Piece piece1 = new Piece(4, 4);
