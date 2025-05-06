@@ -51,9 +51,7 @@ public class HexConverterTest {
         assertTrue(json.getBoolean("state"), "State should be true");
 
         JsonObject nullJson = HexConverter.convertIndexColoredBlock(null);
-        assertEquals(0, nullJson.getInt("R"), "Null block R should be 0");
-        assertEquals(0, nullJson.getInt("G"), "Null block G should be 0");
-        assertEquals(0, nullJson.getInt("B"), "Null block B should be 0");
+        assertEquals(-1, nullJson.getInt("C"), "Null block R should be -1");
         assertFalse(nullJson.getBoolean("state"), "Null block state should be false");
     }
 
@@ -123,7 +121,7 @@ public class HexConverterTest {
         JsonObject block00 = blocks.getJsonObject(0); // Assuming sorted order
         assertEquals(0, block00.getInt("I"), "Block at (0,0) I should be 0");
         assertEquals(0, block00.getInt("K"), "Block at (0,0) K should be 0");
-        assertEquals(2, block00.getInt("C"), "Block at (0,0) Color should be 2");
+        assertEquals(-2, block00.getInt("C"), "Block at (0,0) Color should be default");
         assertTrue(block00.getBoolean("state"), "Block at (0,0) should be occupied");
     }
 
@@ -232,6 +230,9 @@ public class HexConverterTest {
                 .add("C", 7).add("state", true));
         arrayBuilder.add(Json.createObjectBuilder()
                 .add("I", -1).add("J", 2).add("K", 1)
+                .add("C", 7).add("state", true));
+        arrayBuilder.add(Json.createObjectBuilder()
+                .add("I", 1).add("J", 0).add("K", 1)
                 .add("C", 7).add("state", true));
         arrayBuilder.add(Json.createObjectBuilder()
                 .add("I", 0).add("J", 0).add("K", 0)
