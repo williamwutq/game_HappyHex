@@ -24,6 +24,8 @@
 
 package viewer;
 
+import java.awt.*;
+
 /**
  * Main file of Game Viewer, which is used as a tool to view past games by reading and showing game files.
  * <p>
@@ -32,5 +34,19 @@ package viewer;
 public class Viewer {
     public static void main(String[] args){
 
+    }
+    public static void test(Component component){
+        // Test method
+        Frame frame = new Frame();
+        Panel panel = new Panel();
+        frame.setTitle("Test");
+        frame.setSize(new Dimension(400, 400));
+        frame.setPreferredSize(new Dimension(400, 400));
+        frame.setMinimumSize(new Dimension(200, 200));
+        frame.setBackground(Color.BLUE);
+        panel.setBackground(Color.BLUE);
+        panel.add(component);
+        frame.add(panel);
+        frame.setVisible(true);
     }
 }
