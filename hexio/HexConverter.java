@@ -532,7 +532,7 @@ public final class HexConverter {
         for (int i = 0; i < size; i ++){
             try {
                 Block block = convertBlock(jsonArray.getJsonObject(i));
-                engine.setState(block.getLineI(), block.getLineK(), block.getState());
+                engine.setBlock(block.getLineI(), block.getLineK(), block);
             } catch (Exception e) {}
         }
         return engine;
