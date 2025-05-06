@@ -24,7 +24,6 @@
 
 package game;
 
-import GUI.GameEssentials;
 import hex.Block;
 import hex.Piece;
 
@@ -46,6 +45,8 @@ import hex.Piece;
  * This class is stateless aside from the global difficulty setting and is not intended to be instantiated.
  * This class migrates all static generation code from {@link Piece}.
  * @version 1.3
+ * @author William Wu
+ * @since 1.3
  * @see Piece
  */
 public final class PieceFactory {
