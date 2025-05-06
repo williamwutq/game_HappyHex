@@ -185,14 +185,14 @@ public class PieceTest {
 
     @Test
     void testFromByte() {
-        Piece piece = Piece.pieceFromByte((byte) 0b01001101, Color.RED);
+        Piece piece = Piece.pieceFromByte((byte) 0b01001101, 4);
         assertEquals(piece.toByte(), 0b01001101, "generated piece byte representation should be 0b01001101");
 
         assertThrows(IllegalArgumentException.class, () -> {
-            Piece.pieceFromByte((byte) 0, Color.BLUE);
+            Piece.pieceFromByte((byte) 0, 3);
         }, "piece should not generate because it does not contain blocks");
         assertThrows(IllegalArgumentException.class, () -> {
-            Piece.pieceFromByte((byte) 0b10001000, Color.BLUE);
+            Piece.pieceFromByte((byte) 0b10001000, 3);
         }, "piece should not generate because it contain extra bits");
     }
 

@@ -325,11 +325,11 @@ public class Piece implements HexGrid{
      * <p>
      * The byte data conversion is in accordance with the {@link #toByte()} method.
      * @param data the byte data used to create this {@code piece}.
-     * @param color the {@link Color} for this piece's blocks.
+     * @param color the color for this piece's blocks.
      * @return a piece constructed from the byte data with the input color applied to its {@link Block}s.
      * @since 1.3
      */
-    public static Piece pieceFromByte(byte data, Color color) throws IllegalArgumentException{
+    public static Piece pieceFromByte(byte data, int color) throws IllegalArgumentException{
         if (data < 0){
             throw new IllegalArgumentException ("Data must have empty most significant bit");
         } else if (data == 0){

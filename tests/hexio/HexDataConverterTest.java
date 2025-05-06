@@ -19,7 +19,7 @@ public class HexDataConverterTest {
     }
     @Test
     void testConvertBlock() {
-        Block block = Block.block(3, 23, Color.BLACK);
+        Block block = Block.block(3, 23, 1);
         block.setState(true);
         String hexString = HexDataConverter.convertBlock(block);
         assertEquals("00030017F", hexString, "Converted string should be 00030017F");
@@ -29,7 +29,7 @@ public class HexDataConverterTest {
     }
     @Test
     void testConvertPiece() {
-        Piece piece = new Piece(3, Color.BLUE);
+        Piece piece = new Piece(3, 2);
         piece.add(1, 1);
         piece.add(0, 0);
         piece.add(0, 1);
@@ -41,7 +41,7 @@ public class HexDataConverterTest {
     }
     @Test
     void testConvertEngine() {
-        HexEngine engine = new HexEngine(3, Color.GRAY, Color.BLUE);
+        HexEngine engine = new HexEngine(3);
         engine.setState(0, 0, true);
         engine.setState(1, 2, true);
         engine.setState(2, 3, true);
@@ -53,7 +53,7 @@ public class HexDataConverterTest {
     }
     @Test
     void testConvertMove() {
-        Piece piece = new Piece(3, Color.BLUE);
+        Piece piece = new Piece(3, 9);
         piece.add(1, 1);
         piece.add(0, 0);
         piece.add(0, 1);
