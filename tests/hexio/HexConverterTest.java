@@ -24,7 +24,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertBlock() {
-        Block block = Block.block(2, -1, SolidColor.RED);
+        Block block = Block.block(2, -1, 2);
         block.setState(true);
         JsonObject json = HexConverter.convertBlock(block);
         assertEquals(2, json.getInt("I"), "I coordinate should be 2");
@@ -41,18 +41,16 @@ public class HexConverterTest {
 
     @Test
     void testConvertColoredBlock() {
-        Block block = Block.block(3, 4, SolidColor.RED);
+        Block block = Block.block(3, 4, 2);
         block.setState(true);
-        JsonObject json = HexConverter.convertColoredBlock(block);
+        JsonObject json = HexConverter.convertIndexColoredBlock(block);
         assertEquals(3, json.getInt("I"), "I coordinate should be 3");
         assertEquals(1, json.getInt("J"), "J coordinate should be 1");
         assertEquals(4, json.getInt("K"), "K coordinate should be 4");
-        assertEquals(255, json.getInt("R"), "Red component should be 255");
-        assertEquals(0, json.getInt("G"), "Green component should be 0");
-        assertEquals(0, json.getInt("B"), "Blue component should be 0");
+        assertEquals(2, json.getInt("C"), "Color component should be 2");
         assertTrue(json.getBoolean("state"), "State should be true");
 
-        JsonObject nullJson = HexConverter.convertColoredBlock(null);
+        JsonObject nullJson = HexConverter.convertIndexColoredBlock(null);
         assertEquals(0, nullJson.getInt("R"), "Null block R should be 0");
         assertEquals(0, nullJson.getInt("G"), "Null block G should be 0");
         assertEquals(0, nullJson.getInt("B"), "Null block B should be 0");
@@ -61,7 +59,7 @@ public class HexConverterTest {
 
     @Test
     void testConvertPiece() {
-        Piece piece = new Piece(2, SolidColor.BLUE);
+        Piece piece = new Piece(2, 4);
         piece.add(0, 0);
         piece.add(1, 1);
 
@@ -83,24 +81,22 @@ public class HexConverterTest {
 
     @Test
     void testConvertColoredPiece() {
-        Piece piece = new Piece(2, SolidColor.BLUE);
+        Piece piece = new Piece(2, 4);
         piece.add(0, 0);
         piece.add(1, 1);
 
-        JsonArray blocks = HexConverter.convertColoredPiece(piece);
+        JsonArray blocks = HexConverter.convertIndexColoredPiece(piece);
         assertEquals(7, blocks.size(), "Colored piece should convert to 7 blocks");
         JsonObject block00 = blocks.getJsonObject(3); // (0,0)
         assertEquals(0, block00.getInt("I"), "Block at (0,0) I should be 0");
         assertEquals(0, block00.getInt("K"), "Block at (0,0) K should be 0");
-        assertEquals(0, block00.getInt("R"), "Block at (0,0) R should be 0");
-        assertEquals(0, block00.getInt("G"), "Block at (0,0) G should be 0");
-        assertEquals(255, block00.getInt("B"), "Block at (0,0) B should be 255");
+        assertEquals(4, block00.getInt("C"), "Block at (0,0) R should be 0");
         assertTrue(block00.getBoolean("state"), "Block at (0,0) should be occupied");
     }
 
     @Test
     void testConvertEngine() {
-        HexEngine engine = new HexEngine(2, SolidColor.GRAY, SolidColor.BLUE);
+        HexEngine engine = new HexEngine(2);
         engine.setState(0, 0, true);
 
         JsonObject json = HexConverter.convertEngine(engine);
@@ -116,10 +112,10 @@ public class HexConverterTest {
 
     @Test
     void testConvertColoredEngine() {
-        HexEngine engine = new HexEngine(2, SolidColor.GRAY, SolidColor.BLUE);
+        HexEngine engine = new HexEngine(2);
         engine.setState(0, 0, true);
 
-        JsonObject json = HexConverter.convertColoredEngine(engine);
+        JsonObject json = HexConverter.convertIndexColoredEngine(engine);
         assertEquals(2, json.getInt("radius"), "Radius should be 2");
         JsonArray blocks = json.getJsonArray("blocks");
         assertEquals(7, blocks.size(), "Engine should have 7 blocks");
@@ -127,16 +123,14 @@ public class HexConverterTest {
         JsonObject block00 = blocks.getJsonObject(0); // Assuming sorted order
         assertEquals(0, block00.getInt("I"), "Block at (0,0) I should be 0");
         assertEquals(0, block00.getInt("K"), "Block at (0,0) K should be 0");
-        assertEquals(0, block00.getInt("R"), "Block at (0,0) R should be 0");
-        assertEquals(0, block00.getInt("G"), "Block at (0,0) G should be 0");
-        assertEquals(255, block00.getInt("B"), "Block at (0,0) B should be 255");
+        assertEquals(2, block00.getInt("C"), "Block at (0,0) Color should be 2");
         assertTrue(block00.getBoolean("state"), "Block at (0,0) should be occupied");
     }
 
     @Test
     void testConvertMove() {
         Hex center = Hex.hex(1, 2);
-        Piece piece = new Piece(1, SolidColor.RED);
+        Piece piece = new Piece(1, 5);
         piece.add(0, 0);
 
         JsonObject json = HexConverter.convertMove(1, center, piece);
@@ -152,16 +146,14 @@ public class HexConverterTest {
     @Test
     void testConvertColoredMove() {
         Hex center = Hex.hex(1, 2);
-        Piece piece = new Piece(1, SolidColor.RED);
+        Piece piece = new Piece(1, 5);
         piece.add(0, 0);
 
-        JsonObject json = HexConverter.convertColoredMove(1, center, piece);
+        JsonObject json = HexConverter.convertIndexColoredMove(1, center, piece);
         assertEquals(1, json.getInt("order"), "Move order should be 1");
         JsonArray pieceJson = json.getJsonArray("piece");
         JsonObject block00 = pieceJson.getJsonObject(3); // (0,0)
-        assertEquals(255, block00.getInt("R"), "Block at (0,0) R should be 255");
-        assertEquals(0, block00.getInt("G"), "Block at (0,0) G should be 0");
-        assertEquals(0, block00.getInt("B"), "Block at (0,0) B should be 0");
+        assertEquals(5, block00.getInt("C"), "Block at (0,0) Color should be 5");
         assertTrue(block00.getBoolean("state"), "Block at (0,0) should be occupied");
     }
 
@@ -190,24 +182,20 @@ public class HexConverterTest {
     }
 
     @Test
-    void testConvertColor() throws IOException {
+    void testConvertColorIndex() throws IOException {
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("R", 255).add("G", 0).add("B", 0);
+        builder.add("C", 5);
         JsonObject json = builder.build();
 
-        SolidColor color = HexConverter.convertColor(json);
-        assertEquals(SolidColor.RED, color, "Converted color should be RED");
+        int color = HexConverter.convertColorIndex(json);
+        assertEquals(5, color, "Converted color should be 5");
 
         builder = Json.createObjectBuilder();
-        builder.add("r", 0).add("g", 255).add("b", 0);
-        color = HexConverter.convertColor(builder.build());
-        assertEquals(SolidColor.GREEN, color, "Converted color with lowercase keys should work");
+        builder.add("c", 6);
+        color = HexConverter.convertColorIndex(builder.build());
+        assertEquals(6, color, "Converted color with lowercase keys should work");
 
-        JsonObject invalidJson = Json.createObjectBuilder().add("R", 300).add("G", 0).add("B", 0).build();
-        assertThrows(IOException.class, () -> HexConverter.convertColor(invalidJson),
-                "Out-of-range color component should throw IOException");
-
-        assertThrows(IOException.class, () -> HexConverter.convertColor(null),
+        assertThrows(IOException.class, () -> HexConverter.convertColorIndex(null),
                 "Null JSON should throw IOException");
     }
 
@@ -215,22 +203,21 @@ public class HexConverterTest {
     void testConvertBlockFromJson() throws IOException {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("I", 1).add("J", 1).add("K", 2)
-                .add("R", 255).add("G", 0).add("B", 0)
-                .add("state", true);
+                .add("C", 4).add("state", true);
         JsonObject json = builder.build();
 
         Block block = HexConverter.convertBlock(json);
         assertEquals(1, block.getLineI(), "Converted block I should be 1");
         assertEquals(1, block.getLineJ(), "Converted block J should be 1");
         assertEquals(2, block.getLineK(), "Converted block K should be 2");
-        assertEquals(SolidColor.RED, block.color(), "Converted block color should be RED");
+        assertEquals(4, block.getColor(), "Converted block color should be 4");
         assertTrue(block.getState(), "Converted block state should be true");
 
         // Test with missing color and state
         builder = Json.createObjectBuilder();
         builder.add("I", 0).add("J", 0).add("K", 0);
         block = HexConverter.convertBlock(builder.build());
-        assertEquals(SolidColor.BLACK, block.color(), "Missing color should default to BLACK");
+        assertEquals(-1, block.getColor(), "Missing color should default to -1");
         assertFalse(block.getState(), "Missing state should default to false");
 
         assertThrows(IOException.class, () -> HexConverter.convertBlock((JsonObject) null),
@@ -242,12 +229,10 @@ public class HexConverterTest {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
         arrayBuilder.add(Json.createObjectBuilder()
                 .add("I", 0).add("J", 0).add("K", 0)
-                .add("R", 255).add("G", 0).add("B", 0)
-                .add("state", true));
+                .add("C", 7).add("state", true));
         arrayBuilder.add(Json.createObjectBuilder()
                 .add("I", -1).add("J", 2).add("K", 1)
-                .add("R", 255).add("G", 0).add("B", 0)
-                .add("state", true));
+                .add("C", 7).add("state", true));
         arrayBuilder.add(Json.createObjectBuilder()
                 .add("I", 0).add("J", 0).add("K", 0)
                 .add("state", false)); // Non-occupied block
@@ -255,7 +240,7 @@ public class HexConverterTest {
 
         Piece piece = HexConverter.convertPiece(json);
         assertEquals(3, piece.length(), "Piece should have length 3");
-        assertEquals(SolidColor.RED, piece.getColor(), "Piece color should be RED");
+        assertEquals(7, piece.getColor(), "Piece color should be 7");
         assertNotNull(piece.getBlock(0, 0), "Block at (0,0) should exist");
         assertNotNull(piece.getBlock(-1, 1), "Block at (-1,1) should exist");
         assertTrue(piece.getBlock(0, 0).getState(), "Block at (0,0) should be occupied");
@@ -276,26 +261,19 @@ public class HexConverterTest {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
         arrayBuilder.add(Json.createObjectBuilder()
                 .add("I", 0).add("J", 0).add("K", 0)
-                .add("R", 255).add("G", 0).add("B", 0)
-                .add("state", true));
+                .add("C", 7).add("state", true));
         arrayBuilder.add(Json.createObjectBuilder()
                 .add("I", 0).add("J", -1).add("K", -1)
-                .add("R", 255).add("G", 0).add("B", 0)
-                .add("state", false));
+                .add("C", 7).add("state", false));
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
-        jsonBuilder.add("radius", 2)
-                .add("blocks", arrayBuilder)
-                .add("empty", Json.createObjectBuilder().add("R", 128).add("G", 128).add("B", 128))
-                .add("filled", Json.createObjectBuilder().add("R", 0).add("G", 0).add("B", 255));
+        jsonBuilder.add("radius", 2).add("blocks", arrayBuilder);
         JsonObject json = jsonBuilder.build();
 
         HexEngine engine = HexConverter.convertEngine(json);
         assertEquals(2, engine.getRadius(), "Engine radius should be 2");
-        assertEquals(SolidColor.GRAY, engine.getEmptyBlockColor(), "Empty color should be GRAY");
-        assertEquals(SolidColor.BLUE, engine.getFilledBlockColor(), "Filled color should be BLUE");
         assertEquals(7, engine.length(), "Engine should have 7 blocks");
         assertTrue(engine.getBlock(0, 0).getState(), "Block at (0,0) should be occupied");
-        assertEquals(SolidColor.BLUE, engine.getBlock(0, 0).color(), "Block at (0,0) should be BLUE");
+        assertEquals(7, engine.getBlock(0, 0).getColor(), "Block at (0,0) should be 7");
 
         // Test with missing radius
         jsonBuilder = Json.createObjectBuilder().add("blocks", arrayBuilder);
