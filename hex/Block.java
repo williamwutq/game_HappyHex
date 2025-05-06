@@ -108,6 +108,7 @@ public class Block extends Hex{
     /**
      * Constructs a block at the specified hex coordinates with unoccupied color and state
      * @param hex the coordinate.
+     * @since 1.3
      */
     public Block(Hex hex){
         // Complete constructor

@@ -51,7 +51,6 @@ package hex;
  * This produces a shape containing blocks at line coordinates (0,0), (0,1), and (1,1).
  *
  * @see Block
- * @see SolidColor
  * @see Hex
  * @see HexGrid
  * @see Hex#getLines()
@@ -61,14 +60,13 @@ package hex;
  */
 public class Piece implements HexGrid{
     private Block[] blocks;
-    private SolidColor color;
+    private int color;
 
     // Constructor
-    /** Constructs a default {@code Piece} with a single {@link Block} at (0,0) and color black. */
+    /** Constructs a default {@code Piece} with a single {@link Block} at (0,0) and default color. */
     public Piece(){
         this.blocks = new Block[1];
-        this.color = new SolidColor(0,0,0);
-        this.blocks[0] = new Block(0, 0, color);
+        this.blocks[0] = new Block(0, 0);
         this.blocks[0].setState(true);
     }
     /**
@@ -76,11 +74,11 @@ public class Piece implements HexGrid{
      * The piece can later be filled using {@link #add(Block)}.
      *
      * @param length the number of blocks this piece can hold; must be greater or equal to 1.
-     * @param color  the {@link SolidColor} for this piece's blocks.
+     * @param color  the color index for this piece's blocks.
      * @see #length()
      * @see HexGrid
      */
-    public Piece(int length, SolidColor color){
+    public Piece(int length, int color){
         if(length < 1){
             length = 1;
         }
@@ -91,9 +89,9 @@ public class Piece implements HexGrid{
     // Color
     /**
      * Sets the color of this piece and applies it to all current blocks.
-     * @param color the new {@link SolidColor} to assign.
+     * @param color the new color to assign.
      */
-    public void setColor(SolidColor color){
+    public void setColor(int color){
         this.color = color;
         // write to all
         for(int i = 0; i < length(); i ++){
@@ -103,11 +101,11 @@ public class Piece implements HexGrid{
         }
     }
     /**
-     * Returns the current {@link SolidColor} of this piece.
+     * Returns the current color of this piece.
      * The color applies for all {@link Block} in this piece.
      * @return the color of the piece.
      */
-    public SolidColor getColor(){
+    public int getColor(){
         return color;
     }
 
@@ -323,7 +321,7 @@ public class Piece implements HexGrid{
     /**
      * Compares this piece to another for equality.
      * Two pieces are equal if they have the same {@link #length()} and identical {@link Block} positions.
-     * {@link SolidColor Color} is not involved in this comparison.
+     * Color index is not involved in this comparison.
      * @param piece the other piece to compare to.
      * @return {@code true} if both pieces are structurally equal; {@code false} otherwise.
      */
