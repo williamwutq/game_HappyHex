@@ -184,7 +184,7 @@ public class HexDataConverter {
         } catch (NumberFormatException e) {
             throw new IOException("\"Block\" object does not contain valid state");
         }
-        return new Block(hex, java.awt.Color.BLACK, state);
+        return new Block(hex, state ? -2 : -1, state);
     }
     /**
      * Converts a hexadecimal string to a {@link Piece}.
@@ -206,7 +206,7 @@ public class HexDataConverter {
         }
         Piece piece;
         try {
-            piece = Piece.pieceFromByte((byte) Integer.parseUnsignedInt(hexString, 16), java.awt.Color.BLACK);
+            piece = Piece.pieceFromByte((byte) Integer.parseUnsignedInt(hexString, 16), -2);
         } catch (IllegalArgumentException e) {
             throw new IOException("\"Piece\" object creation failed due to invalid format or missing blocks");
         }
@@ -241,7 +241,7 @@ public class HexDataConverter {
         }
         if (radius <= 0) throw new IOException("\"HexEngine\" object cannot be generated because radius is negative or 0");
         // Create engine
-        HexEngine engine = new HexEngine(radius, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        HexEngine engine = new HexEngine(radius);
         if ((engine.length()+3)/4 != hexString.length() - 4){
             throw new IOException("\"HexEngine\" object cannot be generated because input string have incorrect length");
         }
@@ -251,6 +251,7 @@ public class HexDataConverter {
             for (int bit = 0; bit < 4 && index < engine.length(); bit++) {
                 boolean state = (hexValue & (1 << bit)) != 0;
                 engine.getBlock(index).setState(state);
+                engine.getBlock(index).setColor(-2);
                 index ++;
             }
         }

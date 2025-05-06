@@ -23,10 +23,10 @@ public class SpookyTheme implements SpecialFeature {
         return 999; // EventSpecial
     }
     public String getFeatureName() {
-        return "EventSpecial";
+        return "SpookyTheme";
     }
     public String getGroupName() {
-        return "ColorModifier";
+        return "EventSpecial";
     }
     public String getFeatureDescription() {
         return "Halloween Special! Spooky spooky spooky!";

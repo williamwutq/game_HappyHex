@@ -1,3 +1,27 @@
+/*
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ */
+
 package hexio;
 
 import hex.*;
@@ -169,7 +193,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
-        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         moveQueues = new ArrayList<Piece[]>();
@@ -183,7 +207,7 @@ public class HexLogger {
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     private HexLogger(String fileName){
         dataFile = fileName;
-        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         moveQueues = new ArrayList<Piece[]>();
@@ -600,7 +624,7 @@ public class HexLogger {
      * This is almost equal to create another logger.
      */
     public void erase() {
-        currentEngine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
         movePieces = new ArrayList<Integer>();
@@ -611,7 +635,6 @@ public class HexLogger {
 
     /**
      * Deletes the file related to this {@code HexLogger} if exists
-     *
      * @return true if the file is deleted, false otherwise
      */
     public boolean deleteFile() {
@@ -1065,7 +1088,7 @@ public class HexLogger {
      *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
      *     radius, and blocks. The block record of the engine does not contain colors.</li>
      *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
-     *      *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
+     *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
      *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
      *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
      *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>

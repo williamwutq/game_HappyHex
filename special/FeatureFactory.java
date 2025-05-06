@@ -11,6 +11,12 @@ public class FeatureFactory {
                 return new special.Valentine.FilledWithLove();
             } else if ((date.getMonthValue() == 10 && date.getDayOfMonth() == 31)) {
                 return new special.Halloween.SpookyTheme();
+            } else if ((date.getMonthValue() == 7 && date.getDayOfMonth() == 4)) {
+                if (hint.equals("Dark") || hint.equals("4")) {
+                    return new special.Independence.AmericanBlackTheme();
+                } else {
+                    return new special.Independence.AmericanWhiteTheme();
+                }
             } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || randomChance1) {
                 return new special.Styles.Grayscale();
             } else if (hint.equals("Dark") || hint.equals("4")) {
