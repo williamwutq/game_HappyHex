@@ -160,8 +160,8 @@ public class HexTest {
     @Test
     void testToString() {
         Hex hex = new Hex(3, 6);
-        String expected = "{hex I,J,K = {3, 9, 6}, Line I,J,K = {5, -1, 4}, Rect X,Y = {" +
-                (Math.sqrt(3) / 4 * 9) + ", " + (-3 / 4.0) + "}}";
+        String expected = "Hex[raw = {3, 9, 6}, line = {5, -1, 4}, rect = {" +
+                (Math.sqrt(3) / 4 * 9) + ", " + (-3 / 4.0) + "}]";
         assertEquals(expected, hex.toString(), "toString output should match");
     }
 }

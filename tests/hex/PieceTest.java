@@ -169,7 +169,7 @@ public class PieceTest {
         piece.add(0, 0);
         piece.add(1, 1);
 
-        String expected = "{Piece: {I = 0, J = 0, K = 0}{I = 1, J = 0, K = 1}}";
+        String expected = "Piece{{0, 0, 0, true}, {1, 0, 1, true}}";
         assertEquals(expected, piece.toString(), "toString output should match");
     }
 

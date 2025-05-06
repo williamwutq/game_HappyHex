@@ -189,8 +189,8 @@ public class HexEngineTest {
     void testToString() {
         HexEngine engine = createTestEngine();
         String str = engine.toString();
-        assertTrue(str.contains("{I = 0, J = 0, K = 0},false"), "String should include block states");
-        assertTrue(str.startsWith("{HexEngine: "), "String should start with HexEngine prefix");
+        assertTrue(str.contains("{0, 0, 0, false}"), "String should include block states");
+        assertTrue(str.startsWith("HexEngine["), "String should start with HexEngine prefix");
     }
 
     @Test

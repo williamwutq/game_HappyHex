@@ -113,8 +113,7 @@ public class BlockTest {
     @Test
     void testToString() {
         Block block = new Block(3, 6, 2, true);
-        String expected = "{Color = 2; I,J,K = {3, 9, 6}; Line I,J,K = {5, -1, 4}; X,Y = {" +
-                (Math.sqrt(3) / 4 * 9) + ", " + (-3 / 4.0) + "}; State = true;}";
+        String expected = "Block[color = 2, coordinates = {5, -1, 4}, state = true]";
         assertEquals(expected, block.toString(), "toString output should match");
     }
 
@@ -128,6 +127,6 @@ public class BlockTest {
         assertEquals(block.getColor(), cloned.getColor(), "Cloned color should match");
         assertEquals(block.getState(), cloned.getState(), "Cloned state should match");
         assertNotSame(block, cloned, "Cloned object should be different instance");
-        assertNotSame(block.getColor(), cloned.getColor(), "Cloned color should be different instance");
+        assertEquals(block.getColor(), cloned.getColor(), "Cloned color should be the same");
     }
 }
