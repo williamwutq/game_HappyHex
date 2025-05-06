@@ -408,11 +408,13 @@ public final class HexConverter {
         int color = -1;
         boolean state = false;
         try {
-            color = convertColorIndex(jsonObject);
-        } catch (Exception e) {}
-        try {
             state = jsonObject.getBoolean("state");
         } catch (Exception e) {}
+        try {
+            color = convertColorIndex(jsonObject);
+        } catch (Exception e) {
+            if (state) color = -2;
+        }
         return new Block(hex, color, state);
     }
     /**
@@ -466,7 +468,7 @@ public final class HexConverter {
         // Check first real block exists, and try to get color
         int size = jsonArray.size();
         int valid = 0;
-        int color = -1;
+        int color = -2;
         for (int i = 0; i < size; i ++){
             try {
                 Block block = convertBlock(jsonArray.getJsonObject(i));

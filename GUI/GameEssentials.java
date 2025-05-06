@@ -129,8 +129,7 @@ public final class GameEssentials {
             return gameBlockDefaultColor;
         } else if (index == -2){
             return pieceColors[(int)(Math.random()*12)];
-        }
-        return pieceColors[index];
+        } else return pieceColors[index];
     }
     public static Color getIndexedPieceColor(int index){
         if(index < 12 && index >= 0){
@@ -315,7 +314,7 @@ public final class GameEssentials {
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
-                    cloned.setColor(-2);
+                    //cloned.setColor((int)(Math.random()*12));
                     engine.setBlock(block.getLineI(), block.getLineK(), cloned);
                 }
             }
@@ -323,7 +322,7 @@ public final class GameEssentials {
             for (int i = 0; i < loggerQueue.length; i++) {
                 Piece piece = loggerQueue[i];
                 if (piece != null) {
-                    piece.setColor(-2);
+                    //piece.setColor((int)(Math.random()*12));
                     queue.inject(piece, i);
                 }
             }
