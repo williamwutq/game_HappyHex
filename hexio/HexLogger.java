@@ -189,7 +189,7 @@ public class HexLogger {
     /** Directory for storing game files. */
     private static final String dataDirectory = "data/";
     /** Format of the data logged into the JSON file. */
-    private static final String dataFormat = "hex.uncolored";
+    private static final String dataFormat = "hex.colored";
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
@@ -733,9 +733,10 @@ public class HexLogger {
      * and writes it to a JSON or binary file. This includes the basic game information, the current
      * {@link HexEngine} statues, the current {@link Piece} queue statues, and the moves in the game.
      * This uses the specified format passed in. If the format is {@code hex.binary}, it out put a .bin file.
-     * @param format The format of the JSON log. Default to the default format {@code hex.uncolored} if not valid.
+     * @param format The format of the JSON log. Default to the default format {@code hex.basic} if not valid.
      * @throws IOException If JSON creation or writing fails.
      * @see #createBasicData(JsonObjectBuilder)
+     * @see #createColoredData(JsonObjectBuilder)
      * @see #createUncoloredData(JsonObjectBuilder)
      * @see #read()
      * @see #write()
@@ -805,6 +806,8 @@ public class HexLogger {
             if (format.substring(0, 3).equals("hex")) {
                 if (format.equals("hex.uncolored")) {
                     createUncoloredData(jsonObjectBuilder);
+                } if (format.equals("hex.colored")) {
+                    createColoredData(jsonObjectBuilder);
                 } else {
                     createBasicData(jsonObjectBuilder);
                 }
@@ -847,6 +850,56 @@ public class HexLogger {
                 jsonMoveBuilder.add("order", i);
                 jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
                 jsonMoveBuilder.add("piece", HexConverter.convertPiece(moveQueues.get(i)[movePieces.get(i)]));
+            } catch (Exception e) {
+                throw new IOException("Failed to create JSON objects for moves");
+            }
+            jsonMoveArrayBuilder.add(jsonMoveBuilder);
+        }
+        builder.add("moves", jsonMoveArrayBuilder);
+    }
+
+    /**
+     * Constructs a complete JSON object from the current logger information and writes it to a file.
+     * This includes the basic game information, the current {@link HexEngine} statues and its color,
+     * the current {@link Piece} queue statues and piece colors, and the moves in the game.
+     * This use the {@code hex.colored} format.
+     * <p>
+     * This method appends information to the {@link JsonObjectBuilder} passed in as parameter.
+     * @param builder The builder to accept JSON information.
+     * @throws IOException If JSON creation or writing fails.
+     * @see #write(String)
+     * @since 1.3
+     */
+    public void createColoredData(JsonObjectBuilder builder) throws IOException {
+        // Write game statues
+        builder.add("completed", completed);
+        builder.add("turn", turn);
+        builder.add("score", score);
+
+        // Write engine
+        builder.add("engine", HexConverter.convertIndexColoredEngine(currentEngine));
+
+        // Write queue
+        JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
+        for (Piece piece : currentQueue) {
+            jsonQueueBuilder.add(HexConverter.convertIndexColoredPiece(piece));
+        }
+        builder.add("queue", jsonQueueBuilder);
+
+        // Write moves
+        JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
+        int totalMoves = moveOrigins.size();
+        for (int i = 0; i < totalMoves; i ++) {
+            JsonObjectBuilder jsonMoveBuilder = Json.createObjectBuilder();
+            try {
+                jsonMoveBuilder.add("order", i);
+                jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
+                jsonMoveBuilder.add("index", movePieces.get(i));
+                JsonArrayBuilder jsonMoveQueueBuilder = Json.createArrayBuilder();
+                for (Piece piece : moveQueues.get(i)) {
+                    jsonMoveQueueBuilder.add(HexConverter.convertIndexColoredPiece(piece));
+                }
+                jsonMoveBuilder.add("queue", jsonMoveQueueBuilder);
             } catch (Exception e) {
                 throw new IOException("Failed to create JSON objects for moves");
             }
