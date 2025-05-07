@@ -24,18 +24,20 @@
 
 package viewer.graphics.frame;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Keyboard extends Component {
+public class Keyboard extends JComponent {
     private final static String font = "Courier";
     private double size;
     private ActionListener listener;
     private Key[][] keys;
     public Keyboard(ActionListener listener){
         this.listener = listener;
-        resetSize();
+        this.setBackground(new Color(85, 85, 85));
+        this.setLayout(null);
         // Construct keys
         keys = new Key[5][5];
         keys[0][0] = new Key(" 0 ");
@@ -63,63 +65,69 @@ public class Keyboard extends Component {
         keys[4][2] = new Key(" > ");
         keys[4][3] = new Key("CNF");
         keys[4][4] = new Key("ENT");
+        for (int i = 0; i < keys.length; i++) {
+            for (int j = 0; j < keys[i].length; j++) {
+                keys[i][j].setBounds(j,i,1,1);
+                this.add(keys[i][j]);
+            }
+        }
     }
     /**
      * Reset the size of individual keys in the panel by to match the maximum size allowed in this panel.
      */
-    public boolean resetSize(){
+    public void resetSize(){
         // Calculate size
-        double newSize = (Math.min((getHeight()-6) * 0.2, (getWidth()-6) * 0.2));
-        if (Math.abs(newSize - size) < 1) return false;
-        size = newSize;
-        return true;
-    }
-    public void paint(Graphics g){
-        if (resetSize()){
-            for (Key[] keyArr : keys) {
-                for (Key key : keyArr) {
-                    key.resetSize();
-                }
+        int height = getHeight()-6;
+        int width = getWidth()-6;
+        size = (Math.min(height * 0.2, width * 0.2));
+        int sizeInt = (int) size;
+        for (int i = 0; i < keys.length; i++) {
+            int sizedI = 3 + (int)((i-2.5)*size) + height/2;
+            for (int j = 0; j < keys[i].length; j++) {
+                Key key = keys[i][j];
+                key.setBounds(3 + (int)((j-2.5)*size)+ width/2, sizedI, sizeInt, sizeInt);
+                key.resetSize();
             }
         }
+    }
+    public void paint(Graphics g){
+        resetSize();
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.setColor(new Color(187, 187, 187));
+        g2.setColor(this.getBackground());
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), (int) size, (int) size);
         g2.dispose();
-        for (int i = 0; i < keys.length; i++) {
-            for (int j = 0; j < keys[i].length; j++) {
-                paintKey(g, keys[i][j], j, i);
-            }
-        }
+        paintChildren(g);
     }
-    private class Key extends Button implements ActionListener {
+    private class Key extends JButton implements ActionListener {
         private String key;
         private Key(String key){
             this.key = key;
             setFont(new Font(font, Font.BOLD, (int) (size/2)));
             setSize((int) size, (int) size);
-            setForeground(Color.DARK_GRAY);
-            setLabel(key);
+            setText(key);
+            setOpaque(false);
+            setContentAreaFilled(false);
+            setFocusPainted(false);
             addActionListener(this);
         }
         public void resetSize(){
             setFont(new Font(font, Font.BOLD, (int) (size/2)));
             setSize((int) size, (int) size);
         }
+        public void paint(Graphics g){
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(Color.WHITE);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.fillRoundRect((int)(size * 0.1), (int)(size * 0.1), (int)(size * 0.8), (int)(size * 0.8), (int)(size * 0.8), (int)(size * 0.8));
+            g2.setColor(Keyboard.this.getBackground());
+            g2.setFont(new Font(font, Font.BOLD, (int) (size * 0.4)));
+            g2.drawString(key, (int) (size*0.14), (int) (size * 0.64));
+            g2.dispose();
+        }
         public void actionPerformed(ActionEvent e) {
             listener.actionPerformed(new ActionEvent(e, e.getID(), "press " + key));
         }
-    }
-    private void paintKey(Graphics g, Key key, int row, int col){
-        Graphics2D g2 = (Graphics2D) g.create((int)(size * row)+3, (int)(size * col)+3, (int)size, (int)size);
-        g2.setColor(Color.WHITE);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.fillRoundRect((int)(size * 0.1), (int)(size * 0.1), (int)(size * 0.8), (int)(size * 0.8), (int)(size * 0.8), (int)(size * 0.8));
-        g2.setColor(Color.LIGHT_GRAY);
-        g2.setFont(new Font(font, Font.BOLD, (int) (size * 0.4)));
-        g2.drawString(key.key, (int) (size*0.14), (int) (size * 0.64));
-        g2.dispose();
     }
     public static void main(String[] args){
         viewer.Viewer.test(new Keyboard(e -> {
