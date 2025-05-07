@@ -18,9 +18,9 @@ public class GamePanel extends Panel {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The hexagonal game engine containing the main board state. */
-    private HexEngine engine;
+    private final HexEngine engine;
     /** The queue of upcoming pieces to be displayed. */
-    private Piece[] queue;
+    private final Piece[] queue;
     /** Size of each hexagon based on panel dimensions and board layout. */
     private double size;
     /** Half the height of the panel, used to center drawing vertically. */
@@ -28,9 +28,11 @@ public class GamePanel extends Panel {
     /** Half the width of the panel, used to center drawing horizontally. */
     private int halfWidth;
     /** Path containing all filled (state = true) {@link Block} to be painted. */
-    private GeneralPath filledBlocks;
+    private final GeneralPath filledBlocks;
     /** Path containing all empty (state = false) {@link Block} to be painted. */
-    private GeneralPath emptyBlocks;
+    private final GeneralPath emptyBlocks;
+    /** Path containing all highlighted {@link Block} to be painted. */
+    private final GeneralPath highlightedBlocks;
     /** Reference X coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
     private final double[] xReferencePoints = {sinOf60, sinOf60 * 1.9, sinOf60 * 1.9, sinOf60, sinOf60 * 0.1, sinOf60 * 0.1};
     /** Reference Y coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
@@ -45,6 +47,7 @@ public class GamePanel extends Panel {
         this.queue = queue;
         filledBlocks = new GeneralPath();
         emptyBlocks = new GeneralPath();
+        highlightedBlocks = new GeneralPath();
         resetSize();
     }
     /**
@@ -69,6 +72,7 @@ public class GamePanel extends Panel {
         resetSize();
         filledBlocks.reset();
         emptyBlocks.reset();
+        highlightedBlocks.reset();
         Graphics g2 = g.create();
         g2.setColor(Color.WHITE);
         g2.fillRect(0,0, getWidth(), getHeight());
@@ -81,7 +85,7 @@ public class GamePanel extends Panel {
             for (int j = 0; j < queue[i].length(); j ++){
                 block = queue[i].getBlock(j);
                 if (block != null) {
-                    paintHexagon( block.X() + x, block.Y() + move, block.getState());
+                    paintHexagon( block.X() + x, block.Y() + move, block.getState()?-1:-2);
                 }
             }
         }
@@ -89,7 +93,7 @@ public class GamePanel extends Panel {
         move = engine.getRadius() * sinOf60 - sinOf60 * 0.5;
         for (int i = 0; i < engine.length(); i ++){
             block = engine.getBlock(i);
-            paintHexagon(block.X() - move, block.Y() - 1.75, block.getState());
+            paintHexagon(block.X() - move, block.Y() - 1.75, block.getState()?-1:-2);
         }
         Graphics2D g3 = (Graphics2D) g.create();
         g3.setColor(Color.LIGHT_GRAY);
@@ -99,15 +103,26 @@ public class GamePanel extends Panel {
         g3.setColor(Color.DARK_GRAY);
         g3.fill(emptyBlocks);
         g3.dispose();
+        g3 = (Graphics2D) g.create();
+        g3.setColor(new Color(204, 204, 204));
+        g3.fill(highlightedBlocks);
+        g3.dispose();
     }
     /**
      * Adds a hexagon to the appropriate path (filled or empty) based on its state and coordinates.
      * @param x the X-coordinate in board space
      * @param y the Y-coordinate in board space
-     * @param state true if the block is filled (active), false if empty (inactive)
+     * @param color the color index of the block, 0 represent highlighted, -1 represent empty, -2 represent filled.
      */
-    public final void paintHexagon(double x, double y, boolean state) {
-        GeneralPath path = state ? filledBlocks : emptyBlocks;
+    public final void paintHexagon(double x, double y, int color) {
+        GeneralPath path;
+        if (color == -2){
+            path = filledBlocks;
+        } else if (color == 0){
+            path = highlightedBlocks;
+        } else {
+            path = emptyBlocks;
+        }
         path.moveTo(halfWidth + size * (2 * x + xReferencePoints[0]), halfHeight + size * (2 * y + yReferencePoints[0]));
         for (int i = 1; i < 6; i++) {
             path.lineTo(halfWidth + size * (2 * x + xReferencePoints[i]), halfHeight + size * (2 * y + yReferencePoints[i]));
