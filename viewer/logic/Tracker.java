@@ -436,8 +436,12 @@ public class Tracker {
     }
 
     public static void main(String[] args) throws IOException {
+        int index = 0;
+        try{
+            index = Integer.parseInt(args[0]);
+        } catch (Exception e) {}
         // Test main
-        HexLogger logger = HexLogger.generateBinaryLoggers().getFirst();
+        HexLogger logger = HexLogger.generateBinaryLoggers().get(index);
         logger.readBinary();
         Tracker tracker = new Tracker(logger);
         viewer.graphics.frame.GamePanel panel = new viewer.graphics.frame.GamePanel(tracker.engineAt(0), tracker.queueAt(0));
