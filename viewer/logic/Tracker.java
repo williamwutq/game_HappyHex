@@ -7,6 +7,7 @@ import hex.Piece;
 import hexio.HexLogger;
 import java.util.Arrays;
 import java.io.IOException;
+import java.util.Objects;
 
 public class Tracker {
     private final HexEngine[] engines;
@@ -329,6 +330,33 @@ public class Tracker {
     public void setPointer(int pointer){
         checkIndex(pointer);
         this.pointer = pointer;
+    }
+
+    // Equality
+    /**
+     * Returns true if the other object represent the same game as this {@link Tracker}.
+     * The equality concerns about the values in the game {@link #engines}, {@link #queues}, piece placement
+     * {@link #origins positions}, and {@link #scores} for each turn. Pointer position does not matter.
+     *
+     * @param object the reference object with which to compare.
+     * @return true if the other object represent the exact same game as this {@code Tracker}, false otherwise
+     */
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Tracker tracker)) return false;
+        return length == tracker.length
+                && Objects.deepEquals(engines, tracker.engines) && Objects.deepEquals(origins, tracker.origins)
+                && Objects.deepEquals(queues, tracker.queues) && Objects.deepEquals(scores, tracker.scores);
+    }
+    /**
+     * Returns a hash code value for this {@code Tracker} object.
+     * The value concerns about the values in the game {@link #engines}, {@link #queues}, piece placement
+     * {@link #origins positions}, and {@link #scores} for each turn.
+     *
+     * @return the generated hash code value for this {@code Tracker}
+     */
+    public int hashCode() {
+        return Objects.hash(Arrays.hashCode(engines), Arrays.hashCode(origins), Arrays.deepHashCode(queues), Arrays.hashCode(scores));
     }
 
     public static void main(String[] args) throws IOException {
