@@ -236,10 +236,18 @@ public class Tracker {
         }
     }
     public static void main(String[] args) throws IOException {
+        // Test main
         HexLogger logger = HexLogger.generateBinaryLoggers().getFirst();
         logger.readBinary();
         Tracker tracker = new Tracker(logger);
-        viewer.graphics.frame.GamePanel panel = new viewer.graphics.frame.GamePanel(tracker.engineAt(23), tracker.queueAt(23));
+        viewer.graphics.frame.GamePanel panel = new viewer.graphics.frame.GamePanel(tracker.engineAt(0), tracker.queueAt(0));
         viewer.Viewer.test(panel);
+        for (int i = 0; i < tracker.length(); i ++){
+            try{
+                Thread.sleep(400);
+            } catch (InterruptedException e){}
+            panel.setEngine(tracker.engineAt(i));
+            panel.setQueue(tracker.queueAt(i));
+        }
     }
 }
