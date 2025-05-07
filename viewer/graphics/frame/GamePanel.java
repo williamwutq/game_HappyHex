@@ -13,10 +13,8 @@ public class GamePanel extends Panel {
     private HexEngine engine;
     private Piece[] queue;
     private double size;
-    private double engineWidthExtension;
-    private double queueWidthExtension;
-    private double engineHeightExtension;
-    private double queueHeightExtension;
+    private int halfHeight;
+    private int halfWidth;
     private GeneralPath path;
     private final double[] xReferencePoints = {sinOf60, sinOf60 * 1.9, sinOf60 * 1.9, sinOf60, sinOf60 * 0.1, sinOf60 * 0.1};
     private final double[] yReferencePoints = {1.9, 1.45, 0.55, 0.1, 0.55, 1.45};
@@ -31,16 +29,12 @@ public class GamePanel extends Panel {
      */
     public void resetSize(){
         // Calculate size
-        int height = getHeight()-6;
-        int width = getWidth()-6;
-        double horizontalCount = engine.getRadius() * 4 - 2;
-        double verticalCount = engine.getRadius() * 3 + 4;
-        size = (Math.min(height / verticalCount, width / horizontalCount / sinOf60));
-        int length = engine.getRadius() * 2 - 1;
-        engineWidthExtension = width * 0.5 - length * size * sinOf60;
-        queueWidthExtension = width * 0.5 - queue.length * 3 * size * sinOf60;
-        engineHeightExtension = height * 0.5 - 3.5 * size;
-        queueHeightExtension = height - 3.5 * size;
+        halfHeight = getHeight()/2-3;
+        halfWidth = getWidth()/2-3;
+        int radius = engine.getRadius();
+        int length = radius * 2 - 1;
+        double vertical = radius * 1.5 + 2;
+        size = (Math.min(halfHeight / vertical, halfWidth / sinOf60 / length));
     }
     /**
      * Paints this engine panel containing all its engine components
@@ -52,30 +46,32 @@ public class GamePanel extends Panel {
         path = new GeneralPath();
         Graphics g2 = g.create();
         g2.setColor(Color.WHITE);
-        //g2.fillRect(0,0, getWidth(), getHeight());
+        g2.fillRect(0,0, getWidth(), getHeight());
         Block block;
         // Paint queue
+        double move = (engine.getRadius() - 1) * 0.75;
         for (int i = 0; i < queue.length; i ++){
-            double x = (i * 3 + 1) * sinOf60;
+            double x = (i - queue.length * 0.5) * 3 * sinOf60;
             for (int j = 0; j < queue[i].length(); j ++){
                 block = queue[i].getBlock(j);
                 if (block != null) {
-                    paintHexagon(queueWidthExtension, queueHeightExtension, block.X() + x, block.Y());
+                    paintHexagon(0, 0, block.X() + x, block.Y() + move);
                 }
             }
         }
         // Paint engine
+        move = engine.getRadius() * sinOf60 - sinOf60 * 0.5;
         for (int i = 0; i < engine.length(); i ++){
             block = engine.getBlock(i);
-            paintHexagon(engineWidthExtension, engineHeightExtension, block.X(), block.Y());
+            paintHexagon(0, 0, block.X() - move, block.Y() - 1.75);
         }
         Graphics2D g3 = (Graphics2D) g.create();
         g3.fill(path);
     }
     public final void paintHexagon(double widthExtension, double heightExtension, double x, double y) {
-        path.moveTo(widthExtension + size * (2 * x + xReferencePoints[0]), heightExtension + size * (2 * y + yReferencePoints[0]));
+        path.moveTo(halfWidth + widthExtension + size * (2 * x + xReferencePoints[0]), halfHeight + heightExtension + size * (2 * y + yReferencePoints[0]));
         for (int i = 1; i < 6; i++) {
-            path.lineTo(widthExtension + size * (2 * x + xReferencePoints[i]), heightExtension + size * (2 * y + yReferencePoints[i]));
+            path.lineTo(halfWidth + widthExtension + size * (2 * x + xReferencePoints[i]), halfHeight + heightExtension + size * (2 * y + yReferencePoints[i]));
         }
         path.closePath();
     }
