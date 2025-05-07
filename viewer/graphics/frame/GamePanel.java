@@ -16,6 +16,8 @@ public class GamePanel extends Panel {
     private double queueWidthExtension;
     private double engineHeightExtension;
     private double queueHeightExtension;
+    private final double[] xReferencePoints = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, -sinOf60 * 0.9, -sinOf60 * 0.9};
+    private final double[] yReferencePoints = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
     public GamePanel(HexEngine engine, Piece[] queue){
         this.engine = engine;
         this.queue = queue;
@@ -79,8 +81,8 @@ public class GamePanel extends Panel {
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
             double angle = Math.toRadians(60 * i);
-            xPoints[i] = 3 + (int) Math.round(engineWidthExtension + size * (x + sinOf60 + Math.sin(angle) * 0.9));
-            yPoints[i] = 3 + (int) Math.round(engineHeightExtension + size * (y + 1.0 + Math.cos(angle) * 0.9));
+            xPoints[i] = 3 + (int) Math.round(engineWidthExtension + size * (x + sinOf60 + xReferencePoints[i]));
+            yPoints[i] = 3 + (int) Math.round(engineHeightExtension + size * (y + 1.0 + yReferencePoints[i]));
         }
         g.fillPolygon(xPoints, yPoints, 6);
         g.dispose();
@@ -104,9 +106,8 @@ public class GamePanel extends Panel {
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
-            double angle = Math.toRadians(60 * i);
-            xPoints[i] = 3 + (int) Math.round(queueWidthExtension + size * (x + 3 * sinOf60 + Math.sin(angle) * 0.9));
-            yPoints[i] = 3 + (int) Math.round(queueHeightExtension + size * (y + 1.0 + Math.cos(angle) * 0.9));
+            xPoints[i] = 3 + (int) Math.round(queueWidthExtension + size * (x + 3 * sinOf60 + xReferencePoints[i]));
+            yPoints[i] = 3 + (int) Math.round(queueHeightExtension + size * (y + 1.0 + yReferencePoints[i]));
         }
         g.fillPolygon(xPoints, yPoints, 6);
         g.dispose();
