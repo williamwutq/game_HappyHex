@@ -85,7 +85,7 @@ public class GamePanel extends Panel {
             for (int j = 0; j < queue[i].length(); j ++){
                 block = queue[i].getBlock(j);
                 if (block != null) {
-                    paintHexagon( block.X() + x, block.Y() + move, block.getState()?-1:-2);
+                    paintHexagon( block.X() + x, block.Y() + move, block.getState()?block.getColor():-1);
                 }
             }
         }
@@ -93,10 +93,10 @@ public class GamePanel extends Panel {
         move = engine.getRadius() * sinOf60 - sinOf60 * 0.5;
         for (int i = 0; i < engine.length(); i ++){
             block = engine.getBlock(i);
-            paintHexagon(block.X() - move, block.Y() - 1.75, block.getState()?-1:-2);
+            paintHexagon(block.X() - move, block.Y() - 1.75, block.getState()?block.getColor():-1);
         }
         Graphics2D g3 = (Graphics2D) g.create();
-        g3.setColor(Color.LIGHT_GRAY);
+        g3.setColor(new Color(170, 170, 170));
         g3.fill(filledBlocks);
         g3.dispose();
         g3 = (Graphics2D) g.create();
@@ -104,7 +104,7 @@ public class GamePanel extends Panel {
         g3.fill(emptyBlocks);
         g3.dispose();
         g3 = (Graphics2D) g.create();
-        g3.setColor(new Color(204, 204, 204));
+        g3.setColor(new Color(221, 221, 221));
         g3.fill(highlightedBlocks);
         g3.dispose();
     }
