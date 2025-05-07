@@ -38,7 +38,7 @@ import java.awt.geom.GeneralPath;
  * @version 1.0 (HappyHex 1.3)
  * @since 1.0 (HappyHex 1.3)
  */
-public class GamePanel extends Panel {
+public final class GamePanel extends Component {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The hexagonal game engine containing the main board state. */
