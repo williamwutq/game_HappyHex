@@ -9,6 +9,58 @@ import java.util.Arrays;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * The {@code Tracker} class represents a comprehensive state tracker for the HappyHex game involving a
+ * game {@link HexEngine board}, a queue of {@link Piece} objects, game scores, and placement coordinates
+ * on a hexagonal grid ({@link Hex}).
+ * <p>
+ * This tracker is initialized using a {@link HexLogger}, which must contain a complete and valid sequence
+ * of game data, including the initial game state and all subsequent moves. This means that the logger must
+ * have read a valid file by either calling {@link HexLogger#read()} or {@link HexLogger#readBinary()}.
+ * Upon construction, the {@code Tracker} internally simulates all moves in sequence to reconstruct each
+ * full game state, capturing the evolution of the board, queue states, placement positions, and score
+ * progressions over time. It defaults all {@link Block} colors to default colors but highlight recent changes.
+ * <p>
+ * Unlike {@link HexLogger}, which stores dynamic game data using {@code ArrayLists} primarily for I/O purposes,
+ * this class contains fixed, immutable data. While duplicating {@code HexLogger} instances is not recommended
+ * due to potential file access conflicts, it is safe and efficient to create multiple identical {@code Tracker}
+ * instances from the same game data from a single {@code HexLogger}. Furthermore, {@code HexLogger} optimizes
+ * for storage by recording only delta (change; game move) values, whereas {@code Tracker} maintains the full
+ * set of data. This makes {@code Tracker} slower to initialize but significantly more efficient when accessing
+ * specific game states in the past, thanks to its internal caching mechanism.
+ * <p>
+ * The tracker maintains the following data for each state:
+ * <ul>
+ *     <li>The state of the {@link HexEngine} board.</li>
+ *     <li>The queue of {@link Piece} objects (with color index annotations for added and eliminated pieces).</li>
+ *     <li>The origin {@link Hex} coordinate of each piece placement (null for the initial setup).</li>
+ *     <li>The cumulative score after each turn, calculated based on the length of placed pieces and eliminations.</li>
+ * </ul>
+ * <p>
+ * This class allows for retrieving data in full (e.g., all game boards via {@link #engines()}) or at specific
+ * points in time (e.g., board at a given move via {@link #engineAt(int)}). A {@link #getPointer() pointer} is also
+ * included with convenient methods to {@link #advancePointer() advance} and {@link #decrementPointer() decrement}
+ * it. Build-in methods (e.g., board at pointer move via {@link #engine()}) to get data at the game state pointed
+ * by the pointer will not cause {@link IndexOutOfBoundsException}. The total number of states is always one more
+ * than the number of moves to include the initial game state.
+ * <p>
+ * This class also applies color indices for visual or UI highlighting:
+ * <ul>
+ *     <li>Newly added or active {@link Piece} objects are assigned color index {@code 0}.</li>
+ *     <li>Eliminated blocks are assigned color index {@code 1}.</li>
+ * </ul>
+ * <p>
+ * Attempting to construct a {@code Tracker} with invalid logger data will result in an {@link IllegalArgumentException}.
+ * Index-based methods validate bounds and throw {@link IndexOutOfBoundsException} if accessed improperly.
+ *
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ * @see HexEngine
+ * @see HexLogger
+ * @see Piece
+ * @see Hex
+ */
 public class Tracker {
     private final HexEngine[] engines;
     private final Hex[] origins;
