@@ -5,6 +5,7 @@ import hex.HexEngine;
 import hex.Piece;
 
 import java.awt.*;
+import java.awt.geom.GeneralPath;
 
 public class GamePanel extends Panel {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
@@ -16,11 +17,13 @@ public class GamePanel extends Panel {
     private double queueWidthExtension;
     private double engineHeightExtension;
     private double queueHeightExtension;
-    private final double[] xReferencePoints = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, -sinOf60 * 0.9, -sinOf60 * 0.9};
-    private final double[] yReferencePoints = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
+    private GeneralPath path;
+    private final double[] xReferencePoints = {sinOf60, sinOf60 * 1.9, sinOf60 * 1.9, sinOf60, sinOf60 * 0.1, sinOf60 * 0.1};
+    private final double[] yReferencePoints = {1.9, 1.45, 0.55, 0.1, 0.55, 1.45};
     public GamePanel(HexEngine engine, Piece[] queue){
         this.engine = engine;
         this.queue = queue;
+        path = new GeneralPath();
         resetSize();
     }
     /**
@@ -81,8 +84,8 @@ public class GamePanel extends Panel {
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
             double angle = Math.toRadians(60 * i);
-            xPoints[i] = 3 + (int) Math.round(engineWidthExtension + size * (x + sinOf60 + xReferencePoints[i]));
-            yPoints[i] = 3 + (int) Math.round(engineHeightExtension + size * (y + 1.0 + yReferencePoints[i]));
+            xPoints[i] = 3 + (int) Math.round(engineWidthExtension + size * (x + xReferencePoints[i]));
+            yPoints[i] = 3 + (int) Math.round(engineHeightExtension + size * (y + yReferencePoints[i]));
         }
         g.fillPolygon(xPoints, yPoints, 6);
         g.dispose();
@@ -106,11 +109,18 @@ public class GamePanel extends Panel {
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
-            xPoints[i] = 3 + (int) Math.round(queueWidthExtension + size * (x + 3 * sinOf60 + xReferencePoints[i]));
-            yPoints[i] = 3 + (int) Math.round(queueHeightExtension + size * (y + 1.0 + yReferencePoints[i]));
+            xPoints[i] = 3 + (int) Math.round(queueWidthExtension + size * (x + 2 * sinOf60 + xReferencePoints[i]));
+            yPoints[i] = 3 + (int) Math.round(queueHeightExtension + size * (y + yReferencePoints[i]));
         }
         g.fillPolygon(xPoints, yPoints, 6);
         g.dispose();
+    }
+    public final void paintHexagon(int widthExtension, int heightExtension, double x, double y) {
+        path.moveTo(widthExtension + size * (x + xReferencePoints[0]), heightExtension + size * (y + yReferencePoints[0]));
+        for (int i = 1; i < 6; i++) {
+            path.lineTo(widthExtension + size * (x + xReferencePoints[i]), heightExtension + size * (y + yReferencePoints[i]));
+        }
+        path.closePath();
     }
     public static void main(String[] args){
         Piece piece1 = new Piece(4, 4);
