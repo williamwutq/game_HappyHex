@@ -1,5 +1,6 @@
 package viewer.logic;
 
+import hex.Block;
 import hex.Hex;
 import hex.HexEngine;
 import hex.Piece;
@@ -26,6 +27,11 @@ public class Tracker {
      * <p>
      * All the recorded game information will be stored in instance variables in
      * this {@code Tracker}, which can be accessed through getter methods.
+     * <p>
+     * Recent changes, such as selected {@link Piece} in the piece queue, placed piece in the
+     * {@link HexEngine engine}, or eliminated changes, will be applied separate color for
+     * highlighting. Specifically, added or to be added pieces will receive color index 0 and
+     * eliminated blocks will receive color index 1.
      *
      * @param logger the logger with valid game data stored inside (This means you need to call
      *               {@link HexLogger#read} or {@link HexLogger#readBinary} in advance).
@@ -41,15 +47,36 @@ public class Tracker {
         scores[0] = 0;
         engines[0] = new HexEngine(logger.getEngine().getRadius());
         queues[length - 1] = logger.getQueue();
-        System.arraycopy(logger.getMoveQueues(), 0, queues, 0, length - 1);
+        Piece[][] loggerQueues = logger.getMoveQueues();
+        int[] loggerIndexes = logger.getMovePieceIndexes();
+        for (int turn = 0; turn < length - 1; turn ++){
+            Piece[] queue = loggerQueues[turn];
+            for (int i = 0; i < queue.length; i++) {
+                if (loggerIndexes[turn] == i){
+                    queue[i].setColor(0);
+                } else {
+                    queue[i].setColor(-2);
+                }
+            }
+            queues[turn] = queue;
+        }
         System.arraycopy(logger.getMoveOrigins(), 0, origins, 1, length - 1);
         for (int turn = 1; turn < length; turn ++){
-            HexEngine duplicatedEngine = engines[turn-1].clone();
+            HexEngine existingEngine = engines[turn - 1];
+            HexEngine duplicatedEngine = new HexEngine(existingEngine.getRadius());
+            for(int i = 0; i < duplicatedEngine.length(); i ++){
+                duplicatedEngine.setState(i, existingEngine.getBlock(i).getState());
+            }
             try{
                 Piece piece = logger.getMovePieces()[turn-1];
+                piece.setColor(0);
                 duplicatedEngine.add(origins[turn], piece);
+                Block[] eliminated = duplicatedEngine.eliminate();
+                for (Block block : eliminated){
+                    duplicatedEngine.getBlock(block.getLineI(), block.getLineK()).setColor(1);
+                }
                 scores[turn] += piece.length();
-                scores[turn] += 5 * duplicatedEngine.eliminate().length;
+                scores[turn] += 5 * eliminated.length;
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Tracker cannot be created because error occurred reading game data, ", e.getCause());
             }
@@ -212,6 +239,7 @@ public class Tracker {
         HexLogger logger = HexLogger.generateBinaryLoggers().getFirst();
         logger.readBinary();
         Tracker tracker = new Tracker(logger);
-        System.out.println(tracker);
+        viewer.graphics.frame.GamePanel panel = new viewer.graphics.frame.GamePanel(tracker.engineAt(23), tracker.queueAt(23));
+        viewer.Viewer.test(panel);
     }
 }
