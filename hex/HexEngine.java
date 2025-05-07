@@ -223,21 +223,24 @@ public class HexEngine implements HexGrid{
     }
     /**
      * Sets the {@link Block} state at the specified array index.
-     * Automatically set color to default unfilled color if state is false.
+     * Automatically set color to default unfilled color if state is false,
+     * set color to default filled color if the state is true.
      *
      * @param index the block array index
      * @param state the new state to set for the {@code Block} at this index.
+     * @see #length()
      * @since 1.3
      */
     public void setState(int index, boolean state){
         blocks[index].setState(state);
-        if (!state) blocks[index].setColor(-1);
+        blocks[index].setColor(state?-2:-1);
     }
     /**
      * Sets the {@link Block} color index at the specified array index.
      *
      * @param index the block array index
      * @param color the new color to set for the {@code Block} at this index.
+     * @see #length()
      * @since 1.3
      */
     public void setColor(int index, int color){
