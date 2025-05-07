@@ -14,6 +14,9 @@ public class Tracker {
     private final Piece[][] queues;
     private final int[] scores;
     private final int length;
+    private int pointer;
+
+    // Constructor
     /**
      * Create a {@code Tracker} object to track the progression of a game by reading game
      * information from a {@link HexLogger}. This logger need to contain valid game information,
@@ -38,6 +41,7 @@ public class Tracker {
      * @throws IllegalArgumentException if reading game data from logger failed
      */
     public Tracker(HexLogger logger) throws IllegalArgumentException{
+        this.pointer = 0;
         this.length = logger.getTurn() + 1;
         this.engines = new HexEngine[length];;
         this.queues = new Piece[length][logger.getQueue().length];
@@ -113,6 +117,8 @@ public class Tracker {
         sb.append("}]");
         return sb.toString();
     }
+
+    // Getters
     /**
      * Returns game {@link HexEngine board} array stored in the {@code Tracker}, containing completed game board data
      * across all game states by chronological order, starting from the initial state, where the {@code board}
@@ -121,6 +127,8 @@ public class Tracker {
      * The length of the array returned will be {@link #length}.
      *
      * @return an array of {@link HexEngine} representing the game board across all game states
+     * @see #engine
+     * @see #engineAt
      */
     public HexEngine[] engines() {
         return engines.clone();
@@ -133,6 +141,8 @@ public class Tracker {
      * The length of the array returned will be {@link #length}.
      *
      * @return an array of {@link Hex coordinates} representing the game piece placement across all game states
+     * @see #origin
+     * @see #originAt
      */
     public Hex[] origins() {
         return origins.clone();
@@ -144,6 +154,8 @@ public class Tracker {
      * The length of the array returned will be {@link #length}.
      *
      * @return an array of {@code Piece} arrays representing the game queue across all game states
+     * @see #queue
+     * @see #queueAt
      */
     public Piece[][] queues() {
         return queues.clone();
@@ -155,6 +167,8 @@ public class Tracker {
      * The length of the array returned will be {@link #length}.
      *
      * @return an array of {@code int} representing the game score across all game states
+     * @see #score
+     * @see #scoreAt
      */
     public int[] scores() {
         return scores.clone();
@@ -167,6 +181,19 @@ public class Tracker {
      */
     public int length() {
         return length;
+    }
+    /**
+     * Check whether the index passed in for accessing elements in this game {@code Tracker} is valid.
+     * If the passed in index is not valid, it will throw an {@link IndexOutOfBoundsException}. This method is intended
+     * to catch out-of-bounds index early to avoid further problems.
+     *
+     * @param index the index to check
+     * @throws IndexOutOfBoundsException if the index is not in range [0, length)
+     */
+    private void checkIndex(int index) throws IndexOutOfBoundsException{
+        if (index < 0 || index >= length) {
+            throw new ArrayIndexOutOfBoundsException("Index " + index + " out of bounds for length " + length);
+        }
     }
     /**
      * Returns the game {@link HexEngine board} at a specific indexed game state stored in the {@code Tracker}.
@@ -223,18 +250,87 @@ public class Tracker {
         return scores[index];
     }
     /**
-     * Check whether the index passed in for accessing elements in this game {@code Tracker} is valid.
-     * If the passed in index is not valid, it will throw an {@link IndexOutOfBoundsException}. This method is intended
-     * to catch out-of-bounds index early to avoid further problems.
+     * Returns the game {@link HexEngine board} at the game state represented by the {@link #getPointer() pointer}.
      *
-     * @param index the index to check
+     * @return a {@link HexEngine} representing the game board in the game state represented by the pointer.
+     * @see #engines()
+     */
+    public HexEngine engine(){
+        return engines[pointer];
+    }
+    /**
+     * Returns the game {@link Piece} placement {@link Hex coordinate} at
+     * the game state represented by the {@link #getPointer() pointer}.
+     *
+     * @return a {@link Hex} coordinate representing the game piece placement in the game state represented by the pointer.
+     * @see #origins()
+     */
+    public Hex origin() {
+        return origins[pointer];
+    }
+    /**
+     * Returns the game {@link Piece} queue at the game state represented by the {@link #getPointer() pointer}.
+     *
+     * @return an array of {@link Piece} representing the game {@code Piece} queue in the game state represented by the pointer.
+     * @see #queues()
+     */
+    public Piece[] queue() {
+        return queues[pointer];
+    }
+    /**
+     * Returns the game score at the game state represented by the {@link #getPointer() pointer}.
+     *
+     * @return an integer representing the game score queue in the game state represented by the pointer.
+     * @see #scores()
+     */
+    public int score() {
+        return scores[pointer];
+    }
+
+    // Pointer
+    /**
+     * Returns the current pointer pointing to a specific game state in the {@code Tracker}.
+     *
+     * @return the current pointer pointing to a specific game state in the {@code Tracker}
+     */
+    public int getPointer(){
+        return pointer;
+    }
+    /**
+     * Advances the current pointer pointing to a specific game state in the {@code Tracker}.
+     * If the pointer cannot advance due to reaching its end, it will stay at {@link #length} - 1.
+     *
+     * @return whether the pointer is advanced
+     */
+    public boolean advancePointer(){
+        if(pointer < length - 1){
+            pointer++;
+            return true;
+        } else return false;
+    }
+    /**
+     * Decrement the current pointer pointing to a specific game state in the {@code Tracker}.
+     * If the pointer cannot advance due to reaching its end, it will stay at 0.
+     *
+     * @return whether the pointer is decremented
+     */
+    public boolean decrementPointer(){
+        if(pointer > 0){
+            pointer--;
+            return true;
+        } else return false;
+    }
+    /**
+     * Sets the current pointer pointing to a specific game state in the {@code Tracker}.
+     *
+     * @param pointer the new pointer pointing to the desired game state in the {@code Tracker}, which is a valid index
      * @throws IndexOutOfBoundsException if the index is not in range [0, length)
      */
-    private void checkIndex(int index) throws IndexOutOfBoundsException{
-        if (index < 0 || index >= length) {
-            throw new ArrayIndexOutOfBoundsException("Index " + index + " out of bounds for length " + length);
-        }
+    public void setPointer(int pointer){
+        checkIndex(pointer);
+        this.pointer = pointer;
     }
+
     public static void main(String[] args) throws IOException {
         // Test main
         HexLogger logger = HexLogger.generateBinaryLoggers().getFirst();
@@ -246,8 +342,9 @@ public class Tracker {
             try{
                 Thread.sleep(400);
             } catch (InterruptedException e){}
-            panel.setEngine(tracker.engineAt(i));
-            panel.setQueue(tracker.queueAt(i));
+            tracker.advancePointer();
+            panel.setEngine(tracker.engine());
+            panel.setQueue(tracker.queue());
         }
     }
 }
