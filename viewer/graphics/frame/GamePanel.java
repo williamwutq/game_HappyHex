@@ -7,18 +7,39 @@ import hex.Piece;
 import java.awt.*;
 import java.awt.geom.GeneralPath;
 
+/**
+ * GamePanel is a custom panel responsible for rendering a hexagonal board and queue of pieces.
+ * It handles dynamic resizing of the board and draws filled and empty hexagonal blocks.
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ */
 public class GamePanel extends Panel {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
+    /** The hexagonal game engine containing the main board state. */
     private HexEngine engine;
+    /** The queue of upcoming pieces to be displayed. */
     private Piece[] queue;
+    /** Size of each hexagon based on panel dimensions and board layout. */
     private double size;
+    /** Half the height of the panel, used to center drawing vertically. */
     private int halfHeight;
+    /** Half the width of the panel, used to center drawing horizontally. */
     private int halfWidth;
+    /** Path containing all filled (state = true) {@link Block} to be painted. */
     private GeneralPath filledBlocks;
+    /** Path containing all empty (state = false) {@link Block} to be painted. */
     private GeneralPath emptyBlocks;
+    /** Reference X coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
     private final double[] xReferencePoints = {sinOf60, sinOf60 * 1.9, sinOf60 * 1.9, sinOf60, sinOf60 * 0.1, sinOf60 * 0.1};
+    /** Reference Y coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
     private final double[] yReferencePoints = {1.9, 1.45, 0.55, 0.1, 0.55, 1.45};
+    /**
+     * Constructs a {@code GamePanel} with the given engine and queue.
+     * @param engine the {@link HexEngine} managing the current game board state
+     * @param queue the array of {@link Piece} representing the upcoming blocks
+     */
     public GamePanel(HexEngine engine, Piece[] queue){
         this.engine = engine;
         this.queue = queue;
@@ -39,9 +60,10 @@ public class GamePanel extends Panel {
         size = (Math.min(halfHeight / vertical, halfWidth / sinOf60 / length));
     }
     /**
-     * Paints this engine panel containing all its engine components
-     * This calls to {@link #resetSize()} to ensure the size of components are correct
-     * @param g the Graphics context to use for painting
+     * Paints this {@code GamePanel}, including the game board and queued pieces.
+     * This method clears the screen, recalculates hexagon sizes, draws all {@link Block}s,
+     * and fills them with appropriate colors based on state.
+     * @param g the Graphics context used for painting
      */
     public void paint(Graphics g){
         resetSize();
@@ -78,6 +100,12 @@ public class GamePanel extends Panel {
         g3.fill(emptyBlocks);
         g3.dispose();
     }
+    /**
+     * Adds a hexagon to the appropriate path (filled or empty) based on its state and coordinates.
+     * @param x the X-coordinate in board space
+     * @param y the Y-coordinate in board space
+     * @param state true if the block is filled (active), false if empty (inactive)
+     */
     public final void paintHexagon(double x, double y, boolean state) {
         GeneralPath path = state ? filledBlocks : emptyBlocks;
         path.moveTo(halfWidth + size * (2 * x + xReferencePoints[0]), halfHeight + size * (2 * y + yReferencePoints[0]));
@@ -85,23 +113,5 @@ public class GamePanel extends Panel {
             path.lineTo(halfWidth + size * (2 * x + xReferencePoints[i]), halfHeight + size * (2 * y + yReferencePoints[i]));
         }
         path.closePath();
-    }
-    public static void main(String[] args){
-        Piece piece1 = new Piece(4, 4);
-        piece1.add(-1, -1);
-        piece1.add(0, -1);
-        piece1.add(-1, 0);
-        piece1.add(0, 1);
-        Piece piece2 = new Piece(4, 4);
-        piece2.add(0, -1);
-        piece2.add(0, 1);
-        piece2.add(1, 0);
-        piece2.add(1, 1);
-        Piece piece3 = new Piece(3, 4);
-        piece3.add(0, -1);
-        piece3.add(0, 0);
-        piece3.add(0, 1);
-        Piece[] queue = new Piece[]{piece1, piece2, piece3};
-        viewer.Viewer.test(new GamePanel(new HexEngine(13), queue));
     }
 }
