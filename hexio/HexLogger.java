@@ -90,7 +90,7 @@ import java.util.ArrayList;
  * HexLogger logger = new HexLogger("PlayerOne", 123456789L);
  *
  * // Set up the game engine and piece queue
- * HexEngine engine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+ * HexEngine engine = new HexEngine(1);
  * logger.setEngine(engine);
  * Piece[] queue = {piece, piece};
  * logger.setQueue(queue);

@@ -30,7 +30,7 @@ import java.io.IOException;
 
 /**
  * The {@code HexDataConverter} class provides utility methods for converting hexagonal game components
- * (such as {@link Hex}, {@link Block}, {@link Piece}, {@link HexEngine}, and game moves) to and from
+ * (such as {@link Hex}, {@link Block}, {@link Piece}, {@link HexEngine}, color index, and game moves) to and from
  * {@link hexio.hexdata.HexDataFactory HexData} representations. This class serves as an add-on package for the {@link hex}
  * package, facilitating serialization and deserialization of hexagonal grid-based game data for
  * storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
