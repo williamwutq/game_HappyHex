@@ -31,8 +31,10 @@ public class GamePanel extends Panel {
     private final GeneralPath filledBlocks;
     /** Path containing all empty (state = false) {@link Block} to be painted. */
     private final GeneralPath emptyBlocks;
-    /** Path containing all highlighted {@link Block} to be painted. */
-    private final GeneralPath highlightedBlocks;
+    /** Path containing all highlighted filled {@link Block} to be painted. */
+    private final GeneralPath highlightedFilledBlocks;
+    /** Path containing all highlighted empty {@link Block} to be painted. */
+    private final GeneralPath highlightedEmptyBlocks;
     /** Reference X coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
     private final double[] xReferencePoints = {sinOf60, sinOf60 * 1.9, sinOf60 * 1.9, sinOf60, sinOf60 * 0.1, sinOf60 * 0.1};
     /** Reference Y coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
@@ -47,7 +49,8 @@ public class GamePanel extends Panel {
         this.queue = queue;
         filledBlocks = new GeneralPath();
         emptyBlocks = new GeneralPath();
-        highlightedBlocks = new GeneralPath();
+        highlightedFilledBlocks = new GeneralPath();
+        highlightedEmptyBlocks = new GeneralPath();
         resetSize();
     }
     /**
@@ -72,7 +75,8 @@ public class GamePanel extends Panel {
         resetSize();
         filledBlocks.reset();
         emptyBlocks.reset();
-        highlightedBlocks.reset();
+        highlightedFilledBlocks.reset();
+        highlightedEmptyBlocks.reset();
         Graphics g2 = g.create();
         g2.setColor(Color.WHITE);
         g2.fillRect(0,0, getWidth(), getHeight());
@@ -85,7 +89,7 @@ public class GamePanel extends Panel {
             for (int j = 0; j < queue[i].length(); j ++){
                 block = queue[i].getBlock(j);
                 if (block != null) {
-                    paintHexagon( block.X() + x, block.Y() + move, block.getState()?block.getColor():-1);
+                    paintHexagon( block.X() + x, block.Y() + move, block.getColor());
                 }
             }
         }
@@ -93,7 +97,7 @@ public class GamePanel extends Panel {
         move = engine.getRadius() * sinOf60 - sinOf60 * 0.5;
         for (int i = 0; i < engine.length(); i ++){
             block = engine.getBlock(i);
-            paintHexagon(block.X() - move, block.Y() - 1.75, block.getState()?block.getColor():-1);
+            paintHexagon(block.X() - move, block.Y() - 1.75, block.getColor());
         }
         Graphics2D g3 = (Graphics2D) g.create();
         g3.setColor(new Color(170, 170, 170));
@@ -105,7 +109,11 @@ public class GamePanel extends Panel {
         g3.dispose();
         g3 = (Graphics2D) g.create();
         g3.setColor(new Color(221, 221, 221));
-        g3.fill(highlightedBlocks);
+        g3.fill(highlightedFilledBlocks);
+        g3.dispose();
+        g3 = (Graphics2D) g.create();
+        g3.setColor(new Color(102, 102, 102));
+        g3.fill(highlightedEmptyBlocks);
         g3.dispose();
     }
     /**
@@ -119,7 +127,9 @@ public class GamePanel extends Panel {
         if (color == -2){
             path = filledBlocks;
         } else if (color == 0){
-            path = highlightedBlocks;
+            path = highlightedFilledBlocks;
+        } else if (color == 1){
+            path = highlightedEmptyBlocks;
         } else {
             path = emptyBlocks;
         }
