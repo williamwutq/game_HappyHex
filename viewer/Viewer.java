@@ -42,7 +42,7 @@ public class Viewer {
         frame.setSize(new Dimension(400, 400));
         frame.setPreferredSize(new Dimension(400, 400));
         frame.setMinimumSize(new Dimension(200, 200));
-        frame.setBackground(Color.BLUE);
+        frame.setBackground(component.getBackground());
         frame.add(component);
         frame.setVisible(true);
     }

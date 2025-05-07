@@ -49,76 +49,33 @@ public class GamePanel extends Panel {
      */
     public void paint(Graphics g){
         resetSize();
+        path = new GeneralPath();
         Graphics g2 = g.create();
         g2.setColor(Color.WHITE);
-        g2.fillRect(0,0, getWidth(), getHeight());
+        //g2.fillRect(0,0, getWidth(), getHeight());
+        Block block;
         // Paint queue
         for (int i = 0; i < queue.length; i ++){
+            double x = (i * 3 + 1) * sinOf60;
             for (int j = 0; j < queue[i].length(); j ++){
-                if (queue[i].getBlock(j)!= null) {
-                    paintHexagon(g.create(), queue[i].getBlock(j), i);
+                block = queue[i].getBlock(j);
+                if (block != null) {
+                    paintHexagon(queueWidthExtension, queueHeightExtension, block.X() + x, block.Y());
                 }
             }
         }
         // Paint engine
         for (int i = 0; i < engine.length(); i ++){
-            paintHexagon(g.create(), engine.getBlock(i));
+            block = engine.getBlock(i);
+            paintHexagon(engineWidthExtension, engineHeightExtension, block.X(), block.Y());
         }
+        Graphics2D g3 = (Graphics2D) g.create();
+        g3.fill(path);
     }
-    /**
-     * Paints a simple hexagon based the state and position of a {@link Block} in the game engine.
-     * This hexagon does not contain any highlight.
-     * @param g the Graphics context to use for painting
-     * @param block the block to be painted
-     */
-    public final void paintHexagon(java.awt.Graphics g, Block block) {
-        // Paint Basic Polygon
-        if (block.getState()) {
-            g.setColor(Color.LIGHT_GRAY);
-        } else {
-            g.setColor(Color.GRAY);
-        }
-        double x = block.X() * 2;
-        double y = block.Y() * 2;
-        int[] xPoints = new int[6];
-        int[] yPoints = new int[6];
-        for (int i = 0; i < 6; i++) {
-            double angle = Math.toRadians(60 * i);
-            xPoints[i] = 3 + (int) Math.round(engineWidthExtension + size * (x + xReferencePoints[i]));
-            yPoints[i] = 3 + (int) Math.round(engineHeightExtension + size * (y + yReferencePoints[i]));
-        }
-        g.fillPolygon(xPoints, yPoints, 6);
-        g.dispose();
-    }
-    /**
-     * Paints a simple hexagon based the state and position of a {@link Block} in the game queue.
-     * This hexagon does not contain any highlight.
-     * @param g the Graphics context to use for painting
-     * @param block the block to be painted
-     * @param index the index of the piece in the queue
-     */
-    public final void paintHexagon(java.awt.Graphics g, Block block, int index) {
-        // Paint Basic Polygon
-        if (block.getState()) {
-            g.setColor(Color.LIGHT_GRAY);
-        } else {
-            g.setColor(Color.GRAY);
-        }
-        double x = block.X() * 2 + (index * 6) * sinOf60;
-        double y = block.Y() * 2;
-        int[] xPoints = new int[6];
-        int[] yPoints = new int[6];
-        for (int i = 0; i < 6; i++) {
-            xPoints[i] = 3 + (int) Math.round(queueWidthExtension + size * (x + 2 * sinOf60 + xReferencePoints[i]));
-            yPoints[i] = 3 + (int) Math.round(queueHeightExtension + size * (y + yReferencePoints[i]));
-        }
-        g.fillPolygon(xPoints, yPoints, 6);
-        g.dispose();
-    }
-    public final void paintHexagon(int widthExtension, int heightExtension, double x, double y) {
-        path.moveTo(widthExtension + size * (x + xReferencePoints[0]), heightExtension + size * (y + yReferencePoints[0]));
+    public final void paintHexagon(double widthExtension, double heightExtension, double x, double y) {
+        path.moveTo(widthExtension + size * (2 * x + xReferencePoints[0]), heightExtension + size * (2 * y + yReferencePoints[0]));
         for (int i = 1; i < 6; i++) {
-            path.lineTo(widthExtension + size * (x + xReferencePoints[i]), heightExtension + size * (y + yReferencePoints[i]));
+            path.lineTo(widthExtension + size * (2 * x + xReferencePoints[i]), heightExtension + size * (2 * y + yReferencePoints[i]));
         }
         path.closePath();
     }
@@ -138,6 +95,6 @@ public class GamePanel extends Panel {
         piece3.add(0, 0);
         piece3.add(0, 1);
         Piece[] queue = new Piece[]{piece1, piece2, piece3};
-        viewer.Viewer.test(new GamePanel(new HexEngine(9), queue));
+        viewer.Viewer.test(new GamePanel(new HexEngine(13), queue));
     }
 }
