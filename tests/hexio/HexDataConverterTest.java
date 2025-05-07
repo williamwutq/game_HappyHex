@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import hex.*;
-import java.awt.Color;
 import java.io.IOException;
 
 public class HexDataConverterTest {

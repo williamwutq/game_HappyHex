@@ -90,7 +90,7 @@ import java.util.ArrayList;
  * HexLogger logger = new HexLogger("PlayerOne", 123456789L);
  *
  * // Set up the game engine and piece queue
- * HexEngine engine = new HexEngine(1, java.awt.Color.BLACK, java.awt.Color.WHITE);
+ * HexEngine engine = new HexEngine(1);
  * logger.setEngine(engine);
  * Piece[] queue = {piece, piece};
  * logger.setQueue(queue);
@@ -189,7 +189,7 @@ public class HexLogger {
     /** Directory for storing game files. */
     private static final String dataDirectory = "data/";
     /** Format of the data logged into the JSON file. */
-    private static final String dataFormat = "hex.uncolored";
+    private static final String dataFormat = "hex.colored";
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
@@ -766,9 +766,10 @@ public class HexLogger {
      * and writes it to a JSON or binary file. This includes the basic game information, the current
      * {@link HexEngine} statues, the current {@link Piece} queue statues, and the moves in the game.
      * This uses the specified format passed in. If the format is {@code hex.binary}, it out put a .bin file.
-     * @param format The format of the JSON log. Default to the default format {@code hex.uncolored} if not valid.
+     * @param format The format of the JSON log. Default to the default format {@code hex.basic} if not valid.
      * @throws IOException If JSON creation or writing fails.
      * @see #createBasicData(JsonObjectBuilder)
+     * @see #createColoredData(JsonObjectBuilder)
      * @see #createUncoloredData(JsonObjectBuilder)
      * @see #read()
      * @see #write()
@@ -838,6 +839,8 @@ public class HexLogger {
             if (format.substring(0, 3).equals("hex")) {
                 if (format.equals("hex.uncolored")) {
                     createUncoloredData(jsonObjectBuilder);
+                } if (format.equals("hex.colored")) {
+                    createColoredData(jsonObjectBuilder);
                 } else {
                     createBasicData(jsonObjectBuilder);
                 }
@@ -880,6 +883,56 @@ public class HexLogger {
                 jsonMoveBuilder.add("order", i);
                 jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
                 jsonMoveBuilder.add("piece", HexConverter.convertPiece(moveQueues.get(i)[movePieces.get(i)]));
+            } catch (Exception e) {
+                throw new IOException("Failed to create JSON objects for moves");
+            }
+            jsonMoveArrayBuilder.add(jsonMoveBuilder);
+        }
+        builder.add("moves", jsonMoveArrayBuilder);
+    }
+
+    /**
+     * Constructs a complete JSON object from the current logger information and writes it to a file.
+     * This includes the basic game information, the current {@link HexEngine} statues and its color,
+     * the current {@link Piece} queue statues and piece colors, and the moves in the game.
+     * This use the {@code hex.colored} format.
+     * <p>
+     * This method appends information to the {@link JsonObjectBuilder} passed in as parameter.
+     * @param builder The builder to accept JSON information.
+     * @throws IOException If JSON creation or writing fails.
+     * @see #write(String)
+     * @since 1.3
+     */
+    public void createColoredData(JsonObjectBuilder builder) throws IOException {
+        // Write game statues
+        builder.add("completed", completed);
+        builder.add("turn", turn);
+        builder.add("score", score);
+
+        // Write engine
+        builder.add("engine", HexConverter.convertIndexColoredEngine(currentEngine));
+
+        // Write queue
+        JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
+        for (Piece piece : currentQueue) {
+            jsonQueueBuilder.add(HexConverter.convertIndexColoredPiece(piece));
+        }
+        builder.add("queue", jsonQueueBuilder);
+
+        // Write moves
+        JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
+        int totalMoves = moveOrigins.size();
+        for (int i = 0; i < totalMoves; i ++) {
+            JsonObjectBuilder jsonMoveBuilder = Json.createObjectBuilder();
+            try {
+                jsonMoveBuilder.add("order", i);
+                jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
+                jsonMoveBuilder.add("index", movePieces.get(i));
+                JsonArrayBuilder jsonMoveQueueBuilder = Json.createArrayBuilder();
+                for (Piece piece : moveQueues.get(i)) {
+                    jsonMoveQueueBuilder.add(HexConverter.convertIndexColoredPiece(piece));
+                }
+                jsonMoveBuilder.add("queue", jsonMoveQueueBuilder);
             } catch (Exception e) {
                 throw new IOException("Failed to create JSON objects for moves");
             }
@@ -1054,7 +1107,7 @@ public class HexLogger {
      * @see #write()
      * @see #readJsonFile()
      * @see #readBasicHexData(JsonObject)
-     * @see #readUncoloredHexData(JsonObject)
+     * @see #readAdvancedHexData(JsonObject)
      */
     public void read() throws IOException {
         String jsonString = readJsonFile();
@@ -1110,7 +1163,9 @@ public class HexLogger {
             } else if (dataFormat.equals("hex.basic")) {
                 readBasicHexData(jsonObject);
             } else if (dataFormat.equals("hex.uncolored")) {
-                readUncoloredHexData(jsonObject);
+                readAdvancedHexData(jsonObject);
+            } else if (dataFormat.equals("hex.colored")) {
+                readAdvancedHexData(jsonObject);
             } else {
                 throw new IOException("Data format is not compatible for this version of \"HexLogger\"");
             }
@@ -1118,14 +1173,18 @@ public class HexLogger {
     }
 
     /**
-     * Reads the hexagonal grid data of a format {@code hex.uncolored} data and parse it into memory.
+     * Reads the hexagonal grid data of a format {@code hex.uncolored} or {@code hex.uncolored} data and parse it into memory.
+     * <p>
+     * To reflect the fact that it can read both colored and uncolored formats, the method is renamed from
+     * {@code readUncoloredHexData(JsonObject)} to {@code readAdvancedHexData(JsonObject)}.
+     * <p>
      * The {@code hex.uncolored} format contains:
      * <ul>
      *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
      *     be non-modifiable.</li>
      *     <li><b>{@code turn}:</b> The number of turns already occurred in the game.</li>
      *     <li><b>{@code score}:</b> The score already obtained by the player in the game.</li>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
+     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its
      *     radius, and blocks. The block record of the engine does not contain colors.</li>
      *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
      *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
@@ -1133,12 +1192,26 @@ public class HexLogger {
      *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
      *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>
      * </ul>
+     * The {@code hex.uncolored} format contains:
+     * <ul>
+     *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
+     *     be non-modifiable.</li>
+     *     <li><b>{@code turn}:</b> The number of turns already occurred in the game.</li>
+     *     <li><b>{@code score}:</b> The score already obtained by the player in the game.</li>
+     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
+     *     radius, and blocks. The block record of the engine does contain colors.</li>
+     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple colored
+     *     seven-block pieces, each represented by an array of blocks. The queue is colored and not ordered</li>
+     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
+     *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
+     *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>
+     * </ul>
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
      * @throws IOException If reading or parsing fails or if the game type is unsupported.
      * @see #read()
-     * @since 1.2.4
+     * @since 1.3
      */
-    public void readUncoloredHexData(JsonObject jsonObject) throws IOException {
+    public void readAdvancedHexData(JsonObject jsonObject) throws IOException {
         // Read completed
         try{
             completed = jsonObject.getBoolean("completed");

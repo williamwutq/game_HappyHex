@@ -64,8 +64,7 @@ import java.util.ArrayList;
  *
  * <p><h3>Block Coloring:</h3>
  * By default, blocks are visually represented using two colors: one for the empty {@link Block#getState state}
- * (false) and one for the filled {@code state} (true). These default colors can be configured using the
- * {@code setDefaultBlockColors} method. When a block's state is updated using {@code setState} or during
+ * (false) and one for the filled {@code state} (true). When a block's state is updated using {@code setState} or during
  * {@link #HexEngine initialization} and {@link #reset}, it automatically changes to the corresponding default color.
  * For full control, the {@link #setBlock} method can be used to manually assign a specific color to a block,
  * independent of its state. See {@link Block#setColor} for coloring blocks.
