@@ -45,13 +45,14 @@ public class GamePanel extends Panel {
      */
     public void paint(Graphics g){
         resetSize();
-        filledBlocks = new GeneralPath();
-        emptyBlocks = new GeneralPath();
+        filledBlocks.reset();
+        emptyBlocks.reset();
         Graphics g2 = g.create();
         g2.setColor(Color.WHITE);
         g2.fillRect(0,0, getWidth(), getHeight());
-        Block block;
+        g2.dispose();
         // Paint queue
+        Block block;
         double move = (engine.getRadius() - 1) * 0.75;
         for (int i = 0; i < queue.length; i ++){
             double x = (i - queue.length * 0.5) * 3 * sinOf60 + sinOf60;
