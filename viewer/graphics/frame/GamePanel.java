@@ -18,9 +18,9 @@ public class GamePanel extends Panel {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The hexagonal game engine containing the main board state. */
-    private final HexEngine engine;
+    private HexEngine engine;
     /** The queue of upcoming pieces to be displayed. */
-    private final Piece[] queue;
+    private Piece[] queue;
     /** Size of each hexagon based on panel dimensions and board layout. */
     private double size;
     /** Half the height of the panel, used to center drawing vertically. */
@@ -52,6 +52,36 @@ public class GamePanel extends Panel {
         highlightedFilledBlocks = new GeneralPath();
         highlightedEmptyBlocks = new GeneralPath();
         resetSize();
+    }
+    /**
+     * Set the engine to be displayed by this {@code GamePanel}.
+     * @param engine the {@link HexEngine} managing the current game board state
+     */
+    public void setEngine(HexEngine engine){
+        this.engine = engine.clone();
+        repaint();
+    }
+    /**
+     * Set the piece queue to be displayed by this {@code GamePanel}.
+     * @param queue the {@link Piece} queue representing the upcoming blocks
+     */
+    public void setQueue(Piece[] queue){
+        this.queue = queue.clone();
+        repaint();
+    }
+    /**
+     * Set the engine currently on display by this {@code GamePanel}.
+     * @return a clone of the {@link HexEngine} managing the current game board state
+     */
+    public HexEngine getEngine(){
+        return engine.clone();
+    }
+    /**
+     * Returns the piece queue currently on display by this {@code GamePanel}.
+     * @return a clone of the {@link Piece} queue representing the upcoming blocks
+     */
+    public Piece[] getQueue(){
+        return queue.clone();
     }
     /**
      * Reset the size of individual hexagons in the panel by to match the maximum size allowed in this panel.
