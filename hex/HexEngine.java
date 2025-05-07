@@ -222,6 +222,28 @@ public class HexEngine implements HexGrid{
         }
     }
     /**
+     * Sets the {@link Block} state at the specified array index.
+     * Automatically set color to default unfilled color if state is false.
+     *
+     * @param index the block array index
+     * @param state the new state to set for the {@code Block} at this index.
+     * @since 1.3
+     */
+    public void setState(int index, boolean state){
+        blocks[index].setState(state);
+        if (!state) blocks[index].setColor(-1);
+    }
+    /**
+     * Sets the {@link Block} color index at the specified array index.
+     *
+     * @param index the block array index
+     * @param color the new color to set for the {@code Block} at this index.
+     * @since 1.3
+     */
+    public void setColor(int index, int color){
+        blocks[index].setColor(color);
+    }
+    /**
      * Sets the state of a {@link Block} at a specific grid coordinate.
      * This performs a {@link #search binary search} to obtain the targeting block.
      * This automatically set the color of the block depending on its state.
