@@ -15,13 +15,15 @@ public class GamePanel extends Panel {
     private double size;
     private int halfHeight;
     private int halfWidth;
-    private GeneralPath path;
+    private GeneralPath filledBlocks;
+    private GeneralPath emptyBlocks;
     private final double[] xReferencePoints = {sinOf60, sinOf60 * 1.9, sinOf60 * 1.9, sinOf60, sinOf60 * 0.1, sinOf60 * 0.1};
     private final double[] yReferencePoints = {1.9, 1.45, 0.55, 0.1, 0.55, 1.45};
     public GamePanel(HexEngine engine, Piece[] queue){
         this.engine = engine;
         this.queue = queue;
-        path = new GeneralPath();
+        filledBlocks = new GeneralPath();
+        emptyBlocks = new GeneralPath();
         resetSize();
     }
     /**
@@ -43,7 +45,8 @@ public class GamePanel extends Panel {
      */
     public void paint(Graphics g){
         resetSize();
-        path = new GeneralPath();
+        filledBlocks = new GeneralPath();
+        emptyBlocks = new GeneralPath();
         Graphics g2 = g.create();
         g2.setColor(Color.WHITE);
         g2.fillRect(0,0, getWidth(), getHeight());
@@ -51,11 +54,11 @@ public class GamePanel extends Panel {
         // Paint queue
         double move = (engine.getRadius() - 1) * 0.75;
         for (int i = 0; i < queue.length; i ++){
-            double x = (i - queue.length * 0.5) * 3 * sinOf60;
+            double x = (i - queue.length * 0.5) * 3 * sinOf60 + sinOf60;
             for (int j = 0; j < queue[i].length(); j ++){
                 block = queue[i].getBlock(j);
                 if (block != null) {
-                    paintHexagon(0, 0, block.X() + x, block.Y() + move);
+                    paintHexagon( block.X() + x, block.Y() + move, block.getState());
                 }
             }
         }
@@ -63,15 +66,22 @@ public class GamePanel extends Panel {
         move = engine.getRadius() * sinOf60 - sinOf60 * 0.5;
         for (int i = 0; i < engine.length(); i ++){
             block = engine.getBlock(i);
-            paintHexagon(0, 0, block.X() - move, block.Y() - 1.75);
+            paintHexagon(block.X() - move, block.Y() - 1.75, block.getState());
         }
         Graphics2D g3 = (Graphics2D) g.create();
-        g3.fill(path);
+        g3.setColor(Color.LIGHT_GRAY);
+        g3.fill(filledBlocks);
+        g3.dispose();
+        g3 = (Graphics2D) g.create();
+        g3.setColor(Color.DARK_GRAY);
+        g3.fill(emptyBlocks);
+        g3.dispose();
     }
-    public final void paintHexagon(double widthExtension, double heightExtension, double x, double y) {
-        path.moveTo(halfWidth + widthExtension + size * (2 * x + xReferencePoints[0]), halfHeight + heightExtension + size * (2 * y + yReferencePoints[0]));
+    public final void paintHexagon(double x, double y, boolean state) {
+        GeneralPath path = state ? filledBlocks : emptyBlocks;
+        path.moveTo(halfWidth + size * (2 * x + xReferencePoints[0]), halfHeight + size * (2 * y + yReferencePoints[0]));
         for (int i = 1; i < 6; i++) {
-            path.lineTo(halfWidth + widthExtension + size * (2 * x + xReferencePoints[i]), halfHeight + heightExtension + size * (2 * y + yReferencePoints[i]));
+            path.lineTo(halfWidth + size * (2 * x + xReferencePoints[i]), halfHeight + size * (2 * y + yReferencePoints[i]));
         }
         path.closePath();
     }
