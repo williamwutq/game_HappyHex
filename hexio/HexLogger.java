@@ -365,11 +365,43 @@ public class HexLogger {
         return moveOrigins.toArray(new Hex[0]);
     }
     /**
+     * Returns the array of {@link Piece} queues involved in the moves recorded in this {@code HexLogger}.
+     * @return The array of the pieces queues involved in the moves.
+     * @since 1.3
+     */
+    public Piece[][] getMoveQueues(){
+        return moveQueues.toArray(new Piece[0][0]);
+    }
+    /**
+     * Returns the array of {@link Piece} indexes that is used to indicate the piece in the move's piece queue
+     * involved in the moves recorded in this {@code HexLogger}.
+     * @return The array of the pieces indexes involved in the moves.
+     * @since 1.3
+     */
+    public int[] getMovePieceIndexes(){
+        int[] arr = new int[movePieces.size()];
+        for (int i = 0; i < arr.length; i ++){
+            arr[i] = movePieces.get(i);
+        }
+        return arr;
+    }
+    /**
      * Returns the array of {@link Piece} involved in the moves recorded in this {@code HexLogger}.
      * @return The array of the pieces involved in the moves.
+     * @see #getMoveQueues()
+     * @see #getMovePieceIndexes()
+     * @since 1.3
      */
     public Piece[] getMovePieces(){
-        return movePieces.toArray(new Piece[0]);
+        Piece[] arr = new Piece[movePieces.size()];
+        for (int i = 0; i < arr.length; i ++){
+            try {
+                arr[i] = moveQueues.get(i)[movePieces.get(i)];
+            } catch (IndexOutOfBoundsException e){
+                arr[i] = null;
+            }
+        }
+        return arr;
     }
 
     /**
@@ -418,11 +450,8 @@ public class HexLogger {
     public boolean setEngine(HexEngine engine){
         if (completed) {return false;}
         boolean success = false;
-        try {
-            currentEngine = (HexEngine) engine.clone();
-            success = true;
-        } catch (CloneNotSupportedException e) {}
-        return success;
+        currentEngine = (HexEngine) engine.clone();
+        return true;
     }
     /**
      * Set the current processed {@link Piece} queue to a copy of a new array of pieces.
@@ -653,7 +682,11 @@ public class HexLogger {
      * @return The raw JSON content as a string, or {@code null} if not found.
      */
     private String readJsonFile(){
-        File file = new File(dataFile);
+        String realJsonFile = dataFile;
+        if (!realJsonFile.endsWith(".json")){
+            realJsonFile += ".json";
+        }
+        File file = new File(realJsonFile);
         if (file.exists()) {
             String result;
             try{
@@ -913,7 +946,14 @@ public class HexLogger {
      */
     public void readBinary() throws IOException {
         String jsonName = getDataFileName();
-        HexDataReader reader = HexDataFactory.read(jsonName.substring(0, jsonName.length()-12), "hpyhex");
+        if (jsonName.endsWith(".hpyhex.json")){
+            jsonName = jsonName.substring(0, jsonName.length()-12);
+        } else if (jsonName.endsWith(".json")){
+            jsonName = jsonName.substring(0, jsonName.length()-5);
+        } else if (jsonName.endsWith(".hpyhex")){
+            jsonName = jsonName.substring(0, jsonName.length()-7);
+        }
+        HexDataReader reader = HexDataFactory.read(jsonName, "hpyhex");
         // Format check
         if (!reader.next(32).equals("4B874B1E5A0F5A0F5A964B874B5A5A87")) {
             throw new IOException("Fail to read binary data because file header is corrupted");

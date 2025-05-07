@@ -571,7 +571,7 @@ public class HexEngine implements HexGrid{
      * @return a deep copy of this {@code HexEngine} object.
      * @see Block#clone()
      */
-    public Object clone() throws CloneNotSupportedException {
+    public HexEngine clone(){
         HexEngine newEngine;
         try{
             newEngine = (HexEngine) super.clone();
