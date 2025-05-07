@@ -1,67 +1,64 @@
-package tests.hex;
+package hex;
 
-import hex.Hex;
-import hex.Block;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import java.awt.Color;
 
 public class BlockTest {
 
     @Test
     void testBasicConstructorWithColor() {
-        Block block = new Block(2, 3, Color.RED);
+        Block block = new Block(2, 3, 1);
         assertEquals(2, block.I(), "I coordinate should be 2");
         assertEquals(3, block.K(), "K coordinate should be 3");
-        assertEquals(Color.RED, block.color(), "Color should be RED");
+        assertEquals(1, block.getColor(), "Color should be 1");
         assertFalse(block.getState(), "State should be false (unoccupied)");
     }
 
     @Test
     void testBasicConstructorWithColorAndState() {
-        Block block = new Block(1, 4, Color.BLUE, true);
+        Block block = new Block(1, 4, 3, true);
         assertEquals(1, block.I(), "I coordinate should be 1");
         assertEquals(4, block.K(), "K coordinate should be 4");
-        assertEquals(Color.BLUE, block.color(), "Color should be BLUE");
+        assertEquals(3, block.getColor(), "Color should be 3");
         assertTrue(block.getState(), "State should be true (occupied)");
     }
 
     @Test
     void testHexConstructorWithColor() {
         Hex hex = new Hex(3, 2);
-        Block block = new Block(hex, Color.GREEN);
+        Block block = new Block(hex, 4);
         assertEquals(3, block.I(), "I coordinate should be 3");
         assertEquals(2, block.K(), "K coordinate should be 2");
-        assertEquals(Color.GREEN, block.color(), "Color should be GREEN");
+        assertEquals(4, block.getColor(), "Color should be 4");
         assertFalse(block.getState(), "State should be false (unoccupied)");
     }
 
     @Test
     void testHexConstructorWithColorAndState() {
         Hex hex = new Hex(0, 5);
-        Block block = new Block(hex, Color.YELLOW, true);
+        Block block = new Block(hex, 4, true);
         assertEquals(0, block.I(), "I coordinate should be 0");
         assertEquals(5, block.K(), "K coordinate should be 5");
-        assertEquals(Color.YELLOW, block.color(), "Color should be YELLOW");
+        assertEquals(4, block.getColor(), "Color should be 4");
         assertTrue(block.getState(), "State should be true (occupied)");
     }
 
     @Test
     void testStaticBlockFactory() {
-        Block block = Block.block(1, 2, Color.MAGENTA);
+        Block block = Block.block(1, 2, 11);
         assertEquals(3, block.I(), "I coordinate should be 3");
         assertEquals(0, block.K(), "K coordinate should be 0");
         assertEquals(1, block.getLineI(), "Line I should be 1");
         assertEquals(2, block.getLineK(), "Line K should be 2");
-        assertEquals(Color.MAGENTA, block.color(), "Color should be MAGENTA");
+        assertEquals(11, block.getColor(), "Color should be 11");
         assertFalse(block.getState(), "State should be false (unoccupied)");
     }
 
     @Test
     void testColorAndStateSetters() {
-        Block block = new Block(0, 0, Color.BLACK);
-        block.setColor(Color.WHITE);
-        assertEquals(Color.WHITE, block.color(), "Color should be WHITE after setColor");
+        Block block = new Block(0, 0, 5);
+        block.setColor(2);
+        assertEquals(2, block.getColor(), "Color should be 2 after setColor");
 
         block.setState(true);
         assertTrue(block.getState(), "State should be true after setState");
@@ -75,11 +72,11 @@ public class BlockTest {
 
     @Test
     void testShiftMethods() {
-        Block block = new Block(0, 0, Color.RED);
+        Block block = new Block(0, 0, 7);
         Block shiftedI = block.shiftI(1);
         assertEquals(2, shiftedI.I(), "Shifted I should be 2");
         assertEquals(-1, shiftedI.K(), "Shifted K should be -1");
-        assertEquals(Color.RED, shiftedI.color(), "Color should remain RED");
+        assertEquals(7, shiftedI.getColor(), "Color should remain 7");
         assertEquals(block.getState(), shiftedI.getState(), "State should remain unchanged");
         assertSame(block, shiftedI, "shiftI should return same instance");
 
@@ -96,41 +93,40 @@ public class BlockTest {
 
     @Test
     void testAddAndSubtract() {
-        Block block = Block.block(2, 3, Color.BLUE);
+        Block block = Block.block(2, 3, 3);
         block.changeState();
         Hex other = Hex.hex(1, 1);
 
         Block added = block.add(other);
         assertEquals(3, added.getLineI(), "Added I should be 3");
         assertEquals(4, added.getLineK(), "Added K should be 4");
-        assertEquals(Color.BLUE, added.color(), "Color should remain BLUE");
+        assertEquals(3, added.getColor(), "Color should remain 3");
         assertTrue(added.getState(), "State should remain true");
 
         Block subtracted = block.subtract(other);
         assertEquals(1, subtracted.getLineI(), "Subtracted I should be 1");
         assertEquals(2, subtracted.getLineK(), "Subtracted K should be 2");
-        assertEquals(Color.BLUE, subtracted.color(), "Color should remain BLUE");
+        assertEquals(3, subtracted.getColor(), "Color should remain 3");
         assertTrue(subtracted.getState(), "State should remain true");
     }
 
     @Test
     void testToString() {
-        Block block = new Block(3, 6, Color.RED, true);
-        String expected = "{Color = {255, 0, 0}; I,J,K = {3, 9, 6}; Line I,J,K = {5, -1, 4}; X,Y = {" +
-                (Math.sqrt(3) / 4 * 9) + ", " + (-3 / 4.0) + "}; State = true;}";
+        Block block = new Block(3, 6, 2, true);
+        String expected = "Block[color = 2, coordinates = {5, -1, 4}, state = true]";
         assertEquals(expected, block.toString(), "toString output should match");
     }
 
     @Test
     void testClone() {
-        Block block = new Block(2, -7, Color.GREEN, true);
+        Block block = new Block(2, -7, 5, true);
         Block cloned = block.clone();
         assertEquals(block.I(), cloned.I(), "Cloned I should match");
         assertEquals(block.J(), cloned.J(), "Cloned J should match");
         assertEquals(block.K(), cloned.K(), "Cloned K should match");
-        assertEquals(block.color(), cloned.color(), "Cloned color should match");
+        assertEquals(block.getColor(), cloned.getColor(), "Cloned color should match");
         assertEquals(block.getState(), cloned.getState(), "Cloned state should match");
         assertNotSame(block, cloned, "Cloned object should be different instance");
-        assertNotSame(block.color(), cloned.color(), "Cloned color should be different instance");
+        assertEquals(block.getColor(), cloned.getColor(), "Cloned color should be the same");
     }
 }

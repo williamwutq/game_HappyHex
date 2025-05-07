@@ -14,6 +14,6 @@
  * </p>
  * @since 1.0
  * @author William Wu
- * @version 1.2
+ * @version 1.3
  */
 package hex;

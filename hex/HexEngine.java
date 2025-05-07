@@ -1,6 +1,29 @@
+/*
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ */
+
 package hex;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +35,7 @@ import java.util.ArrayList;
  * pattern with its leftmost {@code Block} at origin (0,0), and provides operations such as:
  * <ul>
  *     <li>Grid {@link #HexEngine initialization} and {@link #reset}</li>
- *     <li>Automatic coloring through {@link #setDefaultBlockColors}</li>
+ *     <li>Automatic coloring through color indexes</li>
  *     <li>Efficient block {@link #getBlock(int) lookup} using {@link #search binary search}</li>
  *     <li>Grid placement {@link #checkAdd validation} and piece {@link #add insertion}</li>
  *     <li>Line detection and {@link #eliminate elimination} across I/J/K axes</li>
@@ -41,8 +64,7 @@ import java.util.ArrayList;
  *
  * <p><h3>Block Coloring:</h3>
  * By default, blocks are visually represented using two colors: one for the empty {@link Block#getState state}
- * (false) and one for the filled {@code state} (true). These default colors can be configured using the
- * {@code setDefaultBlockColors} method. When a block's state is updated using {@code setState} or during
+ * (false) and one for the filled {@code state} (true). When a block's state is updated using {@code setState} or during
  * {@link #HexEngine initialization} and {@link #reset}, it automatically changes to the corresponding default color.
  * For full control, the {@link #setBlock} method can be used to manually assign a specific color to a block,
  * independent of its state. See {@link Block#setColor} for coloring blocks.
@@ -61,11 +83,9 @@ import java.util.ArrayList;
  * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
  * @since 1.0
  * @author William Wu
- * @version 1.2
+ * @version 1.3
  */
 public class HexEngine implements HexGrid{
-    private Color emptyBlockColor;
-    private Color filledBlockColor;
     private int radius;
     private Block[] blocks;
     /**
@@ -79,15 +99,11 @@ public class HexEngine implements HexGrid{
      * This property is used by the {@link #search binary search} for lookup efficiency.
      *
      * @param radius the radius of the hexagonal grid, where radius should be greater than 1.
-     * @param emptyBlockColor the default color of {@link Block} when it is empty.
-     * @param filledBlockColor the default color of {@link Block} when it is filled.
      * @see HexGrid
      * @see Block
      */
-    public HexEngine(int radius, Color emptyBlockColor, Color filledBlockColor){
+    public HexEngine(int radius){
         this.radius = radius;
-        this.emptyBlockColor = emptyBlockColor;
-        this.filledBlockColor = filledBlockColor;
         // Calculate array size
         // Recursive Formula Ak = A(k-1) + 6 * (k-1)
         // General Formula: Ak = 1 + 3 * (k-1)*(k)
@@ -96,7 +112,7 @@ public class HexEngine implements HexGrid{
         int i = 0;
         for(int a = 0; a <= radius*2-1; a++){
             for(int b = 0; b <= radius*2-1; b++){
-                Block nb = new Block(new Hex(), emptyBlockColor);
+                Block nb = new Block(new Hex());
                 nb.moveI(b);
                 nb.moveK(a);
                 if(nb.inRange(radius)){
@@ -115,7 +131,7 @@ public class HexEngine implements HexGrid{
         // Set all to empty and default color
         Block[] newBlocks = new Block[blocks.length];
         for (int i = 0; i < blocks.length; i++) {
-            newBlocks[i] = new Block (blocks[i], emptyBlockColor);
+            newBlocks[i] = new Block (blocks[i]);
         }
         blocks = newBlocks;
     }
@@ -222,8 +238,10 @@ public class HexEngine implements HexGrid{
                 if(block.getState() != state){
                     block.setState(state);
                     if(state){
-                        block.setColor(filledBlockColor);
-                    } else block.setColor(emptyBlockColor);
+                        block.setColor(-2);
+                    } else {
+                        block.setColor(-1);
+                    }
                 }
             }
         }
@@ -257,36 +275,6 @@ public class HexEngine implements HexGrid{
             // first half
             return search(i, k, start, middleIndex-1);
         }
-    }
-    /**
-     * Sets the default block colors used by the HexEngine.
-     * <p>
-     * These default colors are used when a block's state is changed via {@link #setState} or on initialization
-     * and {@link #reset}. For custom coloring, use {@link #setBlock} to manually assign a color to a block.
-     *
-     * @param emptyBlockColor the color used for blocks in the empty (false) state
-     * @param filledBlockColor the color used for blocks in the filled (true) state
-     * @since 1.2
-     */
-    public void setDefaultBlockColors(Color emptyBlockColor, Color filledBlockColor){
-        this.emptyBlockColor = emptyBlockColor;
-        this.filledBlockColor = filledBlockColor;
-    }
-    /**
-     * Returns the current default color used for {@link Block} in the empty (false) state.
-     * @return the default filled block color
-     * @since 1.2
-     */
-    public Color getEmptyBlockColor(){
-        return emptyBlockColor;
-    }
-    /**
-     * Returns the current default color used for {@link Block} in the filled (true) state.
-     * @return the default filled block color
-     * @since 1.2
-     */
-    public Color getFilledBlockColor(){
-        return filledBlockColor;
     }
     /**
      * Checks whether the {@code other} grid can be added to this grid
@@ -564,19 +552,7 @@ public class HexEngine implements HexGrid{
      * @see Block#toString()
      */
     public String toString(){
-        StringBuilder str = new StringBuilder("HexEngine[empty = {");
-        str.append(emptyBlockColor.getRed());
-        str.append(", ");
-        str.append(emptyBlockColor.getGreen());
-        str.append(", ");
-        str.append(emptyBlockColor.getBlue());
-        str.append("}, filled = {");
-        str.append(filledBlockColor.getRed());
-        str.append(", ");
-        str.append(filledBlockColor.getGreen());
-        str.append(", ");
-        str.append(filledBlockColor.getBlue());
-        str.append("}, blocks = {");
+        StringBuilder str = new StringBuilder("HexEngine[blocks = {");
         if (blocks.length > 0){
             str.append(blocks[0].toBasicString());
         }
@@ -600,7 +576,7 @@ public class HexEngine implements HexGrid{
             newEngine = (HexEngine) super.clone();
             newEngine.radius = this.radius;
         } catch (CloneNotSupportedException e) {
-            newEngine = new HexEngine(this.radius, this.emptyBlockColor, this.filledBlockColor);
+            newEngine = new HexEngine(this.radius);
         }
         for(int i = 0; i < this.length(); i ++){
             newEngine.blocks[i] = this.blocks[i].clone();

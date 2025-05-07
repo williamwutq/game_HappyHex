@@ -1,3 +1,27 @@
+/*
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ */
+
 package GUI;
 
 import GUI.animation.*;
@@ -13,7 +37,7 @@ import java.awt.*;
 import java.io.IOException;
 
 /**
- * The {@link GameEssentials} class provides essential game utilities, including {@link #generateColor() color generation}
+ * The {@link GameEssentials} class provides essential game utilities, including {@link #generateColor(int) color generation}
  * and {@link #paintHexagon(Graphics, Color, double, double, double, double) methods} for efficiently rendering hexagons.
  * <p>
  * This class is final and cannot be extended.
@@ -97,12 +121,15 @@ public final class GameEssentials {
         return actionDelay;
     }
     /**
-     * Generates a random color from a predefined set of 12 distinct colors.
-     *
-     * @return a randomly selected {@code Color} object.
+     * Generates a random {@link Color} from a predefined set of 12 distinct colors.
+     * @return a randomly selected {@code SolidColor} object.
      */
-    public static Color generateColor() {
-        return pieceColors[(int) (Math.random() * 12)];
+    public static Color generateColor(int index) {
+        if (index == -1 || index < -2){
+            return gameBlockDefaultColor;
+        } else if (index == -2 || index >= pieceColors.length){
+            return getDefaultColor();
+        } else return pieceColors[index];
     }
     public static Color getIndexedPieceColor(int index){
         if(index < 12 && index >= 0){
@@ -275,7 +302,7 @@ public final class GameEssentials {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
-        engine = new HexEngine(size, gameBlockDefaultColor, getDefaultColor());
+        engine = new HexEngine(size);
         queue = new Queue(queueSize);
         window = frame;
         // Logger initialize
@@ -287,7 +314,7 @@ public final class GameEssentials {
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
-                    cloned.setColor(generateColor());
+                    //cloned.setColor((int)(Math.random()*12));
                     engine.setBlock(block.getLineI(), block.getLineK(), cloned);
                 }
             }
@@ -295,7 +322,7 @@ public final class GameEssentials {
             for (int i = 0; i < loggerQueue.length; i++) {
                 Piece piece = loggerQueue[i];
                 if (piece != null) {
-                    piece.setColor(generateColor());
+                    //piece.setColor((int)(Math.random()*12));
                     queue.inject(piece, i);
                 }
             }

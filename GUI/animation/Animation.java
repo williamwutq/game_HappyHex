@@ -105,6 +105,9 @@ import java.util.*;
  * total number of frames, frame time, initial color, and rectangle dimensions. The {@code paintFrame} method draws a
  * rectangle with the given color, adjusting its alpha value based on the animation's progress to achieve the fading effect.
  * Once the animation completes, the component removes itself from its parent container, as defined in the parent class.
+ * @since 1.1
+ * @author William Wu
+ * @version 1.1
  */
 public abstract class Animation extends Component{
     /** Current frame progress of the animation. */

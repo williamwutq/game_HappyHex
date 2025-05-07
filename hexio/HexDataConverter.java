@@ -1,3 +1,27 @@
+/*
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ */
+
 package hexio;
 
 import hex.*;
@@ -6,7 +30,7 @@ import java.io.IOException;
 
 /**
  * The {@code HexDataConverter} class provides utility methods for converting hexagonal game components
- * (such as {@link Hex}, {@link Block}, {@link Piece}, {@link HexEngine}, and game moves) to and from
+ * (such as {@link Hex}, {@link Block}, {@link Piece}, {@link HexEngine}, color index, and game moves) to and from
  * {@link hexio.hexdata.HexDataFactory HexData} representations. This class serves as an add-on package for the {@link hex}
  * package, facilitating serialization and deserialization of hexagonal grid-based game data for
  * storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
@@ -184,7 +208,7 @@ public class HexDataConverter {
         } catch (NumberFormatException e) {
             throw new IOException("\"Block\" object does not contain valid state");
         }
-        return new Block(hex, java.awt.Color.BLACK, state);
+        return new Block(hex, state ? -2 : -1, state);
     }
     /**
      * Converts a hexadecimal string to a {@link Piece}.
@@ -206,7 +230,7 @@ public class HexDataConverter {
         }
         Piece piece;
         try {
-            piece = Piece.pieceFromByte((byte) Integer.parseUnsignedInt(hexString, 16), java.awt.Color.BLACK);
+            piece = Piece.pieceFromByte((byte) Integer.parseUnsignedInt(hexString, 16), -2);
         } catch (IllegalArgumentException e) {
             throw new IOException("\"Piece\" object creation failed due to invalid format or missing blocks");
         }
@@ -241,7 +265,7 @@ public class HexDataConverter {
         }
         if (radius <= 0) throw new IOException("\"HexEngine\" object cannot be generated because radius is negative or 0");
         // Create engine
-        HexEngine engine = new HexEngine(radius, java.awt.Color.BLACK, java.awt.Color.WHITE);
+        HexEngine engine = new HexEngine(radius);
         if ((engine.length()+3)/4 != hexString.length() - 4){
             throw new IOException("\"HexEngine\" object cannot be generated because input string have incorrect length");
         }
@@ -251,6 +275,7 @@ public class HexDataConverter {
             for (int bit = 0; bit < 4 && index < engine.length(); bit++) {
                 boolean state = (hexValue & (1 << bit)) != 0;
                 engine.getBlock(index).setState(state);
+                engine.getBlock(index).setColor(-2);
                 index ++;
             }
         }

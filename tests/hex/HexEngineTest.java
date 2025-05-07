@@ -1,41 +1,34 @@
-package tests.hex;
+package hex;
 
-import hex.Hex;
-import hex.HexEngine;
-import hex.Piece;
-import hex.Block;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 public class HexEngineTest {
 
     private HexEngine createTestEngine() {
-        return new HexEngine(2, Color.GRAY, Color.BLUE);
+        return new HexEngine(2);
     }
 
     @Test
     void testConstructor() {
         HexEngine engine = createTestEngine();
         assertEquals(2, engine.getRadius(), "Radius should be 2");
-        assertEquals(Color.GRAY, engine.getEmptyBlockColor(), "Empty block color should be GRAY");
-        assertEquals(Color.BLUE, engine.getFilledBlockColor(), "Filled block color should be BLUE");
         assertEquals(7, engine.length(), "Length should be 1 + 3*2*1 = 7 for radius 2");
         assertFalse(engine.getBlock(0, 0).getState(), "Blocks should be unoccupied initially");
-        assertEquals(Color.GRAY, engine.getBlock(0, 0).color(), "Blocks should have empty color initially");
+        assertEquals(-1, engine.getBlock(0, 0).getColor(), "Blocks should have empty color initially");
     }
 
     @Test
     void testReset() {
         HexEngine engine = createTestEngine();
         engine.setState(0, 0, true);
-        engine.setBlock(0, 0, new Block(0, 0, Color.RED, true));
+        engine.setBlock(0, 0, new Block(0, 0, 2, true));
 
         engine.reset();
         assertFalse(engine.getBlock(0, 0).getState(), "Block should be unoccupied after reset");
-        assertEquals(Color.GRAY, engine.getBlock(0, 0).color(), "Block should have empty color after reset");
+        assertEquals(-1, engine.getBlock(0, 0).getColor(), "Block should have empty color after reset");
         assertEquals(7, engine.length(), "Length should remain unchanged after reset");
     }
 
@@ -70,10 +63,10 @@ public class HexEngineTest {
         assertEquals(0, block.getLineI(), "Block I coordinate should be 0");
         assertEquals(0, block.getLineK(), "Block K coordinate should be 0");
 
-        Block newBlock = new Block(0, 0, Color.RED, true);
+        Block newBlock = new Block(0, 0, 2, true);
         engine.setBlock(0, 0, newBlock);
         assertEquals(newBlock, engine.getBlock(0, 0), "Set block should match");
-        assertEquals(Color.RED, engine.getBlock(0, 0).color(), "Block color should be RED");
+        assertEquals(2, engine.getBlock(0, 0).getColor(), "Block color should be 2");
     }
 
     @Test
@@ -82,30 +75,17 @@ public class HexEngineTest {
         engine.setState(0, 0, true);
         Block block = engine.getBlock(0, 0);
         assertTrue(block.getState(), "Block should be occupied");
-        assertEquals(Color.BLUE, block.color(), "Block should have filled color");
+        assertEquals(-2, block.getColor(), "Block should have filled color");
 
         engine.setState(0, 0, false);
         assertFalse(block.getState(), "Block should be unoccupied");
-        assertEquals(Color.GRAY, block.color(), "Block should have empty color");
-    }
-
-    @Test
-    void testSetDefaultBlockColors() {
-        HexEngine engine = createTestEngine();
-        engine.setDefaultBlockColors(Color.WHITE, Color.BLACK);
-        assertEquals(Color.WHITE, engine.getEmptyBlockColor(), "Empty block color should be WHITE");
-        assertEquals(Color.BLACK, engine.getFilledBlockColor(), "Filled block color should be BLACK");
-
-        engine.setState(0, 0, true);
-        assertEquals(Color.BLACK, engine.getBlock(0, 0).color(), "Filled block should be BLACK");
-        engine.setState(0, 0, false);
-        assertEquals(Color.WHITE, engine.getBlock(0, 0).color(), "Empty block should be WHITE");
+        assertEquals(-1, block.getColor(), "Block should have empty color");
     }
 
     @Test
     void testCheckAdd() {
         HexEngine engine = createTestEngine();
-        Piece piece = new Piece(2, Color.RED);
+        Piece piece = new Piece(2, 4);
         piece.add(0, 0);
         piece.add(0, 1);
 
@@ -122,7 +102,7 @@ public class HexEngineTest {
     @Test
     void testAdd() {
         HexEngine engine = createTestEngine();
-        Piece piece = new Piece(2, Color.RED);
+        Piece piece = new Piece(2, 4);
         piece.add(0, 0);
         piece.add(0, 1);
 
@@ -130,9 +110,9 @@ public class HexEngineTest {
         engine.add(origin, piece);
         assertTrue(engine.getBlock(0, 0).getState(), "Block at (0,0) should be occupied");
         assertTrue(engine.getBlock(0, 1).getState(), "Block at (0,1) should be occupied");
-        assertEquals(Color.RED, engine.getBlock(0, 0).color(), "Block color should be RED");
+        assertEquals(4, engine.getBlock(0, 0).getColor(), "Block color should be 4");
 
-        Piece overlappingPiece = new Piece(1, Color.BLUE);
+        Piece overlappingPiece = new Piece(1, 2);
         overlappingPiece.add(0, 0);
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             engine.add(origin, overlappingPiece);
@@ -143,7 +123,7 @@ public class HexEngineTest {
     @Test
     void testCheckPositions() {
         HexEngine engine = createTestEngine();
-        Piece piece = new Piece(1, Color.RED);
+        Piece piece = new Piece(1, 4);
         piece.add(0, 0);
 
         ArrayList<Hex> positions = engine.checkPositions(piece);
@@ -191,7 +171,7 @@ public class HexEngineTest {
     @Test
     void testComputeDenseIndex() {
         HexEngine engine = createTestEngine();
-        Piece piece = new Piece(1, Color.RED);
+        Piece piece = new Piece(1, 4);
         piece.add(0, 0);
 
         engine.setState(0, 0, true); // Neighbor to (1,1)
@@ -199,7 +179,7 @@ public class HexEngineTest {
         assertTrue(index > 0, "Density index should be positive with a neighbor");
         assertEquals(1.0 / 6.0, index, 0.001, "Density index should be 1/6 with one neighbor");
 
-        Piece invalidPiece = new Piece(1, Color.RED);
+        Piece invalidPiece = new Piece(1, 4);
         invalidPiece.add(0, 0); // Overlaps with occupied block
         assertEquals(0.0, engine.computeDenseIndex(Hex.hex(0, 0), invalidPiece),
                 "Density index should be 0 for invalid placement");
@@ -209,8 +189,8 @@ public class HexEngineTest {
     void testToString() {
         HexEngine engine = createTestEngine();
         String str = engine.toString();
-        assertTrue(str.contains("{I = 0, J = 0, K = 0},false"), "String should include block states");
-        assertTrue(str.startsWith("{HexEngine: "), "String should start with HexEngine prefix");
+        assertTrue(str.contains("{0, 0, 0, false}"), "String should include block states");
+        assertTrue(str.startsWith("HexEngine["), "String should start with HexEngine prefix");
     }
 
     @Test
@@ -220,10 +200,6 @@ public class HexEngineTest {
         HexEngine cloned = (HexEngine) engine.clone();
 
         assertEquals(engine.getRadius(), cloned.getRadius(), "Cloned radius should match");
-        assertEquals(engine.getEmptyBlockColor(), cloned.getEmptyBlockColor(),
-                "Cloned empty color should match");
-        assertEquals(engine.getFilledBlockColor(), cloned.getFilledBlockColor(),
-                "Cloned filled color should match");
         assertEquals(engine.length(), cloned.length(), "Cloned length should match");
         assertTrue(cloned.getBlock(0, 0).getState(), "Cloned block state should match");
         assertNotSame(engine.blocks(), cloned.blocks(), "Cloned blocks array should be different");
