@@ -24,6 +24,7 @@
 
 package viewer;
 
+import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -37,7 +38,7 @@ public class Viewer {
     }
     public static void test(Component component){
         // Test method
-        Frame frame = new Frame();
+        JFrame frame = new JFrame();
         frame.setTitle("Test");
         frame.setSize(new Dimension(400, 400));
         frame.setPreferredSize(new Dimension(400, 400));
