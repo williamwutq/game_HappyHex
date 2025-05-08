@@ -121,18 +121,13 @@ public final class NameIndicator extends JComponent{
      */
     public boolean removeChar(){
         if (cursor > 0 && cursor < pointer){
-            // FXI THIS PORTION
-            sevenSegments[pointer].setCharacter(' ');
+            hidden = sevenSegments[cursor-1].character;
             for (int i = cursor; i < pointer; i++){
-                sevenSegments[i].setCharacter(sevenSegments[i+1].character);
+                sevenSegments[i-1].setCharacter(sevenSegments[i].character);
             }
+            if (pointer-1 < sevenSegments.length) sevenSegments[pointer-1].setCharacter(' ');
             pointer --;
             cursor --;
-            if(cursor > 0) {
-                hidden = sevenSegments[cursor].character;
-            } else {
-                hidden = ' ';
-            }
             sevenSegments[cursor].setCharacter('-');
             return true;
         } else if (cursor > 0 && cursor == pointer) {
@@ -140,6 +135,15 @@ public final class NameIndicator extends JComponent{
             pointer --;
             cursor --;
             hidden = ' ';
+            sevenSegments[cursor].setCharacter('-');
+            return true;
+        } else if (cursor == 0 && pointer > 0){
+            hidden = sevenSegments[cursor+1].character;
+            for (int i = cursor+1; i < pointer; i++){
+                sevenSegments[i-1].setCharacter(sevenSegments[i].character);
+            }
+            if (pointer-1 < sevenSegments.length) sevenSegments[pointer-1].setCharacter(' ');
+            pointer --;
             sevenSegments[cursor].setCharacter('-');
             return true;
         } else return false;
