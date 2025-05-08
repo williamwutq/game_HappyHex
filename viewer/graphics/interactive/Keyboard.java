@@ -22,7 +22,7 @@
   SOFTWARE.
  */
 
-package viewer.graphics.frame;
+package viewer.graphics.interactive;
 
 import javax.swing.*;
 import java.awt.*;
