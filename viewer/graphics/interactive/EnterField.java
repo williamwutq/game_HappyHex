@@ -87,10 +87,12 @@ public final class EnterField extends JComponent {
         String cmd = e.getActionCommand();
         if (!cmd.startsWith("press ")) return;
         String key = cmd.substring(6);
-        if (key.equals("DEL") || key.equals("-")) {
+        if (key.equals("DEL")) {
             indicator.removeChar();
         } else if (key.equals("CLR")) {
             indicator.clear();
+        } else if (key.equals("-")) {
+            indicator.removeEnd();
         } else if (key.equals("+")) {
             indicator.addChar(indicator.getChar());
         } else if (key.equals("END")) {

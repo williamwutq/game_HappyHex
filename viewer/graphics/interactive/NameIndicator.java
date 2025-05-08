@@ -47,6 +47,8 @@ public final class NameIndicator extends JComponent{
     private static final Color charColor = new Color(85, 85, 85);
     private final SevenSegment[] sevenSegments;
     private int pointer;
+    private int cursor;
+    private char hidden;
     private double size;
     /**
      * Constructs a {@code NameIndicator} with a specified character length.
@@ -58,6 +60,8 @@ public final class NameIndicator extends JComponent{
         this.setLayout(null);
         this.setDoubleBuffered(true);
         pointer = 0;
+        cursor = 0;
+        hidden = ' ';
         sevenSegments = new SevenSegment[length];
         for (int i = 0; i < length; i ++){
             sevenSegments[i] = new SevenSegment();
@@ -74,6 +78,8 @@ public final class NameIndicator extends JComponent{
     public boolean clear(){
         if (pointer == 0) return false;
         pointer = 0;
+        cursor = 0;
+        hidden = ' ';
         sevenSegments[0].setCharacter('-');
         for (int i = 1; i < sevenSegments.length; i++) {
             sevenSegments[i].setCharacter(' ');
@@ -81,41 +87,65 @@ public final class NameIndicator extends JComponent{
         return true;
     }
     /**
-     * Removes the last character from the display.
+     * Removes the character at the end of the display.
+     *
+     * @return {@code true} if a character was removed,
+     *         {@code false} if the display was empty.
+     */
+    public boolean removeEnd(){
+        if (pointer > 0) {
+            if (pointer < sevenSegments.length) sevenSegments[pointer].setCharacter(' ');
+            if (pointer == cursor) {
+                cursor--;
+                hidden = ' ';
+                pointer --;
+                sevenSegments[pointer].setCharacter('-');
+            } else if (pointer == 1) {
+                hidden = ' ';
+                pointer --;
+                sevenSegments[pointer].setCharacter('-');
+            } else {
+                pointer--;
+                sevenSegments[pointer].setCharacter(' ');
+                if(pointer == cursor) sevenSegments[pointer].setCharacter('-');
+            }
+            return true;
+        } else return false;
+    }
+    /**
+     * Removes the character at cursor from the display, or if the cursor is at end of
+     * the character array, remove the last character
      *
      * @return {@code true} if a character was removed,
      *         {@code false} if the display was empty.
      */
     public boolean removeChar(){
-        if (pointer > 0){
-            if (pointer < sevenSegments.length)sevenSegments[pointer].setCharacter(' ');
-            pointer --;
-            sevenSegments[pointer].setCharacter('-');
-            return true;
-        } else return false;
-    }
-    /**
-     * Inserts a character at the specified index, shifting the rest forward.
-     * Only hexadecimal characters (0-9, A-F, a-f) are accepted.
-     *
-     * @param index the index at which to insert.
-     * @param c     the character to insert.
-     * @return {@code true} if the character was inserted,
-     *         {@code false} if the index or character was invalid.
-     */
-    public boolean insertChar(int index, char c){
-        if (index >= 0 && index <= pointer && index < sevenSegments.length &&(('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))){
-            for (int i = pointer - 1; i >= index; i--){
-                sevenSegments[i+1].setCharacter(sevenSegments[i].character);
+        if (cursor > 0 && cursor < pointer){
+            // FXI THIS PORTION
+            sevenSegments[pointer].setCharacter(' ');
+            for (int i = cursor; i < pointer; i++){
+                sevenSegments[i].setCharacter(sevenSegments[i+1].character);
             }
-            sevenSegments[index].setCharacter(c);
-            pointer++;
-            if (pointer < sevenSegments.length)sevenSegments[pointer].setCharacter('-');
+            pointer --;
+            cursor --;
+            if(cursor > 0) {
+                hidden = sevenSegments[cursor].character;
+            } else {
+                hidden = ' ';
+            }
+            sevenSegments[cursor].setCharacter('-');
+            return true;
+        } else if (cursor > 0 && cursor == pointer) {
+            sevenSegments[cursor].setCharacter(' ');
+            pointer --;
+            cursor --;
+            hidden = ' ';
+            sevenSegments[cursor].setCharacter('-');
             return true;
         } else return false;
     }
     /**
-     * Adds a character to the end of the display.
+     * Adds a character to the position of cursor.
      * Only hexadecimal characters (0-9, A-F, a-f) are accepted.
      *
      * @param c the character to add.
@@ -123,22 +153,60 @@ public final class NameIndicator extends JComponent{
      *         {@code false} if the display is full or character is invalid.
      */
     public boolean addChar(char c){
-        if (pointer < sevenSegments.length &&(('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))){
-            sevenSegments[pointer].setCharacter(c);
-            pointer++;
-            if (pointer < sevenSegments.length)sevenSegments[pointer].setCharacter('-');
+        if (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f')){
+            if (cursor == sevenSegments.length-1 && pointer < sevenSegments.length) {
+                hidden = c;
+                pointer ++;
+            } else if (cursor <= pointer && pointer < sevenSegments.length) {
+                for (int i = pointer - 1; i >= cursor; i--) {
+                    sevenSegments[i + 1].setCharacter(sevenSegments[i].character);
+                }
+                sevenSegments[cursor].setCharacter(c);
+                cursor++;
+                pointer++;
+                if (cursor < sevenSegments.length) sevenSegments[cursor].setCharacter('-');
+                return true;
+            }
+        } return false;
+    }
+    /**
+     * Retrieves the cursor position character.
+     *
+     * @return the character at cursor position, or space if not yet entered.
+     */
+    public char getChar(){
+        return hidden;
+    }
+
+    /**
+     * Increment the cursor position.
+     *
+     * @return {@code true} if the cursor was incremented,
+     *         {@code false} if the cursor cannot be incremented because it reached the end.
+     */
+    public boolean incrementCursor(){
+        if (cursor < pointer && cursor < sevenSegments.length-1){
+            sevenSegments[cursor].setCharacter(hidden);
+            cursor ++;
+            hidden = sevenSegments[cursor].character;
+            sevenSegments[cursor].setCharacter('-');
             return true;
         } else return false;
     }
     /**
-     * Retrieves the last valid character entered.
+     * Decrement the cursor position.
      *
-     * @return the last character, or space if none entered.
+     * @return {@code true} if the cursor was decremented,
+     *         {@code false} if the cursor cannot be decremented because it was at the start.
      */
-    public char getChar(){
-        if (pointer > 0) {
-            return sevenSegments[pointer-1].character;
-        } else return ' ';
+    public boolean decrementCursor(){
+        if (cursor > 0){
+            sevenSegments[cursor].setCharacter(hidden);
+            cursor --;
+            hidden = sevenSegments[cursor].character;
+            sevenSegments[cursor].setCharacter('-');
+            return true;
+        } else return false;
     }
     /**
      * Returns the current length of the entered string.
