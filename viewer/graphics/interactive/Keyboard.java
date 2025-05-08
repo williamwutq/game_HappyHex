@@ -79,7 +79,7 @@ public final class Keyboard extends JComponent {
                 {"5", "6", "7", "8", "9"},
                 {"A", "B", "C", "-", "+"},
                 {"D", "E", "F", "DEL", "CLR"},
-              {"HOM", "<", ">", "CNF", "ENT"}
+              {"STT", "<", ">", "END", "ENT"}
         };
         keys = new Key[5][5];
         for (int i = 0; i < 5; i++) {

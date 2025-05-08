@@ -91,10 +91,24 @@ public final class EnterField extends JComponent {
             indicator.removeChar();
         } else if (key.equals("CLR")) {
             indicator.clear();
-        } else if (key.equals("HOM") || key.equals("<") || key.equals(">") || key.equals("CNF") || key.equals("ENT")) {
-            // To be implemented
         } else if (key.equals("+")) {
             indicator.addChar(indicator.getChar());
+        } else if (key.equals("END")) {
+            boolean possible = indicator.incrementCursor();
+            while(possible){
+                possible = indicator.incrementCursor();
+            }
+        } else if (key.equals("STT")) {
+            boolean possible = indicator.decrementCursor();
+            while(possible){
+                possible = indicator.decrementCursor();
+            }
+        } else if (key.equals(">")) {
+            indicator.incrementCursor();
+        } else if (key.equals("<")) {
+            indicator.decrementCursor();
+        } else if (key.equals("ENT")) {
+            // To be implemented
         } else {
             indicator.addChar(key.charAt(0));
         }
