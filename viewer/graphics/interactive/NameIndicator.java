@@ -188,10 +188,10 @@ public final class NameIndicator extends JComponent{
      */
     public void paint(Graphics g){
         Graphics2D g2 = (Graphics2D) g.create();
-        int sizeInt = (int) size;
+        int size4 = (int) (size * 3);
         g2.setColor(this.getBackground());
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, sizeInt, sizeInt);
+        g2.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, size4, size4);
         g2.dispose();
         paintChildren(g);
     }
@@ -207,7 +207,7 @@ public final class NameIndicator extends JComponent{
                 {false, true, true, true, false, true, false},
                 {true, true, false, true, false, true, true},
                 {true, true, false, true, true, true, true},
-                {false, true, true, false, false, true, false},
+                {true, false, true, false, false, true, false},
                 {true, true, true, true, true, true, true},
                 {true, true, true, true, false, true, true},
                 {true, true, true, true, true, true, false},
