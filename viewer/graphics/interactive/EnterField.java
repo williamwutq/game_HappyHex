@@ -110,7 +110,7 @@ public final class EnterField extends JComponent {
         } else if (key.equals("<")) {
             indicator.decrementCursor();
         } else if (key.equals("ENT")) {
-            // To be implemented
+            indicator.lock();
         } else {
             indicator.addChar(key.charAt(0));
         }

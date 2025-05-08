@@ -48,6 +48,7 @@ public final class NameIndicator extends JComponent{
     private final SevenSegment[] sevenSegments;
     private int pointer;
     private int cursor;
+    private boolean locked;
     private char hidden;
     private double size;
     /**
@@ -59,6 +60,7 @@ public final class NameIndicator extends JComponent{
         this.setBackground(charColor);
         this.setLayout(null);
         this.setDoubleBuffered(true);
+        locked = false;
         pointer = 0;
         cursor = 0;
         hidden = ' ';
@@ -77,6 +79,7 @@ public final class NameIndicator extends JComponent{
      */
     public boolean clear(){
         if (pointer == 0) return false;
+        locked = false;
         pointer = 0;
         cursor = 0;
         hidden = ' ';
@@ -93,7 +96,7 @@ public final class NameIndicator extends JComponent{
      *         {@code false} if the display was empty.
      */
     public boolean removeEnd(){
-        if (pointer > 0) {
+        if (pointer > 0 && !locked) {
             if (pointer < sevenSegments.length) sevenSegments[pointer].setCharacter(' ');
             if (pointer == cursor) {
                 cursor--;
@@ -120,33 +123,35 @@ public final class NameIndicator extends JComponent{
      *         {@code false} if the display was empty.
      */
     public boolean removeChar(){
-        if (cursor > 0 && cursor < pointer){
-            hidden = sevenSegments[cursor-1].character;
-            for (int i = cursor; i < pointer; i++){
-                sevenSegments[i-1].setCharacter(sevenSegments[i].character);
+        if (!locked){
+            if (cursor > 0 && cursor < pointer) {
+                hidden = sevenSegments[cursor - 1].character;
+                for (int i = cursor; i < pointer; i++) {
+                    sevenSegments[i - 1].setCharacter(sevenSegments[i].character);
+                }
+                if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
+                pointer--;
+                cursor--;
+                sevenSegments[cursor].setCharacter('-');
+                return true;
+            } else if (cursor > 0 && cursor == pointer) {
+                sevenSegments[cursor].setCharacter(' ');
+                pointer--;
+                cursor--;
+                hidden = ' ';
+                sevenSegments[cursor].setCharacter('-');
+                return true;
+            } else if (cursor == 0 && pointer > 0) {
+                hidden = sevenSegments[cursor + 1].character;
+                for (int i = cursor + 1; i < pointer; i++) {
+                    sevenSegments[i - 1].setCharacter(sevenSegments[i].character);
+                }
+                if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
+                pointer--;
+                sevenSegments[cursor].setCharacter('-');
+                return true;
             }
-            if (pointer-1 < sevenSegments.length) sevenSegments[pointer-1].setCharacter(' ');
-            pointer --;
-            cursor --;
-            sevenSegments[cursor].setCharacter('-');
-            return true;
-        } else if (cursor > 0 && cursor == pointer) {
-            sevenSegments[cursor].setCharacter(' ');
-            pointer --;
-            cursor --;
-            hidden = ' ';
-            sevenSegments[cursor].setCharacter('-');
-            return true;
-        } else if (cursor == 0 && pointer > 0){
-            hidden = sevenSegments[cursor+1].character;
-            for (int i = cursor+1; i < pointer; i++){
-                sevenSegments[i-1].setCharacter(sevenSegments[i].character);
-            }
-            if (pointer-1 < sevenSegments.length) sevenSegments[pointer-1].setCharacter(' ');
-            pointer --;
-            sevenSegments[cursor].setCharacter('-');
-            return true;
-        } else return false;
+        } return false;
     }
     /**
      * Adds a character to the position of cursor.
@@ -157,7 +162,7 @@ public final class NameIndicator extends JComponent{
      *         {@code false} if the display is full or character is invalid.
      */
     public boolean addChar(char c){
-        if (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f')){
+        if (!locked && (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))){
             if (cursor == sevenSegments.length-1 && pointer < sevenSegments.length) {
                 hidden = c;
                 pointer ++;
@@ -189,7 +194,7 @@ public final class NameIndicator extends JComponent{
      *         {@code false} if the cursor cannot be incremented because it reached the end.
      */
     public boolean incrementCursor(){
-        if (cursor < pointer && cursor < sevenSegments.length-1){
+        if (cursor < pointer && cursor < sevenSegments.length-1 && !locked){
             sevenSegments[cursor].setCharacter(hidden);
             cursor ++;
             hidden = sevenSegments[cursor].character;
@@ -204,11 +209,25 @@ public final class NameIndicator extends JComponent{
      *         {@code false} if the cursor cannot be decremented because it was at the start.
      */
     public boolean decrementCursor(){
-        if (cursor > 0){
+        if (cursor > 0 && !locked){
             sevenSegments[cursor].setCharacter(hidden);
             cursor --;
             hidden = sevenSegments[cursor].character;
             sevenSegments[cursor].setCharacter('-');
+            return true;
+        } else return false;
+    }
+    /**
+     * Lock this {@code NameIndicator}.
+     *
+     * @return {@code true} if the indicator is filled and locked,
+     *         {@code false} if the cursor cannot be locked because it is not fill.
+     */
+    public boolean lock(){
+        if (!locked && pointer == sevenSegments.length){
+            sevenSegments[cursor].setCharacter(hidden);
+            hidden = ' ';
+            locked = true;
             return true;
         } else return false;
     }
