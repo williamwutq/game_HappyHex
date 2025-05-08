@@ -55,7 +55,7 @@ import java.awt.event.ActionListener;
  * @see JComponent
  * @see JButton
  */
-public class Keyboard extends JComponent {
+public final class Keyboard extends JComponent {
     private static final String keyFont = "Courier";
     private static final Color keyColor = new Color(85, 85, 85);
     private double size;
@@ -130,7 +130,7 @@ public class Keyboard extends JComponent {
      */
     private class Key extends JButton implements ActionListener {
         /** Label and command for this key. */
-        private String key;
+        private final String key;
         /**
          * Constructs a key with a specific label.
          *

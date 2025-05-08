@@ -32,7 +32,7 @@ import java.awt.*;
  * <p>
  * Run {@link #main} to launch the game viewer.
  */
-public class Viewer {
+public final class Viewer {
     public static void main(String[] args){
 
     }
