@@ -32,7 +32,7 @@ import java.awt.*;
  * alphanumeric string using seven-segment displays.
  * <p>
  * Each character (0-9, A-F, a-f, or '-') is rendered on a {@code SevenSegment} display.
- * Characters are displayed left-to-right and a pointer marks the current insertion index.
+ * Characters are displayed left-to-right and a cursor marks the current insertion index.
  * The component supports adding, inserting, removing, and clearing characters.
  * <p>
  * It uses a 7-segment emulation system that can be used in games or interfaces
@@ -241,7 +241,6 @@ public final class NameIndicator extends JComponent{
     }
     /**
      * Returns the full string currently shown on the display.
-     * Dash character is interpreted as a space.
      *
      * @return the string composed of segment characters.
      */
@@ -249,7 +248,7 @@ public final class NameIndicator extends JComponent{
         StringBuilder sb = new StringBuilder(sevenSegments.length);
         for (SevenSegment sevenSegment : sevenSegments) {
             if (sevenSegment.character == '-'){
-                sb.append(' ');
+                sb.append(hidden);
             } else sb.append(sevenSegment.character);
         }
         return sb.toString();
