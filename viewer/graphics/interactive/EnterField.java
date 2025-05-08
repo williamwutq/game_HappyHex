@@ -109,7 +109,7 @@ public final class EnterField extends JComponent {
         int h = getHeight();
         int w = getWidth();
 
-        int indicatorHeight = h / 5;
+        int indicatorHeight = h * 2 / 15;
         int keyboardHeight = h - indicatorHeight;
 
         indicator.setBounds(0, 0, w, indicatorHeight);
@@ -117,7 +117,7 @@ public final class EnterField extends JComponent {
     }
 
     public static void main(String[] args){
-        Viewer.test(new EnterField(12));
+        Viewer.test(new EnterField(16));
     }
 }
 
