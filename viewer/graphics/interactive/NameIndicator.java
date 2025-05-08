@@ -27,11 +27,32 @@ package viewer.graphics.interactive;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * {@code NameIndicator} is a Swing component that visually represents a user-defined
+ * alphanumeric string using seven-segment displays.
+ * <p>
+ * Each character (0-9, A-F, a-f, or '-') is rendered on a {@code SevenSegment} display.
+ * Characters are displayed left-to-right and a pointer marks the current insertion index.
+ * The component supports adding, inserting, removing, and clearing characters.
+ * <p>
+ * It uses a 7-segment emulation system that can be used in games or interfaces
+ * resembling digital readouts or LED displays.
+ *
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ * @see JComponent
+ */
 public final class NameIndicator extends JComponent{
     private static final Color charColor = new Color(85, 85, 85);
     private final SevenSegment[] sevenSegments;
     private int pointer;
     private double size;
+    /**
+     * Constructs a {@code NameIndicator} with a specified character length.
+     *
+     * @param length the number of characters this indicator can display.
+     */
     public NameIndicator(int length){
         this.setBackground(charColor);
         this.setLayout(null);
@@ -44,7 +65,12 @@ public final class NameIndicator extends JComponent{
         }
         sevenSegments[0].setCharacter('-');
     }
-
+    /**
+     * Clears the current string, resetting all segments.
+     *
+     * @return {@code true} if the display was non-empty and is now cleared,
+     *         {@code false} if it was already empty.
+     */
     public boolean clear(){
         if (pointer == 0) return false;
         pointer = 0;
@@ -54,6 +80,12 @@ public final class NameIndicator extends JComponent{
         }
         return true;
     }
+    /**
+     * Removes the last character from the display.
+     *
+     * @return {@code true} if a character was removed,
+     *         {@code false} if the display was empty.
+     */
     public boolean removeChar(){
         if (pointer > 0){
             if (pointer < sevenSegments.length)sevenSegments[pointer].setCharacter(' ');
@@ -62,6 +94,15 @@ public final class NameIndicator extends JComponent{
             return true;
         } else return false;
     }
+    /**
+     * Inserts a character at the specified index, shifting the rest forward.
+     * Only hexadecimal characters (0-9, A-F, a-f) are accepted.
+     *
+     * @param index the index at which to insert.
+     * @param c     the character to insert.
+     * @return {@code true} if the character was inserted,
+     *         {@code false} if the index or character was invalid.
+     */
     public boolean insertChar(int index, char c){
         if (index >= 0 && index <= pointer && index < sevenSegments.length &&(('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))){
             for (int i = pointer - 1; i >= index; i--){
@@ -73,6 +114,14 @@ public final class NameIndicator extends JComponent{
             return true;
         } else return false;
     }
+    /**
+     * Adds a character to the end of the display.
+     * Only hexadecimal characters (0-9, A-F, a-f) are accepted.
+     *
+     * @param c the character to add.
+     * @return {@code true} if the character was added,
+     *         {@code false} if the display is full or character is invalid.
+     */
     public boolean addChar(char c){
         if (pointer < sevenSegments.length &&(('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))){
             sevenSegments[pointer].setCharacter(c);
@@ -81,16 +130,30 @@ public final class NameIndicator extends JComponent{
             return true;
         } else return false;
     }
+    /**
+     * Retrieves the last valid character entered.
+     *
+     * @return the last character, or space if none entered.
+     */
     public char getChar(){
         if (pointer > 0) {
             return sevenSegments[pointer-1].character;
         } else return ' ';
     }
-
+    /**
+     * Returns the current length of the entered string.
+     *
+     * @return number of characters currently displayed (excluding dash, which is used to indicating entering position).
+     */
     public int getStringLength(){
         return pointer;
     }
-
+    /**
+     * Returns the full string currently shown on the display.
+     * Dash character is interpreted as a space.
+     *
+     * @return the string composed of segment characters.
+     */
     public String getString(){
         StringBuilder sb = new StringBuilder(sevenSegments.length);
         for (SevenSegment sevenSegment : sevenSegments) {
@@ -101,6 +164,10 @@ public final class NameIndicator extends JComponent{
         return sb.toString();
     }
 
+    /**
+     * Performs layout of child components by positioning and sizing
+     * the individual {@code SevenSegment} displays.
+     */
     public void doLayout() {
         int halfHeight = getHeight()/2;
         int halfWidth = getWidth()/2;
@@ -114,7 +181,11 @@ public final class NameIndicator extends JComponent{
             sevenSegments[i].setBounds(w + sizeQ + halfWidth, halfHeight - sizeHalfH, sizeW, sizeH);
         }
     }
-
+    /**
+     * Paints the background and then children components.
+     *
+     * @param g the graphics context.
+     */
     public void paint(Graphics g){
         Graphics2D g2 = (Graphics2D) g.create();
         int sizeInt = (int) size;
@@ -124,7 +195,9 @@ public final class NameIndicator extends JComponent{
         g2.dispose();
         paintChildren(g);
     }
-
+    /**
+     * Internal component representing a single 7-segment digit.
+     */
     private final class SevenSegment extends JComponent{
         private static final boolean[][] data = {
                 {true, true, true, false, true, true, true},
@@ -164,14 +237,26 @@ public final class NameIndicator extends JComponent{
         };
         private char character;
         private boolean[] states;
+        /** Creates an empty seven-segment display component. */
         private SevenSegment(){
             this.character = ' ';
             states = new boolean[7];
         }
+        /**
+         * Sets the displayed character and updates the segment states.
+         *
+         * @param character character to display (0-9, A-F, a-f, or '-').
+         */
         private void setCharacter(char character){
             this.character = character;
             states = SevenSegment.getStates(character);
         }
+        /**
+         * Maps a character to its segment states.
+         *
+         * @param c character to map.
+         * @return boolean array representing which segments to light.
+         */
         private static boolean[] getStates(char c){
             if (c == '-'){
                 boolean[] result = new boolean[7];
@@ -185,7 +270,11 @@ public final class NameIndicator extends JComponent{
                 return data[c - 87];
             } else return new boolean[7];
         }
-
+        /**
+         * Paints the current character using white-filled polygon segments.
+         *
+         * @param g the graphics context.
+         */
         public void paint(Graphics g){
             // Draw key background
             Graphics2D g2 = (Graphics2D) g.create();
