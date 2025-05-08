@@ -207,7 +207,7 @@ public class Tracker {
      * @see #engine
      * @see #engineAt
      */
-    public HexEngine[] engines() {
+    public final HexEngine[] engines() {
         return engines.clone();
     }
     /**
@@ -221,7 +221,7 @@ public class Tracker {
      * @see #origin
      * @see #originAt
      */
-    public Hex[] origins() {
+    public final Hex[] origins() {
         return origins.clone();
     }
     /**
@@ -234,7 +234,7 @@ public class Tracker {
      * @see #queue
      * @see #queueAt
      */
-    public Piece[][] queues() {
+    public final Piece[][] queues() {
         return queues.clone();
     }
     /**
@@ -247,7 +247,7 @@ public class Tracker {
      * @see #score
      * @see #scoreAt
      */
-    public int[] scores() {
+    public final int[] scores() {
         return scores.clone();
     }
     /**
@@ -332,7 +332,7 @@ public class Tracker {
      * @return a {@link HexEngine} representing the game board in the game state represented by the pointer.
      * @see #engines()
      */
-    public HexEngine engine(){
+    public final HexEngine engine(){
         return engines[pointer];
     }
     /**
@@ -342,7 +342,7 @@ public class Tracker {
      * @return a {@link Hex} coordinate representing the game piece placement in the game state represented by the pointer.
      * @see #origins()
      */
-    public Hex origin() {
+    public final Hex origin() {
         return origins[pointer];
     }
     /**
@@ -351,7 +351,7 @@ public class Tracker {
      * @return an array of {@link Piece} representing the game {@code Piece} queue in the game state represented by the pointer.
      * @see #queues()
      */
-    public Piece[] queue() {
+    public final Piece[] queue() {
         return queues[pointer];
     }
     /**
@@ -360,7 +360,7 @@ public class Tracker {
      * @return an integer representing the game score queue in the game state represented by the pointer.
      * @see #scores()
      */
-    public int score() {
+    public final int score() {
         return scores[pointer];
     }
 
@@ -370,7 +370,7 @@ public class Tracker {
      *
      * @return the current pointer pointing to a specific game state in the {@code Tracker}
      */
-    public int getPointer(){
+    public final int getPointer(){
         return pointer;
     }
     /**
@@ -379,7 +379,7 @@ public class Tracker {
      *
      * @return whether the pointer is advanced
      */
-    public boolean advancePointer(){
+    public final boolean advancePointer(){
         if(pointer < length - 1){
             pointer++;
             return true;
@@ -391,7 +391,7 @@ public class Tracker {
      *
      * @return whether the pointer is decremented
      */
-    public boolean decrementPointer(){
+    public final boolean decrementPointer(){
         if(pointer > 0){
             pointer--;
             return true;
@@ -403,7 +403,7 @@ public class Tracker {
      * @param pointer the new pointer pointing to the desired game state in the {@code Tracker}, which is a valid index
      * @throws IndexOutOfBoundsException if the index is not in range [0, length)
      */
-    public void setPointer(int pointer){
+    public final void setPointer(int pointer){
         checkIndex(pointer);
         this.pointer = pointer;
     }
