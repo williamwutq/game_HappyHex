@@ -118,31 +118,31 @@ class Hex:
 
     def front_i(self, other):
         """Check if this Hex is one unit higher on I-axis."""
-        return self._x == other.__i__ + 2 and self._y == other.__k__ - 1
+        return self._x == other.__i__() + 2 and self._y == other.__k__() - 1
 
     def front_j(self, other):
         """Check if this Hex is one unit higher on J-axis."""
-        return self._x == other.__i__ + 1 and self._y == other.__k__ + 1
+        return self._x == other.__i__() + 1 and self._y == other.__k__() + 1
 
     def front_k(self, other):
         """Check if this Hex is one unit higher on K-axis."""
-        return self._x == other.__i__ - 1 and self._y == other.__k__ + 2
+        return self._x == other.__i__() - 1 and self._y == other.__k__() + 2
 
     def back_i(self, other):
         """Check if this Hex is one unit lower on I-axis."""
-        return self._x == other.__i__ - 2 and self._y == other.__k__ + 1
+        return self._x == other.__i__() - 2 and self._y == other.__k__() + 1
 
     def back_j(self, other):
         """Check if this Hex is one unit lower on J-axis."""
-        return self._x == other.__i__ - 1 and self._y == other.__k__ - 1
+        return self._x == other.__i__() - 1 and self._y == other.__k__() - 1
 
     def back_k(self, other):
         """Check if this Hex is one unit lower on K-axis."""
-        return self._x == other.__i__ + 1 and self._y == other.__k__ - 2
+        return self._x == other.__i__() + 1 and self._y == other.__k__() - 2
 
     def equals(self, other):
         """Check if this Hex equals another Hex."""
-        return self._x == other.__i__ and self._y == other.__k__
+        return self._x == other.__i__() and self._y == other.__k__()
 
     def in_range(self, radius):
         """Check if Hex is within given radius from origin."""
@@ -196,16 +196,16 @@ class Hex:
     # Add and subtract
     def add(self, other):
         """Return new Hex with summed coordinates."""
-        return Hex(self._x + other.__i__, self._y + other.__k__)
+        return Hex(self._x + other.__i__(), self._y + other.__k__())
 
     def subtract(self, other):
         """Return new Hex with subtracted coordinates."""
-        return Hex(self._x - other.__i__, self._y - other.__k__)
+        return Hex(self._x - other.__i__(), self._y - other.__k__())
 
     def set(self, other):
         """Set this Hex to another Hex's coordinates."""
-        self._x = other.__i__
-        self._y = other.__j__
+        self._x = other.__i__()
+        self._y = other.__j__()
 
     def this_hex(self):
         """Return this Hex as a new instance using line coordinates."""
@@ -319,7 +319,7 @@ class Block(Hex):
         """Return new Block with subtracted coordinates."""
         return Block(self.this_hex().subtract(other), self._color, self._state)
 
-    def __basic_str(self):
+    def basic_str(self):
         """Return minimal string representation with line coordinates and state."""
         return (f"{{{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}, "
                 f"{self._state}}}")
@@ -434,8 +434,8 @@ class HexGrid(ABC):
         """
         count = 0
         if self.in_range(__hex__):
-            __i__ = __hex__.__i__()
-            __k__ = __hex__.__k__()
+            __i__ = __hex__.get_line_i()
+            __k__ = __hex__.get_line_k()
             neighbors = [
                 (__i__ - 1, __k__ - 1),
                 (__i__ - 1, __k__),
@@ -621,10 +621,10 @@ class Piece(HexGrid):
         """Return a string representation of the piece and its block line coordinates."""
         str_builder = ["Piece{"]
         if self._blocks:
-            str_builder.append("null" if self._blocks[0] is None else self._blocks[0].__basic_str())
+            str_builder.append("null" if self._blocks[0] is None else self._blocks[0].basic_str())
         for block in self._blocks[1:]:
             str_builder.append(", ")
-            str_builder.append("null" if block is None else block.__basic_str())
+            str_builder.append("null" if block is None else block.basic_str())
         str_builder.append("}")
         return "".join(str_builder)
 
@@ -1044,10 +1044,10 @@ class HexEngine(HexGrid):
         """Return a string representation of the grid color and block states."""
         str_builder = ["HexEngine[blocks = {"]
         if self._blocks:
-            str_builder.append(self._blocks[0].__basic_str())
+            str_builder.append(self._blocks[0].basic_str())
         for block in self._blocks[1:]:
             str_builder.append(", ")
-            str_builder.append(block.__basic_str())
+            str_builder.append(block.basic_str())
         str_builder.append("}]")
         return "".join(str_builder)
 
