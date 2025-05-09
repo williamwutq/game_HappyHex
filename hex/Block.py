@@ -1,5 +1,6 @@
 from hex import Hex
 
+
 class Block(Hex):
     """
     The Block class extends Hex and represents a colored block with an occupancy state

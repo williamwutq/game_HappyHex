@@ -40,7 +40,6 @@ class Hex:
         self._x = i
         self._y = k
 
-    @staticmethod
     def hex(i=0, k=0):
         """Create a Hex coordinate using line indices, shifted accordingly."""
         return Hex().shift_i(k).shift_k(i)
