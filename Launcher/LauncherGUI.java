@@ -100,6 +100,9 @@ public class LauncherGUI {
     private static JPanel fetchLaunchPanel(){
         return new LaunchPanel();
     }
+    private static JPanel fetchResumePanel(){
+        return new LoginPanel();
+    }
     private static JPanel fetchLoginPanel(){
         return new LoginPanel();
     }
@@ -166,6 +169,14 @@ public class LauncherGUI {
         setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
         mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
+    }
+    public static void toResumeGame(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        mainFrame.add(fetchResumePanel(), BorderLayout.CENTER);
     }
     public static void toLogInPage(){
         LaunchEssentials.endGame();
