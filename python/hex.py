@@ -140,7 +140,7 @@ class Hex:
         """Check if this Hex is one unit lower on K-axis."""
         return self._x == other.__i__() + 1 and self._y == other.__k__() - 2
 
-    def equals(self, other):
+    def __eq__(self, other):
         """Check if this Hex equals another Hex."""
         return self._x == other.__i__() and self._y == other.__k__()
 
@@ -194,20 +194,20 @@ class Hex:
         return Hex(self._x - unit, self._y + 2 * unit)
 
     # Add and subtract
-    def add(self, other):
+    def __add__(self, other):
         """Return new Hex with summed coordinates."""
         return Hex(self._x + other.__i__(), self._y + other.__k__())
 
-    def subtract(self, other):
+    def __sub__(self, other):
         """Return new Hex with subtracted coordinates."""
         return Hex(self._x - other.__i__(), self._y - other.__k__())
 
     def set(self, other):
         """Set this Hex to another Hex's coordinates."""
         self._x = other.__i__()
-        self._y = other.__j__()
+        self._y = other.__k__()
 
-    def this_hex(self):
+    def __this__(self):
         """Return this Hex as a new instance using line coordinates."""
         return Hex.hex(self.get_line_i(), self.get_line_k())
 
@@ -273,12 +273,12 @@ class Block(Hex):
 
     def __copy__(self):
         """Return a copy of this Block."""
-        block = Block(self.this_hex(), self._color, self._state)
+        block = Block(self.__this__(), self._color, self._state)
         return block
 
     def __deepcopy__(self, memo):
         """Return a deep copy of this Block."""
-        block = Block(self.this_hex(), self._color, self._state)
+        block = Block(self.__this__(), self._color, self._state)
         return block
 
     # Setters
@@ -311,13 +311,13 @@ class Block(Hex):
         return self
 
     # Add and subtract
-    def add(self, other):
+    def __add__(self, other):
         """Return new Block with summed coordinates."""
-        return Block(self.this_hex().add(other), self._color, self._state)
+        return Block(self.__this__() + other, self._color, self._state)
 
-    def subtract(self, other):
+    def __sub__(self, other):
         """Return new Block with subtracted coordinates."""
-        return Block(self.this_hex().subtract(other), self._color, self._state)
+        return Block(self.__this__() - other, self._color, self._state)
 
     def basic_str(self):
         """Return minimal string representation with line coordinates and state."""
@@ -684,7 +684,7 @@ class Piece(HexGrid):
         if data & 1: piece.add_hex(Hex.hex(1, 1))
         return piece
 
-    def equals(self, piece: 'Piece') -> bool:
+    def __eq__(self, piece: 'Piece') -> bool:
         """
         Compare this piece to another for equality.
 
@@ -702,7 +702,7 @@ class Piece(HexGrid):
         self._sort()
         piece._sort()
         for i in range(self.length()):
-            if not self._blocks[i].equals(piece._blocks[i]):
+            if not self._blocks[i] == piece._blocks[i]:
                 return False
         return True
 
@@ -882,7 +882,7 @@ class HexEngine(HexGrid):
         """
         for block in other.blocks():
             if block is not None and block.get_state():
-                placed_block = block.add(origin)
+                placed_block = block + origin
                 target = self.get_block(placed_block)
                 if target is None or target.get_state():
                     return False
@@ -903,7 +903,7 @@ class HexEngine(HexGrid):
         """
         for block in other.blocks():
             if block is not None and block.get_state():
-                placed_block = block.add(origin)
+                placed_block = block + origin
                 target = self.get_block(placed_block)
                 if target is None:
                     raise ValueError("Block out of grid when adding")
@@ -923,7 +923,7 @@ class HexEngine(HexGrid):
         """
         positions = []
         for block in self._blocks:
-            hex_coord = block.this_hex()
+            hex_coord = block.__this__()
             if self.check_add(hex_coord, other):
                 positions.append(hex_coord)
         return positions
@@ -1032,7 +1032,7 @@ class HexEngine(HexGrid):
         total_populated = 0
         for block in other.blocks():
             if block is not None and block.get_state():
-                placed_block = block.add(origin)
+                placed_block = block + origin
                 target = self.get_block(placed_block)
                 if target is None or target.get_state():
                     return 0.0
@@ -1062,4 +1062,10 @@ class HexEngine(HexGrid):
         new_engine = HexEngine(self._radius)
         new_engine._blocks = [copy.deepcopy(block, memo) for block in self._blocks]
         return new_engine
+
+if __name__ == "__main__":
+    print(Block(Hex.hex(3, -2)) + Hex.hex(4,5))
+    print(Hex.hex(3, -2) + Block(Hex.hex(4,5)))
+    print(Hex.hex(3, -2) + Hex.hex(4,5))
+    print(Hex.hex(3, -2) + Hex.hex(4,5))
 
