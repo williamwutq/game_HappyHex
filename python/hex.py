@@ -1,5 +1,7 @@
+import copy
 import math
 from abc import ABC, abstractmethod
+from typing import List
 
 
 class Hex:
@@ -263,11 +265,6 @@ class Block(Hex):
                 f"{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}}}, "
                 f"state = {self._state}]")
 
-    def __basic_str(self):
-        """Return minimal string representation with line coordinates and state."""
-        return (f"{{{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}, "
-                f"{self._state}}}")
-
     def __copy__(self):
         """Return a copy of this Block."""
         block = Block(self.this_hex(), self._color, self._state)
@@ -315,6 +312,11 @@ class Block(Hex):
     def subtract(self, other):
         """Return new Block with subtracted coordinates."""
         return Block(self.this_hex().subtract(other), self._color, self._state)
+
+    def __basic_str(self):
+        """Return minimal string representation with line coordinates and state."""
+        return (f"{{{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}, "
+                f"{self._state}}}")
 
 
 class HexGrid(ABC):
@@ -484,7 +486,7 @@ class Piece(HexGrid):
         """
         if length < 1:
             length = 1
-        self._blocks = [None] * length
+        self._blocks = [Block()] * length
         self._color = color
 
     def set_color(self, color: int) -> None:
@@ -697,3 +699,361 @@ class Piece(HexGrid):
             if not self._blocks[i].equals(piece._blocks[i]):
                 return False
         return True
+
+
+
+class HexEngine(HexGrid):
+    """
+    The HexEngine class implements the HexGrid interface and provides a complete engine
+    for managing a two-dimensional hexagonal block grid used for constructing and
+    interacting with hex-based shapes in the game.
+
+    The engine maintains an array of Block instances arranged in a hexagonal pattern
+    with its leftmost Block at origin (0,0), and provides operations such as:
+    - Grid initialization and reset
+    - Automatic coloring through color indexes
+    - Efficient block lookup using binary search
+    - Grid placement validation and piece insertion
+    - Line detection and elimination across I/J/K axes
+    - Deep copy support through the clone method
+
+    Grid Structure:
+    - Uses an axial coordinate system (i, k), where i - j + k = 0, and j is derived as j = i + k.
+    - Three axes: I, J, K. I+ is 60° from J+, J+ is 60° from K+, K+ is 60° from I-.
+    - Raw coordinates: distance along an axis multiplied by 2.
+    - Line-coordinates (I, K) are perpendicular distances to axes, calculated from raw coordinates.
+    - Blocks are stored in a sorted array by increasing raw coordinate i, then k.
+
+    Grid Size:
+    - Total blocks for radius r: Aₖ = 1 + 3*r*(r-1)
+    - Derived from: Aₖ = Aₖ₋₁ + 6*(k-1); A₁ = 1
+
+    Block Coloring:
+    - Default: two colors for empty (False) and filled (True) states.
+    - State updates via set_state or initialization/reset change colors automatically.
+    - set_block allows manual color assignment.
+
+    Machine Learning:
+    - Supports reward functions for evaluating action quality.
+    - check_add discourages invalid moves (e.g., overlaps).
+    - compute_dense_index evaluates placement density for rewarding efficient gap-filling.
+    """
+
+    def __init__(self, radius: int):
+        """
+        Construct a HexEngine with the specified radius and default colors.
+
+        Populates the hexagonal block grid with valid blocks, tested via Block.in_range.
+        Blocks are inserted in row-major order (by i, then k) for binary search efficiency.
+
+        Args:
+            radius: Radius of the hexagonal grid, must be greater than 1.
+        """
+        self._radius = radius
+        # Calculate array size: Aₖ = 1 + 3*r*(r-1)
+        self._blocks = [Block()] * (1 + 3 * radius * (radius - 1))
+        # Populate grid
+        index = 0
+        for a in range(radius * 2):
+            for b in range(radius * 2):
+                block = Block(Hex())
+                block.move_i(b)
+                block.move_k(a)
+                if block.in_range(radius):
+                    self._blocks[index] = block
+                    index += 1
+        # Blocks are sorted by I, then K
+
+    def reset(self) -> None:
+        """Reset all blocks to their default state and color."""
+        new_blocks = [Block(block) for block in self._blocks]
+        self._blocks = new_blocks
+
+    def get_radius(self) -> int:
+        """Return the radius of the grid."""
+        return self._radius
+
+    # HexGrid implementation
+    def length(self) -> int:
+        """Return the number of blocks in the grid."""
+        return len(self._blocks) if self._blocks is not None else 0
+
+    def blocks(self) -> List[Block]:
+        """Return all blocks in the grid."""
+        return self._blocks
+
+    def in_range(self, __hex__: Hex) -> bool:
+        """Check if a hexagonal coordinate is within the grid bounds."""
+        return __hex__.in_range(self._radius)
+
+    def get_block(self, *args) -> Block | None:
+        """
+        Retrieve a Block at the given Hex coordinate or array index.
+
+        Args:
+            *args: Either a Hex object or a single index.
+
+        Returns:
+            Block: The Block if found, or None if out of range.
+        """
+        if len(args) == 1 and isinstance(args[0], int):
+            return self._blocks[args[0]]
+        elif len(args) == 1 and isinstance(args[0], Hex):
+            __hex__ = args[0]
+            if self.in_range(__hex__):
+                index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
+                if index >= 0:
+                    return self._blocks[index]
+        return None
+
+    def set_block(self, __hex__: Hex, block: Block) -> None:
+        """
+        Set the Block at a specific grid coordinate using binary search.
+
+        Args:
+            __hex__: The Hex coordinate.
+            block: The new Block to place.
+        """
+        if self.in_range(__hex__):
+            index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
+            if index >= 0:
+                self._blocks[index] = block
+
+    def set_state(self, __hex__: Hex, state: bool) -> None:
+        """
+        Set the state of a Block at a specific grid coordinate using binary search.
+
+        Automatically sets the color based on state (-2 for True, -1 for False).
+
+        Args:
+            __hex__: The Hex coordinate.
+            state: The new state (True = occupied).
+        """
+        if self.in_range(__hex__):
+            index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
+            if index >= 0:
+                block = self._blocks[index]
+                if block.get_state() != state:
+                    block.set_state(state)
+                    block.set_color(-2 if state else -1)
+
+    def _search(self, i: int, k: int, start: int, end: int) -> int:
+        """
+        Perform a binary search to locate a block at (i, k).
+
+        Assumes the array is sorted by I, then K.
+
+        Args:
+            i: I coordinate.
+            k: K coordinate.
+            start: Search range start index.
+            end: Search range end index.
+
+        Returns:
+            int: Index of the block, or -1 if not found.
+        """
+        if start > end:
+            return -1
+        mid = (start + end) // 2
+        block = self._blocks[mid]
+        if block.get_line_i() == i and block.get_line_k() == k:
+            return mid
+        elif block.get_line_i() < i or (block.get_line_i() == i and block.get_line_k() < k):
+            return self._search(i, k, mid + 1, end)
+        else:
+            return self._search(i, k, start, mid - 1)
+
+    def check_add(self, origin: Hex, other: HexGrid) -> bool:
+        """
+        Check if another grid can be added at the given origin without overlap or out-of-bounds.
+
+        Args:
+            origin: Origin offset for placement.
+            other: The other HexGrid to check.
+
+        Returns:
+            bool: True if placement is valid.
+        """
+        for block in other.blocks():
+            if block is not None and block.get_state():
+                placed_block = block.add(origin)
+                target = self.get_block(placed_block)
+                if target is None or target.get_state():
+                    return False
+        return True
+
+    def add(self, origin: Hex, other: HexGrid) -> None:
+        """
+        Add another grid to this grid at the given origin.
+
+        Modifies the grid permanently. Throws an exception if placement is invalid.
+
+        Args:
+            origin: Offset for placement.
+            other: The grid to add.
+
+        Raises:
+            ValueError: If placement is out of bounds or overlaps.
+        """
+        for block in other.blocks():
+            if block is not None and block.get_state():
+                placed_block = block.add(origin)
+                target = self.get_block(placed_block)
+                if target is None:
+                    raise ValueError("Block out of grid when adding")
+                if target.get_state():
+                    raise ValueError("Cannot add into existing block")
+                self.set_block(placed_block, placed_block)
+
+    def check_positions(self, other: HexGrid) -> List[Hex]:
+        """
+        Return all valid positions where another grid can be added.
+
+        Args:
+            other: The HexGrid to place.
+
+        Returns:
+            List[Hex]: List of possible Hex origins for valid placement.
+        """
+        positions = []
+        for block in self._blocks:
+            hex_coord = block.this_hex()
+            if self.check_add(hex_coord, other):
+                positions.append(hex_coord)
+        return positions
+
+    def eliminate(self) -> List[Block]:
+        """
+        Eliminate fully occupied lines along I, J, or K axes and return eliminated blocks.
+
+        Modifies the grid permanently.
+
+        Returns:
+            List[Block]: Blocks eliminated.
+        """
+        eliminate = []
+        # Check I
+        for i in range(self._radius * 2 - 1):
+            line = [b for b in self._blocks if b.get_line_i() == i]
+            if all(b.get_state() for b in line):
+                eliminate.extend(line)
+        # Check J
+        for j in range(1 - self._radius, self._radius):
+            line = [b for b in self._blocks if b.get_line_j() == j]
+            if all(b.get_state() for b in line):
+                eliminate.extend(line)
+        # Check K
+        for k in range(self._radius * 2 - 1):
+            line = [b for b in self._blocks if b.get_line_k() == k]
+            if all(b.get_state() for b in line):
+                eliminate.extend(line)
+        # Eliminate
+        eliminated = []
+        for block in eliminate:
+            eliminated.append(block.__copy__())
+            self.set_state(block, False)
+        return eliminated
+
+    def check_eliminate(self) -> bool:
+        """
+        Check if any full line can be eliminated.
+
+        Returns:
+            bool: True if at least one line is full.
+        """
+        for i in range(self._radius * 2 - 1):
+            if self.check_eliminate_i(i):
+                return True
+        for j in range(1 - self._radius, self._radius):
+            if self.check_eliminate_j(j):
+                return True
+        for k in range(self._radius * 2 - 1):
+            if self.check_eliminate_k(k):
+                return True
+        return False
+
+    def check_eliminate_i(self, i: int) -> bool:
+        """
+        Check if the entire line of constant I can be eliminated.
+
+        Args:
+            i: The I-line to check.
+
+        Returns:
+            bool: True if all blocks are filled.
+        """
+        return all(b.get_state() for b in self._blocks if b.get_line_i() == i)
+
+    def check_eliminate_j(self, j: int) -> bool:
+        """
+        Check if the entire line of constant J can be eliminated.
+
+        Args:
+            j: The J-line to check.
+
+        Returns:
+            bool: True if all blocks are filled.
+        """
+        return all(b.get_state() for b in self._blocks if b.get_line_j() == j)
+
+    def check_eliminate_k(self, k: int) -> bool:
+        """
+        Check if the entire line of constant K can be eliminated.
+
+        Args:
+            k: The K-line to check.
+
+        Returns:
+            bool: True if all blocks are filled.
+        """
+        return all(b.get_state() for b in self._blocks if b.get_line_k() == k)
+
+    def compute_dense_index(self, origin: Hex, other: HexGrid) -> float:
+        """
+        Compute a density index score for hypothetically placing another grid.
+
+        Returns a value between 0 and 1 representing surrounding density.
+        A score of 1 means all surrounding blocks would be filled, 0 means the grid would be alone.
+
+        Args:
+            origin: Position for hypothetical placement.
+            other: The HexGrid to evaluate.
+
+        Returns:
+            float: Density index (0 to 1), or 0 if placement is invalid or no neighbors exist.
+        """
+        total_possible = 0
+        total_populated = 0
+        for block in other.blocks():
+            if block is not None and block.get_state():
+                placed_block = block.add(origin)
+                target = self.get_block(placed_block)
+                if target is None or target.get_state():
+                    return 0.0
+                total_possible += 6 - other.count_neighbors(placed_block, False)
+                total_populated += self.count_neighbors(placed_block, True)
+        return total_populated / total_possible if total_possible > 0 else 0.0
+
+    def __str__(self) -> str:
+        """Return a string representation of the grid color and block states."""
+        str_builder = ["HexEngine[blocks = {"]
+        if self._blocks:
+            str_builder.append(self._blocks[0].__basic_str())
+        for block in self._blocks[1:]:
+            str_builder.append(", ")
+            str_builder.append(block.__basic_str())
+        str_builder.append("}]")
+        return "".join(str_builder)
+
+    def __copy__(self):
+        """Return a deep copy of this HexEngine."""
+        new_engine = HexEngine(self._radius)
+        new_engine._blocks = [block.__copy__() for block in self._blocks]
+        return new_engine
+
+    def __deepcopy__(self, memo):
+        """Return a deep copy of this HexEngine."""
+        new_engine = HexEngine(self._radius)
+        new_engine._blocks = [copy.deepcopy(block, memo) for block in self._blocks]
+        return new_engine
+
