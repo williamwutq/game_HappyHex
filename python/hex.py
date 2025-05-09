@@ -1,4 +1,6 @@
 import math
+from abc import ABC, abstractmethod
+
 
 class Hex:
     """
@@ -313,3 +315,131 @@ class Block(Hex):
         """Return new Block with subtracted coordinates."""
         return Block(self.this_hex().subtract(other), self._color, self._state)
 
+class HexGrid(ABC):
+    """
+    Interface for a two-dimensional hexagonal grid composed of Block objects.
+
+    The HexGrid represents a grid layout based on axial coordinates (I-line and K-line),
+    where each valid position may contain a Block object. This interface supports querying,
+    iteration, merging, and neighbor-counting functionalities.
+
+    It is designed to be flexible enough to support a wide range of hex-based systems,
+    including tile-based games, simulations, or cellular automata. Implementations must
+    ensure consistent behavior when accessing blocks by coordinate or index, and must
+    provide methods for determining grid boundaries and merging with other grids.
+
+    Coordinate System:
+    - Uses a hexagonal coordinate system with positions indexed by (i, k),
+      representing the I-line and K-line respectively, corresponding to Hex objects.
+    - See Hex for detailed description of the coordinate system.
+
+    Usage:
+    - Iterate through blocks using length() and get_block(index).
+    - Access specific positions using get_block(__hex__).
+    - Merge grids using add(origin, other) and check in-bounds with in_range(__hex__).
+    """
+
+    @abstractmethod
+    def length(self) -> int:
+        """
+        Return the number of Block objects in the grid.
+        Use with get_block(index) to iterate through all blocks.
+        """
+        pass
+
+    @abstractmethod
+    def blocks(self) -> list[Block]:
+        """
+        Return a list of all non-null Block objects in the grid,
+        sorted by Hex coordinate.
+        """
+        pass
+
+    @abstractmethod
+    def in_range(self, __hex__ : Hex) -> bool:
+        """
+        Check if the specified Hex coordinate are within the valid range of the grid.
+
+        Args:
+            __hex__: The Hex coordinate.
+
+        Returns:
+            bool: True if coordinates are within range, False otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def get_block(self, *args) -> Block:
+        """
+        Retrieve the Block at specified coordinates or index.
+
+        Args:
+            *args: Either Hex coordinates or a single index.
+
+        Returns:
+            Block: The block at the specified coordinates/index, or None if not found or out of range.
+        """
+        pass
+
+    @abstractmethod
+    def add(self, origin: Hex, other: 'HexGrid') -> None:
+        """
+        Add all blocks from another HexGrid to this grid, aligning them based on a specified Hex coordinate.
+
+        Args:
+            origin: The reference Hex position for alignment.
+            other: The other HexGrid to merge into this grid.
+
+        Raises:
+            ValueError: If the grids cannot be merged due to alignment issues.
+        """
+        pass
+
+    def add_without_shift(self, other: 'HexGrid') -> None:
+        """
+        Add all blocks from another HexGrid to this grid without shifting positions.
+
+        Args:
+            other: The other HexGrid to merge into this grid.
+
+        Raises:
+            ValueError: If the grids cannot be merged.
+        """
+        self.add(Hex(), other)
+
+    def count_neighbors(self, __hex__: Hex, include_null: bool) -> int:
+        """
+        Count occupied neighboring Blocks around the given Hex position.
+
+        Checks up to six adjacent positions to the block at Hex coordinate.
+        A neighbor is occupied if the block is non-null and its state is True.
+        Null or out-of-bounds neighbors are counted as occupied if include_null is True.
+
+        Args:
+            __hex__: The Hex coordinate.
+            include_null: Treat null/out-of-bounds neighbors as occupied (True) or unoccupied (False).
+
+        Returns:
+            int: Number of occupied neighbors. Returns 0 if the center position is out of range.
+        """
+        count = 0
+        if self.in_range(__hex__):
+            __i__ = __hex__.__i__()
+            __k__ = __hex__.__k__()
+            neighbors = [
+                (__i__ - 1, __k__ - 1),
+                (__i__ - 1, __k__),
+                (__i__, __k__ - 1),
+                (__i__, __k__ + 1),
+                (__i__ + 1, __k__),
+                (__i__ + 1, __k__ + 1)
+            ]
+            for ni, nk in neighbors:
+                n_hex = Hex.hex(ni, nk)
+                if self.in_range(n_hex):
+                    block = self.get_block(n_hex)
+                    if block and block.get_state():
+                        count += 1
+                elif include_null:
+                    count += 1
+        return count
