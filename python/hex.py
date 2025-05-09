@@ -4,6 +4,12 @@ from abc import ABC, abstractmethod
 from typing import List
 
 
+__all__ = ['Hex', 'Block', 'HexEngine', 'Piece', 'HexGrid', '__sin60__', '__version__', '__version__', '__version_info__']
+__sin60__ = math.sqrt(3) / 2
+__version__ = "1.3.0"
+__version_info__ = (1,3,0)
+
+
 class Hex:
     """
     The Hex class represents a 2D coordinate in a hexagonal grid system using
@@ -669,13 +675,13 @@ class Piece(HexGrid):
 
         count = bin(data).count("1")
         piece = Piece(count, color)
-        if data >> 6 & 1: piece.add(Hex.hex(-1, -1))
-        if data >> 5 & 1: piece.add(Hex.hex(-1, 0))
-        if data >> 4 & 1: piece.add(Hex.hex(0, -1))
-        if data >> 3 & 1: piece.add(Hex.hex(0, 0))
-        if data >> 2 & 1: piece.add(Hex.hex(0, 1))
-        if data >> 1 & 1: piece.add(Hex.hex(1, 0))
-        if data & 1: piece.add(Hex.hex(1, 1))
+        if data >> 6 & 1: piece.add_hex(Hex.hex(-1, -1))
+        if data >> 5 & 1: piece.add_hex(Hex.hex(-1, 0))
+        if data >> 4 & 1: piece.add_hex(Hex.hex(0, -1))
+        if data >> 3 & 1: piece.add_hex(Hex.hex(0, 0))
+        if data >> 2 & 1: piece.add_hex(Hex.hex(0, 1))
+        if data >> 1 & 1: piece.add_hex(Hex.hex(1, 0))
+        if data & 1: piece.add_hex(Hex.hex(1, 1))
         return piece
 
     def equals(self, piece: 'Piece') -> bool:
