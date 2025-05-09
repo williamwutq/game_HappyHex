@@ -40,20 +40,21 @@ class Hex:
         self._x = i
         self._y = k
 
+    @staticmethod
     def hex(i=0, k=0):
         """Create a Hex coordinate using line indices, shifted accordingly."""
         return Hex().shift_i(k).shift_k(i)
 
     # Raw coordinates
-    def I(self):
+    def __i__(self):
         """Return raw I-coordinate."""
         return self._x
 
-    def J(self):
+    def __j__(self):
         """Return raw J-coordinate."""
         return self._x + self._y
 
-    def K(self):
+    def __k__(self):
         """Return raw K-coordinate."""
         return self._y
 
@@ -107,31 +108,31 @@ class Hex:
 
     def front_i(self, other):
         """Check if this Hex is one unit higher on I-axis."""
-        return self._x == other._x + 2 and self._y == other._y - 1
+        return self._x == other.__i__ + 2 and self._y == other.__k__ - 1
 
     def front_j(self, other):
         """Check if this Hex is one unit higher on J-axis."""
-        return self._x == other._x + 1 and self._y == other._y + 1
+        return self._x == other.__i__ + 1 and self._y == other.__k__ + 1
 
     def front_k(self, other):
         """Check if this Hex is one unit higher on K-axis."""
-        return self._x == other._x - 1 and self._y == other._y + 2
+        return self._x == other.__i__ - 1 and self._y == other.__k__ + 2
 
     def back_i(self, other):
         """Check if this Hex is one unit lower on I-axis."""
-        return self._x == other._x - 2 and self._y == other._y + 1
+        return self._x == other.__i__ - 2 and self._y == other.__k__ + 1
 
     def back_j(self, other):
         """Check if this Hex is one unit lower on J-axis."""
-        return self._x == other._x - 1 and self._y == other._y - 1
+        return self._x == other.__i__ - 1 and self._y == other.__k__ - 1
 
     def back_k(self, other):
         """Check if this Hex is one unit lower on K-axis."""
-        return self._x == other._x + 1 and self._y == other._y - 2
+        return self._x == other.__i__ + 1 and self._y == other.__k__ - 2
 
     def equals(self, other):
         """Check if this Hex equals another Hex."""
-        return self._x == other._x and self._y == other._y
+        return self._x == other.__i__ and self._y == other.__k__
 
     def in_range(self, radius):
         """Check if Hex is within given radius from origin."""
@@ -140,19 +141,19 @@ class Hex:
                 0 <= self.get_line_k() < radius * 2 - 1)
 
     # Rectangular coordinates
-    def X(self):
+    def __x__(self):
         """Convert to rectangular X coordinate."""
         return self._half_sin_of_60 * (self._x + self._y)
 
-    def Y(self):
+    def __y__(self):
         """Convert to rectangular Y coordinate."""
         return (self._x - self._y) / 4.0
 
     def __str__(self):
         """Return string representation for debugging."""
-        return (f"Hex[raw = {{{self.I()}, {self.J()}, {self.K()}}}, "
+        return (f"Hex[raw = {{{self.__i__()}, {self.__j__()}, {self.__k__()}}}, "
                 f"line = {{{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}}}, "
-                f"rect = {{{self.X()}, {self.Y()}}}]")
+                f"rect = {{{self.__x__()}, {self.__y__()}}}]")
 
     # Coordinate manipulation
     def move_i(self, unit):
@@ -185,16 +186,16 @@ class Hex:
     # Add and subtract
     def add(self, other):
         """Return new Hex with summed coordinates."""
-        return Hex(self._x + other._x, self._y + other._y)
+        return Hex(self._x + other.__i__, self._y + other.__k__)
 
     def subtract(self, other):
         """Return new Hex with subtracted coordinates."""
-        return Hex(self._x - other._x, self._y - other._y)
+        return Hex(self._x - other.__i__, self._y - other.__k__)
 
     def set(self, other):
-        """Set this Hex to another's coordinates."""
-        self._x = other._x
-        self._y = other._y
+        """Set this Hex to another Hex's coordinates."""
+        self._x = other.__i__
+        self._y = other.__j__
 
     def this_hex(self):
         """Return this Hex as a new instance using line coordinates."""
