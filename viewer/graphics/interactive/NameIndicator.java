@@ -26,6 +26,8 @@ package viewer.graphics.interactive;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * {@code NameIndicator} is a Swing component that visually represents a user-defined
@@ -42,8 +44,9 @@ import java.awt.*;
  * @version 1.0 (HappyHex 1.3)
  * @since 1.0 (HappyHex 1.3)
  * @see JComponent
+ * @see JButton
  */
-public final class NameIndicator extends JComponent{
+public final class NameIndicator extends JButton {
     private static final Color charColor = new Color(85, 85, 85);
     private final SevenSegment[] sevenSegments;
     private int pointer;

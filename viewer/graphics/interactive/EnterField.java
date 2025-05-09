@@ -29,6 +29,7 @@ import viewer.Viewer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * A user input component combining a {@link Keyboard} and a {@link NameIndicator}.
@@ -57,7 +58,7 @@ public final class EnterField extends JComponent {
 
     private final NameIndicator indicator;
     private final Keyboard keyboard;
-    private final int maxLength;
+    private boolean keyboardShown;
 
     /**
      * Constructs a new {@code EnterField} with a specified input length.
@@ -69,9 +70,9 @@ public final class EnterField extends JComponent {
         this.setDoubleBuffered(true);
         this.setBackground(Color.DARK_GRAY);
 
-        this.maxLength = length;
-
         this.indicator = new NameIndicator(length);
+        this.indicator.addActionListener(this::onIndicatorClick);
+        this.keyboardShown = true;
         this.keyboard = new Keyboard(this::onKeyPress);
 
         add(indicator);
@@ -118,18 +119,48 @@ public final class EnterField extends JComponent {
     }
 
     /**
+     * Handles button events from the embedded {@link NameIndicator}.
+     * Clicking on the indicator toggle whether the keyboard will be shown.
+     *
+     * @param e the action event representing a key press
+     */
+    private void onIndicatorClick(ActionEvent e) {
+        if (keyboardShown) {
+            this.remove(keyboard);
+        } else {
+            this.add(keyboard);
+        }
+        keyboardShown = !keyboardShown;
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
      * Sets the layout of the subcomponents.
-     * The {@link NameIndicator} is placed above the {@link Keyboard}.
+     * If the {@link Keyboard} is shown, the {@link NameIndicator} is placed above the {@code Keyboard}.
+     * Otherwise, the {@code NameIndicator} will be made to full size.
      */
     public void doLayout() {
         int h = getHeight();
         int w = getWidth();
 
-        int indicatorHeight = h * 2 / 15;
-        int keyboardHeight = h - indicatorHeight;
+        if (keyboardShown) {
+            int indicatorHeight = h * 2 / 15;
+            int keyboardHeight = h - indicatorHeight;
 
-        indicator.setBounds(0, 0, w, indicatorHeight);
-        keyboard.setBounds(0, indicatorHeight, w, keyboardHeight);
+            indicator.setBounds(0, 0, w, indicatorHeight);
+            keyboard.setBounds(0, indicatorHeight, w, keyboardHeight);
+        } else {
+            indicator.setBounds(0, 0, w, h);
+        }
+    }
+
+    /**
+     * Whether the keyboard is shown in this component.
+     * @return true of the keyboard is currently shown, false otherwise.
+     */
+    public boolean isKeyboardShown(){
+        return keyboardShown;
     }
 
     public static void main(String[] args){
