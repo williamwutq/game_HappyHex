@@ -228,7 +228,7 @@ public class SettingPanel extends UniversalPanel {
         super.recalculate();
         double referenceGameNameSize = Math.min(getReferenceHeight()*1.5, getReferenceWidth());
         double referenceStartButtonSize = Math.min(getReferenceHeight(), getReferenceWidth());
-        LaunchButton.setSizeConstant((int)Math.round(referenceStartButtonSize*0.0100));
+        LaunchButton.setSizeConstant(referenceStartButtonSize*0.01);
         launchSettingTitleLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, (int)Math.round(referenceGameNameSize/24.0)));
         launchSettingTitleLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/150.0)*2, 0, (int)Math.round(referenceGameNameSize/150.0), 0));
         Font labelFont = new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/24.0));

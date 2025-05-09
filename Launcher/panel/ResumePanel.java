@@ -41,6 +41,6 @@ public class ResumePanel extends UniversalPanel {
     public void recalculate() {
         super.recalculate();
         double referenceEnterTextSize = Math.min(getReferenceHeight()*2, getReferenceWidth());
-        LaunchButton.setSizeConstant((int) Math.round(referenceEnterTextSize/144.0));
+        LaunchButton.setSizeConstant(referenceEnterTextSize/144.0);
     }
 }
