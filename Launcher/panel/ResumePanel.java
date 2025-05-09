@@ -31,7 +31,7 @@ import javax.swing.*;
 public class ResumePanel extends UniversalPanel {
     public ResumePanel (){super();}
     protected JComponent[] fetchContent() {
-        return new JComponent[]{new QuitButton()};
+        return new JComponent[]{(JComponent) Box.createVerticalGlue(), new QuitButton()};
     }
 
     protected JComponent[] fetchHeader() {

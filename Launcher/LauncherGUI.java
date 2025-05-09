@@ -101,7 +101,7 @@ public class LauncherGUI {
         return new LaunchPanel();
     }
     private static JPanel fetchResumePanel(){
-        return new LoginPanel();
+        return new ResumePanel();
     }
     private static JPanel fetchLoginPanel(){
         return new LoginPanel();
