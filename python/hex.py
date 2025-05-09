@@ -211,6 +211,7 @@ class Hex:
         """Return a deep copy of this Hex."""
         return Hex(self._x, self._y)
 
+
 class Block(Hex):
     """
     The Block class extends Hex and represents a colored block with an occupancy state
@@ -314,6 +315,7 @@ class Block(Hex):
     def subtract(self, other):
         """Return new Block with subtracted coordinates."""
         return Block(self.this_hex().subtract(other), self._color, self._state)
+
 
 class HexGrid(ABC):
     """
@@ -443,3 +445,255 @@ class HexGrid(ABC):
                 elif include_null:
                     count += 1
         return count
+
+
+
+class Piece(HexGrid):
+    """
+    Represents a shape or unit made up of multiple Block instances,
+    typically forming a logical structure such as a game piece.
+
+    A Piece implements the HexGrid interface and behaves like a small,
+    self-contained hexagonal grid. It holds a fixed-size array of Block
+    elements and supports block addition, color management, coordinate
+    lookup, and comparison.
+
+    It is recommended not to modify a Piece once created and filled with
+    sufficient Blocks. If changes are needed, copy the piece block by block.
+    For efficiency, cloning is not supported, and multiple references to the
+    same object are preferred.
+
+    Coordinate access uses the 'line' system (I, K), defined in Hex, which
+    simplifies hex grid navigation by avoiding raw (I, J, K) coordinates.
+
+    Example creation:
+        p = Piece(3, 0)
+        p.add(Block.block(0, 0, 0))
+        p.add(Block.block(0, 1, 0))
+        p.add(Block.block(1, 1, 0))
+    This produces a shape with blocks at line coordinates (0,0), (0,1), and (1,1).
+    """
+
+    def __init__(self, length: int = 1, color: int = None):
+        """
+        Initialize a Piece with specified capacity and color, or a default single block.
+
+        Args:
+            length: Number of blocks this piece can hold (minimum 1). Defaults to 1.
+            color: Color index for this piece's blocks. Defaults to None for default constructor.
+        """
+        if length < 1:
+            length = 1
+        self._blocks = [None] * length
+        self._color = color
+
+    def set_color(self, color: int) -> None:
+        """Set the color of this piece and apply it to all current blocks."""
+        self._color = color
+        for block in self._blocks:
+            if isinstance (block, Block) and block is not None:
+                block.set_color(color)
+
+    def get_color(self) -> int:
+        """Return the current color of this piece."""
+        return self._color
+
+    def add_hex(self, block_or_hex: Block | Hex) -> bool:
+        """
+        Add a Block or create a Block at Hex coordinates to the first available slot.
+
+        Automatically applies the current color and marks the block as occupied.
+        If the piece is full, the block is not added.
+
+        Args:
+            block_or_hex: Block to add or Hex coordinates for a new block.
+
+        Returns:
+            bool: True if the block was added, False if the piece is full.
+        """
+        for i in range(self.length()):
+            if self._blocks[i] is None:
+                if isinstance(block_or_hex, Block):
+                    self._blocks[i] = block_or_hex
+                else:
+                    self._blocks[i] = Block.block(block_or_hex.get_line_i(), block_or_hex.get_line_k(), self._color)
+                self._blocks[i].set_color(self._color)
+                self._blocks[i].set_state(True)
+                return True
+        return False
+
+    # HexGrid implementation
+    def length(self) -> int:
+        """Return the number of Block objects in the piece."""
+        return len(self._blocks) if self._blocks is not None else 0
+
+    def blocks(self) -> list[Block]:
+        """
+        Return all Block elements in the piece.
+
+        Null blocks are replaced with dummy placeholders at (0, 0) to preserve order.
+        """
+        self._sort()
+        result = self._blocks.copy()
+        for i in range(self.length()):
+            if result[i] is None:
+                result[i] = Block(Hex(), self._color)
+        return result
+
+    def in_range(self, __hex__: Hex) -> bool:
+        """Check if a block exists at the given Hex coordinate."""
+        return self.get_block(__hex__) is not None
+
+    def get_block(self, *args) -> Block | None:
+        """
+        Retrieve a Block at specified Hex coordinates or index.
+
+        Args:
+            *args: Either a Hex object or a single index.
+
+        Returns:
+            Block: The block at the specified coordinates/index, or None if not found.
+        """
+        if len(args) == 1 and isinstance(args[0], int):
+            return self._blocks[args[0]]
+        elif len(args) == 1 and isinstance(args[0], Hex):
+            __hex__ = args[0]
+            for block in self._blocks:
+                if isinstance(block, Block) and block is not None:
+                    if block.get_line_i() == __hex__.get_line_i() and block.get_line_k() == __hex__.get_line_k():
+                        return block
+        return None
+
+    def get_state(self, __hex__: Hex) -> bool:
+        """
+        Retrieve the state of a Block at the specified Hex coordinates.
+
+        Returns False if the block does not exist.
+
+        Args:
+            __hex__: The Hex coordinate.
+
+        Returns:
+            bool: True if the block exists and is occupied, False otherwise.
+        """
+        block = self.get_block(__hex__)
+        return block is not None and block.get_state()
+
+    def add(self, origin: Hex, other: HexGrid) -> None:
+        """
+        Prohibited operation: Pieces cannot be merged with other grids.
+
+        Args:
+            origin: The reference Hex position for alignment.
+            other: The other HexGrid to merge.
+
+        Raises:
+            ValueError: Always, as merging grids with pieces is not allowed.
+        """
+        raise ValueError("Adding Grid to piece prohibited. Please add block by block.")
+
+    def _sort(self) -> None:
+        """Sort Blocks in-place using insertion sort based on Hex line-coordinates (I, K)."""
+        n = len(self._blocks)
+        for i in range(1, n):
+            key = self._blocks[i]
+            j = i - 1
+            if isinstance(key, Block) and key is not None:
+                while j >= 0 and (self._blocks[j] is None or ((isinstance(self._blocks[j], Block)) and (
+                        self._blocks[j].get_line_i() > key.get_line_i() or
+                        (self._blocks[j].get_line_i() == key.get_line_i() and
+                         self._blocks[j].get_line_k() > key.get_line_k())))):
+                    self._blocks[j + 1] = self._blocks[j]
+                    j -= 1
+                self._blocks[j + 1] = key
+            else:
+                self._blocks[j + 1] = key
+
+    def __str__(self) -> str:
+        """Return a string representation of the piece and its block line coordinates."""
+        str_builder = ["Piece{"]
+        if self._blocks:
+            str_builder.append("null" if self._blocks[0] is None else self._blocks[0].__basic_str())
+        for block in self._blocks[1:]:
+            str_builder.append(", ")
+            str_builder.append("null" if block is None else block.__basic_str())
+        str_builder.append("}")
+        return "".join(str_builder)
+
+    def to_byte(self) -> int:
+        """
+        Return a byte representation of the blocks in a standard 7-Block piece.
+
+        Empty blocks are 0s, filled blocks are 1s. Does not record color.
+
+        Returns:
+            int: A byte representing this 7-block piece, with the first bit empty.
+        """
+        data = 0
+        if self.get_state(Hex.hex(-1, -1)): data += 1
+        data <<= 1
+        if self.get_state(Hex.hex(-1, 0)): data += 1
+        data <<= 1
+        if self.get_state(Hex.hex(0, -1)): data += 1
+        data <<= 1
+        if self.get_state(Hex.hex(0, 0)): data += 1
+        data <<= 1
+        if self.get_state(Hex.hex(0, 1)): data += 1
+        data <<= 1
+        if self.get_state(Hex.hex(1, 0)): data += 1
+        data <<= 1
+        if self.get_state(Hex.hex(1, 1)): data += 1
+        return data & 0x7F
+
+    @staticmethod
+    def piece_from_byte(data: int, color: int) -> 'Piece':
+        """
+        Construct a standard 7 or fewer Block piece from byte data.
+
+        Args:
+            data: Byte data representing the piece.
+            color: Color for this piece's blocks.
+
+        Returns:
+            Piece: A piece constructed from the byte data with the specified color.
+
+        Raises:
+            ValueError: If data represents an empty piece or has an extra bit.
+        """
+        if data < 0:
+            raise ValueError("Data must have empty most significant bit")
+        if data == 0:
+            raise ValueError("Data must contain at least one block")
+
+        count = bin(data).count("1")
+        piece = Piece(count, color)
+        if data >> 6 & 1: piece.add(Hex.hex(-1, -1))
+        if data >> 5 & 1: piece.add(Hex.hex(-1, 0))
+        if data >> 4 & 1: piece.add(Hex.hex(0, -1))
+        if data >> 3 & 1: piece.add(Hex.hex(0, 0))
+        if data >> 2 & 1: piece.add(Hex.hex(0, 1))
+        if data >> 1 & 1: piece.add(Hex.hex(1, 0))
+        if data & 1: piece.add(Hex.hex(1, 1))
+        return piece
+
+    def equals(self, piece: 'Piece') -> bool:
+        """
+        Compare this piece to another for equality.
+
+        Two pieces are equal if they have the same length and identical Block positions.
+        Color index is not considered.
+
+        Args:
+            piece: The other piece to compare to.
+
+        Returns:
+            bool: True if pieces are structurally equal, False otherwise.
+        """
+        if piece.length() != self.length():
+            return False
+        self._sort()
+        piece._sort()
+        for i in range(self.length()):
+            if not self._blocks[i].equals(piece._blocks[i]):
+                return False
+        return True
