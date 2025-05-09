@@ -196,7 +196,10 @@ class Hex:
     # Add and subtract
     def __add__(self, other):
         """Return new Hex with summed coordinates."""
-        return Hex(self._x + other.__i__(), self._y + other.__k__())
+        if issubclass(type(other), type(Hex())) and not type(other) == type(Hex()):
+            return other + self
+        else:
+            return Hex(self._x + other.__i__(), self._y + other.__k__())
 
     def __sub__(self, other):
         """Return new Hex with subtracted coordinates."""
