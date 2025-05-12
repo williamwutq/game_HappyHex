@@ -35,18 +35,24 @@ import java.awt.event.ActionListener;
  * A user input component combining a {@link Keyboard} and a {@link NameIndicator}.
  * This component allows numerical and alphabetical input, displays the current state
  * of the input buffer, and provides editing functionality.
+ * <p>
+ * The input contains a cursor represented by "-", and its position can be adjusted with keys.
+ * The display can be clicked upon, which will toggle the keyboard. Toggle the keyboard off
+ * will automatically confirm the input if a full input is made and not confirmed.
  *
- * <p>Only the following buttons are currently functional:</p>
+ * <p>The following buttons below serve the described functions:</p>
  * <ul>
  *   <li>0–9, A–F: Appends the corresponding character</li>
- *   <li>+: Repeats the last character</li>
+ *   <li>>: Move cursor to the right</li>
+ *   <li><: Move cursor to the left</li>
+ *   <li>END: Move cursor to the end of the buffer</li>
+ *   <li>STT: Move cursor to the start of the buffer</li>
+ *   <li>+: Repeats the cursor position character</li>
  *   <li>-: Removes the last character</li>
- *   <li>DEL: Deletes the last character</li>
+ *   <li>DEL: Deletes the cursor position character</li>
  *   <li>CLR: Clears the entire buffer</li>
+ *   <li>ENT: Enter the current buffer, if full, keep it</li>
  * </ul>
- *
- * <p>The buttons <b>HOM</b>, <b>&lt;</b>, <b>&gt;</b>, <b>CNF</b>, and <b>ENT</b> are present
- * but currently disabled.</p>
  *
  * @author William Wu
  * @version 1.0 (HappyHex 1.3)
@@ -126,6 +132,7 @@ public final class EnterField extends JComponent {
      */
     private void onIndicatorClick(ActionEvent e) {
         if (keyboardShown) {
+            indicator.lock();
             this.remove(keyboard);
         } else {
             this.add(keyboard);
