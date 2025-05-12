@@ -88,6 +88,19 @@ public class LauncherGUI {
                 "Choose white if you like it",
                 "Choose dark if you like it",
                 "Choose a theme you like",
+                "Want to resume a game?",
+                "Wonder if my game are saved",
+                "Colors are saved in above v1.3",
+                "Games are saved since v1.2",
+                "What does resume button do?",
+                "Resume Resume Resume Resume",
+                "What if HappyHex... was dark",
+                "What if HappyHex... was white",
+                "How do I turn resume game off",
+                "Everyday I play this game",
+                "Everyday my life is better",
+                "Everyday is a blessing",
+                "I tried, I said"
         };
         return hints[LaunchEssentials.getRandomIndex(hints.length)];
     }
