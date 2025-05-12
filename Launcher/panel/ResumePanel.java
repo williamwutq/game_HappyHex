@@ -27,11 +27,33 @@ package Launcher.panel;
 import Launcher.interactive.*;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class ResumePanel extends UniversalPanel {
+    private JPanel buttonsPanel;
     public ResumePanel (){super();}
     protected JComponent[] fetchContent() {
-        return new JComponent[]{(JComponent) Box.createVerticalGlue(), new QuitButton()};
+        buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
+        buttonsPanel.setBackground(this.getBackground());
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(new QuitButton());
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(new StartButton());
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(new LaunchButton(" NEW "){
+            @Override
+            protected void clicked() {
+                Launcher.LauncherGUI.startGame();
+            }
+            @Override
+            protected Color fetchColor() {
+                return Launcher.LaunchEssentials.launchConfirmButtonBackgroundColor;
+            }
+        });
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.setDoubleBuffered(true);
+        return new JComponent[]{(JComponent) Box.createVerticalGlue(), buttonsPanel};
     }
 
     protected JComponent[] fetchHeader() {
@@ -42,5 +64,8 @@ public class ResumePanel extends UniversalPanel {
         super.recalculate();
         double referenceEnterTextSize = Math.min(getReferenceHeight()*2, getReferenceWidth());
         LaunchButton.setSizeConstant(referenceEnterTextSize/144.0);
+        Dimension buttonsPanelDimensionConstant = new Dimension((int) getReferenceWidth(), (int) (referenceEnterTextSize * 0.4));
+        buttonsPanel.setMinimumSize(buttonsPanelDimensionConstant);
+        buttonsPanel.setMaximumSize(buttonsPanelDimensionConstant);
     }
 }
