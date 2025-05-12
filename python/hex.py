@@ -1065,10 +1065,3 @@ class HexEngine(HexGrid):
         new_engine = HexEngine(self._radius)
         new_engine._blocks = [copy.deepcopy(block, memo) for block in self._blocks]
         return new_engine
-
-if __name__ == "__main__":
-    print(Block(Hex.hex(3, -2)) + Hex.hex(4,5))
-    print(Hex.hex(3, -2) + Block(Hex.hex(4,5)))
-    print(Hex.hex(3, -2) + Hex.hex(4,5))
-    print(Hex.hex(3, -2) + Hex.hex(4,5))
-
