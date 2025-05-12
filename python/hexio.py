@@ -23,6 +23,11 @@ def smart_find_f ():
 
 
 class HexReader:
+    PRIME = 0xC96C5795D7870F3D
+    """ A large prime number used in the hash function for mixing bits. """
+    SHIFTS = [31, 37, 41, 27, 23, 29, 33, 43]
+    """ Bit shift values used for the hashing obfuscation process. """
+
     @staticmethod
     def interleave_integers(even: int, odd: int) -> int:
         """
@@ -53,6 +58,33 @@ class HexReader:
         # Combine and mask: bits of o shifted into odd positions, then XOR (equivalent to OR here)
         result = e ^ (o << 1)
         return result & 0xFFFFFFFFFFFFFFFF
+
+    @staticmethod
+    def obfuscate(input_val: int) -> int:
+        """
+        Obfuscates a 64-bit integer using bit shifts and prime multiplications.
+        This function provides a layered transformation for hashing purposes.
+
+        :param input_val: The raw integer to obfuscate.
+        :return: Obfuscated integer.
+        """
+        input_val &= 0xFFFFFFFFFFFFFFFF  # Ensure 64-bit unsigned behavior
+
+        input_val ^= (input_val << HexReader.SHIFTS[0]) | (input_val >> HexReader.SHIFTS[1])
+        input_val *= HexReader.PRIME
+        input_val &= 0xFFFFFFFFFFFFFFFF  # Keep within 64-bit
+
+        input_val ^= (input_val << HexReader.SHIFTS[2]) | (input_val >> HexReader.SHIFTS[3])
+        input_val *= HexReader.PRIME
+        input_val &= 0xFFFFFFFFFFFFFFFF
+
+        input_val ^= (input_val << HexReader.SHIFTS[4]) | (input_val >> HexReader.SHIFTS[5])
+        input_val *= HexReader.PRIME
+        input_val &= 0xFFFFFFFFFFFFFFFF
+
+        input_val ^= (input_val << HexReader.SHIFTS[6]) | (input_val >> HexReader.SHIFTS[7])
+        input_val &= 0xFFFFFFFFFFFFFFFF
+        return input_val
 
     def __init__(self, name : str) -> None:
         if len(name) == 0:
@@ -87,6 +119,7 @@ class HexReader:
 
     def __read__(self):
         hex_str = read_f(self._name)
+        # Format check
         if not hex_str[:32] == "4B874B1E5A0F5A0F5A964B874B5A5A87":
             self.__fail__("file header is corrupted")
         d_code = int(hex_str[32:48], 16)
@@ -96,7 +129,18 @@ class HexReader:
             self.__fail__("file data start header is corrupted")
         d_turn = int(hex_str[24:32], 16)
         d_score = int(hex_str[32:40], 16)
-        d_complete = int(hex_str[40:42], 16) % 2 == 0
+        d_complete = int(hex_str[40:41], 16) % 2 == 0
+        # try encoding
+        d_obf_score = HexReader.obfuscate(HexReader.interleave_integers(d_score * d_score, d_id ^ d_turn))
+        d_obf_turn = HexReader.obfuscate(HexReader.interleave_integers(d_turn * d_turn, d_id ^ d_score))
+        d_obf_combined = ((d_obf_turn << 32) | (d_obf_score & 0xFFFFFFFF))
+        d_obf_combined = HexReader.obfuscate(d_id * 43 ^ d_obf_combined ^ d_obf_turn) ^ d_obf_score
+        if d_obf_combined != d_code:
+            self.__fail__("file data encoding is corrupted or version is not supported")
+        if not hex_str[41:45] == "FFFF":
+            self.__fail__("file data divider cannot be found at the correct position")
+        # read engine
+
         return d_complete
 
 
