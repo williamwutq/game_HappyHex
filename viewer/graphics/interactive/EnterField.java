@@ -61,7 +61,6 @@ import java.awt.event.ActionListener;
  * @see NameIndicator
  */
 public final class EnterField extends JComponent {
-
     private final NameIndicator indicator;
     private final Keyboard keyboard;
     private boolean keyboardShown;
@@ -123,7 +122,6 @@ public final class EnterField extends JComponent {
         }
         this.repaint();
     }
-
     /**
      * Handles button events from the embedded {@link NameIndicator}.
      * Clicking on the indicator toggle whether the keyboard will be shown.
@@ -168,10 +166,6 @@ public final class EnterField extends JComponent {
      */
     public boolean isKeyboardShown(){
         return keyboardShown;
-    }
-
-    public static void main(String[] args){
-        Viewer.test(new EnterField(16));
     }
 }
 
