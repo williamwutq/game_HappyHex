@@ -496,6 +496,8 @@ class Piece(HexGrid):
         if length < 1:
             length = 1
         self._blocks = [Block()] * length
+        for i in range(length):
+            self._blocks[i] = None
         self._color = color
 
     def set_color(self, color: int) -> None:
