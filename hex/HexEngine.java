@@ -221,6 +221,31 @@ public class HexEngine implements HexGrid{
         }
     }
     /**
+     * Sets the {@link Block} state at the specified array index.
+     * Automatically set color to default unfilled color if state is false,
+     * set color to default filled color if the state is true.
+     *
+     * @param index the block array index
+     * @param state the new state to set for the {@code Block} at this index.
+     * @see #length()
+     * @since 1.3
+     */
+    public void setState(int index, boolean state){
+        blocks[index].setState(state);
+        blocks[index].setColor(state?-2:-1);
+    }
+    /**
+     * Sets the {@link Block} color index at the specified array index.
+     *
+     * @param index the block array index
+     * @param color the new color to set for the {@code Block} at this index.
+     * @see #length()
+     * @since 1.3
+     */
+    public void setColor(int index, int color){
+        blocks[index].setColor(color);
+    }
+    /**
      * Sets the state of a {@link Block} at a specific grid coordinate.
      * This performs a {@link #search binary search} to obtain the targeting block.
      * This automatically set the color of the block depending on its state.
@@ -570,7 +595,7 @@ public class HexEngine implements HexGrid{
      * @return a deep copy of this {@code HexEngine} object.
      * @see Block#clone()
      */
-    public Object clone() throws CloneNotSupportedException {
+    public HexEngine clone(){
         HexEngine newEngine;
         try{
             newEngine = (HexEngine) super.clone();
