@@ -39,6 +39,8 @@ public class FeatureFactory {
                 return new special.Valentine.FilledWithLove();
             } else if ((date.getMonthValue() == 10 && date.getDayOfMonth() == 31)) {
                 return new special.Halloween.SpookyTheme();
+            } else if (special.Thanksgiving.ThanksgivingDate.isThanksgiving()){
+                return new special.Thanksgiving.GratefulHarvest();
             } else if ((date.getMonthValue() == 7 && date.getDayOfMonth() == 4)) {
                 if (hint.equals("Dark") || hint.equals("4")) {
                     return new special.Independence.AmericanBlackTheme();
@@ -63,6 +65,8 @@ public class FeatureFactory {
             java.time.LocalDate date = java.time.LocalDate.now();
             if ((date.getMonthValue() == 10 && date.getDayOfMonth() == 31)) {
                 return new special.Halloween.SpookyTheme();
+            } else if (special.Thanksgiving.ThanksgivingDate.isThanksgiving()){
+                return new special.Thanksgiving.GratefulHarvest();
             }
         } else if (className.equals("Animation") || className.equals("GUI.animation.Animation")){
             java.time.LocalDate date = java.time.LocalDate.now();
