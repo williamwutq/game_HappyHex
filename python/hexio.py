@@ -113,11 +113,17 @@ class HexReader:
     def game_exist(self) -> bool:
         return self._g_
 
-    def __fail__(self, reason : str):
+    def __fail__(self, reason : str) -> None:
         self._g_ = False
         raise IOError ('Fail to read binary data because ' + reason)
 
-    def __read__(self):
+    def __read__(self) -> None:
+        """
+        Reads a binary log file and parses it into memory.
+        This populates the engine, queue, moves, and other game data from binary data.
+        The data format is "hex.binary".
+        :return: None
+        """
         hex_str = read_f(self._name)
         # Format check
         if not hex_str[:32] == '4B874B1E5A0F5A0F5A964B874B5A5A87':
