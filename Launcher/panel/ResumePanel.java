@@ -53,7 +53,7 @@ public class ResumePanel extends UniversalPanel {
         });
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.setDoubleBuffered(true);
-        return new JComponent[]{(JComponent) Box.createVerticalGlue(), buttonsPanel};
+        return new JComponent[]{(JComponent) Box.createVerticalGlue(), new GamesPanel(), (JComponent) Box.createVerticalGlue(), buttonsPanel};
     }
 
     protected JComponent[] fetchHeader() {
