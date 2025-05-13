@@ -244,10 +244,9 @@ class Block(Hex):
         """
         Initialize a Block with various parameter combinations.
 
-        Args:
-            __hex__: Hex object.
-            color: k-coordinate or color index.
-            state: State boolean.
+        :param __hex__: Hex object.
+        :param color: k-coordinate or color index.
+        :param state: State boolean.
         """
         super().__init__()
         self.set(__hex__)
@@ -373,11 +372,9 @@ class HexGrid(ABC):
         """
         Check if the specified Hex coordinate are within the valid range of the grid.
 
-        Args:
-            __hex__: The Hex coordinate.
+        :param __hex__: The Hex coordinate.
 
-        Returns:
-            bool: True if coordinates are within range, False otherwise.
+        :return: True if coordinates are within range, False otherwise.
         """
         pass
 
@@ -386,11 +383,9 @@ class HexGrid(ABC):
         """
         Retrieve the Block at specified coordinates or index.
 
-        Args:
-            *args: Either Hex coordinates or a single index.
+        :param args: Either Hex coordinates or a single index.
 
-        Returns:
-            Block: The block at the specified coordinates/index, or None if not found or out of range.
+        :return: The block at the specified coordinates/index, or None if not found or out of range.
         """
         pass
 
@@ -399,12 +394,10 @@ class HexGrid(ABC):
         """
         Add all blocks from another HexGrid to this grid, aligning them based on a specified Hex coordinate.
 
-        Args:
-            origin: The reference Hex position for alignment.
-            other: The other HexGrid to merge into this grid.
+        :param origin: The reference Hex position for alignment.
+        :param other: The other HexGrid to merge into this grid.
 
-        Raises:
-            ValueError: If the grids cannot be merged due to alignment issues.
+        :raise ValueError: If the grids cannot be merged due to alignment issues.
         """
         pass
 
@@ -412,11 +405,9 @@ class HexGrid(ABC):
         """
         Add all blocks from another HexGrid to this grid without shifting positions.
 
-        Args:
-            other: The other HexGrid to merge into this grid.
+        :param other: The other HexGrid to merge into this grid.
 
-        Raises:
-            ValueError: If the grids cannot be merged.
+        :raise ValueError: If the grids cannot be merged.
         """
         self.add(Hex(), other)
 
@@ -428,12 +419,10 @@ class HexGrid(ABC):
         A neighbor is occupied if the block is non-null and its state is True.
         Null or out-of-bounds neighbors are counted as occupied if include_null is True.
 
-        Args:
-            __hex__: The Hex coordinate.
-            include_null: Treat null/out-of-bounds neighbors as occupied (True) or unoccupied (False).
+        :param __hex__: The Hex coordinate.
+        :param include_null: Treat null/out-of-bounds neighbors as occupied (True) or unoccupied (False).
 
-        Returns:
-            int: Number of occupied neighbors. Returns 0 if the center position is out of range.
+        :return: Number of occupied neighbors. Returns 0 if the center position is out of range.
         """
         count = 0
         if self.in_range(__hex__):
@@ -489,9 +478,8 @@ class Piece(HexGrid):
         """
         Initialize a Piece with specified capacity and color, or a default single block.
 
-        Args:
-            length: Number of blocks this piece can hold (minimum 1). Defaults to 1.
-            color: Color index for this piece's blocks. Defaults to None for default constructor.
+        :param length: Number of blocks this piece can hold (minimum 1). Defaults to 1.
+        :param color: Color index for this piece's blocks. Defaults to None for default constructor.
         """
         if length < 1:
             length = 1
@@ -518,11 +506,9 @@ class Piece(HexGrid):
         Automatically applies the current color and marks the block as occupied.
         If the piece is full, the block is not added.
 
-        Args:
-            block_or_hex: Block to add or Hex coordinates for a new block.
+        :param block_or_hex: Block to add or Hex coordinates for a new block.
 
-        Returns:
-            bool: True if the block was added, False if the piece is full.
+        :return bool: True if the block was added, False if the piece is full.
         """
         for i in range(self.length()):
             if self._blocks[i] is None:
@@ -561,11 +547,9 @@ class Piece(HexGrid):
         """
         Retrieve a Block at specified Hex coordinates or index.
 
-        Args:
-            *args: Either a Hex object or a single index.
+        :param args: Either a Hex object or a single index.
 
-        Returns:
-            Block: The block at the specified coordinates/index, or None if not found.
+        :return: The block at the specified coordinates/index, or None if not found.
         """
         if len(args) == 1 and isinstance(args[0], int):
             return self._blocks[args[0]]
@@ -583,11 +567,9 @@ class Piece(HexGrid):
 
         Returns False if the block does not exist.
 
-        Args:
-            __hex__: The Hex coordinate.
+        :param __hex__: The Hex coordinate.
 
-        Returns:
-            bool: True if the block exists and is occupied, False otherwise.
+        :return: True if the block exists and is occupied, False otherwise.
         """
         block = self.get_block(__hex__)
         return block is not None and block.get_state()
@@ -596,12 +578,10 @@ class Piece(HexGrid):
         """
         Prohibited operation: Pieces cannot be merged with other grids.
 
-        Args:
-            origin: The reference Hex position for alignment.
-            other: The other HexGrid to merge.
+        :param origin: The reference Hex position for alignment.
+        :param other: The other HexGrid to merge.
 
-        Raises:
-            ValueError: Always, as merging grids with pieces is not allowed.
+        :raise ValueError: Always, as merging grids with pieces is not allowed.
         """
         raise ValueError("Adding Grid to piece prohibited. Please add block by block.")
 
@@ -639,8 +619,7 @@ class Piece(HexGrid):
 
         Empty blocks are 0s, filled blocks are 1s. Does not record color.
 
-        Returns:
-            int: A byte representing this 7-block piece, with the first bit empty.
+        :returns: A byte representing this 7-block piece, with the first bit empty.
         """
         data = 0
         if self.get_state(Hex.hex(-1, -1)): data += 1
@@ -663,15 +642,12 @@ class Piece(HexGrid):
         """
         Construct a standard 7 or fewer Block piece from byte data.
 
-        Args:
-            data: Byte data representing the piece.
-            color: Color for this piece's blocks.
+        :param data: Byte data representing the piece.
+        :param color: Color for this piece's blocks.
 
-        Returns:
-            Piece: A piece constructed from the byte data with the specified color.
+        :returns: A piece constructed from the byte data with the specified color.
 
-        Raises:
-            ValueError: If data represents an empty piece or has an extra bit.
+        :raise ValueError: If data represents an empty piece or has an extra bit.
         """
         if data < 0:
             raise ValueError("Data must have empty most significant bit")
@@ -696,11 +672,9 @@ class Piece(HexGrid):
         Two pieces are equal if they have the same length and identical Block positions.
         Color index is not considered.
 
-        Args:
-            piece: The other piece to compare to.
+        :param piece: The other piece to compare to.
 
-        Returns:
-            bool: True if pieces are structurally equal, False otherwise.
+        :return: True if pieces are structurally equal, False otherwise.
         """
         if piece.length() != self.length():
             return False
