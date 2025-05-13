@@ -53,4 +53,16 @@ public final class ThanksgivingDate {
         // Add 3 weeks to get the fourth Thursday
         return date.plusWeeks(3);
     }
+    /**
+     * Determine whether today is Thanksgiving by {@link #getDate(int) calculates}
+     * the date for this year in the United States.
+     * <p>
+     * Thanksgiving is observed on the fourth Thursday of November.
+     *
+     * @return true if today is Thanksgiving day.
+     */
+    public static boolean isThanksgiving() {
+        int year = LocalDate.now().getYear();
+        return (getDate(year).equals(LocalDate.now()));
+    }
 }
