@@ -24,7 +24,6 @@
 
 package Launcher.panel;
 
-import GUI.GameEssentials;
 import Launcher.LaunchEssentials;
 
 import javax.swing.*;
@@ -32,31 +31,56 @@ import java.awt.*;
 
 public class GamesPanel extends JPanel {
     double size;
+    private JScrollPane scrollPane;
     public GamesPanel(){
         super();
-        this.setOpaque(false);
+        this.setOpaque(true);
         this.setBackground(LaunchEssentials.launchBackgroundColor);
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         size = 1;
+        for (int i = 0; i < 20; i++) {
+            this.add(new CustomListItem("Item " + (i + 1)));
+        }
+        scrollPane = new JScrollPane(this);
+        scrollPane.setBackground(LaunchEssentials.launchBackgroundColor);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
     }
+    public JScrollPane getScrollPane(){return scrollPane;}
 
     public void doLayout(){
+        super.doLayout();
         size = Math.min(this.getBounds().width, this.getBounds().height) / 12.0;
     }
 
 
     public void paint(Graphics g){
-        Graphics2D g2 = (Graphics2D) g.create();
-        int sizeInt = (int) size;
-        int sizeHalf = (int) (size * 0.5);
-        int sizeOneHalf = (int) (size * 1.5);
-        int sizeThreeThird = (int) (size * 0.75);
-        g2.setColor(LaunchEssentials.launchTitlePanelBackgroundColor);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.fillRoundRect(3+sizeHalf, 3+sizeHalf, getWidth()-6-sizeInt, getHeight()-6-sizeInt, sizeInt, sizeInt);
-        g2.setColor(this.getBackground());
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.fillRoundRect(3+sizeThreeThird, 3+sizeThreeThird, getWidth()-6-sizeOneHalf, getHeight()-6-sizeOneHalf, sizeHalf, sizeHalf);
-        g2.dispose();
-        paintChildren(g);
+        super.paintChildren(g);
+    }
+
+    class CustomListItem extends JPanel {
+        public CustomListItem(String title) {
+            setPreferredSize(new Dimension(350, 100)); // fixed size for each item
+            setBorder(BorderFactory.createLineBorder(Color.GRAY));
+            setAlignmentX(CENTER_ALIGNMENT);
+            setAlignmentY(CENTER_ALIGNMENT);
+            setBackground(Color.YELLOW);
+            setLayout(new BorderLayout());
+
+            JLabel label = new JLabel(title);
+            label.setFont(new Font("Arial", Font.BOLD, 16));
+            label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            add(label, BorderLayout.CENTER);
+
+            JButton button = new JButton("Action");
+            button.setPreferredSize(new Dimension(80, 30));
+            add(button, BorderLayout.EAST);
+        }
+
+        public void paint(Graphics g) {
+            super.paintComponent(g);
+            //Draw a circle for now
+            g.setColor(Color.BLUE);
+            g.fillOval(10, 50, 20, 20);
+        }
     }
 }

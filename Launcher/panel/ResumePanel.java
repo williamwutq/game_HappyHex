@@ -53,7 +53,7 @@ public class ResumePanel extends UniversalPanel {
         });
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.setDoubleBuffered(true);
-        return new JComponent[]{new GamesPanel(), buttonsPanel};
+        return new JComponent[]{new GamesPanel().getScrollPane(), buttonsPanel};
     }
 
     protected JComponent[] fetchHeader() {
@@ -64,7 +64,7 @@ public class ResumePanel extends UniversalPanel {
         super.recalculate();
         double referenceEnterTextSize = Math.min(getReferenceHeight()*2, getReferenceWidth());
         LaunchButton.setSizeConstant(referenceEnterTextSize/144.0);
-        Dimension buttonsPanelDimensionConstant = new Dimension((int) getReferenceWidth(), (int) (referenceEnterTextSize * 0.4));
+        Dimension buttonsPanelDimensionConstant = new Dimension((int) getReferenceWidth(), (int) (referenceEnterTextSize * 0.1));
         buttonsPanel.setMinimumSize(buttonsPanelDimensionConstant);
         buttonsPanel.setMaximumSize(buttonsPanelDimensionConstant);
     }
