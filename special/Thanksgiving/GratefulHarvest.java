@@ -102,6 +102,29 @@ public class GratefulHarvest implements SpecialFeature {
                     return new String[]{"Andale Mono"};
                 }
             }
+            boolean isColorBaseArray = objects.length == 6 || objects.length == 12;
+            int k = 0;
+            while (k < objects.length && isColorBaseArray) {
+                if (!(objects[k] instanceof Color)) {
+                    isColorBaseArray = false;
+                } else k++;
+            }
+            if (isColorBaseArray){
+                return new Color[]{
+                        new Color(237, 58, 21),
+                        new Color(236, 180, 38),
+                        new Color(236, 136, 45),
+                        new Color(150, 16, 92),
+                        new Color(126, 100, 120),
+                        new Color(151, 101, 51),
+                        new Color(92, 47, 6),
+                        new Color(176, 171, 77),
+                        new Color(124, 145, 58),
+                        new Color(163, 211, 68),
+                        new Color(214, 1, 63),
+                        new Color(33, 143, 80),
+                };
+            }
         }
         return objects;
     }
