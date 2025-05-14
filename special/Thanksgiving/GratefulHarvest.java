@@ -86,7 +86,24 @@ public class GratefulHarvest implements SpecialFeature {
     }
     public Object[] process(Object[] objects) {
         if(isActive()) {
-            return objects;
+            if (objects == null || objects.length == 0) return null;
+            if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String){
+                String font = (String) objects[0];
+                String hint = (String) objects[1];
+                if(hint.contains("Title")){
+                    return new String[]{"Canela Text"};
+                } else if(hint.contains("VersionFont")){
+                    return new String[]{"Noteworthy"};
+                } else if(hint.contains("GameDisplayFont")){
+                    return new String[]{"Skia"};
+                } else if(hint.contains("SlidingButtonFont")){
+                    return new String[]{"Herculanum"};
+                } else if(hint.contains("ButtonFont")){
+                    return new String[]{"Times New Roman"};
+                } else if(hint.contains("MonoFont")){
+                    return new String[]{"Andale Mono"};
+                }
+            }
         }
         return objects;
     }
