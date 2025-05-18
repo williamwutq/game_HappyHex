@@ -112,20 +112,19 @@ public class GratefulHarvest implements SpecialFeature {
             if (isColorBaseArray){
                 return new Color[]{
                         new Color(237, 58, 21),
-                        new Color(236, 180, 38),
-                        new Color(236, 136, 45),
+                        new Color(163, 120, 11),
+                        new Color(181, 89, 4),
                         new Color(150, 16, 92),
                         new Color(126, 100, 120),
                         new Color(151, 101, 51),
                         new Color(92, 47, 6),
-                        new Color(176, 171, 77),
+                        new Color(149, 145, 49),
                         new Color(124, 145, 58),
-                        new Color(163, 211, 68),
+                        new Color(84, 165, 30),
                         new Color(214, 1, 63),
                         new Color(33, 143, 80),
                 };
-            } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
-                String hint = (String) objects[1];
+            } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String hint){
                 if (hint.contains("SlidingButtonOn")){
                     objects[0] = new Color(11, 189, 141);
                 } else if (hint.contains("SlidingButtonOff")){
