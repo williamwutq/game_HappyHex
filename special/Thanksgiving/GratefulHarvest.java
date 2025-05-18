@@ -132,6 +132,12 @@ public class GratefulHarvest implements SpecialFeature {
                     objects[0] = new Color(234, 55, 55);
                 } else if (hint.contains("SlidingButtonEmpty")){
                     objects[0] = new Color(237, 211, 186);
+                } else if (hint.contains("GamePiecePanel") || hint.contains("GameOverBackground")){
+                    objects[0] = new Color(220, 185, 153);
+                } else if (hint.contains("Selected")){
+                    objects[0] = new Color(165, 113, 66);
+                } else if (hint.contains("Author") || hint.contains("DisplayFont")){
+                    objects[0] = new Color(69, 85, 15);
                 } else if (hint.contains("Button")){
                     objects[0] = new Color(244, 102, 46);
                 } else if (hint.contains("Background")){
