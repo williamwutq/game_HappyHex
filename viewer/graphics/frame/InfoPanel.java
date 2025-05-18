@@ -40,12 +40,9 @@ public class InfoPanel extends JComponent {
     }
 
     /**
-     * Performs layout of child components by positioning and sizing
-     * the individual {@code SevenSegment} displays.
+     * Performs layout of child components
      */
     public void doLayout() {
-        int halfHeight = getHeight()/2;
-        int halfWidth = getWidth()/2;
         size = Math.min((getHeight() - 6) / 6.0, (getWidth() - 6) / 6.0);
     }
     /**
