@@ -4,8 +4,8 @@ A hexagonal Block Blast (e.g. Hex FRVR) implementation using java, build with cu
 This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
-<b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 06/05/2025  
+<b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for [ML](#develop--machine-learning))  
+<b>Last edited:</b> 18/05/2025  
 <b>Latest release:</b> [1.3.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0)
 
 > [!IMPORTANT]
@@ -581,6 +581,15 @@ These themes can change the color of every component in the game and the launche
    Game pieces colors will be reduced to six colors, three blue and three red. It is automatically activated on July Fourth.
 
    This theme is packaged inside `special.Independence` and contained in `special.FeatureFactory` with the class tag `java.awt.Color`.  
+5. <b>GrateFulHarvest Theme</b>  
+   This is a Thanksgiving theme. It turns the launcher and game board into primarily orange, with other colors populating other areas of the graphics.
+   The game pieces use colors that mimic the colors usually seen on the dinner table on Thanksgiving dinner and those during harvest, invoking a sense of grace.
+   This theme also replaces the font of the title, buttons, and display messages with fonts to enhance effects of the holiday. It is always activated
+   only on Thanksgiving.
+
+   This theme is packaged inside `special.Thanksgiving` and contained in `special.FeatureFactory` with the class tag `java.awt.Color` and
+   `java.awt.Font`. In the package, a special date class is defined to determine whether a day is Thanksgiving.  
+
 
 ### Auto Play
 The autoplay feature will be added in the future. With a click of a button, the player will be able to enjoy hands-off automatic piece placement in the 
@@ -655,12 +664,12 @@ of the future but current architecture is being designed around it. At the same 
 - Latest Release: [1.3.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0)
 - Version 1.3.1
   - Add Thanksgiving special (color and font theme)
+  - Add first python code
   - Add basic panel to select game to continue
   - Add fundamentals to game viewer
 - Version 1.4
   - Add autoplay based on random, turn on via settings
   - Add and compiled game viewer
-  - Add first python code
   - Graphics improvements
 - Version 1.5
   - Complete [resume game on demand](https://github.com/williamwutq/game_HappyHex/issues/21)
