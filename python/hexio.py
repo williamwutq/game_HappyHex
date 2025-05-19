@@ -113,6 +113,16 @@ class HexReader:
     def game_exist(self) -> bool:
         return self._g_
 
+    def clear(self):
+        self._g_ = False # game has not been read
+        self._g_completed = False
+        self._g_turn = 0; self._g_score = 0
+        self._g_engine = hx.HexEngine(1)
+        self._g_queue = [hx.Piece()]
+        self._g_m_origins = [hx.Hex()]
+        self._g_m_pieces = [int()]
+        self._g_m_queues = [[hx.Piece()]]
+
     def __fail(self, reason : str) -> None:
         self._g_ = False
         raise IOError ('Fail to read binary data because ' + reason)
@@ -219,14 +229,16 @@ class HexReader:
     def read(self) -> bool:
         try:
             self.__read()
-        except IOError:
+        except IOError | ValueError | TypeError:
             return False
         return True
 
 
 def smart_read_f () -> [HexReader]:
     ps = [file.name.removesuffix('.hpyhex') for file in smart_find_f()]
-    return [HexReader(p) for p in ps]
+    rs = [HexReader(p) for p in ps]
+    for r in rs: r.read()
+    return [r for r in rs if r.game_exist()]
 
 
 if __name__ == '__main__':
