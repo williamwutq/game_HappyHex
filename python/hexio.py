@@ -113,11 +113,11 @@ class HexReader:
     def game_exist(self) -> bool:
         return self._g_
 
-    def __fail__(self, reason : str) -> None:
+    def __fail(self, reason : str) -> None:
         self._g_ = False
         raise IOError ('Fail to read binary data because ' + reason)
 
-    def __read__(self) -> None:
+    def __read(self) -> None:
         """
         Reads a binary log file and parses it into memory.
         This populates the engine, queue, moves, and other game data from binary data.
@@ -127,12 +127,12 @@ class HexReader:
         hex_str = read_f(self._name)
         # Format check
         if not hex_str[:32] == '4B874B1E5A0F5A0F5A964B874B5A5A87':
-            self.__fail__('file header is corrupted')
+            self.__fail('file header is corrupted')
         d_code = int(hex_str[32:48], 16)
         hex_str = hex_str[72:]
         d_id = int(hex_str[:8], 16)
         if not hex_str[8:24] == '214845582D42494E':
-            self.__fail__('file data start header is corrupted')
+            self.__fail('file data start header is corrupted')
         d_turn = int(hex_str[24:32], 16)
         d_score = int(hex_str[32:40], 16)
         d_complete = int(hex_str[40:41], 16) % 2 == 0
@@ -142,14 +142,14 @@ class HexReader:
         d_obf_combined = ((d_obf_turn << 32) | (d_obf_score & 0xFFFFFFFF))
         d_obf_combined = HexReader.obfuscate(d_id * 43 ^ d_obf_combined ^ d_obf_turn) ^ d_obf_score
         if d_obf_combined != d_code:
-            self.__fail__('file data encoding is corrupted or version is not supported')
+            self.__fail('file data encoding is corrupted or version is not supported')
         if not hex_str[41:45] == 'FFFF':
-            self.__fail__('file data divider cannot be found at the correct position')
+            self.__fail('file data divider cannot be found at the correct position')
         hex_str = hex_str[45:]
         # read engine
         d_engine_radius = int(hex_str[:4], 16)
         if d_engine_radius < 1:
-            self.__fail__('engine data cannot be read due to impossible radius')
+            self.__fail('engine data cannot be read due to impossible radius')
         d_engine = hx.HexEngine(d_engine_radius)
         d_engine_block_index = 0
         d_engine_read_limit = (d_engine.length()+3)//4
@@ -163,7 +163,7 @@ class HexReader:
                 d_engine_read_bit += 1
                 d_engine_block_index += 1
         if not hex_str[d_engine_read_limit+4:d_engine_read_limit+6] == 'FF':
-            self.__fail__('file data divider cannot be found at the correct position')
+            self.__fail('file data divider cannot be found at the correct position')
         else: hex_str = hex_str[d_engine_read_limit+6:]
         # read queue
         d_queue_length = int(hex_str[:4], 16)
@@ -174,9 +174,9 @@ class HexReader:
                 d_queue_piece = hx.Piece.piece_from_byte(d_queue_piece_byte, -2)
                 d_queue_data.append(d_queue_piece)
             except ValueError:
-                self.__fail__('failed to read queue data')
+                self.__fail('failed to read queue data')
         if not hex_str[d_queue_length*2+4:d_queue_length*2+6] == 'FF':
-            self.__fail__('file data divider cannot be found at the correct position')
+            self.__fail('file data divider cannot be found at the correct position')
         else: hex_str = hex_str[d_queue_length*2+6:]
         # read moves
         d_move_origins = [hx.Hex()]
@@ -196,15 +196,15 @@ class HexReader:
                     d_move_queue_piece = hx.Piece.piece_from_byte(d_move_queue_piece_byte, -2)
                     d_move_queue_data.append(d_move_queue_piece)
                 except ValueError:
-                    self.__fail__('failed to read queue data in move data')
+                    self.__fail('failed to read queue data in move data')
             d_move_queues.append(d_move_queue_data)
         d_move_read_length = (10 + 2 * d_queue_length) * d_turn
         if not hex_str[d_move_read_length:d_move_read_length+4] == 'FFFF':
-            self.__fail__('file data divider cannot be found at the correct position')
+            self.__fail('file data divider cannot be found at the correct position')
         else: hex_str = hex_str[d_move_read_length+4:]
         # final check
         if int(hex_str[:4], 16) != self.obfuscate(d_id)<<5 & 0xFFFF:
-            self.__fail__('file data encoding is corrupted or version is not supported')
+            self.__fail('file data encoding is corrupted or version is not supported')
         # record
         self._g_ = True
         self._g_completed = d_complete
@@ -218,7 +218,7 @@ class HexReader:
 
     def read(self) -> bool:
         try:
-            self.__read__()
+            self.__read()
         except IOError:
             return False
         return True
