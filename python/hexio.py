@@ -11,14 +11,24 @@ script_path = Path(__file__).resolve()
 data_path = script_path.parents[1] / 'data'
 
 def read_f (name : str) -> str:
+    """
+    Reads the contents of a .hpyhex file as a hexadecimal string.
+    :param name: The base name of the file (without extension) to read.
+    :return: The file's contents as an uppercase hexadecimal string.
+             Returns an empty string if the file cannot be read.
+    """
     try:
-        with open(data_path / (name + '.hpyhex'), 'rb') as f:
-            data = f.read().hex().upper()
+        with open(data_path / (name + '.hpyhex'), 'rb') as file:
+            data = file.read().hex().upper()
     except IOError: return ''
     return data
 
 
 def smart_find_f () -> [Path]:
+    """
+    Scans the source data_path directory for all valid .hpyhex files.
+    :return: A list of file paths pointing to .hpyhex files in the directory.
+    """
     return [file for file in data_path.iterdir() if file.is_file() and file.suffix == '.hpyhex']
 
 
@@ -87,6 +97,11 @@ class HexReader:
         return input_val
 
     def __init__(self, name : str) -> None:
+        """
+        Constructs a HexLogger with a pre-assigned file name
+        :param name: the assigned file name. HexLogger will try to find file in the same directory.
+                     If file name is an empty string, it will redirect to a valid .hpyhex file.
+        """
         if len(name) == 0:
             dirs = smart_find_f()
             if len(dirs) != 0:
@@ -105,15 +120,33 @@ class HexReader:
         self._g_m_queues = [[hx.Piece()]]
 
     def get_path(self) -> Path:
+        """
+        Returns the filepath of the game file the HexReader is pointing to.
+        :return: The filepath of this game
+        """
         return data_path / (self._name + '.hpyhex')
 
     def file_exist(self) -> bool:
+        """
+        Return whether such a target file exist. Normally, it should return True, unless
+        the HexReader is created manually or file has been deleted.
+        :return: True if file at get_path() exist
+        """
         return self.get_path().is_file() and len(self.get_path().read_bytes()) != 0
 
     def game_exist(self) -> bool:
+        """
+        Return whether this HexReader has been populated with game data, no matter whether game file still exist.
+        :return: True if this logger contains full game data
+        """
         return self._g_
 
-    def clear(self):
+    def clear(self) -> None:
+        """
+        Erase the game data in this logger by reset them. This will not reset the file it points to or the player.
+        This is almost equal to create another logger.
+        :return: None
+        """
         self._g_ = False # game has not been read
         self._g_completed = False
         self._g_turn = 0; self._g_score = 0
@@ -123,7 +156,21 @@ class HexReader:
         self._g_m_pieces = [int()]
         self._g_m_queues = [[hx.Piece()]]
 
+    def erase(self):
+        """
+        Erase the game data in this logger by reset them. This will not reset the file it points to or the player.
+        This is almost equal to create another logger.
+        :return: None
+        """
+        self.clear()
+
     def __fail(self, reason : str) -> None:
+        """
+        Internal method to use when reading data fails. Raise IOError.
+        :param reason: the reason why reading data failed
+        :raise IOError: Fail to read binary data because reason
+        :return: None
+        """
         self._g_ = False
         raise IOError ('Fail to read binary data because ' + reason)
 
@@ -234,6 +281,20 @@ class HexReader:
         return True
 
     def __str__(self) -> str:
+        """
+        Returns a String representation of the HexLogger, containing all its essential information.
+
+        This String representation contains the following elements:
+
+        - The path to the file that the logger is pointing to and operating for.
+        - The complete status of the game contained in the logger and the file.
+        - The current HexEngine representing the recorded game field.
+        - The current Piece queue in the recorded game.
+        - The moves, containing centers Hex coordinates and Piece placed, in the recorded game.
+
+        This method use __str__ methods in the contained objects to generate string representations.
+        :return: string representation of the HexLogger as str
+        """
         builder = ["GameLogger[type = HexReader, path = ", (data_path / self._name).__fspath__(), ".hpyhex, completed = ",
                    str(self._g_completed), ", turn = ", str(self._g_turn), ", score = ", str(self._g_score),
                    ", data = HexData[engine = ", str(self._g_engine), ", queue = {"]
@@ -253,6 +314,10 @@ class HexReader:
 
 
 def smart_read_f () -> [HexReader]:
+    """
+    Constructs and reads all valid HexReader objects from .hpyhex files.
+    :returns: A list of HexReader objects for which the both game file and data exists, with .read() already called on each.
+    """
     ps = [file.name.removesuffix('.hpyhex') for file in smart_find_f()]
     rs = [HexReader(p) for p in ps]
     for r in rs: r.read()
