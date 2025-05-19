@@ -41,6 +41,7 @@ import java.awt.*;
  * @author William Wu
  * @version 1.0 (HappyHex 1.3)
  * @since 1.0 (HappyHex 1.3)
+ * @see SevenSegment
  * @see JComponent
  * @see JButton
  */
