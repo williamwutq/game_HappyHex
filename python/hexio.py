@@ -233,6 +233,24 @@ class HexReader:
             return False
         return True
 
+    def __str__(self) -> str:
+        builder = ["GameLogger[type = HexReader, path = ", (data_path / self._name).__fspath__(), ".hpyhex, completed = ",
+                   str(self._g_completed), ", turn = ", str(self._g_turn), ", score = ", str(self._g_score),
+                   ", data = HexData[engine = ", str(self._g_engine), ", queue = {"]
+
+        if self._g_queue: builder.append(", ".join(str(item) for item in self._g_queue))
+        builder.append("}, moves = {")
+
+        if self._g_m_pieces and self._g_m_origins:
+            moves = [
+                f"HexMove[center = {self._g_m_origins[i]}, piece = {self._g_m_queues[i][self._g_m_pieces[i]]}]"
+                for i in range(len(self._g_m_origins))
+            ]
+            builder.append(", ".join(moves))
+
+        builder.append("}]]")
+        return "".join(builder)
+
 
 def smart_read_f () -> [HexReader]:
     ps = [file.name.removesuffix('.hpyhex') for file in smart_find_f()]
@@ -251,3 +269,4 @@ if __name__ == '__main__':
         print(f.get_path())
         print(f.read())
         print(f.game_exist())
+        print(f)
