@@ -5,9 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 05/05/2025  
-<b>Latest release:</b> [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)  
-<b>Development option:</b> [1.3.0-binary](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0-binary)
+<b>Last edited:</b> 06/05/2025  
+<b>Latest release:</b> [1.3.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -223,7 +222,7 @@ The page contains the following elements:
   unfinished games the player have. When enabled, the game will try to find a previously unfinished game of the player in this particular setting, and if it
   cannot find such games, it will start a new game.
   
-  Disabling restart game will not in any ways affect the data logging of games, both in `logs.json` and in `.hyphex.json` data files.
+  Disabling restart game will not in any ways affect the data logging of games, in `logs.json`, `.hyphex.json`, and binary `.hyphex` data files.
 
 - <b>Game Board Size Setting</b>  
 
@@ -428,7 +427,7 @@ to understand why the game behaves the way it does. [Easter Eggs](#Easter-Eggs) 
 - If the player is logged in, the game will start with the current player information. Otherwise, it will enter guest mode with player being "Guest".
 - The game will start with the current difficult setting and size setting, both of which can be adjusted in settings page.
 - If the player is logged in and an unfinished game of the same size is detected to exist, the unfinished game will resume. The color of the board and queue
-  of the unfinished game will be the same according to the current theme. They maybe gray or black, but will not be the usual 12 colors.
+  of the unfinished game will be the exact same according to the current theme.
 - If no valid unfinished game is detected, a new empty game will start with empty game board and randomized game queue according to
   [piece generation](#Piece-Generation) logic.
 #### Piece Generation
@@ -439,7 +438,9 @@ generate the single-block piece but may generate the full 7-block piece.
 7-block piece but may generate the single block piece.
 - Pieces will be generated according to logic in the queue whenever another piece is dequeued by [placement](#Piece-Placement).
 - The color of the piece will be randomly generated according to the current theme. All blocks in a piece will have the exact same color.
-- There are 12 possible colors for any piece or block according to the current theme. The piece or block may also be gray if an unfinished game is loaded.
+- There are 12 possible colors for any piece or block according to the current theme. The piece or block may also be gray or in another default color
+  if an old version unfinished game is loaded.
+- Pieces cannot contain unoccupied blocks.
 - The game queue is always filled.
 #### Piece Placement
 - Player must select pieces in the game piece queue. They may not select any other piece.
@@ -463,16 +464,17 @@ generate the single-block piece but may generate the full 7-block piece.
 #### Game Ending
 - When a piece is placed, queue updated, and elimination checked such that no more piece can be placed, the game ends.
 - The score and turns of the game will be recorded.
-- The game will be logged in a `.hpyhex.json` file inside the folder `data`.
+- The game will be logged in a `.hpyhex.json` file and/or binary `.hpyhex` file inside the folder `data`.
 - The terminated game will be connected with the user information.
 #### Game Quitting
 - The player may quit the game by clicking on the quit button inside the game at any time.
 - The score and turns of the game will be recorded.
-- The game will be logged in a `.hpyhex.json` file inside the folder `data`.
+- The game will be logged in a `.hpyhex.json` file and/or binary `.hpyhex` file  inside the folder `data`.
 - The unfinished game will be connected with the user information.
 - If the player logs in again with the identical information and game setting, and the game log exists in the correct location, the unfinished game
-  could be revived with the unfinished board and game queue. The color of the board and queue of the unfinished game will be the same according
-  to the current theme. They maybe gray or black, but will not be the usual 12 colors.
+  could be revived with the unfinished board and game queue. The color of the board and queue of the unfinished game will be the exact same according
+  to the current theme, because colors will be stored in color indexes since version 1.3.0. If you have are playing a safe on a version before that,
+  colors maybe gray or random, depending on the implementation.
 - The player may quit the game by quit the application.
 
 ### Easter Eggs  
@@ -650,13 +652,7 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.2.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.2.4)
-- Development version: [1.3.0-binary](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0-binary)
-- Version 1.3.0
-  - Add Independence Day special (color theme)
-  - Finalize `.hpyhex.json` formats
-  - Add binary file format
-  - Add feature to read all formats and write in the most recent one
+- Latest Release: [1.3.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0)
 - Version 1.3.1
   - Add Thanksgiving special (color and font theme)
   - Add basic panel to select game to continue
@@ -707,8 +703,8 @@ package `hexio`
 `javax.json`  
 <b>Function</b>:  
 Provides utility methods for converting hexagonal game components such as Hex, Block, Piece, HexEngine, and game moves to and from
-JSON representations. It helps developers to save game states to `hpyhex.json` files, read them back, and manage game data efficiently.
-It is not dependent on any other packages and use internal versioning separated from `Launcher`.  
+JSON representations. It helps developers to save game states to `.hpyhex.json` and binary `.hpyhex` files, read them back,
+and manage game data efficiently. It is not dependent on any other packages and use internal versioning separated from `Launcher`.  
 
 ### Logging
 package `io`  

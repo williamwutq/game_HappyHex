@@ -64,8 +64,7 @@ import java.util.ArrayList;
  *
  * <p><h3>Block Coloring:</h3>
  * By default, blocks are visually represented using two colors: one for the empty {@link Block#getState state}
- * (false) and one for the filled {@code state} (true). These default colors can be configured using the
- * {@code setDefaultBlockColors} method. When a block's state is updated using {@code setState} or during
+ * (false) and one for the filled {@code state} (true). When a block's state is updated using {@code setState} or during
  * {@link #HexEngine initialization} and {@link #reset}, it automatically changes to the corresponding default color.
  * For full control, the {@link #setBlock} method can be used to manually assign a specific color to a block,
  * independent of its state. See {@link Block#setColor} for coloring blocks.
@@ -220,6 +219,31 @@ public class HexEngine implements HexGrid{
                 blocks[index] = block;
             }
         }
+    }
+    /**
+     * Sets the {@link Block} state at the specified array index.
+     * Automatically set color to default unfilled color if state is false,
+     * set color to default filled color if the state is true.
+     *
+     * @param index the block array index
+     * @param state the new state to set for the {@code Block} at this index.
+     * @see #length()
+     * @since 1.3
+     */
+    public void setState(int index, boolean state){
+        blocks[index].setState(state);
+        blocks[index].setColor(state?-2:-1);
+    }
+    /**
+     * Sets the {@link Block} color index at the specified array index.
+     *
+     * @param index the block array index
+     * @param color the new color to set for the {@code Block} at this index.
+     * @see #length()
+     * @since 1.3
+     */
+    public void setColor(int index, int color){
+        blocks[index].setColor(color);
     }
     /**
      * Sets the state of a {@link Block} at a specific grid coordinate.
@@ -571,7 +595,7 @@ public class HexEngine implements HexGrid{
      * @return a deep copy of this {@code HexEngine} object.
      * @see Block#clone()
      */
-    public Object clone() throws CloneNotSupportedException {
+    public HexEngine clone(){
         HexEngine newEngine;
         try{
             newEngine = (HexEngine) super.clone();
