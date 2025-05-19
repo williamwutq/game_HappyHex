@@ -29,38 +29,34 @@
   William Wu reserve all rights.
 */
 
-package special.Halloween;
+package special.Thanksgiving;
 
 import special.SpecialFeature;
 
-import java.awt.*;
+import java.awt.Color;
 
-public class SpookyTheme implements SpecialFeature {
-    private String[] whiteList = new String[]{
-            "Quit",
-            "Confirm",
-    };
+public class GratefulHarvest implements SpecialFeature {
     private boolean enable;
     private boolean valid;
-    public SpookyTheme(){
+    public GratefulHarvest(){
         this.enable = true;
         this.valid = false;
         validate();
     }
     public int getFeatureID() {
-        return 13;
+        return 67;
     }
     public int getGroupID() {
         return 999; // EventSpecial
     }
     public String getFeatureName() {
-        return "SpookyTheme";
+        return "GratefulHarvest";
     }
     public String getGroupName() {
         return "EventSpecial";
     }
     public String getFeatureDescription() {
-        return "Halloween Special! Spooky spooky spooky!";
+        return "Thanksgiving special theme";
     }
     public String getFeatureTarget() {
         return "GUI, LaunchGUI, LauncherEssentials, GameEssentials";
@@ -69,7 +65,7 @@ public class SpookyTheme implements SpecialFeature {
         return 1;
     }
     public int getSupportVersionMinor() {
-        return 1;
+        return 3;
     }
     public boolean validate() {
         if(special.Special.getCurrentVersionMajor() > getSupportVersionMajor()){
@@ -91,19 +87,17 @@ public class SpookyTheme implements SpecialFeature {
     public Object[] process(Object[] objects) {
         if(isActive()) {
             if (objects == null || objects.length == 0) return null;
-            if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String){
-                String font = (String) objects[0];
-                String hint = (String) objects[1];
+            if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String hint){
                 if(hint.contains("Title")){
-                    return new String[]{"Luminari"}; // or maybe Brush Script MT
+                    return new String[]{"Canela Text"};
                 } else if(hint.contains("VersionFont")){
-                    return new String[]{"Papyrus"};
+                    return new String[]{"Noteworthy"};
                 } else if(hint.contains("GameDisplayFont")){
-                    return new String[]{"Courier New"};
+                    return new String[]{"Skia"};
                 } else if(hint.contains("SlidingButtonFont")){
                     return new String[]{"Herculanum"};
                 } else if(hint.contains("ButtonFont")){
-                    return new String[]{"Cochin"};
+                    return new String[]{"Times New Roman"};
                 } else if(hint.contains("MonoFont")){
                     return new String[]{"Andale Mono"};
                 }
@@ -115,53 +109,43 @@ public class SpookyTheme implements SpecialFeature {
                     isColorBaseArray = false;
                 } else k++;
             }
-            if(!isColorBaseArray && objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
-                Color color = (Color) objects[0];
-                String hint = (String) objects[1];
-                if (hint.contains("GameQuit")) {
-                    objects[0] = new Color(255, 164, 60);
-                } else if (hint.contains("New") || hint.contains("HintFont")) {
-                    objects[0] = new Color(189, 56, 56);
-                } else if (hint.contains("GamePieceSelected")) {
-                    objects[0] = new Color(92, 36, 45);
-                } else if (hint.contains("PiecePanel")){
-                    objects[0] = new Color(223, 180, 89);
-                } else if (hint.contains("Quit") || hint.contains("Confirm")){
-                    return objects;
-                } else if (hint.contains("SlidingButtonOn")){
-                    objects[0] = new Color(173, 216, 18, 255);
+            if (isColorBaseArray){
+                return new Color[]{
+                        new Color(237, 58, 21),
+                        new Color(163, 120, 11),
+                        new Color(181, 89, 4),
+                        new Color(150, 16, 92),
+                        new Color(126, 100, 120),
+                        new Color(151, 101, 51),
+                        new Color(92, 47, 6),
+                        new Color(149, 145, 49),
+                        new Color(124, 145, 58),
+                        new Color(84, 165, 30),
+                        new Color(214, 1, 63),
+                        new Color(33, 143, 80),
+                };
+            } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String hint){
+                if (hint.contains("SlidingButtonOn")){
+                    objects[0] = new Color(11, 189, 141);
                 } else if (hint.contains("SlidingButtonOff")){
-                    objects[0] = new Color(228, 53, 66);
-                } else if (hint.contains("VersionFont")){
-                    objects[0] = new Color(221, 200, 130);
-                } else if (color.equals(Color.BLACK)) {
-                    objects[0] = new Color(204, 204, 204);
-                } else if (hint.contains("GameDisplayFont") || hint.contains("LaunchAuthorFont")) {
-                    objects[0] = new Color(172, 34, 14);
-                } else {
-                    objects[0] = new Color(constraint(286-color.getRed()), constraint(270-color.getGreen()), constraint(270-color.getBlue()), color.getAlpha());
-                }
-            } else for (int i = 0; i < objects.length; i++) {
-                if (objects[i] instanceof Color) {
-                    Color color = (Color) objects[i];
-                    objects[i] = new Color(constraint(220 + color.getRed() / 4), constraint(64 + color.getGreen() / 4), constraint(46 + color.getBlue() / 8));
+                    objects[0] = new Color(234, 55, 55);
+                } else if (hint.contains("SlidingButtonEmpty")){
+                    objects[0] = new Color(237, 211, 186);
+                } else if (hint.contains("GamePiecePanel") || hint.contains("GameOverBackground")){
+                    objects[0] = new Color(220, 185, 153);
+                } else if (hint.contains("Selected")){
+                    objects[0] = new Color(165, 113, 66);
+                } else if (hint.contains("Author") || hint.contains("DisplayFont")){
+                    objects[0] = new Color(69, 85, 15);
+                } else if (hint.contains("Button")){
+                    objects[0] = new Color(244, 102, 46);
+                } else if (hint.contains("Background")){
+                    objects[0] = new Color(237, 211, 186);
+                } else if (objects[0].equals(Color.BLACK)){
+                    objects[0] = new Color(36,36,36);
                 }
             }
         }
         return objects;
-    }
-    private int constraint(int number){
-        int upper = 240;
-        int lower = 22;
-        if(number > upper){
-            return upper;
-        } else if (number < lower){
-            return lower;
-        } else return number;
-    }
-    private boolean inWhiteList(String str){
-        for(String ignore : whiteList){
-            if(str.contains(ignore)) return true;
-        } return false;
     }
 }
