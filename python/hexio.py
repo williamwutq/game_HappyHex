@@ -2,7 +2,7 @@ from python import hex as hx
 import math
 from pathlib import Path
 
-__all__ = ['read_f', 'HexReader']
+__all__ = ['read_f', 'smart_find_f', 'smart_read_f', 'HexReader']
 __sin60__ = math.sqrt(3) / 2
 __version__ = "1.3.0"
 __version_info__ = (1,3,0)
@@ -18,8 +18,8 @@ def read_f (name : str) -> str:
     return data
 
 
-def smart_find_f ():
-    return [f for f in data_path.iterdir() if f.is_file() and f.suffix == '.hpyhex']
+def smart_find_f () -> [Path]:
+    return [file for file in data_path.iterdir() if file.is_file() and file.suffix == '.hpyhex']
 
 
 class HexReader:
@@ -216,8 +216,17 @@ class HexReader:
         self._g_m_pieces = d_move_indexes
         self._g_m_queues = d_move_queues
 
+    def read(self) -> bool:
+        try:
+            self.__read__()
+        except IOError:
+            return False
+        return True
 
 
+def smart_read_f () -> [HexReader]:
+    ps = [file.name.removesuffix('.hpyhex') for file in smart_find_f()]
+    return [HexReader(p) for p in ps]
 
 
 if __name__ == '__main__':
@@ -225,4 +234,8 @@ if __name__ == '__main__':
     print(reader.get_path())
     print(reader.file_exist())
     print(reader.game_exist())
-    reader.__read__()
+    print(reader.read())
+    for f in smart_read_f():
+        print(f.get_path())
+        print(f.read())
+        print(f.game_exist())
