@@ -70,7 +70,7 @@ public final class NameIndicator extends JButton {
             sevenSegments[i] = new SevenSegment();
             this.add(sevenSegments[i]);
         }
-        sevenSegments[0].setCharacter('-');
+        sevenSegments[0].setCharacter('_');
     }
     /**
      * Clears the current string, resetting all segments.
@@ -84,7 +84,7 @@ public final class NameIndicator extends JButton {
         pointer = 0;
         cursor = 0;
         hidden = ' ';
-        sevenSegments[0].setCharacter('-');
+        sevenSegments[0].setCharacter('_');
         for (int i = 1; i < sevenSegments.length; i++) {
             sevenSegments[i].setCharacter(' ');
         }
@@ -103,15 +103,15 @@ public final class NameIndicator extends JButton {
                 cursor--;
                 hidden = ' ';
                 pointer --;
-                sevenSegments[pointer].setCharacter('-');
+                sevenSegments[pointer].setCharacter('_');
             } else if (pointer == 1) {
                 hidden = ' ';
                 pointer --;
-                sevenSegments[pointer].setCharacter('-');
+                sevenSegments[pointer].setCharacter('_');
             } else {
                 pointer--;
                 sevenSegments[pointer].setCharacter(' ');
-                if(pointer == cursor) sevenSegments[pointer].setCharacter('-');
+                if(pointer == cursor) sevenSegments[pointer].setCharacter('_');
             }
             return true;
         } else return false;
@@ -133,14 +133,14 @@ public final class NameIndicator extends JButton {
                 if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
                 pointer--;
                 cursor--;
-                sevenSegments[cursor].setCharacter('-');
+                sevenSegments[cursor].setCharacter('_');
                 return true;
             } else if (cursor > 0 && cursor == pointer) {
                 sevenSegments[cursor].setCharacter(' ');
                 pointer--;
                 cursor--;
                 hidden = ' ';
-                sevenSegments[cursor].setCharacter('-');
+                sevenSegments[cursor].setCharacter('_');
                 return true;
             } else if (cursor == 0 && pointer > 0) {
                 hidden = sevenSegments[cursor + 1].getCharacter();
@@ -149,7 +149,7 @@ public final class NameIndicator extends JButton {
                 }
                 if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
                 pointer--;
-                sevenSegments[cursor].setCharacter('-');
+                sevenSegments[cursor].setCharacter('_');
                 return true;
             }
         } return false;
@@ -174,7 +174,7 @@ public final class NameIndicator extends JButton {
                 sevenSegments[cursor].setCharacter(c);
                 cursor++;
                 pointer++;
-                if (cursor < sevenSegments.length) sevenSegments[cursor].setCharacter('-');
+                if (cursor < sevenSegments.length) sevenSegments[cursor].setCharacter('_');
                 return true;
             }
         } return false;
@@ -199,7 +199,7 @@ public final class NameIndicator extends JButton {
             sevenSegments[cursor].setCharacter(hidden);
             cursor ++;
             hidden = sevenSegments[cursor].getCharacter();
-            sevenSegments[cursor].setCharacter('-');
+            sevenSegments[cursor].setCharacter('_');
             return true;
         } else return false;
     }
@@ -214,7 +214,7 @@ public final class NameIndicator extends JButton {
             sevenSegments[cursor].setCharacter(hidden);
             cursor --;
             hidden = sevenSegments[cursor].getCharacter();
-            sevenSegments[cursor].setCharacter('-');
+            sevenSegments[cursor].setCharacter('_');
             return true;
         } else return false;
     }
@@ -248,7 +248,7 @@ public final class NameIndicator extends JButton {
     public String getString(){
         StringBuilder sb = new StringBuilder(sevenSegments.length);
         for (SevenSegment sevenSegment : sevenSegments) {
-            if (sevenSegment.getCharacter() == '-'){
+            if (sevenSegment.getCharacter() == '_'){
                 sb.append(hidden);
             } else sb.append(sevenSegment.getCharacter());
         }
