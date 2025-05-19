@@ -1,9 +1,7 @@
 from python import hex as hx
-import math
 from pathlib import Path
 
 __all__ = ['read_f', 'smart_find_f', 'smart_read_f', 'HexReader']
-__sin60__ = math.sqrt(3) / 2
 __version__ = "1.3.0"
 __version_info__ = (1,3,0)
 
