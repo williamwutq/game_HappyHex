@@ -5,7 +5,7 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (Future, used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 06/05/2025  
+<b>Last edited:</b> 19/05/2025  
 <b>Latest release:</b> [1.3.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.0)
 
 > [!IMPORTANT]
@@ -732,6 +732,14 @@ package `Launcher`
 Provides game launcher graphics through Java Swing. This includes the main page, the settings page, the login page, the game over page, and the themes page.
 It also provides links to set up evironment and start a [game](#Graphics-(GUI)). In addition, it calls to the internal game logger to read local data.
 This includes logging player scores and turns, loading previous unfinished games, calculate player average turns and score, and more.
+
+### Python
+package `python`  
+<b>Dependencies</b>:  
+`pathlib`
+<b>Function</b>:  
+All python code are packaged here. These include basic hex package, game log reading, both coded in python and following the exact same logic as
+the java code in other packages.
 
 ### Tests
 package `tests`  
