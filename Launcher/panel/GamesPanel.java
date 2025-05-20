@@ -39,17 +39,24 @@ public class GamesPanel extends JPanel {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         size = 1;
         for (int i = 0; i < 20; i++) {
-            this.add(new CustomListItem("Item " + (i + 1)));
+            this.add(new ListGame("Item " + (i + 1)));
         }
         scrollPane = new JScrollPane(this);
         scrollPane.setBackground(LaunchEssentials.launchBackgroundColor);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants. HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
     }
     public JScrollPane getScrollPane(){return scrollPane;}
 
     public void doLayout(){
-        super.doLayout();
         size = Math.min(this.getBounds().width, this.getBounds().height) / 12.0;
+        for (Component game : getComponents()){
+            if (game instanceof ListGame listGame){
+                listGame.setPreferredSize(new Dimension(this.getBounds().width, (int) size));
+                listGame.setSize(new Dimension(this.getBounds().width, (int) size));
+            }
+        }
+        super.doLayout();
     }
 
 
@@ -57,14 +64,14 @@ public class GamesPanel extends JPanel {
         super.paintChildren(g);
     }
 
-    class CustomListItem extends JPanel {
-        public CustomListItem(String title) {
-            setPreferredSize(new Dimension(350, 100)); // fixed size for each item
+    private class ListGame extends JPanel {
+        public ListGame(String title) {
             setBorder(BorderFactory.createLineBorder(Color.GRAY));
             setAlignmentX(CENTER_ALIGNMENT);
             setAlignmentY(CENTER_ALIGNMENT);
-            setBackground(Color.YELLOW);
+            setBackground(Color.GREEN);
             setLayout(new BorderLayout());
+            setOpaque(false);
 
             JLabel label = new JLabel(title);
             label.setFont(new Font("Arial", Font.BOLD, 16));
