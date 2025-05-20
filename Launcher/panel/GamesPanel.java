@@ -69,7 +69,7 @@ public class GamesPanel extends JPanel {
             setBorder(BorderFactory.createLineBorder(Color.GRAY));
             setAlignmentX(CENTER_ALIGNMENT);
             setAlignmentY(CENTER_ALIGNMENT);
-            setBackground(Color.GREEN);
+            setBackground(LaunchEssentials.launchTitlePanelBackgroundColor);
             setLayout(new BorderLayout());
             setOpaque(false);
 
@@ -84,10 +84,13 @@ public class GamesPanel extends JPanel {
         }
 
         public void paint(Graphics g) {
-            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            int sizeInt = (int) size;
+            g2.setColor(this.getBackground());
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, sizeInt, sizeInt);
+            g2.dispose();
             //Draw a circle for now
-            g.setColor(Color.BLUE);
-            g.fillOval(10, 50, 20, 20);
         }
     }
 }
