@@ -188,7 +188,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchResumePanel(), BorderLayout.CENTER);
     }
     public static void toLogInPage(){
@@ -196,7 +196,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchLoginPanel(), BorderLayout.CENTER);
     }
     public static void toSettings(){
@@ -204,7 +204,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
     }
     public static void toThemes(){
@@ -212,7 +212,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchThemePanel(), BorderLayout.CENTER);
     }
     public static void returnHome(){
@@ -220,7 +220,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
     }
     public static void toGameOver(){
