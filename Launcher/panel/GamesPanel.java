@@ -49,11 +49,13 @@ public class GamesPanel extends JPanel {
     public JScrollPane getScrollPane(){return scrollPane;}
 
     public void doLayout(){
-        size = Math.min(scrollPane.getBounds().width, scrollPane.getBounds().height) / 6.0;
+        Dimension rawSize = this.getParent().getBounds().getSize();
+        size = Math.min(rawSize.width, rawSize.height) / 12.0;
+        int size5 = (int) (size*5.0);
         for (Component game : getComponents()){
             if (game instanceof ListGame listGame){
-                listGame.setPreferredSize(new Dimension(scrollPane.getBounds().width, (int) size));
-                listGame.setSize(new Dimension(scrollPane.getBounds().width, (int) size));
+                listGame.setPreferredSize(new Dimension(rawSize.width, size5));
+                listGame.setSize(new Dimension(rawSize.width, size5));
             }
         }
         super.doLayout();
@@ -61,6 +63,7 @@ public class GamesPanel extends JPanel {
 
 
     public void paint(Graphics g){
+        doLayout();
         super.paintChildren(g);
     }
 
@@ -86,9 +89,11 @@ public class GamesPanel extends JPanel {
         public void paint(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             int sizeInt = (int) size;
+            int sizeQ = (int) (size/4.0);
+            int sizeP = (int) (size/8.0);
             g2.setColor(this.getBackground());
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, sizeInt, sizeInt);
+            g2.fillRoundRect(3+sizeP, 3+sizeP, getWidth()-6-sizeQ, getHeight()-6-sizeQ, sizeInt, sizeInt);
             g2.dispose();
             //Draw a circle for now
         }
