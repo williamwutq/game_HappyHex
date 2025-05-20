@@ -49,11 +49,11 @@ public class GamesPanel extends JPanel {
     public JScrollPane getScrollPane(){return scrollPane;}
 
     public void doLayout(){
-        size = Math.min(this.getBounds().width, this.getBounds().height) / 12.0;
+        size = Math.min(scrollPane.getBounds().width, scrollPane.getBounds().height) / 6.0;
         for (Component game : getComponents()){
             if (game instanceof ListGame listGame){
-                listGame.setPreferredSize(new Dimension(this.getBounds().width, (int) size));
-                listGame.setSize(new Dimension(this.getBounds().width, (int) size));
+                listGame.setPreferredSize(new Dimension(scrollPane.getBounds().width, (int) size));
+                listGame.setSize(new Dimension(scrollPane.getBounds().width, (int) size));
             }
         }
         super.doLayout();
