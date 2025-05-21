@@ -24,12 +24,9 @@
 
 package viewer.graphics.interactive;
 
-import viewer.Viewer;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * A user input component combining a {@link Keyboard} and a {@link NameIndicator}.
