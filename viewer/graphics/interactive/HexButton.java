@@ -15,6 +15,11 @@ abstract class HexButton extends JButton implements ComponentListener {
     public void componentMoved(ComponentEvent e) {doLayout();repaint();}
     public void componentResized(ComponentEvent e) {doLayout();repaint();}
 
+    // Prevent children
+    public final java.awt.Component add(java.awt.Component comp) {return comp;}
+    protected final void addImpl(java.awt.Component comp, Object constraints, int index) {}
+    public final void addContainerListener(java.awt.event.ContainerListener l) {}
+
     public static void main(String[] args){
         viewer.Viewer.test(new HexButton(){
 
