@@ -25,6 +25,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import hexio.HexLogger;
 import io.*;
 
 import java.awt.Color;
@@ -184,6 +185,28 @@ public final class LaunchEssentials {
             }
         }
         return logger;
+    }
+    public static java.util.ArrayList<hexio.HexLogger> smartFindLoggers(int size, int queueSize){
+        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        // Search for incomplete games
+        if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
+            int i = 0;
+            while (i < loggers.size()) {
+                HexLogger generatedLogger = loggers.get(i);
+                try {
+                    generatedLogger.readBinary();
+                    generatedLogger.read();
+                } catch (IOException e) {
+                    loggers.remove(i);
+                }
+                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
+                        && generatedLogger.getQueue().length == queueSize
+                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
+                    i++;
+                } else loggers.remove(i);
+            }
+        }
+        return loggers;
     }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
