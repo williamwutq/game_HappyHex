@@ -30,6 +30,7 @@ import io.*;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -186,10 +187,20 @@ public final class LaunchEssentials {
         }
         return logger;
     }
-    public static java.util.ArrayList<hexio.HexLogger> smartFindLoggers(int size, int queueSize){
+    public static java.util.ArrayList<hexio.HexLogger> smartFindLoggers(){
+        if (currentGameInfo.getPlayerID() == -1 || currentGameInfo.getPlayer().equals("Guest")){
+            return new ArrayList<hexio.HexLogger>();
+        }
         java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        int radius = 5;
+        int queueSize = 3;
+        if (GameMode.getChar(currentGameInfo.getGameMode()) == 'M'){
+            radius = 8; queueSize = 5;
+        } else if (GameMode.getChar(currentGameInfo.getGameMode()) == 'L'){
+            radius = 11; queueSize = 7;
+        }
         // Search for incomplete games
-        if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
+        if(!loggers.isEmpty()){
             int i = 0;
             while (i < loggers.size()) {
                 HexLogger generatedLogger = loggers.get(i);
@@ -199,7 +210,7 @@ public final class LaunchEssentials {
                 } catch (IOException e) {
                     loggers.remove(i);
                 }
-                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
+                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == radius
                         && generatedLogger.getQueue().length == queueSize
                         && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
                     i++;
