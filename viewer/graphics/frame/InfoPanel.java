@@ -29,6 +29,36 @@ import viewer.graphics.interactive.GeneralIndicator;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * {@code InfoPanel} is a Swing component designed to visually display the current score and turn
+ * in a game interface using two {@link GeneralIndicator} seven-segment displays.
+ * <p>
+ * Each indicator displays a label (e.g., "sc:" for score, "tn:" for turn) followed by a
+ * right-aligned numeric value, padded with spaces to fit exactly seven characters. The indicators
+ * are rendered side-by-side and are styled with a rounded rectangular border and custom background.
+ * The indicator use a String of 10 characters to display a number of maximum 7 digits, including
+ * negative sign.
+ * <p>
+ * This component is not opaque and relies on the {@code GeneralIndicator} for displaying
+ * text using a custom seven-segment display. It supports smooth resizing and dynamic updates via
+ * {@link #setStats(int, int)}.
+ * <p><b>Limitations:</b><br>
+ * If the score or turn exceeds the digit capacity of the indicator (more than 7 digits),
+ * the overflow digits will not be shown. This is by design and no exceptions will be thrown;
+ * it is assumed these values remain within safe bounds during normal execution.
+ * <p>
+ * <b>Usage Example:</b>
+ * <pre>{@code
+ * InfoPanel panel = new InfoPanel();
+ * panel.setStats(123, 5);  // Displays "sc:    123" and "tn:      5"
+ * }</pre>
+ *
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ * @see GeneralIndicator
+ * @see JComponent
+ */
 public class InfoPanel extends JComponent {
     private static final Color backgroundColor = new Color(85, 85, 85);
     private final GeneralIndicator scoreIndicator, turnIndicator;
