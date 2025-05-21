@@ -79,11 +79,31 @@ public class InfoPanel extends JComponent {
         paintChildren(g);
     }
 
+    /**
+     * Set the score and turn indicated by the two {@link GeneralIndicator}s in this {@code InfoPanel}.
+     * This will override the current indicated score and turn.
+     *
+     * @param score the new score to be indicated by the score indicator on the left
+     * @param turn the new turn to be indicated by the turn indicator on the right
+     * @see #getNumString
+     * @see GeneralIndicator
+     */
     public void setStats(int score, int turn){
         this.scoreIndicator.set("sc:" + getNumString(score, 7));
         this.turnIndicator.set("tn:" + getNumString(turn, 7));
         repaint();
     }
+    /**
+     * Returns a right-aligned string representation of a number,
+     * padded with spaces to fit the specified total length.
+     * <p>
+     * For negative numbers, one space less is used for padding
+     * due to the minus sign being part of the digit count.
+     *
+     * @param num the integer to convert to a string
+     * @param len the total length of the resulting string, including padding
+     * @return a string representation of the number, right-aligned and space-padded to the given length
+     */
     private static String getNumString(int num, int len){
         StringBuilder str = new StringBuilder();
         int digits = countDigits(num);
@@ -95,6 +115,12 @@ public class InfoPanel extends JComponent {
             str.append(num);
         } return str.toString();
     }
+    /**
+     * Recursively counts the number of digits in the absolute value of an integer.
+     *
+     * @param num the integer whose digits are to be counted
+     * @return the number of digits in the absolute value of {@code num}
+     */
     private static int countDigits(int num) {
         if (num < 0) {
             return countDigits(-num);
