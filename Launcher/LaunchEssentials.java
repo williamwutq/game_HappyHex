@@ -167,14 +167,13 @@ public final class LaunchEssentials {
     }
     public static hexio.HexLogger smartCreateLogger(int size, int queueSize){
         hexio.HexLogger logger = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
-        // The start unfinished game feature, implemented below, is disabled due to bugs
         java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
         // Search for incomplete games
         if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
             for (hexio.HexLogger generatedLogger : loggers){
                 try {
+                    generatedLogger.readBinary();
                     generatedLogger.read();
-                    // generatedLogger.readBinary(); /* DISABLED BECAUSE IT DOES NOT READ COLOR */
                 } catch (IOException e) {continue;}
                 if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
                         && generatedLogger.getQueue().length == queueSize
