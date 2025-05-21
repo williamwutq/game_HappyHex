@@ -24,10 +24,13 @@
 
 package Launcher.panel;
 
+import GUI.GameEssentials;
 import Launcher.LaunchEssentials;
+import hexio.HexLogger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class GamesPanel extends JPanel {
     double size;
@@ -38,7 +41,8 @@ public class GamesPanel extends JPanel {
         this.setBackground(LaunchEssentials.launchBackgroundColor);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         size = 1;
-        for (int i = 0; i < 20; i++) {
+        ArrayList<HexLogger> loggers = LaunchEssentials.smartFindLoggers();
+        for (int i = 0; i < loggers.size(); i++) {
             this.add(new ListGame("Item " + (i + 1)));
         }
         scrollPane = new JScrollPane(this);
