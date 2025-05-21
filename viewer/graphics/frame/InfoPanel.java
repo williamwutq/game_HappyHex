@@ -30,7 +30,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class InfoPanel extends JComponent {
-    private static final Color backgroundColor = new Color(136, 136, 136);
+    private static final Color backgroundColor = new Color(85, 85, 85);
     private final GeneralIndicator scoreIndicator, turnIndicator;
     private double size;
     /**
@@ -126,16 +126,5 @@ public class InfoPanel extends JComponent {
             return countDigits(-num);
         } else if (num < 10) return 1;
         return 1 + countDigits(num / 10);
-    }
-
-    public static void main(String[] args){
-        InfoPanel panel = new InfoPanel();
-        viewer.Viewer.test(panel);
-        for (int i = 0; i < 1000000; i ++){
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {}
-            panel.setStats(i*1000, -i*80);
-        }
     }
 }
