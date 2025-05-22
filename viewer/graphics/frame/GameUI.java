@@ -24,26 +24,29 @@
 
 package viewer.graphics.frame;
 
-import hexio.HexLogger;
+import hex.HexEngine;
+import hex.Piece;
 import viewer.graphics.interactive.HexButton;
-import viewer.logic.Tracker;
+import viewer.logic.Controller;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Path2D;
-import java.io.IOException;
 
 public class GameUI extends JComponent {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double root2 = Math.sqrt(2);
-    private Tracker tracker;
     private final HexButton startButton, endButton;
     private final GamePanel gamePanel;
+    private final Controller controller;
 
-    public GameUI(HexLogger logger){
-        tracker = new Tracker(logger);
-        gamePanel = new GamePanel(tracker.engineAt(0), tracker.queueAt(0));
+    public GameUI(){
+        controller = new Controller();
+        gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
+        controller.bindGUI(gamePanel);
+        controller.onFileChosen("data/39BBE0F249322343.hpyhex");
+
         startButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Clicked");
@@ -92,9 +95,7 @@ public class GameUI extends JComponent {
         endButton.paint(g.create(endButton.getX(), endButton.getY(), endButton.getWidth(), endButton.getHeight()));
     }
 
-    public static void main(String[] args) throws IOException {
-        HexLogger logger = HexLogger.generateBinaryLoggers().get(0);
-        logger.readBinary();
-        viewer.Viewer.test(new GameUI(logger));
+    public static void main(String[] args){
+        viewer.Viewer.test(new GameUI());
     }
 }
