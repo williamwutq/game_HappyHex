@@ -67,6 +67,11 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         }
         g2.dispose();
     }
+    public boolean contains(int x, int y) {
+        double minRadius = Math.min(getWidth() / sinOf60 / 2.0, getHeight() / 2.0);
+        Path2D.Double hexagon = createRoundedHexagon(getWidth() / 2, getHeight() / 2, minRadius);
+        return hexagon.contains(x, y);
+    }
 
     /**
      * Generate a customized path inside the hexagon button.
@@ -119,7 +124,7 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
      * @param relative the relative coordinate to be scaled and offset
      * @return the absolute coordinate in pixels
      */
-    private static double toAbsolute(int center, double radius, double relative){
+    protected static double toAbsolute(int center, double radius, double relative){
         return center + relative * radius;
     }
 
