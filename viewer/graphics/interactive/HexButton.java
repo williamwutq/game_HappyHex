@@ -61,14 +61,11 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         Path2D.Double custom = this.obtainPath(cx, cy, radius);
 
         for (int i = 0; i < 6; i++) {
-            int prev = (i + 5) % 6;
-            int next = (i + 1) % 6;
-
             // Vectors to prev and next
-            double dx1 = xReferencePoints[prev] - xReferencePoints[i];
-            double dy1 = yReferencePoints[prev] - yReferencePoints[i];
-            double dx2 = xReferencePoints[next] - xReferencePoints[i];
-            double dy2 = yReferencePoints[next] - yReferencePoints[i];
+            double dx1 = xReferencePoints[(i + 4) % 6];
+            double dy1 = yReferencePoints[(i + 4) % 6];
+            double dx2 = xReferencePoints[(i + 2) % 6];
+            double dy2 = yReferencePoints[(i + 2) % 6];
 
             // Normalize
             double len1 = Math.hypot(dx1, dy1);
