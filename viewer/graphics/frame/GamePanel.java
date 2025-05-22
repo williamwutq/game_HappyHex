@@ -27,6 +27,7 @@ package viewer.graphics.frame;
 import hex.Block;
 import hex.HexEngine;
 import hex.Piece;
+import viewer.logic.GameGUIInterface;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
@@ -54,7 +55,7 @@ import java.awt.geom.GeneralPath;
  * </ul>
  *
  * <p>
- * The class supports interaction with the core game logic via:
+ * The class supports interaction with the core game logic via the {@link GameGUIInterface} interface:
  * <ul>
  *   <li>{@link #setEngine(HexEngine)} and {@link #getEngine()} to update or retrieve the game board</li>
  *   <li>{@link #setQueue(Piece[])} and {@link #getQueue()} to manage upcoming blocks</li>
@@ -66,11 +67,12 @@ import java.awt.geom.GeneralPath;
  * @author William Wu
  * @version 1.0 (HappyHex 1.3)
  * @since 1.0 (HappyHex 1.3)
+ * @see GameGUIInterface
  * @see HexEngine
  * @see Piece
  * @see Block
  */
-public final class GamePanel extends Component {
+public final class GamePanel extends Component implements GameGUIInterface {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The hexagonal game engine containing the main board state. */
