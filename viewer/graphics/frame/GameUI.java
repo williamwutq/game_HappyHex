@@ -122,12 +122,21 @@ public class GameUI extends JComponent {
         int w = getWidth();
         int h = getHeight();
         gamePanel.setBounds(0, 0, w, h);
+
         double s = gamePanel.getActiveSize();
-        double move = (gamePanel.getEngine().getRadius() - 1) * 3 * s * sinOf60;
-        startButton.setBounds(0, (int)move, w / 5, h / 5);
-        endButton.setBounds(w * 4 / 5, (int)move, w / 5, h / 5);
-        retreatButton.setBounds(0, 0, w / 5, h / 5);
-        advanceButton.setBounds(w * 4 / 5, 0, w / 5, h / 5);
+        int er = gamePanel.getEngine().getRadius();
+
+        int vs = (int)((er * 1.5 - 0.75) * s); // vertical shift
+        int bb = h/2 + (int)((er * 1.5 - 3.5) * s); // button bound
+        int tb = h/2 - (int)((er * 1.5 + 2) * s); // top bound
+        int hs = (int)((er * 2 * sinOf60 - sinOf60) * s); // horizontal shift
+        int lb = w/2 - hs; // left bound
+        int rb = w/2 + hs; // right bound
+        int r = Math.min(vs * 3 / 8, hs * 3 / 8); // button radius
+        startButton.setBounds(lb, bb - r, r, r);
+        endButton.setBounds(rb - r, bb - r, r, r);
+        retreatButton.setBounds(lb, tb, r, r);
+        advanceButton.setBounds(rb - r, tb, r, r);
     }
     public void paint(Graphics g){
         gamePanel.paint(g);
