@@ -11,9 +11,9 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     private static final double sinOf60 = Math.sqrt(3) / 2;
     /** Reference X coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
-    private final double[] xReferencePoints = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
+    private final double[] xRel = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
     /** Reference Y coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
-    private final double[] yReferencePoints = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
+    private final double[] yRel = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
     private boolean hover;
     public HexButton (){
         this.hover = false;
@@ -61,32 +61,18 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         Path2D.Double custom = this.obtainPath(cx, cy, radius);
 
         for (int i = 0; i < 6; i++) {
-            // Vectors to prev and next
-            double dx1 = xReferencePoints[(i + 4) % 6];
-            double dy1 = yReferencePoints[(i + 4) % 6];
-            double dx2 = xReferencePoints[(i + 2) % 6];
-            double dy2 = yReferencePoints[(i + 2) % 6];
-
-            // Normalize
-            double len1 = Math.hypot(dx1, dy1);
-            double len2 = Math.hypot(dx2, dy2);
-            dx1 /= len1;
-            dy1 /= len1;
-            dx2 /= len2;
-            dy2 /= len2;
-
             // Points before and after the corner
-            double fromX = xReferencePoints[i] + dx1 / 3;
-            double fromY = yReferencePoints[i] + dy1 / 3;
-            double toX = xReferencePoints[i] + dx2 / 3;
-            double toY = yReferencePoints[i] + dy2 / 3;
+            double fromX = xRel[i] + xRel[(i + 4) % 6] / 2.7;
+            double fromY = yRel[i] + yRel[(i + 4) % 6] / 2.7;
+            double toX = xRel[i] + xRel[(i + 2) % 6] / 2.7;
+            double toY = yRel[i] + yRel[(i + 2) % 6] / 2.7;
 
             if (i == 0) {
-                hexagon.moveTo(cx + radius * fromX, cy+ radius * fromY);
+                hexagon.moveTo(toAbsolute(cx, radius, fromX), toAbsolute(cy, radius, fromY));
             } else {
-                hexagon.lineTo(cx + radius * fromX, cy+ radius * fromY);
+                hexagon.lineTo(toAbsolute(cx, radius, fromX), toAbsolute(cy, radius, fromY));
             }
-            hexagon.quadTo(cx + radius * xReferencePoints[i], cy+ radius * yReferencePoints[i], cx + radius * toX, cy+ radius * toY);
+            hexagon.quadTo(toAbsolute(cx, radius, xRel[i]), toAbsolute(cy, radius, yRel[i]), toAbsolute(cx, radius, toX), toAbsolute(cy, radius, toY));
         }
 
         hexagon.closePath();
@@ -104,6 +90,9 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
                 g2.fill(custom);
             }
         }
+    }
+    private static double toAbsolute(int center, double radius, double relative){
+        return center + relative * radius;
     }
 
     public static void main(String[] args){
