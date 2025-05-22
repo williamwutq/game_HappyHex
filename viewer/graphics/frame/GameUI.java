@@ -81,11 +81,15 @@ public class GameUI extends JComponent {
                 System.out.println("Clicked");
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
-                radius /= 2;
+                radius /= 2 * sinOf60;
+                double width = radius / 4;
                 Path2D.Double path = new Path2D.Double();
-                path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
-                path.lineTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy - radius);
-                path.lineTo(cx + radius / sinOf60, cy);
+                path.moveTo(cx - width, cy + radius);
+                path.lineTo(cx + width * 2, cy);
+                path.lineTo(cx - width, cy - radius);
+                path.lineTo(cx + width, cy - radius);
+                path.lineTo(cx + width * 4, cy);
+                path.lineTo(cx + width, cy + radius);
                 path.closePath();
                 return path;
             }
@@ -95,11 +99,15 @@ public class GameUI extends JComponent {
                 System.out.println("Clicked");
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
-                radius /= 2;
+                radius /= 2 * sinOf60;
+                double width = radius / 4;
                 Path2D.Double path = new Path2D.Double();
-                path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
-                path.lineTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy - radius);
-                path.lineTo(cx + radius / sinOf60, cy);
+                path.moveTo(cx + width, cy + radius);
+                path.lineTo(cx - width * 2, cy);
+                path.lineTo(cx + width, cy - radius);
+                path.lineTo(cx - width, cy - radius);
+                path.lineTo(cx - width * 4, cy);
+                path.lineTo(cx - width, cy + radius);
                 path.closePath();
                 return path;
             }
@@ -118,8 +126,8 @@ public class GameUI extends JComponent {
         double move = (gamePanel.getEngine().getRadius() - 1) * 3 * s * sinOf60;
         startButton.setBounds(0, (int)move, w / 5, h / 5);
         endButton.setBounds(w * 4 / 5, (int)move, w / 5, h / 5);
-        advanceButton.setBounds(0, 0, w / 5, h / 5);
-        retreatButton.setBounds(w * 4 / 5, 0, w / 5, h / 5);
+        retreatButton.setBounds(0, 0, w / 5, h / 5);
+        advanceButton.setBounds(w * 4 / 5, 0, w / 5, h / 5);
     }
     public void paint(Graphics g){
         gamePanel.paint(g);
