@@ -65,8 +65,9 @@ public class GameUI extends JComponent {
         int h = getHeight();
         gamePanel.setBounds(0, 0, w, h);
         double s = gamePanel.getActiveSize();
-        startButton.setBounds(0, 0, w / 5, h / 5);
-        System.out.println(s);
+        double move = (gamePanel.getEngine().getRadius() - 1) * 3 * s * sinOf60;
+        System.out.println(move);
+        startButton.setBounds(0, 60, w / 5, h / 5);
     }
     public void paint(Graphics g){
         gamePanel.paint(g);
