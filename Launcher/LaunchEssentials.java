@@ -344,17 +344,17 @@ public final class LaunchEssentials {
                 " GameEssentials: This game lasted for " + turn +
                 " turn" + (turn == 1 ? "" : "s") + ", resulting in a total score of " + score +
                 " point" + (score == 1 ? "" : "s") + ".");
-        // Try to read previous logs
+        // Update current information
+        currentPlayerInfo.eraseStats();
+        currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
+                new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
         new Thread(() -> {
+            // Try to read previous logs
             try {
                 LaunchLogger.read();
             } catch (IOException e) {
                 System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
             }
-            // Update current information
-            currentPlayerInfo.eraseStats();
-            currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
-                    new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
             LaunchLogger.addGame(currentGameInfo);
             updateRecent();
             updateHighest();
