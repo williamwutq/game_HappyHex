@@ -32,11 +32,43 @@ import java.awt.*;
 import java.awt.geom.GeneralPath;
 
 /**
- * GamePanel is a custom panel responsible for rendering a hexagonal board and queue of pieces.
- * It handles dynamic resizing of the board and draws filled and empty hexagonal blocks.
+ * {@code GamePanel} is a custom awt graphical component for rendering the game board for HappyHex.
+ * <p>
+ * This panel is responsible for:
+ * <ul>
+ *   <li>Displaying the current state of the game board via a {@link HexEngine} instance</li>
+ *   <li>Visualizing the queue of upcoming game {@link Piece}s</li>
+ *   <li>Rendering hexagonal tiles with accurate geometry based on panel size and layout</li>
+ *   <li>Drawing tiles in different visual states: filled, empty, highlighted filled, and highlighted empty</li>
+ * </ul>
+ * <p>
+ * Geometry for the hexagonal tiles is based on a reference unit hexagon, scaled dynamically to fit
+ * within the panel dimensions while maintaining proper aspect ratios. The rendering uses Java 2D
+ * graphics primitives via {@link GeneralPath} objects to draw each group of blocks efficiently.
+ * <p>
+ * Visual attributes:
+ * <ul>
+ *   <li>Filled blocks are rendered in a light gray tone</li>
+ *   <li>Empty blocks are rendered in a dark gray tone</li>
+ *   <li>Highlighted filled and empty blocks are rendered in distinct lighter and darker shades</li>
+ * </ul>
+ *
+ * <p>
+ * The class supports interaction with the core game logic via:
+ * <ul>
+ *   <li>{@link #setEngine(HexEngine)} and {@link #getEngine()} to update or retrieve the game board</li>
+ *   <li>{@link #setQueue(Piece[])} and {@link #getQueue()} to manage upcoming blocks</li>
+ * </ul>
+ * <p>
+ * This class is designed to be immutable in terms of layout configuration and internal rendering mechanics,
+ * but mutable in terms of game state references (engine and queue), which can be updated externally.
+ *
  * @author William Wu
  * @version 1.0 (HappyHex 1.3)
  * @since 1.0 (HappyHex 1.3)
+ * @see HexEngine
+ * @see Piece
+ * @see Block
  */
 public final class GamePanel extends Component {
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
@@ -118,6 +150,15 @@ public final class GamePanel extends Component {
         int length = radius * 2 - 1;
         double vertical = radius * 1.5 + 2;
         size = (Math.min(halfHeight / vertical, halfWidth / sinOf60 / length));
+    }
+    /**
+     * Returns the active size of hexagon blocks contained in this {@code GamePanel}.
+     * The size will be dynamically calculated.
+     *
+     * @return the active radius of hexagon blocks
+     */
+    public double getActiveSize(){
+        return size;
     }
     /**
      * Paints this {@code GamePanel}, including the game board and queued pieces.
