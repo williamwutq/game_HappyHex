@@ -14,12 +14,17 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     private static final double[] xRel = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
     /** Reference Y coordinates for the 6 vertices of a unit hexagon with center at (0,0). */
     private static final double[] yRel = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
-    private Path2D.Double cachedHexagon = null;
-    private int cachedWidth = -1;
-    private int cachedHeight = -1;
+    private Path2D.Double cachedHexagon, cachedCustomPath;
+    private int cachedHexagonWidth, cachedHexagonHeight, cachedCustomPathWidth, cachedCustomPathHeight;
     private boolean hover;
     public HexButton (){
         this.hover = false;
+        this.cachedHexagon = null;
+        this.cachedCustomPath = null;
+        this.cachedHexagonWidth = -1;
+        this.cachedHexagonHeight = -1;
+        this.cachedCustomPathWidth = -1;
+        this.cachedCustomPathHeight = -1;
         this.setOpaque(false);
         this.setBackground(borderColor);
         this.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -49,19 +54,30 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     private Path2D.Double getCachedHexagon() {
         int w = getWidth();
         int h = getHeight();
-        if (cachedHexagon == null || w != cachedWidth || h != cachedHeight) {
+        if (cachedHexagon == null || w != cachedHexagonWidth || h != cachedHexagonHeight) {
             double minRadius = Math.min(w / sinOf60 / 2.0, h / 2.0);
             cachedHexagon = createRoundedHexagon(w / 2, h / 2, minRadius);
-            cachedWidth = w;
-            cachedHeight = h;
+            cachedHexagonWidth = w;
+            cachedHexagonHeight = h;
         }
         return cachedHexagon;
+    }
+    private Path2D.Double getCachedCustomPath() {
+        int w = getWidth();
+        int h = getHeight();
+        if (cachedCustomPath == null || w != cachedCustomPathWidth || h != cachedCustomPathHeight) {
+            double minRadius = Math.min(w / sinOf60 / 2.0, h / 2.0);
+            cachedCustomPath = createCustomPath(w / 2, h / 2, minRadius);
+            cachedCustomPathWidth = w;
+            cachedCustomPathHeight = h;
+        }
+        return cachedCustomPath;
     }
 
     public final void paint(java.awt.Graphics g) {
         double minRadius = Math.min(getWidth() / sinOf60 / 2.0, getHeight() / 2.0);
         Path2D.Double hexagon = getCachedHexagon();
-        Path2D.Double custom = createPath(getWidth() / 2, getHeight() / 2, minRadius);
+        Path2D.Double custom = getCachedCustomPath();
                 Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int stroke = (int) (minRadius / 12.0);
@@ -87,7 +103,9 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     }
     public void setBounds(int x, int y, int width, int height) {
         if (width != getWidth() || height != getHeight()) {
-            cachedHexagon = null; // Invalidate cache
+            // Invalidate cache
+            cachedHexagon = null;
+            cachedCustomPath = null;
         }
         super.setBounds(x, y, width, height);
     }
@@ -100,7 +118,7 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
      * @param radius the overall size (radius) of the hexagon button
      * @return a customized {@link Path2D.Double} path for the button inside the hexagon
      */
-    protected Path2D.Double createPath(int cx, int cy, double radius){
+    protected Path2D.Double createCustomPath(int cx, int cy, double radius){
         return null;
     }
     /**
@@ -149,8 +167,10 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
 
     public static void main(String[] args){
         viewer.Viewer.test(new HexButton(){
-            public void actionPerformed(ActionEvent e) {}
-            protected Path2D.Double createPath(int cx, int cy, double radius) {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Clicked");
+            }
+            protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= 2;
                 Path2D.Double path = new Path2D.Double();
                 path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
