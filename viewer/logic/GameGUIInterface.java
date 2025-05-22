@@ -39,6 +39,9 @@ import hex.Piece;
  * @see Tracker
  * @see HexEngine
  * @see Piece
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
  */
 public interface GameGUIInterface {
     /**
