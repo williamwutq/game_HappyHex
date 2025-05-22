@@ -37,7 +37,7 @@ import java.awt.geom.Path2D;
 public class GameUI extends JComponent {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double root2 = Math.sqrt(2);
-    private final HexButton startButton, endButton;
+    private final HexButton startButton, endButton, advanceButton, retreatButton;
     private final GamePanel gamePanel;
     private final Controller controller;
 
@@ -76,9 +76,39 @@ public class GameUI extends JComponent {
                 return path;
             }
         };
+        advanceButton = new HexButton(){
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Clicked");
+            }
+            protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
+                radius /= 2;
+                Path2D.Double path = new Path2D.Double();
+                path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
+                path.lineTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy - radius);
+                path.lineTo(cx + radius / sinOf60, cy);
+                path.closePath();
+                return path;
+            }
+        };
+        retreatButton = new HexButton(){
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Clicked");
+            }
+            protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
+                radius /= 2;
+                Path2D.Double path = new Path2D.Double();
+                path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
+                path.lineTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy - radius);
+                path.lineTo(cx + radius / sinOf60, cy);
+                path.closePath();
+                return path;
+            }
+        };
         this.add(gamePanel);
         this.add(startButton);
         this.add(endButton);
+        this.add(advanceButton);
+        this.add(retreatButton);
     }
     public void doLayout() {
         int w = getWidth();
@@ -88,11 +118,15 @@ public class GameUI extends JComponent {
         double move = (gamePanel.getEngine().getRadius() - 1) * 3 * s * sinOf60;
         startButton.setBounds(0, (int)move, w / 5, h / 5);
         endButton.setBounds(w * 4 / 5, (int)move, w / 5, h / 5);
+        advanceButton.setBounds(0, 0, w / 5, h / 5);
+        retreatButton.setBounds(w * 4 / 5, 0, w / 5, h / 5);
     }
     public void paint(Graphics g){
         gamePanel.paint(g);
         startButton.paint(g.create(startButton.getX(), startButton.getY(), startButton.getWidth(), startButton.getHeight()));
         endButton.paint(g.create(endButton.getX(), endButton.getY(), endButton.getWidth(), endButton.getHeight()));
+        advanceButton.paint(g.create(advanceButton.getX(), advanceButton.getY(), advanceButton.getWidth(), advanceButton.getHeight()));
+        retreatButton.paint(g.create(retreatButton.getX(), retreatButton.getY(), retreatButton.getWidth(), retreatButton.getHeight()));
     }
 
     public static void main(String[] args){
