@@ -29,6 +29,7 @@ import viewer.graphics.interactive.HexButton;
 import viewer.logic.Tracker;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Path2D;
 import java.io.IOException;
@@ -57,7 +58,21 @@ public class GameUI extends JComponent {
             }
         };
         this.add(gamePanel);
+        this.add(startButton);
     }
+    public void doLayout() {
+        int w = getWidth();
+        int h = getHeight();
+        gamePanel.setBounds(0, 0, w, h);
+        double s = gamePanel.getActiveSize();
+        startButton.setBounds(0, 0, w / 5, h / 5);
+        System.out.println(s);
+    }
+    public void paint(Graphics g){
+        gamePanel.paint(g);
+        startButton.paint(g);
+    }
+
     public static void main(String[] args) throws IOException {
         HexLogger logger = HexLogger.generateBinaryLoggers().get(0);
         logger.readBinary();

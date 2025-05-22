@@ -158,6 +158,7 @@ public final class GamePanel extends Component {
      * @return the active radius of hexagon blocks
      */
     public double getActiveSize(){
+        resetSize();
         return size;
     }
     /**
