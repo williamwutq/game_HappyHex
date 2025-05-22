@@ -14,6 +14,9 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     private static final double[] xRel = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
     /** Reference Y coordinates for the 6 vertices of a unit hexagon with center at (0,0). */
     private static final double[] yRel = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
+    private Path2D.Double cachedHexagon = null;
+    private int cachedWidth = -1;
+    private int cachedHeight = -1;
     private boolean hover;
     public HexButton (){
         this.hover = false;
@@ -43,9 +46,21 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         repaint();
     }
 
+    private Path2D.Double getCachedHexagon() {
+        int w = getWidth();
+        int h = getHeight();
+        if (cachedHexagon == null || w != cachedWidth || h != cachedHeight) {
+            double minRadius = Math.min(w / sinOf60 / 2.0, h / 2.0);
+            cachedHexagon = createRoundedHexagon(w / 2, h / 2, minRadius);
+            cachedWidth = w;
+            cachedHeight = h;
+        }
+        return cachedHexagon;
+    }
+
     public final void paint(java.awt.Graphics g) {
         double minRadius = Math.min(getWidth() / sinOf60 / 2.0, getHeight() / 2.0);
-        Path2D.Double hexagon = createRoundedHexagon(getWidth() / 2, getHeight() / 2, minRadius);
+        Path2D.Double hexagon = getCachedHexagon();
         Path2D.Double custom = createPath(getWidth() / 2, getHeight() / 2, minRadius);
                 Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -68,9 +83,13 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
         g2.dispose();
     }
     public boolean contains(int x, int y) {
-        double minRadius = Math.min(getWidth() / sinOf60 / 2.0, getHeight() / 2.0);
-        Path2D.Double hexagon = createRoundedHexagon(getWidth() / 2, getHeight() / 2, minRadius);
-        return hexagon.contains(x, y);
+        return getCachedHexagon().contains(x, y);
+    }
+    public void setBounds(int x, int y, int width, int height) {
+        if (width != getWidth() || height != getHeight()) {
+            cachedHexagon = null; // Invalidate cache
+        }
+        super.setBounds(x, y, width, height);
     }
 
     /**
