@@ -180,7 +180,7 @@ public class Controller{
         this.fileGui = fileGui;
     }
     /**
-     * Updates the GUI by invoking {@link GameGUIInterface#setEngine)} and
+     * Updates the GUI by invoking {@link GameGUIInterface#setEngine} and
      * {@link GameGUIInterface#setQueue} with the current state from the tracker.
      */
     private void updateGUI() {
@@ -236,11 +236,16 @@ public class Controller{
                     loaded = true;
                 } catch (IOException ignored) {}
             }
+
             if (loaded) {
-                Tracker newTracker = new Tracker(logger); // create tracker takes time
-                synchronized (lock) {
-                    this.tracker = newTracker;
-                    updateGUI();
+                try {
+                    Tracker newTracker = new Tracker(logger); // create tracker takes time
+                    synchronized (lock) {
+                        this.tracker = newTracker;
+                        updateGUI();
+                    }
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
                 }
             }
         }).start();
