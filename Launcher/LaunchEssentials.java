@@ -338,34 +338,34 @@ public final class LaunchEssentials {
         return (int) Math.round(currentPlayerInfo.getAvgTurn());
     }
 
-    public static boolean log(int turn, int score){
+    public static void log(int turn, int score){
         // Print to console
         System.out.println(GameTime.generateSimpleTime() +
                 " GameEssentials: This game lasted for " + turn +
                 " turn" + (turn == 1 ? "" : "s") + ", resulting in a total score of " + score +
                 " point" + (score == 1 ? "" : "s") + ".");
         // Try to read previous logs
-        try {
-            LaunchLogger.read();
-        } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
-        }
-        // Update current information
-        currentPlayerInfo.eraseStats();
-        currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
-                new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
-        LaunchLogger.addGame(currentGameInfo);
-        updateRecent();
-        updateHighest();
-        updateOnGame();
-        try {
-            LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
-            LaunchLogger.resetLoggerInfo();
-            return true;
-        } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
-            LaunchLogger.resetLoggerInfo();
-            return false;
-        }
+        new Thread(() -> {
+            try {
+                LaunchLogger.read();
+            } catch (IOException e) {
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
+            }
+            // Update current information
+            currentPlayerInfo.eraseStats();
+            currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
+                    new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
+            LaunchLogger.addGame(currentGameInfo);
+            updateRecent();
+            updateHighest();
+            updateOnGame();
+            try {
+                LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
+                LaunchLogger.resetLoggerInfo();
+            } catch (IOException e) {
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
+                LaunchLogger.resetLoggerInfo();
+            }
+        }).start();
     }
 }
