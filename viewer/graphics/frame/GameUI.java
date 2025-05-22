@@ -36,8 +36,9 @@ import java.io.IOException;
 
 public class GameUI extends JComponent {
     private static final double sinOf60 = Math.sqrt(3) / 2;
+    private static final double root2 = Math.sqrt(2);
     private Tracker tracker;
-    private final HexButton startButton;
+    private final HexButton startButton, endButton;
     private final GamePanel gamePanel;
 
     public GameUI(HexLogger logger){
@@ -57,8 +58,24 @@ public class GameUI extends JComponent {
                 return path;
             }
         };
+        endButton = new HexButton(){
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Clicked");
+            }
+            protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
+                radius /= root2 * 2;
+                Path2D.Double path = new Path2D.Double();
+                path.moveTo(cx + radius, cy + radius);
+                path.lineTo(cx - radius, cy + radius);
+                path.lineTo(cx - radius, cy - radius);
+                path.lineTo(cx + radius, cy - radius);
+                path.closePath();
+                return path;
+            }
+        };
         this.add(gamePanel);
         this.add(startButton);
+        this.add(endButton);
     }
     public void doLayout() {
         int w = getWidth();
@@ -66,12 +83,13 @@ public class GameUI extends JComponent {
         gamePanel.setBounds(0, 0, w, h);
         double s = gamePanel.getActiveSize();
         double move = (gamePanel.getEngine().getRadius() - 1) * 3 * s * sinOf60;
-        System.out.println(move);
-        startButton.setBounds(0, 60, w / 5, h / 5);
+        startButton.setBounds(0, (int)move, w / 5, h / 5);
+        endButton.setBounds(w * 4 / 5, (int)move, w / 5, h / 5);
     }
     public void paint(Graphics g){
         gamePanel.paint(g);
-        startButton.paint(g);
+        startButton.paint(g.create(startButton.getX(), startButton.getY(), startButton.getWidth(), startButton.getHeight()));
+        endButton.paint(g.create(endButton.getX(), endButton.getY(), endButton.getWidth(), endButton.getHeight()));
     }
 
     public static void main(String[] args) throws IOException {
