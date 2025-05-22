@@ -49,7 +49,7 @@ public class GameUI extends JComponent {
 
         startButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Clicked");
+                controller.run();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= 2;
@@ -63,7 +63,7 @@ public class GameUI extends JComponent {
         };
         endButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Clicked");
+                controller.stop();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= root2 * 2;
@@ -78,7 +78,7 @@ public class GameUI extends JComponent {
         };
         advanceButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Clicked");
+                controller.advance();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= 2 * sinOf60;
@@ -96,7 +96,7 @@ public class GameUI extends JComponent {
         };
         retreatButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Clicked");
+                controller.retreat();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= 2 * sinOf60;
