@@ -55,15 +55,14 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     private void paintRoundedHexagon(Graphics2D g2, int cx, int cy, double radius) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        double cornerRadius = radius / 3.0;
         int stroke = (int) (radius / 12.0);
         if (stroke < 1) stroke = 1;
 
         // Precompute absolute vertex coordinates
         double[][] points = new double[6][2];
         for (int i = 0; i < 6; i++) {
-            points[i][0] = cx + radius * xReferencePoints[i];
-            points[i][1] = cy + radius * yReferencePoints[i];
+            points[i][0] = xReferencePoints[i];
+            points[i][1] = yReferencePoints[i];
         }
 
         Path2D.Double hexagon = new Path2D.Double();
@@ -71,14 +70,13 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
 
         for (int i = 0; i < 6; i++) {
             double[] p0 = points[(i + 5) % 6];
-            double[] p1 = points[i];
             double[] p2 = points[(i + 1) % 6];
 
             // Vectors to prev and next
-            double dx1 = p0[0] - p1[0];
-            double dy1 = p0[1] - p1[1];
-            double dx2 = p2[0] - p1[0];
-            double dy2 = p2[1] - p1[1];
+            double dx1 = p0[0] - xReferencePoints[i];
+            double dy1 = p0[1] - yReferencePoints[i];
+            double dx2 = p2[0] - xReferencePoints[i];
+            double dy2 = p2[1] - yReferencePoints[i];
 
             // Normalize
             double len1 = Math.hypot(dx1, dy1);
@@ -89,17 +87,17 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
             dy2 /= len2;
 
             // Points before and after the corner
-            double fromX = p1[0] + dx1 * cornerRadius;
-            double fromY = p1[1] + dy1 * cornerRadius;
-            double toX = p1[0] + dx2 * cornerRadius;
-            double toY = p1[1] + dy2 * cornerRadius;
+            double fromX = xReferencePoints[i] + dx1 / 3;
+            double fromY = yReferencePoints[i] + dy1 / 3;
+            double toX = xReferencePoints[i] + dx2 / 3;
+            double toY = yReferencePoints[i] + dy2 / 3;
 
             if (i == 0) {
-                hexagon.moveTo(fromX, fromY);
+                hexagon.moveTo(cx + radius * fromX, cy+ radius * fromY);
             } else {
-                hexagon.lineTo(fromX, fromY);
+                hexagon.lineTo(cx + radius * fromX, cy+ radius * fromY);
             }
-            hexagon.quadTo(p1[0], p1[1], toX, toY);
+            hexagon.quadTo(cx + radius * xReferencePoints[i], cy+ radius * yReferencePoints[i], cx + radius * toX, cy+ radius * toY);
         }
 
         hexagon.closePath();
