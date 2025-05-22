@@ -10,10 +10,10 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     private static final Color borderColor = new Color(85, 85, 85);
     /** Constant value representing sin(60°), used in hexagon geometry calculations. */
     private static final double sinOf60 = Math.sqrt(3) / 2;
-    /** Reference X coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
-    private final double[] xRel = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
-    /** Reference Y coordinates for the 6 vertices of a unit hexagon with upper left corner at (0,0). */
-    private final double[] yRel = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
+    /** Reference X coordinates for the 6 vertices of a unit hexagon with center at (0,0). */
+    private static final double[] xRel = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
+    /** Reference Y coordinates for the 6 vertices of a unit hexagon with center at (0,0). */
+    private static final double[] yRel = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
     private boolean hover;
     public HexButton (){
         this.hover = false;
@@ -45,20 +45,54 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
 
     public final void paint(java.awt.Graphics g) {
         double minRadius = Math.min(getWidth() / sinOf60 / 2.0, getHeight() / 2.0);
-        paintRoundedHexagon((Graphics2D) g, getWidth() / 2, getHeight() / 2, minRadius);
+        Path2D.Double hexagon = createRoundedHexagon(getWidth() / 2, getHeight() / 2, minRadius);
+        Path2D.Double custom = createPath(getWidth() / 2, getHeight() / 2, minRadius);
+                Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int stroke = (int) (minRadius / 12.0);
+        if (stroke < 1) stroke = 1;
+        g2.setStroke(new BasicStroke(stroke));
+        g2.setColor(borderColor);
+        g2.draw(hexagon);
+        if (hover){
+            if (custom != null){
+                g2.fill(custom);
+            }
+        } else {
+            g2.fill(hexagon);
+            if (custom != null){
+                g2.setColor(Color.WHITE);
+                g2.fill(custom);
+            }
+        }
+        g2.dispose();
     }
 
-    protected Path2D.Double obtainPath(int cx, int cy, double radius){
+    /**
+     * Generate a customized path inside the hexagon button.
+     *
+     * @param cx     the x-coordinate of the center of the hexagon button
+     * @param cy     the y-coordinate of the center of the hexagon button
+     * @param radius the overall size (radius) of the hexagon button
+     * @return a customized {@link Path2D.Double} path for the button inside the hexagon
+     */
+    protected Path2D.Double createPath(int cx, int cy, double radius){
         return null;
     }
-
-    private void paintRoundedHexagon(Graphics2D g2, int cx, int cy, double radius) {
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        int stroke = (int) (radius / 12.0);
-        if (stroke < 1) stroke = 1;
+    /**
+     * Generate a rounded hexagon centered at the given coordinates.
+     * <p>
+     * The hexagon is created using a predefined set of relative coordinates that approximate
+     * a regular hexagon with rounded corners. Corner radius is assumed to be 1/3 of the total
+     * radius, and each corner is rounded using quadratic {@link Path2D.Double#quadTo Bézier curves}.
+     *
+     * @param cx     the x-coordinate of the center of the hexagon button
+     * @param cy     the y-coordinate of the center of the hexagon button
+     * @param radius the overall size (radius) of the hexagon button
+     * @return a {@link Path2D.Double} path created to represent a rounded hexagon
+     */
+    private static Path2D.Double createRoundedHexagon(int cx, int cy, double radius) {
         Path2D.Double hexagon = new Path2D.Double();
-        Path2D.Double custom = this.obtainPath(cx, cy, radius);
 
         for (int i = 0; i < 6; i++) {
             // Points before and after the corner
@@ -74,23 +108,17 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
             }
             hexagon.quadTo(toAbsolute(cx, radius, xRel[i]), toAbsolute(cy, radius, yRel[i]), toAbsolute(cx, radius, toX), toAbsolute(cy, radius, toY));
         }
-
         hexagon.closePath();
-        g2.setStroke(new BasicStroke(stroke));
-        g2.setColor(borderColor);
-        g2.draw(hexagon);
-        if (hover){
-            if (custom != null){
-                g2.fill(custom);
-            }
-        } else {
-            g2.fill(hexagon);
-            if (custom != null){
-                g2.setColor(Color.WHITE);
-                g2.fill(custom);
-            }
-        }
+        return hexagon;
     }
+    /**
+     * Converts a relative coordinate (range [-1, 1]) into an absolute pixel coordinate.
+     *
+     * @param center   the center coordinate (x or y) in pixels
+     * @param radius   the radius of the shape
+     * @param relative the relative coordinate to be scaled and offset
+     * @return the absolute coordinate in pixels
+     */
     private static double toAbsolute(int center, double radius, double relative){
         return center + relative * radius;
     }
@@ -98,7 +126,7 @@ abstract class HexButton extends JButton implements ActionListener, MouseListene
     public static void main(String[] args){
         viewer.Viewer.test(new HexButton(){
             public void actionPerformed(ActionEvent e) {}
-            protected Path2D.Double obtainPath(int cx, int cy, double radius) {
+            protected Path2D.Double createPath(int cx, int cy, double radius) {
                 radius /= 2;
                 Path2D.Double path = new Path2D.Double();
                 path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
