@@ -142,7 +142,7 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
         int h = getHeight();
         if (cachedHexagon == null || w != cachedHexagonWidth || h != cachedHexagonHeight) {
             double minRadius = Math.min(w / sinOf60 / 2.0, h / 2.0);
-            cachedHexagon = createRoundedHexagon(w / 2 + getX(), h / 2 + getY(), minRadius);
+            cachedHexagon = createRoundedHexagon(w / 2, h / 2, minRadius);
             cachedHexagonWidth = w;
             cachedHexagonHeight = h;
         }
@@ -164,7 +164,7 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
         int h = getHeight();
         if (cachedCustomPath == null || w != cachedCustomPathWidth || h != cachedCustomPathHeight) {
             double minRadius = Math.min(w / sinOf60 / 2.0, h / 2.0);
-            cachedCustomPath = createCustomPath(w / 2 + getX(), h / 2 + getY(), minRadius);
+            cachedCustomPath = createCustomPath(w / 2, h / 2, minRadius);
             cachedCustomPathWidth = w;
             cachedCustomPathHeight = h;
         }
@@ -222,7 +222,7 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
      * @see JButton#contains
      */
     public boolean contains(int x, int y) {
-        return getCachedHexagon().contains(x+getX(), y+getY());
+        return getCachedHexagon().contains(x, y);
     }
     /**
      * Sets the bounds of the component and invalidates any cached shapes if dimensions have changed.
