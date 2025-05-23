@@ -37,9 +37,7 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     private static final double[] xRel = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
     private static final double[] yRel = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
     private int knobX = 0; // current knob position
-    private final int knobWidth = 40;
     private final int trackHeight = 10;
-    private final int arc = 10;
     private boolean dragging = false;
     private int dragOffsetX = 0;
     private final Object lock = new Object();
@@ -65,7 +63,7 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
         knobX = Math.max(trackX, Math.min(knobX, trackX + trackWidth));
 
         g2.setColor(getBackground());
-        g2.fillRoundRect(trackX, trackY, trackWidth, trackHeight, arc, arc);
+        g2.fillRoundRect(trackX, trackY, trackWidth, trackHeight, trackHeight, trackHeight);
         g2.setColor(Color.WHITE);
         g2.fill(createRoundedHexagon(knobX, centerY, trackHeight * 2));
         g2.setColor(getBackground());
