@@ -67,12 +67,12 @@ import java.awt.geom.Path2D;
  * @see SpeedSlider
  * @see JComponent
  */
-public class GameUI extends JComponent {
+public final class GameUI extends JComponent {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double root2 = Math.sqrt(2);
     private final HexButton forwardButton, backwardButton, advanceButton, retreatButton;
     private final GamePanel gamePanel;
-    private Controller controller;
+    private final Controller controller;
     private final SpeedSlider slider;
     private boolean forward, backward;
 
