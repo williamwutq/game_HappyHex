@@ -38,43 +38,73 @@ import java.awt.geom.Path2D;
 public class GameUI extends JComponent {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double root2 = Math.sqrt(2);
-    private final HexButton startButton, endButton, advanceButton, retreatButton;
+    private final HexButton forwardButton, backwardButton, advanceButton, retreatButton;
     private final GamePanel gamePanel;
     private final Controller controller;
     private final SpeedSlider slider;
+    private boolean forward, backward;
 
     public GameUI(){
+        forward = true;
+        backward = true;
         controller = new Controller();
         slider = new SpeedSlider();
         gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
         controller.bindGameGUI(gamePanel);
         controller.onFileChosen("data/39BBE0F249322343.hpyhex");
 
-        startButton = new HexButton(){
+        forwardButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                controller.run();
+                if (forward){
+                    backward = true;
+                    backwardButton.updateCachedCustomPath();
+                    controller.run();
+                } else controller.stop();
+                forward = !forward;
+                updateCachedCustomPath();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= 2;
                 Path2D.Double path = new Path2D.Double();
-                path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
-                path.lineTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy - radius);
-                path.lineTo(cx + radius / sinOf60, cy);
+                if (forward) {
+                    path.moveTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
+                    path.lineTo(cx - radius * (sinOf60 * 2 - 1 / sinOf60), cy - radius);
+                    path.lineTo(cx + radius / sinOf60, cy);
+                } else {
+                    radius /= root2;
+                    path.moveTo(cx + radius, cy + radius);
+                    path.lineTo(cx - radius, cy + radius);
+                    path.lineTo(cx - radius, cy - radius);
+                    path.lineTo(cx + radius, cy - radius);
+                }
                 path.closePath();
                 return path;
             }
         };
-        endButton = new HexButton(){
+        backwardButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                controller.stop();
+                if (backward){
+                    forward = true;
+                    forwardButton.updateCachedCustomPath();
+                    controller.back();
+                } else controller.stop();
+                backward = !backward;
+                updateCachedCustomPath();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
-                radius /= root2 * 2;
+                radius /= 2;
                 Path2D.Double path = new Path2D.Double();
-                path.moveTo(cx + radius, cy + radius);
-                path.lineTo(cx - radius, cy + radius);
-                path.lineTo(cx - radius, cy - radius);
-                path.lineTo(cx + radius, cy - radius);
+                if (backward) {
+                    path.moveTo(cx + radius * (sinOf60 * 2 - 1 / sinOf60), cy + radius);
+                    path.lineTo(cx + radius * (sinOf60 * 2 - 1 / sinOf60), cy - radius);
+                    path.lineTo(cx - radius / sinOf60, cy);
+                } else {
+                    radius /= root2;
+                    path.moveTo(cx + radius, cy + radius);
+                    path.lineTo(cx - radius, cy + radius);
+                    path.lineTo(cx - radius, cy - radius);
+                    path.lineTo(cx + radius, cy - radius);
+                }
                 path.closePath();
                 return path;
             }
@@ -127,8 +157,8 @@ public class GameUI extends JComponent {
         controller.setSpeed(32);
 
         this.add(gamePanel);
-        this.add(startButton);
-        this.add(endButton);
+        this.add(forwardButton);
+        this.add(backwardButton);
         this.add(advanceButton);
         this.add(retreatButton);
         this.add(slider);
@@ -155,8 +185,8 @@ public class GameUI extends JComponent {
         int rb = w/2 + hs; // right bound
         int r = Math.min(vs * 3 / 8, hs * 3 / 8); // button radius
         slider.setBounds(lb, sb, hs * 2, r / 4);
-        startButton.setBounds(lb, bb - r, r, r);
-        endButton.setBounds(rb - r, bb - r, r, r);
+        backwardButton.setBounds(lb, bb - r, r, r);
+        forwardButton.setBounds(rb - r, bb - r, r, r);
         retreatButton.setBounds(lb, tb, r, r);
         advanceButton.setBounds(rb - r, tb, r, r);
     }
@@ -164,8 +194,8 @@ public class GameUI extends JComponent {
         g.setColor(Color.WHITE);
         g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         gamePanel.paint(g.create(gamePanel.getX(), gamePanel.getY(), gamePanel.getWidth(), gamePanel.getHeight()));
-        startButton.paint(g.create(startButton.getX(), startButton.getY(), startButton.getWidth(), startButton.getHeight()));
-        endButton.paint(g.create(endButton.getX(), endButton.getY(), endButton.getWidth(), endButton.getHeight()));
+        forwardButton.paint(g.create(forwardButton.getX(), forwardButton.getY(), forwardButton.getWidth(), forwardButton.getHeight()));
+        backwardButton.paint(g.create(backwardButton.getX(), backwardButton.getY(), backwardButton.getWidth(), backwardButton.getHeight()));
         advanceButton.paint(g.create(advanceButton.getX(), advanceButton.getY(), advanceButton.getWidth(), advanceButton.getHeight()));
         retreatButton.paint(g.create(retreatButton.getX(), retreatButton.getY(), retreatButton.getWidth(), retreatButton.getHeight()));
         slider.paint(g.create(slider.getX(), slider.getY(), slider.getWidth(), slider.getHeight()));

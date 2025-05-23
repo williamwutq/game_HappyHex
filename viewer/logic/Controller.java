@@ -57,7 +57,8 @@ public class Controller{
     private int speed = 200;
     private Thread runnerThread;
     private final Object lock = new Object();
-    private volatile boolean running = false;
+    private volatile boolean runningForward = false;
+    private volatile boolean runningBackward = false;
 
     /**
      * Starts automatically advancing the game state forward at the currently set speed.
@@ -68,17 +69,57 @@ public class Controller{
      */
     public void run() {
         synchronized (lock) {
-            if (running) return; // Already running
-            running = true;
+            if (runningForward) return; // Already running
+            runningForward = true;
+            runningBackward = false;
             runnerThread = new Thread(() -> {
                 try {
                     while (true) {
                         synchronized (lock) {
-                            if (!running) break;
+                            if (!runningForward) break;
                         }
                         boolean advanced;
                         synchronized (tracker) {
                             advanced = tracker.advancePointer();
+                            if (advanced) updateGUI();
+                        }
+                        if (!advanced) {
+                            stop(); // Reached end
+                            break;
+                        }
+
+                        Thread.sleep(getSpeedSafe());
+                    }
+                } catch (InterruptedException e) {
+                    // Thread interrupted by stop or another action
+                    Thread.currentThread().interrupt(); // restore interrupt status
+                }
+            });
+            runnerThread.setDaemon(true);
+            runnerThread.start();
+        }
+    }
+    /**
+     * Starts automatically retreating the game state backward at the currently set speed.
+     * <p>
+     * This method spawns a background daemon thread that calls {@link Tracker#decrementPointer()}
+     * repeatedly until the start of the history is reached or {@link #stop()} is called.
+     * If already running, this method does nothing.
+     */
+    public void back() {
+        synchronized (lock) {
+            if (runningBackward) return; // Already running
+            runningForward = false;
+            runningBackward = true;
+            runnerThread = new Thread(() -> {
+                try {
+                    while (true) {
+                        synchronized (lock) {
+                            if (!runningBackward) break;
+                        }
+                        boolean advanced;
+                        synchronized (tracker) {
+                            advanced = tracker.decrementPointer();
                             if (advanced) updateGUI();
                         }
                         if (!advanced) {
@@ -105,7 +146,8 @@ public class Controller{
      */
     public void stop() {
         synchronized (lock) {
-            running = false;
+            runningForward = false;
+            runningBackward = false;
             if (runnerThread != null) {
                 runnerThread.interrupt();
                 runnerThread = null;
