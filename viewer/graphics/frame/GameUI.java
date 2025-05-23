@@ -40,16 +40,16 @@ public class GameUI extends JComponent {
     private static final double root2 = Math.sqrt(2);
     private final HexButton forwardButton, backwardButton, advanceButton, retreatButton;
     private final GamePanel gamePanel;
-    private final Controller controller;
+    private Controller controller;
     private final SpeedSlider slider;
     private boolean forward, backward;
 
-    public GameUI(){
-        forward = true;
-        backward = true;
-        controller = new Controller();
-        slider = new SpeedSlider();
-        gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
+    public GameUI(Controller controller){
+        this.forward = true;
+        this.backward = true;
+        this.controller = controller;
+        this.slider = new SpeedSlider();
+        this.gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
         controller.bindGameGUI(gamePanel);
         controller.onFileChosen("data/39BBE0F249322343.hpyhex");
 
@@ -202,6 +202,6 @@ public class GameUI extends JComponent {
     }
 
     public static void main(String[] args){
-        viewer.Viewer.test(new GameUI());
+        viewer.Viewer.test(new GameUI(new Controller()));
     }
 }
