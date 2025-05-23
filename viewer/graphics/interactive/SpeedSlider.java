@@ -356,8 +356,4 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     protected final void addImpl(java.awt.Component comp, Object constraints, int index) {}
     /** Disabled: This component does not support container. */
     public final void addContainerListener(java.awt.event.ContainerListener l) {}
-
-    public static void main(String[] args){
-        viewer.Viewer.test(new SpeedSlider());
-    }
 }

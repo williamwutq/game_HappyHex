@@ -27,6 +27,7 @@ package viewer.graphics.frame;
 import hex.HexEngine;
 import hex.Piece;
 import viewer.graphics.interactive.HexButton;
+import viewer.graphics.interactive.SpeedSlider;
 import viewer.logic.Controller;
 
 import javax.swing.*;
@@ -40,9 +41,11 @@ public class GameUI extends JComponent {
     private final HexButton startButton, endButton, advanceButton, retreatButton;
     private final GamePanel gamePanel;
     private final Controller controller;
+    private final SpeedSlider slider;
 
     public GameUI(){
         controller = new Controller();
+        slider = new SpeedSlider();
         gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
         controller.bindGUI(gamePanel);
         controller.onFileChosen("data/39BBE0F249322343.hpyhex");
@@ -117,33 +120,43 @@ public class GameUI extends JComponent {
         this.add(endButton);
         this.add(advanceButton);
         this.add(retreatButton);
+        this.add(slider);
     }
     public void doLayout() {
         int w = getWidth();
         int h = getHeight();
-        gamePanel.setBounds(0, 0, w, h);
-
-        double s = gamePanel.getActiveSize();
         int er = gamePanel.getEngine().getRadius();
 
-        int vs = (int)((er * 1.5 - 0.75) * s); // vertical shift
-        int bb = h/2 + (int)((er * 1.5 - 3.5) * s); // button bound
-        int tb = h/2 - (int)((er * 1.5 + 2) * s); // top bound
+        double halfHeight = h/2.0-3;
+        double halfWidth = w/2.0-3;
+        int length = er * 2 - 1;
+        double vertical = er * 1.5 + 2;
+        double s = (Math.min(halfHeight / vertical, halfWidth / sinOf60 / length));
+        gamePanel.setBounds(0, 0, w, h - (int)(s));
+
+        int vs = (int)((er * 1.5 - 0.25) * s); // vertical shift
+        int bb = h/2 + (int)((er * 1.5 - 4) * s); // button bound
+        int tb = h/2 - (int)((er * 1.5 + 2.5) * s); // top bound
+        int sb = h/2 + (int)((er * 1.5 + 1.5) * s); // slider bound
         int hs = (int)((er * 2 * sinOf60 - sinOf60) * s); // horizontal shift
         int lb = w/2 - hs; // left bound
         int rb = w/2 + hs; // right bound
         int r = Math.min(vs * 3 / 8, hs * 3 / 8); // button radius
+        slider.setBounds(lb, sb, hs * 2, r / 4);
         startButton.setBounds(lb, bb - r, r, r);
         endButton.setBounds(rb - r, bb - r, r, r);
         retreatButton.setBounds(lb, tb, r, r);
         advanceButton.setBounds(rb - r, tb, r, r);
     }
     public void paint(Graphics g){
-        gamePanel.paint(g);
+        g.setColor(Color.WHITE);
+        g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        gamePanel.paint(g.create(gamePanel.getX(), gamePanel.getY(), gamePanel.getWidth(), gamePanel.getHeight()));
         startButton.paint(g.create(startButton.getX(), startButton.getY(), startButton.getWidth(), startButton.getHeight()));
         endButton.paint(g.create(endButton.getX(), endButton.getY(), endButton.getWidth(), endButton.getHeight()));
         advanceButton.paint(g.create(advanceButton.getX(), advanceButton.getY(), advanceButton.getWidth(), advanceButton.getHeight()));
         retreatButton.paint(g.create(retreatButton.getX(), retreatButton.getY(), retreatButton.getWidth(), retreatButton.getHeight()));
+        slider.paint(g.create(slider.getX(), slider.getY(), slider.getWidth(), slider.getHeight()));
     }
 
     public static void main(String[] args){
