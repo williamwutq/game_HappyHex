@@ -115,6 +115,16 @@ public class GameUI extends JComponent {
                 return path;
             }
         };
+        slider.setSpeedChangeListener(new SpeedSlider.SpeedChangeListener() {
+            public void onSpeedChanged(double newSpeed) {
+                newSpeed = 1-newSpeed;
+                int base = 1024;
+                int interval = (int)Math.pow(base, newSpeed);
+                controller.setSpeed(interval);
+            }
+        });
+        slider.setKnobPosition(0.5);
+        controller.setSpeed(32);
 
         this.add(gamePanel);
         this.add(startButton);
