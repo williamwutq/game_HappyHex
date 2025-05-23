@@ -184,7 +184,7 @@ public class GameUI extends JComponent {
         int lb = w/2 - hs; // left bound
         int rb = w/2 + hs; // right bound
         int r = Math.min(vs * 3 / 8, hs * 3 / 8); // button radius
-        slider.setBounds(lb, sb, hs * 2, r / 4);
+        slider.setBounds(lb, sb, hs * 2, r / 3);
         backwardButton.setBounds(lb, bb - r, r, r);
         forwardButton.setBounds(rb - r, bb - r, r, r);
         retreatButton.setBounds(lb, tb, r, r);
