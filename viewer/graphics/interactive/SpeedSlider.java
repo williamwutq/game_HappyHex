@@ -42,6 +42,8 @@ import java.awt.geom.Path2D;
  * Users can also programmatically update the slider position using {@link #setKnobPosition(double)}.
  * <p>
  * This class implements {@link MouseListener} and {@link MouseMotionListener} to provide intuitive mouse-based control.
+ * <p>
+ * This class provides inner {@link SpeedChangeListener} to notify other components in events of speed change.
  *
  * @author William Wu
  * @version 1.0 (HappyHex 1.3)
@@ -62,6 +64,7 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     private final Object lock = new Object();
     private Thread runnerThread;
     private Path2D.Double cachedHexagon;
+    private SpeedChangeListener listener;
     private int cachedHexagonHeight, cachedHexagonX;
     /**
      * Constructs a new {@code SpeedSlider} component, a custom graphical slider with a stylized hexagonal knob.
@@ -118,6 +121,9 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
             } else if (value < 0){
                 knobPosition = 0;
             } else knobPosition = value;
+            if (listener != null){
+                listener.onSpeedChanged(knobPosition);
+            }
             dragging = false;
             if (runnerThread != null) {
                 runnerThread.interrupt();
@@ -160,11 +166,13 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
      * Handles the mouse press event on the slider.
      * <p>
      * If the press occurs on the knob, dragging begins. If the press occurs elsewhere on the track,
-     * a thread is started to animate the knob smoothly toward the clicked position.
+     * a thread is started to animate the knob smoothly toward the clicked position. This also invokes
+     * the internal {@link SpeedChangeListener} to signal a change in speed.
      *
      * @param e the {@link MouseEvent} representing the mouse press
      * @see Thread
      * @see #mouseReleased(MouseEvent)
+     * @see SpeedChangeListener
      */
     public void mousePressed(MouseEvent e) {
         int h = getHeight();
@@ -184,19 +192,26 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
             runnerThread = new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
                     synchronized (lock) {
+                        double newKnobPosition = knobPosition;
                         if (mousePosition < knobPosition) {
                             if (knobPosition >= mousePosition + step){
-                                knobPosition -= step;
+                                newKnobPosition -= step;
                             }
                         } else if (mousePosition > knobPosition) {
                             if (knobPosition <= mousePosition - step){
-                                knobPosition += step;
+                                newKnobPosition += step;
                             }
                         }
-                        if (knobPosition > 1){
-                            knobPosition = 1;
-                        } else if (knobPosition < 0){
-                            knobPosition = 0;
+                        if (newKnobPosition > 1){
+                            newKnobPosition = 1;
+                        } else if (newKnobPosition < 0){
+                            newKnobPosition = 0;
+                        }
+                        if (newKnobPosition != knobPosition){
+                            knobPosition = newKnobPosition;
+                            if (listener != null){
+                                listener.onSpeedChanged(knobPosition);
+                            }
                         }
                         repaint();
                     }
@@ -272,11 +287,17 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
         if (dragging) {
             double h = getHeight();
             double hh = h / 2;
-            knobPosition = (e.getX() - hh - dragOffsetX) / (getWidth() - h);
-            if (knobPosition > 1){
-                knobPosition = 1;
-            } else if (knobPosition < 0){
-                knobPosition = 0;
+            double newKnobPosition = (e.getX() - hh - dragOffsetX) / (getWidth() - h);
+            if (newKnobPosition > 1){
+                newKnobPosition = 1;
+            } else if (newKnobPosition < 0){
+                newKnobPosition = 0;
+            }
+            if (newKnobPosition != knobPosition){
+                knobPosition = newKnobPosition;
+                if (listener != null){
+                    listener.onSpeedChanged(knobPosition);
+                }
             }
             repaint();
         }
@@ -348,6 +369,34 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     private static double toAbsolute(int center, double radius, double relative){
         return center + relative * radius;
     }
+
+    /**
+     * Listener interface for receiving speed change events for a {@link SpeedSlider}.
+     * <p>
+     * Classes that are interested in being notified when the speed changes
+     * should implement this interface and register themselves with a slider that supports speed updates.
+     * @author William Wu
+     * @version 1.0 (HappyHex 1.3)
+     * @since 1.0 (HappyHex 1.3)
+     */
+    public interface SpeedChangeListener {
+        /**
+         * Invoked when the speed value has been updated by the user.
+         * @param newSpeed the new speed value, between 0 and 1, inclusive.
+         */
+        void onSpeedChanged(double newSpeed);
+    }
+
+    /**
+     * Set a {@link SpeedChangeListener} for this {@code SpeedSlider}. This lister will be called
+     * when the speed is updated.
+     *
+     * @param listener the new {@code SpeedChangeListener} for notifying changes in speed.
+     */
+    public void setSpeedChangeListener(SpeedChangeListener listener) {
+        this.listener = listener;
+    }
+
 
     // Prevent children
     /** Disabled: This component does not support child components. */

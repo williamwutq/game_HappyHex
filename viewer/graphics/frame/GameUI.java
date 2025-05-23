@@ -115,6 +115,7 @@ public class GameUI extends JComponent {
                 return path;
             }
         };
+
         this.add(gamePanel);
         this.add(startButton);
         this.add(endButton);
