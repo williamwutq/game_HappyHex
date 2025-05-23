@@ -52,7 +52,7 @@ import java.io.IOException;
  */
 public class Controller{
     private Tracker tracker;
-    private GameGUIInterface gui;
+    private GameGUIInterface gameGui;
     private FileGUIInterface fileGui;
     private int speed = 200;
     private Thread runnerThread;
@@ -164,12 +164,12 @@ public class Controller{
 
     /**
      * Binds a {@link GameGUIInterface} to the controller.
-     * The GUI will receive all visual updates based on tracker state changes.
+     * The game GUI will receive all visual updates based on tracker state changes.
      *
      * @param gui the GUI interface to bind
      */
-    public void bindGUI(GameGUIInterface gui) {
-        this.gui = gui;
+    public void bindGameGUI(GameGUIInterface gui) {
+        this.gameGui = gui;
     }
     /**
      * Binds the file GUI interface for handling file selection and I/O updates.
@@ -184,9 +184,9 @@ public class Controller{
      * {@link GameGUIInterface#setQueue} with the current state from the tracker.
      */
     private void updateGUI() {
-        if (gui != null) {
-            gui.setEngine(tracker.engine());
-            gui.setQueue(tracker.queue());
+        if (gameGui != null) {
+            gameGui.setEngine(tracker.engine());
+            gameGui.setQueue(tracker.queue());
         }
     }
     /**

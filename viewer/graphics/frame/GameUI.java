@@ -47,7 +47,7 @@ public class GameUI extends JComponent {
         controller = new Controller();
         slider = new SpeedSlider();
         gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
-        controller.bindGUI(gamePanel);
+        controller.bindGameGUI(gamePanel);
         controller.onFileChosen("data/39BBE0F249322343.hpyhex");
 
         startButton = new HexButton(){
