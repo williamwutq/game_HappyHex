@@ -170,6 +170,23 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
         }
         return cachedCustomPath;
     }
+    /**
+     * Update the cached custom path shape corresponding to the current dimensions of the button.
+     * <p>
+     * No matter the size and state of the current custom path, a new custom path will be generated
+     * using the current width and height of the button. This method allows subclasses to change
+     * custom shapes inside the hexagon button and update the shape used for drawing.
+     *
+     * @see #createCustomPath(int, int, double)
+     */
+    public void updateCachedCustomPath() {
+        int w = getWidth();
+        int h = getHeight();
+        double minRadius = Math.min(w / sinOf60 / 2.0, h / 2.0);
+        cachedCustomPath = createCustomPath(w / 2, h / 2, minRadius);
+        cachedCustomPathWidth = w;
+        cachedCustomPathHeight = h;
+    }
 
     /**
      * Paints the visual appearance of the hexagon button.
