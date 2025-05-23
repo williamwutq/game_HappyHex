@@ -35,6 +35,38 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Path2D;
 
+/**
+ * The {@code GameUI} component is a graphical user interface component for the HappyHex game.
+ * It arranges control buttons in the four corners of the game area and places a speed slider
+ * at the bottom. This class is responsible for rendering the game interface and providing
+ * user interaction to control the simulation via a {@link Controller}.
+ * <p>
+ * It uses the following components:
+ * <ul>
+ *   <li>{@link GamePanel} - the main display area for the HappyHex game grid.</li>
+ *   <li>{@link HexButton} - custom, round-cornered, hexagonal buttons for controlling the game flow.</li>
+ *   <li>{@link SpeedSlider} - a slider to dynamically adjust the game's speed in real-time.</li>
+ *   <li>{@link Controller} - a thread-safe backend controller used to start, stop, advance, or reverse game states.</li>
+ * </ul>
+ * <p>
+ * Layout behavior:
+ * <ul>
+ *   <li>The {@link GamePanel} is centered and scaled based on component dimensions.</li>
+ *   <li>The {@code forwardButton} and {@code backwardButton} are placed in the bottom-left and bottom-right corners, respectively.</li>
+ *   <li>The {@code advanceButton} and {@code retreatButton} are placed in the top-right and top-left corners, respectively.</li>
+ *   <li>The {@link SpeedSlider} is horizontally aligned at the bottom of the {@code GamePanel}.</li>
+ * </ul>
+ *
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ * @see #GameUI
+ * @see Controller
+ * @see GamePanel
+ * @see HexButton
+ * @see SpeedSlider
+ * @see JComponent
+ */
 public class GameUI extends JComponent {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double root2 = Math.sqrt(2);
@@ -44,6 +76,40 @@ public class GameUI extends JComponent {
     private final SpeedSlider slider;
     private boolean forward, backward;
 
+    /**
+     * Constructs a {@code GameUI} instance linked to the specified {@link Controller}.
+     * Initializes buttons and binds the controller to the game panel.
+     * <p>
+     * The {@code forwardButton} toggles the game’s forward simulation mode.
+     * If the simulation is not running, clicking this button starts it via {@link Controller#run()}.
+     * Otherwise, it stops the simulation via {@link Controller#stop()}.
+     * <p>
+     * The {@code backwardButton} toggles the game’s reverse simulation mode.
+     * If the simulation is not running in reverse, clicking this button starts reverse simulation
+     * via {@link Controller#back()}. Otherwise, it stops the simulation via {@link Controller#stop()}.
+     * <p>
+     * The {@code advanceButton} advances the simulation by one step forward.
+     * This invokes {@link Controller#advance()} directly.
+     * <p>
+     * The {@code retreatButton} rewinds the simulation by one step.
+     * This invokes {@link Controller#retreat()} directly.
+     * <p>
+     * The {@link SpeedSlider} component allows dynamic adjustment of the game's execution speed.
+     * When the slider changes, the interval is passed to {@link Controller#setSpeed(int)},
+     * by implementing the {@link SpeedSlider.SpeedChangeListener}, and is used for execution
+     * in a thread-safe manner in {@code Controller}.
+     * <p>
+     * The slider value is inversely mapped to an interval using the formula:
+     * <code>interval = (int)Math.pow(1024, 1 - sliderValue)</code>
+     * This means the minimal interval is 1 millisecond per frame, maximum 1024 milliseconds per frame.
+     * <p>
+     * The {@code Controller} is a thread-safe backend controller used to start, stop, advance, or
+     * reverse game states, is can be used to run simulations at various speeds. It must be passed in
+     * for file support, because this {@code GameUI} is only meant for displaying game information, not
+     * helping users with finding targeted game file.
+     *
+     * @param controller the backend controller responsible for game logic execution and state control.
+     */
     public GameUI(Controller controller){
         this.forward = true;
         this.backward = true;
@@ -51,7 +117,6 @@ public class GameUI extends JComponent {
         this.slider = new SpeedSlider();
         this.gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
         controller.bindGameGUI(gamePanel);
-        controller.onFileChosen("data/39BBE0F249322343.hpyhex");
 
         forwardButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
@@ -163,6 +228,16 @@ public class GameUI extends JComponent {
         this.add(retreatButton);
         this.add(slider);
     }
+    /**
+     * {@inheritDoc}
+     * The method lays out the subcomponents of this {@code GameUI} according to the current size of the component.
+     *
+     * <p>It calculates scaling based on the engine radius and centers the game panel. The hexagonal buttons
+     * are positioned in corners relative to this panel, and the slider is positioned horizontally at the bottom.
+     *
+     * @see GamePanel#resetSize()
+     * @see HexButton#setBounds(int, int, int, int)
+     */
     public void doLayout() {
         int w = getWidth();
         int h = getHeight();
@@ -190,6 +265,16 @@ public class GameUI extends JComponent {
         retreatButton.setBounds(lb, tb, r, r);
         advanceButton.setBounds(rb - r, tb, r, r);
     }
+    /**
+     * Paints the entire component using {@link Graphics} by drawing the background, the game panel, and all controls.
+     * This overrides the default paint behavior of {@link JComponent}. Extra children of this component, if included,
+     * will not be painted.
+     *
+     * @see GamePanel#paint
+     * @see HexButton#paint
+     * @see SpeedSlider#paint
+     * @param g the graphics context in which to paint.
+     */
     public void paint(Graphics g){
         g.setColor(Color.WHITE);
         g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
@@ -199,9 +284,5 @@ public class GameUI extends JComponent {
         advanceButton.paint(g.create(advanceButton.getX(), advanceButton.getY(), advanceButton.getWidth(), advanceButton.getHeight()));
         retreatButton.paint(g.create(retreatButton.getX(), retreatButton.getY(), retreatButton.getWidth(), retreatButton.getHeight()));
         slider.paint(g.create(slider.getX(), slider.getY(), slider.getWidth(), slider.getHeight()));
-    }
-
-    public static void main(String[] args){
-        viewer.Viewer.test(new GameUI(new Controller()));
     }
 }
