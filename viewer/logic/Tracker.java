@@ -30,7 +30,6 @@ import hex.HexEngine;
 import hex.Piece;
 import hexio.HexLogger;
 import java.util.Arrays;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -433,26 +432,5 @@ public class Tracker {
      */
     public int hashCode() {
         return Objects.hash(Arrays.hashCode(engines), Arrays.hashCode(origins), Arrays.deepHashCode(queues), Arrays.hashCode(scores));
-    }
-
-    public static void main(String[] args) throws IOException {
-        int index = 0;
-        try{
-            index = Integer.parseInt(args[0]);
-        } catch (Exception e) {}
-        // Test main
-        HexLogger logger = HexLogger.generateBinaryLoggers().get(index);
-        logger.readBinary();
-        Tracker tracker = new Tracker(logger);
-        viewer.graphics.frame.GamePanel panel = new viewer.graphics.frame.GamePanel(tracker.engineAt(0), tracker.queueAt(0));
-        viewer.Viewer.test(panel);
-        for (int i = 0; i < tracker.length(); i ++){
-            try{
-                Thread.sleep(400);
-            } catch (InterruptedException e){}
-            tracker.advancePointer();
-            panel.setEngine(tracker.engine());
-            panel.setQueue(tracker.queue());
-        }
     }
 }
