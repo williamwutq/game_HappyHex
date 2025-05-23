@@ -31,6 +31,26 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Path2D;
 
+/**
+ * The {@code SpeedSlider} is a  Swing component representing a horizontal slider with a round cornered hexagonal knob.
+ * <p>
+ * The {@code SpeedSlider} allows users to visually select a value between 0.0 and 1.0 by interacting with the knob,
+ * either by dragging it directly or clicking on the track to animate its movement. The component uses custom painting
+ * for a modern appearance and hexagonal geometry for the knob, including caching optimizations to improve performance.
+ * <p>
+ * The component supports asynchronous animation via a background thread and ensures thread safety for public methods.
+ * Users can also programmatically update the slider position using {@link #setKnobPosition(double)}.
+ * <p>
+ * This class implements {@link MouseListener} and {@link MouseMotionListener} to provide intuitive mouse-based control.
+ *
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ * @see JComponent
+ * @see MouseListener
+ * @see MouseMotionListener
+ * @see Path2D.Double
+ */
 public final class SpeedSlider extends JComponent implements MouseListener, MouseMotionListener {
     private static final Color borderColor = new Color(85, 85, 85);
     private static final double sinOf60 = Math.sqrt(3) / 2;
@@ -59,6 +79,54 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
         this.addMouseMotionListener(this);
         this.setOpaque(false);
     }
+
+    /**
+     * Retrieves the current position of the knob on the slider in a thread-safe manner.
+     * <p>
+     * The knob position is a normalized double value in the range [0.0, 1.0], representing
+     * its relative location from left (0.0) to right (1.0) on the component.
+     * </p>
+     *
+     * @return the current knob position, between {@code 0.0} and {@code 1.0}
+     * @see #mousePressed(MouseEvent)
+     * @see #mouseDragged(MouseEvent)
+     * @see #paint(Graphics)
+     */
+    public double getKnobPosition() {
+        synchronized (lock) {
+            return knobPosition;
+        }
+    }
+    /**
+     * Sets the position of the knob to a specified normalized value in a thread-safe manner.
+     * <p>
+     * The value is clamped to the range [0.0, 1.0], where {@code 0.0} corresponds to the
+     * leftmost position and {@code 1.0} to the rightmost. This method also stops any
+     * ongoing animated movement by interrupting the internal thread and resets the dragging state.
+     * </p>
+     *
+     * @param value the new knob position, where {@code 0.0} is fully left and {@code 1.0} is fully right
+     * @see #getKnobPosition()
+     * @see #mousePressed(MouseEvent)
+     * @see #mouseDragged(MouseEvent)
+     */
+    public void setKnobPosition(double value) {
+        synchronized (lock) {
+            // Clamp to valid range
+            if (value > 1){
+                knobPosition = 1;
+            } else if (value < 0){
+                knobPosition = 0;
+            } else knobPosition = value;
+            dragging = false;
+            if (runnerThread != null) {
+                runnerThread.interrupt();
+                runnerThread = null;
+            }
+            repaint();
+        }
+    }
+
 
     /**
      * Paints the slider component using {@link Graphics2D} with antialiasing for smooth visuals.
