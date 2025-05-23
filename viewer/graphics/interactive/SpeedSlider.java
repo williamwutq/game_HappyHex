@@ -36,8 +36,7 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double[] xRel = {0, sinOf60 * 0.9, sinOf60 * 0.9, 0, sinOf60 * -0.9, sinOf60 * -0.9};
     private static final double[] yRel = {0.9, 0.45, -0.45, -0.9, -0.45, 0.45};
-    private int knobX = 0; // current knob position
-    private final int trackHeight = 10;
+    private double knobPosition = 0.0; // current knob position
     private boolean dragging = false;
     private int dragOffsetX = 0;
     private final Object lock = new Object();
@@ -56,11 +55,11 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
         int width = getWidth();
         int height = getHeight();
         int centerY = height / 2;
+        int trackHeight = height / 4;
         int trackX = 20;
         int trackWidth = width - 40;
         int trackY = centerY - trackHeight / 2;
-
-        knobX = Math.max(trackX, Math.min(knobX, trackX + trackWidth));
+        int knobX = (int)(knobPosition * trackWidth) + 20;
 
         g2.setColor(getBackground());
         g2.fillRoundRect(trackX, trackY, trackWidth, trackHeight, trackHeight, trackHeight);
@@ -72,27 +71,31 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     }
 
     public void mousePressed(MouseEvent e) {
-        Path2D.Double knobBounds = createRoundedHexagon(knobX, getHeight() / 2, trackHeight * 2);
+        double halfH = getHeight() / 2.0;
+        int knobX = 20 + (int)(knobPosition * (getWidth()-40));
+        Path2D.Double knobBounds = createRoundedHexagon(knobX, (int)halfH, halfH);
         if (knobBounds.contains(e.getPoint())) {
             // Start dragging
             dragging = true;
             dragOffsetX = e.getX() - knobX;
         } else {
             // Click-to-move
-            int mouseX = e.getX();
-            int trackX = 20;
-            int trackWidth = getWidth() - 40;
-            int minX = trackX;
-            int maxX = trackX + trackWidth;
+            double mousePosition = (e.getX() - 20) / (getWidth()-40.0);
+            double step = 0.001;
 
             runnerThread = new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
                     synchronized (lock) {
-                        if (mouseX < knobX) {
-                            knobX = Math.max(knobX - 1, minX);
-                        } else if (mouseX > knobX) {
-                            knobX = Math.min(knobX + 1, maxX);
+                        if (mousePosition < knobPosition) {
+                            if (knobPosition >= mousePosition + step){
+                                knobPosition -= step;
+                            }
+                        } else if (mousePosition > knobPosition) {
+                            if (knobPosition <= mousePosition - step){
+                                knobPosition += step;
+                            }
                         }
+                        knobPosition = Math.max(0, Math.min(knobPosition, 1));
                         repaint();
                     }
                     try {
@@ -119,13 +122,9 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     public void mouseMoved(MouseEvent e) {}
     public void mouseDragged(MouseEvent e) {
         if (dragging) {
-            int trackX = 20;
-            int trackWidth = getWidth() - 40;
-            int minX = trackX;
-            int maxX = trackX + trackWidth;
 
-            knobX = e.getX() - dragOffsetX;
-            knobX = Math.max(minX, Math.min(knobX, maxX));
+            knobPosition = (e.getX() - 20 - dragOffsetX) / (getWidth() - 40.0);
+            knobPosition = Math.max(0, Math.min(knobPosition, 1));
             repaint();
         }
     }
