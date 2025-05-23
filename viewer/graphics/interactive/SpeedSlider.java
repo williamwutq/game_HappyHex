@@ -52,35 +52,36 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 
-        int width = getWidth();
-        int height = getHeight();
-        int centerY = height / 2;
-        int trackHeight = height / 4;
-        int trackX = 20;
-        int trackWidth = width - 40;
-        int trackY = centerY - trackHeight / 2;
-        int knobX = (int)(knobPosition * trackWidth) + 20;
+        int w = getWidth();
+        int h = getHeight();
+        int eh = h * 3 / 8;
+        int qh = h / 4;
+        int hh = h / 2;
+        int knobX = (int)(knobPosition * (w - h)) + hh;
 
+        g2.setStroke(new BasicStroke((float) hh / 8));
         g2.setColor(getBackground());
-        g2.fillRoundRect(trackX, trackY, trackWidth, trackHeight, trackHeight, trackHeight);
+        g2.fillRoundRect(eh, eh, w - hh - qh, qh, qh, qh);
         g2.setColor(Color.WHITE);
-        g2.fill(createRoundedHexagon(knobX, centerY, trackHeight * 2));
+        g2.fill(createRoundedHexagon(knobX, hh, hh));
         g2.setColor(getBackground());
-        g2.draw(createRoundedHexagon(knobX, centerY, trackHeight * 2));
+        g2.draw(createRoundedHexagon(knobX, hh, hh));
         g2.dispose();
     }
 
     public void mousePressed(MouseEvent e) {
-        double halfH = getHeight() / 2.0;
-        int knobX = 20 + (int)(knobPosition * (getWidth()-40));
-        Path2D.Double knobBounds = createRoundedHexagon(knobX, (int)halfH, halfH);
+        int h = getHeight();
+        int hh = h / 2;
+        double halfH = h / 2.0;
+        int knobX = hh + (int)(knobPosition * (getWidth()-h));
+        Path2D.Double knobBounds = createRoundedHexagon(knobX, hh, halfH);
         if (knobBounds.contains(e.getPoint())) {
             // Start dragging
             dragging = true;
             dragOffsetX = e.getX() - knobX;
         } else {
             // Click-to-move
-            double mousePosition = (e.getX() - 20) / (getWidth()-40.0);
+            double mousePosition = (e.getX() - halfH) / (getWidth()-h);
             double step = 0.001;
 
             runnerThread = new Thread(() -> {
@@ -95,7 +96,11 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
                                 knobPosition += step;
                             }
                         }
-                        knobPosition = Math.max(0, Math.min(knobPosition, 1));
+                        if (knobPosition > 1){
+                            knobPosition = 1;
+                        } else if (knobPosition < 0){
+                            knobPosition = 0;
+                        }
                         repaint();
                     }
                     try {
@@ -122,9 +127,14 @@ public final class SpeedSlider extends JComponent implements MouseListener, Mous
     public void mouseMoved(MouseEvent e) {}
     public void mouseDragged(MouseEvent e) {
         if (dragging) {
-
-            knobPosition = (e.getX() - 20 - dragOffsetX) / (getWidth() - 40.0);
-            knobPosition = Math.max(0, Math.min(knobPosition, 1));
+            double h = getHeight();
+            double hh = h / 2;
+            knobPosition = (e.getX() - hh - dragOffsetX) / (getWidth() - h);
+            if (knobPosition > 1){
+                knobPosition = 1;
+            } else if (knobPosition < 0){
+                knobPosition = 0;
+            }
             repaint();
         }
     }
