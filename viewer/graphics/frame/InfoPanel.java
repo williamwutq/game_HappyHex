@@ -25,6 +25,7 @@
 package viewer.graphics.frame;
 
 import viewer.graphics.interactive.GeneralIndicator;
+import viewer.logic.InfoGUIInterface;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,6 +33,9 @@ import java.awt.*;
 /**
  * {@code InfoPanel} is a Swing component designed to visually display the current score and turn
  * in a game interface using two {@link GeneralIndicator} seven-segment displays.
+ * <p>
+ * This component implement {@code InfoGUIInterface} to enable dynamic updates from viewer logic,
+ * where it will receive updated turn and score information and use for display.
  * <p>
  * Each indicator displays a label (e.g., "sc:" for score, "tn:" for turn) followed by a
  * right-aligned numeric value, padded with spaces to fit exactly seven characters. The indicators
@@ -41,7 +45,7 @@ import java.awt.*;
  * <p>
  * This component is not opaque and relies on the {@code GeneralIndicator} for displaying
  * text using a custom seven-segment display. It supports smooth resizing and dynamic updates via
- * {@link #setStats(int, int)}.
+ * {@link #setStats(int, int)} and {@link InfoGUIInterface}.
  * <p><b>Limitations:</b><br>
  * If the score or turn exceeds the digit capacity of the indicator (more than 7 digits),
  * the overflow digits will not be shown. This is by design and no exceptions will be thrown;
@@ -57,9 +61,10 @@ import java.awt.*;
  * @version 1.0 (HappyHex 1.3)
  * @since 1.0 (HappyHex 1.3)
  * @see GeneralIndicator
+ * @see InfoGUIInterface
  * @see JComponent
  */
-public class InfoPanel extends JComponent {
+public class InfoPanel extends JComponent implements InfoGUIInterface {
     private static final Color backgroundColor = new Color(85, 85, 85);
     private final GeneralIndicator scoreIndicator, turnIndicator;
     private double size;
@@ -158,5 +163,50 @@ public class InfoPanel extends JComponent {
             return countDigits(-num);
         } else if (num < 10) return 1;
         return 1 + countDigits(num / 10);
+    }
+
+    /**
+     * {@inheritDoc}
+     * This set the score indicated by the score {@link GeneralIndicator} in this {@code InfoPanel}.
+     * @see #getNumString
+     * @see #setStats
+     */
+    public void setScore(int score) {
+        this.scoreIndicator.set("sc:" + getNumString(score, 7));
+        repaint();
+    }
+    /**
+     * {@inheritDoc}
+     * This set the turn indicated by the turn {@link GeneralIndicator} in this {@code InfoPanel}.
+     * @see #getNumString
+     * @see #setStats
+     */
+    public void setTurn(int turn) {
+        this.turnIndicator.set("tn:" + getNumString(turn, 7));
+        repaint();
+    }
+    /**
+     * {@inheritDoc}
+     * This returns the game score displayed by the score {@link GeneralIndicator}.
+     */
+    public int getScore() {
+        String str = scoreIndicator.getString().substring(3).trim();
+        int result = 0;
+        try{
+            result = Integer.parseInt(str);
+        } catch (NumberFormatException e) {}
+        return result;
+    }
+    /**
+     * {@inheritDoc}
+     * This returns the game turn displayed by the turn {@link GeneralIndicator}.
+     */
+    public int getTurn() {
+        String str = turnIndicator.getString().substring(3).trim();
+        int result = 0;
+        try{
+            result = Integer.parseInt(str);
+        } catch (NumberFormatException e) {}
+        return result;
     }
 }

@@ -31,8 +31,9 @@ import java.io.IOException;
 /**
  * The {@code Controller} class provides control logic for a game viewer interface.
  * It handles user actions such as advance, retreat, run, stop, and set pointer, and
- * mediates between a {@link Tracker} (which holds the state history of a game)
- * and a {@link GameGUIInterface} (which displays the game state to the user).
+ * mediates between a {@link Tracker} (which holds the state history of a game),
+ * a {@link GameGUIInterface} (which displays the game state to the user), and a
+ * {@link InfoGUIInterface} (which displays the score and turn information).
  * <p>
  * The controller supports threaded execution of the game (via {@code run()}) with
  * adjustable playback speed, and is designed to be thread-safe and interruptible.
@@ -48,12 +49,14 @@ import java.io.IOException;
  * @see HexLogger
  * @see GameGUIInterface
  * @see FileGUIInterface
+ * @see InfoGUIInterface
  * @see Thread
  */
 public class Controller{
     private Tracker tracker;
     private GameGUIInterface gameGui;
     private FileGUIInterface fileGui;
+    private InfoGUIInterface infoGui;
     private int speed = 200;
     private Thread runnerThread;
     private final Object lock = new Object();
@@ -214,6 +217,15 @@ public class Controller{
         this.gameGui = gui;
     }
     /**
+     * Binds a {@link InfoGUIInterface} to the controller.
+     * The game GUI will receive all game point updates based on tracker state changes.
+     *
+     * @param gui the GUI interface to bind
+     */
+    public void bindInfoGUI(InfoGUIInterface gui) {
+        this.infoGui = gui;
+    }
+    /**
      * Binds the file GUI interface for handling file selection and I/O updates.
      *
      * @param fileGui the {@link FileGUIInterface} to bind
@@ -223,13 +235,22 @@ public class Controller{
         fileGui.setNameChangeListener(this::onFileChosen);
     }
     /**
-     * Updates the GUI by invoking {@link GameGUIInterface#setEngine} and
+     * Updates the GUI display for game state and game information.
+     * <p>
+     * The method invokes {@link GameGUIInterface#setEngine} and
      * {@link GameGUIInterface#setQueue} with the current state from the tracker.
+     * <p>
+     * The method also invokes {@link InfoGUIInterface#setScore} and
+     * {@link InfoGUIInterface#setTurn} with the current game points from the tracker.
      */
     private void updateGUI() {
         if (gameGui != null) {
             gameGui.setEngine(tracker.engine());
             gameGui.setQueue(tracker.queue());
+        }
+        if (infoGui != null) {
+            infoGui.setScore(tracker.score());
+            infoGui.setTurn(tracker.getPointer());
         }
     }
     /**
