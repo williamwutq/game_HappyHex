@@ -285,17 +285,17 @@ public final class GameUI extends JComponent {
         gamePanel.setBounds(3, (int) (3 + s * 2), w, h - (int)(3 * s));
         s = gamePanel.getActiveSize(); // update size
 
-        int vs = (int)((er * 1.5 - 0.25) * s); // vertical shift
+        double vs = (er * 1.5 - 0.25) * s; // vertical shift
         int bb = h/2 + (int)((er * 1.5 - 3) * s) + 3; // button bound
         int tb = h/2 - (int)((er * 1.5 + 1.5) * s) + 3; // top bound
         int sb = h/2 + (int)((er * 1.5 + 2.5) * s) + 3; // slider bound
         int ib = h/2 - (int)((er * 1.5 + 3.5) * s) + 3; // infoPanel bound
-        int hs = (int)((er * 2 * sinOf60 - sinOf60) * s); // horizontal shift
-        int lb = w/2 - hs; // left bound
-        int rb = w/2 + hs; // right bound
-        int r = Math.min(vs * 3 / 8, hs * 3 / 8); // button radius
-        infoPanel.setBounds(lb, ib, hs * 2, (int)(s * 2));
-        slider.setBounds(lb, sb, hs * 2, (int) s);
+        double hs = (er * 2 * sinOf60 - sinOf60) * s; // horizontal shift
+        int lb = (int)(w*0.5 - hs); // left bound
+        int rb = (int)(w*0.5 + hs); // right bound
+        int r = (int)Math.min(vs * 3 / 8, hs * 3 / 8); // button radius
+        infoPanel.setBounds(lb, ib, (int)(hs * 2), (int)(s * 2));
+        slider.setBounds(lb, sb, (int)(hs * 2), (int)s);
         backwardButton.setBounds(lb, bb - r, r, r);
         forwardButton.setBounds(rb - r, bb - r, r, r);
         retreatButton.setBounds(lb, tb, r, r);
