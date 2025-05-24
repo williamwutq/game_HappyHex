@@ -155,6 +155,7 @@ public class Tracker {
                 for (Block block : eliminated){
                     duplicatedEngine.getBlock(block.getLineI(), block.getLineK()).setColor(1);
                 }
+                scores[turn] = scores[turn-1];
                 scores[turn] += piece.length();
                 scores[turn] += 5 * eliminated.length;
             } catch (IllegalArgumentException e) {
