@@ -127,6 +127,17 @@ final class SevenSegment extends JComponent {
     public void setCharacter(char character){
         this.character = character;
         states = getStates(character);
+        // Recalculate path
+        cachedPath = new Path2D.Double(Path2D.WIND_NON_ZERO);
+        for (int k = 0; k < 7; k ++){
+            if (states[k]){
+                cachedPath.moveTo(size * refPosX[k][0], size * refPosY[k][0]);
+                for (int i = 1; i < 6; i++){
+                    cachedPath.lineTo(size * refPosX[k][i], size * refPosY[k][i]);
+                }
+                cachedPath.closePath();
+            }
+        }
     }
     /**
      * Return the current displayed character.
