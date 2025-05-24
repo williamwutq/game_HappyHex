@@ -104,13 +104,13 @@ public class InfoPanel extends JComponent implements InfoGUIInterface {
      */
     public void paint(Graphics g){
         Graphics2D g2 = (Graphics2D) g.create();
-        int sizeH = (int) (size * 0.5);
+        int sizeD = (int) (size * 2);
         int stroke = (int) (size / 12.0);
         if (stroke < 1) stroke = 1;
         g2.setColor(this.getBackground());
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setStroke(new BasicStroke(stroke));
-        g2.drawRoundRect(3, 3, getWidth()-6, getHeight()-6, sizeH, sizeH);
+        g2.drawRoundRect(3, 3, getWidth()-6, getHeight()-6, sizeD, sizeD);
         g2.setColor(this.getParent().getBackground());
         g2.dispose();
         paintChildren(g);

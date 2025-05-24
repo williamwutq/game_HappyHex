@@ -46,11 +46,13 @@ import java.awt.geom.Path2D;
  *   <li>{@link GamePanel} - the main display area for the HappyHex game grid.</li>
  *   <li>{@link HexButton} - custom, round-cornered, hexagonal buttons for controlling the game flow.</li>
  *   <li>{@link SpeedSlider} - a slider to dynamically adjust the game's speed in real-time.</li>
+ *   <li>{@link InfoPanel} - two seven segment displays for game score and turn information.</li>
  *   <li>{@link Controller} - a thread-safe backend controller used to start, stop, advance, or reverse game states.</li>
  * </ul>
  * <p>
  * Layout behavior:
  * <ul>
+ *   <li>The {@link InfoPanel} is horizontally aligned above of the {@code GamePanel} and other components.</li>
  *   <li>The {@link GamePanel} is centered and scaled based on component dimensions.</li>
  *   <li>The {@code forwardButton} and {@code backwardButton} are placed in the bottom-left and bottom-right corners, respectively.</li>
  *   <li>The {@code advanceButton} and {@code retreatButton} are placed in the top-right and top-left corners, respectively.</li>
@@ -62,6 +64,7 @@ import java.awt.geom.Path2D;
  * @since 1.0 (HappyHex 1.3)
  * @see #GameUI
  * @see Controller
+ * @see InfoPanel
  * @see GamePanel
  * @see HexButton
  * @see SpeedSlider
@@ -74,6 +77,7 @@ public final class GameUI extends JComponent {
     private final GamePanel gamePanel;
     private final Controller controller;
     private final SpeedSlider slider;
+    private final InfoPanel infoPanel;
     private boolean forward, backward;
 
     /**
@@ -116,7 +120,9 @@ public final class GameUI extends JComponent {
         this.controller = controller;
         this.slider = new SpeedSlider();
         this.gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
+        this.infoPanel = new InfoPanel();
         controller.bindGameGUI(gamePanel);
+        controller.bindInfoGUI(infoPanel);
 
         forwardButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
@@ -222,6 +228,7 @@ public final class GameUI extends JComponent {
         controller.setSpeed(32);
 
         this.add(gamePanel);
+        this.add(infoPanel);
         this.add(forwardButton);
         this.add(backwardButton);
         this.add(advanceButton);
@@ -236,6 +243,7 @@ public final class GameUI extends JComponent {
      * are positioned in corners relative to this panel, and the slider is positioned horizontally at the bottom.
      *
      * @see GamePanel#resetSize()
+     * @see InfoPanel#doLayout()
      * @see HexButton#setBounds(int, int, int, int)
      */
     public void doLayout() {
@@ -248,29 +256,32 @@ public final class GameUI extends JComponent {
         int length = er * 2 - 1;
         double vertical = er * 1.5 + 2;
         double s = (Math.min(halfHeight / vertical, halfWidth / sinOf60 / length));
-        gamePanel.setBounds(3, 3, w, h - (int)(s));
+        gamePanel.setBounds(3, (int) (3 + s * 2), w, h - (int)(s));
         s = gamePanel.getActiveSize(); // update size
 
         int vs = (int)((er * 1.5 - 0.25) * s); // vertical shift
-        int bb = h/2 + (int)((er * 1.5 - 4) * s) + 3; // button bound
-        int tb = h/2 - (int)((er * 1.5 + 2.5) * s) + 3; // top bound
+        int bb = h/2 + (int)((er * 1.5 - 2) * s) + 3; // button bound
+        int tb = h/2 - (int)((er * 1.5 + 0.5) * s) + 3; // top bound
         int sb = h/2 + (int)((er * 1.5 + 1.5) * s) + 3; // slider bound
+        int ib = h/2 - (int)((er * 1.5 + 2.5) * s) + 3; // infoPanel bound
         int hs = (int)((er * 2 * sinOf60 - sinOf60) * s); // horizontal shift
         int lb = w/2 - hs; // left bound
         int rb = w/2 + hs; // right bound
         int r = Math.min(vs * 3 / 8, hs * 3 / 8); // button radius
-        slider.setBounds(lb, sb, hs * 2, r / 3);
+        infoPanel.setBounds(lb, ib, hs * 2, (int)(s * 2));
+        slider.setBounds(lb, sb, hs * 2, (int) s);
         backwardButton.setBounds(lb, bb - r, r, r);
         forwardButton.setBounds(rb - r, bb - r, r, r);
         retreatButton.setBounds(lb, tb, r, r);
         advanceButton.setBounds(rb - r, tb, r, r);
     }
     /**
-     * Paints the entire component using {@link Graphics} by drawing the background, the game panel, and all controls.
+     * Paints the entire component using {@link Graphics} by drawing the background, the game and information panels, and all controls.
      * This overrides the default paint behavior of {@link JComponent}. Extra children of this component, if included,
      * will not be painted.
      *
      * @see GamePanel#paint
+     * @see InfoPanel#paint
      * @see HexButton#paint
      * @see SpeedSlider#paint
      * @param g the graphics context in which to paint.
@@ -279,6 +290,7 @@ public final class GameUI extends JComponent {
         g.setColor(Color.WHITE);
         g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         gamePanel.paint(g.create(gamePanel.getX(), gamePanel.getY(), gamePanel.getWidth(), gamePanel.getHeight()));
+        infoPanel.paint(g.create(infoPanel.getX(), infoPanel.getY(), infoPanel.getWidth(), infoPanel.getHeight()));
         forwardButton.paint(g.create(forwardButton.getX(), forwardButton.getY(), forwardButton.getWidth(), forwardButton.getHeight()));
         backwardButton.paint(g.create(backwardButton.getX(), backwardButton.getY(), backwardButton.getWidth(), backwardButton.getHeight()));
         advanceButton.paint(g.create(advanceButton.getX(), advanceButton.getY(), advanceButton.getWidth(), advanceButton.getHeight()));
