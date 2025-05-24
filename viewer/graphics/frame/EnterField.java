@@ -22,8 +22,10 @@
   SOFTWARE.
  */
 
-package viewer.graphics.interactive;
+package viewer.graphics.frame;
 
+import viewer.graphics.interactive.Keyboard;
+import viewer.graphics.interactive.NameIndicator;
 import viewer.logic.FileGUIInterface;
 
 import javax.swing.*;

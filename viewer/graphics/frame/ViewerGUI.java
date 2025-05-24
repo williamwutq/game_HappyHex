@@ -24,7 +24,6 @@
 
 package viewer.graphics.frame;
 
-import viewer.graphics.interactive.EnterField;
 import viewer.logic.Controller;
 
 import javax.swing.*;
