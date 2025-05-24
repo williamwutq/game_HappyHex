@@ -115,7 +115,7 @@ public class GeneralIndicator extends JComponent {
     public void doLayout() {
         int halfHeight = getHeight()/2;
         int halfWidth = getWidth()/2;
-        size = Math.min((getHeight() - 6) / 6.0, (getWidth() - 6) / (double)(3 * sevenSegments.length + 1));
+        size = Math.min((getHeight() - 4) / 6.0, (getWidth() - 4) / (double)(3 * sevenSegments.length + 1));
         int sizeHalfH = (int) (size * 2.25);
         int sizeQ = (int) (size*0.25);
         int sizeW = (int) (size*2.5);
@@ -136,7 +136,7 @@ public class GeneralIndicator extends JComponent {
         int size4 = (int) (size * 3);
         g2.setColor(this.getBackground());
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, size4, size4);
+        g2.fillRoundRect(1, 1, getWidth()-2, getHeight()-2, size4, size4);
         g2.dispose();
         paintChildren(g);
     }

@@ -252,6 +252,7 @@ public final class GameUI extends JComponent {
         slider.setKnobPosition(0.5);
         controller.setSpeed(32);
 
+        this.setBackground(Color.WHITE);
         this.add(gamePanel);
         this.add(infoPanel);
         this.add(forwardButton);

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.Path2D;
 
 /**
  * A lightweight Swing component that simulates a seven-segment digital display.
@@ -108,6 +109,7 @@ final class SevenSegment extends JComponent {
             {2.5, 2.25, 2.5, 4, 4.25, 4},
             {4, 4.25, 4.5, 4.5, 4.25, 4}
     };
+    private Path2D.Double cachedPath;
     private char character;
     private boolean[] states;
     private double size;
@@ -140,7 +142,20 @@ final class SevenSegment extends JComponent {
      * @param size the new size of the {@code SevenSegment} display to be used.
      */
     public void setCharSize(double size){
-        if (size > 0) this.size = size;
+        if (size > 0 && size != this.size) {
+            this.size = size;
+            // Recalculate path
+            cachedPath = new Path2D.Double(Path2D.WIND_NON_ZERO);
+            for (int k = 0; k < 7; k ++){
+                if (states[k]){
+                    cachedPath.moveTo(size * refPosX[k][0], size * refPosY[k][0]);
+                    for (int i = 1; i < 6; i++){
+                        cachedPath.lineTo(size * refPosX[k][i], size * refPosY[k][i]);
+                    }
+                    cachedPath.closePath();
+                }
+            }
+        }
     }
     /**
      * Get the relative size of this {@code SevenSegment} display.
@@ -205,17 +220,9 @@ final class SevenSegment extends JComponent {
         // Draw key background
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2.setColor(Color.WHITE);
-        int[] positionX = new int[6];
-        int[] positionY = new int[6];
-        for (int k = 0; k < 7; k ++){
-            if (states[k]){
-                for (int i = 0; i < 6; i++){
-                    positionX[i] = (int) (size * refPosX[k][i]);
-                    positionY[i] = (int) (size * refPosY[k][i]);
-                }
-                g2.fillPolygon(positionX, positionY, 6);
-            }
-        }
+        g2.fill(cachedPath);
+        g2.draw(cachedPath); // Fix for too thin lines
     }
 }
