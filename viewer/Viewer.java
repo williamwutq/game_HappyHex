@@ -24,8 +24,15 @@
 
 package viewer;
 
-import javax.swing.*;
-import java.awt.*;
+import viewer.graphics.frame.ViewerGUI;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Taskbar;
+import java.util.Objects;
 
 /**
  * Main file of Game Viewer, which is used as a tool to view past games by reading and showing game files.
@@ -34,17 +41,29 @@ import java.awt.*;
  */
 public final class Viewer {
     public static void main(String[] args){
-
-    }
-    public static void test(Component component){
-        // Test method
         JFrame frame = new JFrame();
-        frame.setTitle("Test");
-        frame.setSize(new Dimension(400, 400));
-        frame.setPreferredSize(new Dimension(400, 400));
-        frame.setMinimumSize(new Dimension(200, 200));
-        frame.setBackground(component.getBackground());
-        frame.add(component);
+        Dimension min = new Dimension(240, 300);
+        Dimension start = new Dimension(400, 500);
+        Image image = fetchIconImage();
+        if (image != null){
+            Taskbar.getTaskbar().setIconImage(image);
+            frame.setIconImage(fetchIconImage());
+        }
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setTitle("HappyHex Game Viewer Version 1.0");
+        frame.setSize(start);
+        frame.setPreferredSize(start);
+        frame.setMinimumSize(min);
+        frame.setBackground(Color.WHITE);
+        frame.add(new ViewerGUI());
         frame.setVisible(true);
+    }
+    private static Image fetchIconImage(){
+        try {
+            ImageIcon icon = new ImageIcon(Objects.requireNonNull(Viewer.class.getResource("Viewer.png")));
+            return icon.getImage();
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 }
