@@ -24,6 +24,8 @@
 
 package viewer.graphics.interactive;
 
+import viewer.logic.FileGUIInterface;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -57,10 +59,11 @@ import java.awt.event.ActionEvent;
  * @see Keyboard
  * @see NameIndicator
  */
-public final class EnterField extends JComponent {
+public final class EnterField extends JComponent implements FileGUIInterface{
     private final NameIndicator indicator;
     private final Keyboard keyboard;
     private boolean keyboardShown;
+    private NameChangeListener listener;
 
     /**
      * Constructs a new {@code EnterField} with a specified input length.
@@ -76,6 +79,7 @@ public final class EnterField extends JComponent {
         this.indicator.addActionListener(this::onIndicatorClick);
         this.keyboardShown = true;
         this.keyboard = new Keyboard(this::onKeyPress);
+        this.listener = null;
 
         add(indicator);
         add(keyboard);
@@ -163,6 +167,31 @@ public final class EnterField extends JComponent {
      */
     public boolean isKeyboardShown(){
         return keyboardShown;
+    }
+
+    /**
+     * {@inheritDoc}
+     * This method delegate to the {@link NameIndicator#addChar(char)} method to add characters
+     * in the input filename using a for loop. Invalid and extra characters are skipped.
+     */
+    public void setFilename(String filename) {
+        this.indicator.clear();
+        for (int i = 0; i < filename.length(); i ++){
+            indicator.addChar(filename.charAt(i));
+        }
+    }
+    /**
+     * {@inheritDoc}
+     * This method delegate to the {@link NameIndicator#getString()} method to get current file name
+     * in the input.
+     */
+    public String getFilename() {
+        return indicator.getString();
+    }
+
+    /**{@inheritDoc}*/
+    public void setNameChangeListener(NameChangeListener listener) {
+        this.listener = listener;
     }
 }
 

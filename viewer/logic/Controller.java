@@ -220,6 +220,7 @@ public class Controller{
      */
     public void bindFileGUI(FileGUIInterface fileGui) {
         this.fileGui = fileGui;
+        fileGui.setNameChangeListener(this::onFileChosen);
     }
     /**
      * Updates the GUI by invoking {@link GameGUIInterface#setEngine} and
