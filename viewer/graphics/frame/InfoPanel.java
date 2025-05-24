@@ -87,32 +87,22 @@ public class InfoPanel extends JComponent implements InfoGUIInterface {
      * Performs layout of child components
      */
     public void doLayout() {
-        double sizeH = (getHeight() - 6) / 6.0;
-        double sizeW = (getWidth() - 6) / 6.0;
+        double sizeH = getHeight() / 6.0;
+        double sizeW = getWidth() / 6.0;
         size = Math.min(sizeH, sizeW);
         int h = (int) (sizeH * 5.75);
         int hb = (int) (sizeH * 0.125);
         int w = (int) (sizeW * 2.75);
         int wb = (int) (sizeW * 0.125);
-        scoreIndicator.setBounds(3+wb, 3+hb, w, h);
-        turnIndicator.setBounds(3+w+3*wb, 3+hb, w, h);
+        scoreIndicator.setBounds(wb, hb, w, h);
+        turnIndicator.setBounds(w+3*wb, hb, w, h);
     }
     /**
-     * Paints the background and then children components.
+     * Paints the children {@link GeneralIndicator}s.
      *
      * @param g the graphics context.
      */
     public void paint(Graphics g){
-        Graphics2D g2 = (Graphics2D) g.create();
-        int sizeD = (int) (size * 2);
-        int stroke = (int) (size / 12.0);
-        if (stroke < 1) stroke = 1;
-        g2.setColor(this.getBackground());
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setStroke(new BasicStroke(stroke));
-        g2.drawRoundRect(3, 3, getWidth()-6, getHeight()-6, sizeD, sizeD);
-        g2.setColor(this.getParent().getBackground());
-        g2.dispose();
         paintChildren(g);
     }
 
