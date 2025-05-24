@@ -185,6 +185,7 @@ public final class EnterField extends JComponent implements FileGUIInterface{
         for (int i = 0; i < filename.length(); i ++){
             indicator.addChar(filename.charAt(i));
         }
+        indicator.lock();
     }
     /**
      * {@inheritDoc}

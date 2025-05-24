@@ -289,8 +289,11 @@ public class Controller{
             fileGui.setFilename(filename);
         }
 
+        // Manipulate name
+        String filePath = "data/" + filename + ".hpyhex";
+
         new Thread(() -> {
-            HexLogger logger = new HexLogger(filename);
+            HexLogger logger = new HexLogger(filePath);
             boolean loaded = false;
             try {
                 logger.readBinary();
