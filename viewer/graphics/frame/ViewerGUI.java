@@ -30,9 +30,43 @@ import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.Graphics;
 
+/**
+ * The {@code ViewerGUI} class is the top-level container for the HappyHex game viewer interface.
+ * It integrates the main game display {@link GameUI} and the input interface {@link EnterField}
+ * into a single user interface component. It is responsible for initializing and laying out
+ * these subcomponents and delegating paint operations.
+ * <p>
+ * The layout behavior is managed manually in {@link #doLayout()}, which assigns space based on
+ * the current size of the viewer. The layout allocates:
+ * <ul>
+ *   <li>Approximately 2/15 of the vertical space to the {@code EnterField} (unless the keyboard is open, in which case it uses the entire space).</li>
+ *   <li>The remaining 13/15 of the vertical space to the {@code GameUI} component.</li>
+ * </ul>
+ * <p>
+ * During initialization:
+ * <ul>
+ *   <li>A {@link Controller} is created to mediate between file input, game state updates, and user interaction.</li>
+ *   <li>The {@link GameUI} is bound to this controller for interaction and state visualization.</li>
+ *   <li>The {@link EnterField} is initialized with a buffer length and registered as a file interface with the controller.</li>
+ * </ul>
+ * <p>
+ * The {@code ViewerGUI} uses a white background and delegates painting to its children, avoiding any custom graphics painting.
+ *
+ * @see GameUI
+ * @see EnterField
+ * @see Controller
+ * @see JComponent
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ */
 public final class ViewerGUI extends JComponent {
     private final GameUI gameUI;
     private final EnterField enterField;
+    /**
+     * Constructs a new {@code ViewerGUI} with a {@link GameUI} and {@link EnterField}.
+     * Initializes internal layout, controller bindings, and background settings.
+     */
     public ViewerGUI(){
         Controller controller = new Controller();
         this.gameUI = new GameUI(controller);
@@ -43,6 +77,14 @@ public final class ViewerGUI extends JComponent {
         this.add(gameUI);
     }
 
+    /**
+     * Lays out the components within the {@code ViewerGUI}.
+     * Allocates vertical space based on component height:
+     * <ul>
+     *   <li>If the keyboard is shown, {@code EnterField} takes the full height.</li>
+     *   <li>Otherwise, {@code EnterField} takes 2/15 and {@code GameUI} takes 13/15 of the height.</li>
+     * </ul>
+     */
     public void doLayout(){
         int h = this.getHeight();
         int w = this.getWidth();
@@ -56,6 +98,12 @@ public final class ViewerGUI extends JComponent {
         }
     }
 
+    /**
+     * Paints this component by delegating to its children.
+     * This method overrides the default {@code paint} to skip background or border painting.
+     *
+     * @param g the {@link Graphics} context to use for painting
+     */
     public void paint(Graphics g) {
         paintChildren(g);
     }
