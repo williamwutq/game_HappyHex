@@ -28,8 +28,8 @@ import viewer.graphics.interactive.Keyboard;
 import viewer.graphics.interactive.NameIndicator;
 import viewer.logic.FileGUIInterface;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 
 /**

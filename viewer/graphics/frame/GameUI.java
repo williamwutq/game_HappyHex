@@ -30,8 +30,9 @@ import viewer.graphics.interactive.HexButton;
 import viewer.graphics.interactive.SpeedSlider;
 import viewer.logic.Controller;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Path2D;
 

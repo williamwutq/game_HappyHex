@@ -26,7 +26,7 @@ package viewer.graphics.frame;
 
 import viewer.logic.Controller;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 public final class ViewerGUI extends JComponent {
     private final GameUI gameUI;

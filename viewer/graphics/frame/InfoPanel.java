@@ -27,8 +27,9 @@ package viewer.graphics.frame;
 import viewer.graphics.interactive.GeneralIndicator;
 import viewer.logic.InfoGUIInterface;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Graphics;
 
 /**
  * {@code InfoPanel} is a Swing component designed to visually display the current score and turn

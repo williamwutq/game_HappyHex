@@ -24,8 +24,12 @@
 
 package viewer.graphics.interactive;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 /**
  * {@code NameIndicator} is a Swing component that visually represents a user-defined
