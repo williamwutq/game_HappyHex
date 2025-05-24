@@ -24,14 +24,18 @@
 
 package viewer.graphics.frame;
 
+import viewer.graphics.interactive.EnterField;
 import viewer.logic.Controller;
 
 import javax.swing.*;
 
 public final class ViewerGUI extends JComponent {
     private final GameUI gameUI;
+    private final EnterField enterField;
     public ViewerGUI(){
         Controller controller = new Controller();
         gameUI = new GameUI(controller);
+        enterField = new EnterField(16);
+        controller.bindFileGUI(enterField);
     }
 }

@@ -117,7 +117,9 @@ public final class EnterField extends JComponent implements FileGUIInterface{
         } else if (key.equals("<")) {
             indicator.decrementCursor();
         } else if (key.equals("ENT")) {
-            indicator.lock();
+            if (indicator.lock()){
+                if (listener != null) listener.onFileChosen(getFilename());
+            }
         } else {
             indicator.addChar(key.charAt(0));
         }
@@ -131,7 +133,9 @@ public final class EnterField extends JComponent implements FileGUIInterface{
      */
     private void onIndicatorClick(ActionEvent e) {
         if (keyboardShown) {
-            indicator.lock();
+            if (indicator.lock()){
+                if (listener != null) listener.onFileChosen(getFilename());
+            }
             this.remove(keyboard);
         } else {
             this.add(keyboard);
