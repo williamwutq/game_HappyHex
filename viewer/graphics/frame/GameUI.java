@@ -256,14 +256,14 @@ public final class GameUI extends JComponent {
         int length = er * 2 - 1;
         double vertical = er * 1.5 + 2;
         double s = (Math.min(halfHeight / vertical, halfWidth / sinOf60 / length));
-        gamePanel.setBounds(3, (int) (3 + s * 2), w, h - (int)(s));
+        gamePanel.setBounds(3, (int) (3 + s * 2), w, h - (int)(3 * s));
         s = gamePanel.getActiveSize(); // update size
 
         int vs = (int)((er * 1.5 - 0.25) * s); // vertical shift
-        int bb = h/2 + (int)((er * 1.5 - 2) * s) + 3; // button bound
-        int tb = h/2 - (int)((er * 1.5 + 0.5) * s) + 3; // top bound
-        int sb = h/2 + (int)((er * 1.5 + 1.5) * s) + 3; // slider bound
-        int ib = h/2 - (int)((er * 1.5 + 2.5) * s) + 3; // infoPanel bound
+        int bb = h/2 + (int)((er * 1.5 - 3) * s) + 3; // button bound
+        int tb = h/2 - (int)((er * 1.5 + 1.5) * s) + 3; // top bound
+        int sb = h/2 + (int)((er * 1.5 + 2.5) * s) + 3; // slider bound
+        int ib = h/2 - (int)((er * 1.5 + 3.5) * s) + 3; // infoPanel bound
         int hs = (int)((er * 2 * sinOf60 - sinOf60) * s); // horizontal shift
         int lb = w/2 - hs; // left bound
         int rb = w/2 + hs; // right bound
