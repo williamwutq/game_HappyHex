@@ -75,6 +75,7 @@ public class InfoPanel extends JComponent implements InfoGUIInterface {
         this.setLayout(null);
         this.setDoubleBuffered(true);
         this.setBackground(backgroundColor);
+        this.setOpaque(false);
         this.scoreIndicator = new GeneralIndicator(10);
         this.turnIndicator = new GeneralIndicator(10);
         this.scoreIndicator.set("sc:      0");

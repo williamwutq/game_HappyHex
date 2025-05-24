@@ -253,6 +253,7 @@ public final class GameUI extends JComponent {
         controller.setSpeed(32);
 
         this.setBackground(Color.WHITE);
+        this.setOpaque(false);
         this.add(gamePanel);
         this.add(infoPanel);
         this.add(forwardButton);
@@ -313,8 +314,6 @@ public final class GameUI extends JComponent {
      * @param g the graphics context in which to paint.
      */
     public void paint(Graphics g){
-        g.setColor(Color.WHITE);
-        g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         gamePanel.paint(g.create(gamePanel.getX(), gamePanel.getY(), gamePanel.getWidth(), gamePanel.getHeight()));
         infoPanel.paint(g.create(infoPanel.getX(), infoPanel.getY(), infoPanel.getWidth(), infoPanel.getHeight()));
         forwardButton.paint(g.create(forwardButton.getX(), forwardButton.getY(), forwardButton.getWidth(), forwardButton.getHeight()));

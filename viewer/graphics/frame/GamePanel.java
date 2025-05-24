@@ -178,10 +178,6 @@ public final class GamePanel extends Component implements GameGUIInterface {
         emptyBlocks.reset();
         highlightedFilledBlocks.reset();
         highlightedEmptyBlocks.reset();
-        Graphics g2 = g.create();
-        g2.setColor(Color.WHITE);
-        g2.fillRect(0,0, getWidth(), getHeight());
-        g2.dispose();
         // Paint queue
         Block block;
         double move = (engine.getRadius() - 1) * 0.75;
