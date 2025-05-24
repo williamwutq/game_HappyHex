@@ -71,7 +71,7 @@ public class Controller{
      * If already running, this method does nothing.
      */
     public void run() {
-        synchronized (lock) {
+        if (tracker != null) synchronized (lock) {
             if (runningForward) return; // Already running
             runningForward = true;
             runningBackward = false;
@@ -110,7 +110,7 @@ public class Controller{
      * If already running, this method does nothing.
      */
     public void back() {
-        synchronized (lock) {
+        if (tracker != null) synchronized (lock) {
             if (runningBackward) return; // Already running
             runningForward = false;
             runningBackward = true;
@@ -167,7 +167,7 @@ public class Controller{
      */
     public void advance() {
         stop();
-        synchronized (tracker) {
+        if (tracker != null) synchronized (tracker) {
             if (tracker.advancePointer()) {
                 updateGUI();
             }
@@ -182,7 +182,7 @@ public class Controller{
      */
     public void retreat() {
         stop();
-        synchronized (tracker) {
+        if (tracker != null) synchronized (tracker) {
             if (tracker.decrementPointer()) {
                 updateGUI();
             }
@@ -199,7 +199,7 @@ public class Controller{
      */
     public void setPointer(int index) {
         stop();
-        synchronized (tracker) {
+        if (tracker != null) synchronized (tracker) {
             try {
                 tracker.setPointer(index);
                 updateGUI();
@@ -235,7 +235,7 @@ public class Controller{
         fileGui.setNameChangeListener(this::onFileChosen);
     }
     /**
-     * Updates the GUI display for game state and game information.
+     * Updates the GUI display for game state and game information if tracker exists.
      * <p>
      * The method invokes {@link GameGUIInterface#setEngine} and
      * {@link GameGUIInterface#setQueue} with the current state from the tracker.
@@ -244,13 +244,15 @@ public class Controller{
      * {@link InfoGUIInterface#setTurn} with the current game points from the tracker.
      */
     private void updateGUI() {
-        if (gameGui != null) {
-            gameGui.setEngine(tracker.engine());
-            gameGui.setQueue(tracker.queue());
-        }
-        if (infoGui != null) {
-            infoGui.setScore(tracker.score());
-            infoGui.setTurn(tracker.getPointer());
+        if (tracker != null) {
+            if (gameGui != null) {
+                gameGui.setEngine(tracker.engine());
+                gameGui.setQueue(tracker.queue());
+            }
+            if (infoGui != null) {
+                infoGui.setScore(tracker.score());
+                infoGui.setTurn(tracker.getPointer());
+            }
         }
     }
     /**
