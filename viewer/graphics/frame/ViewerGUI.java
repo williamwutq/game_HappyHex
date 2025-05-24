@@ -38,4 +38,9 @@ public final class ViewerGUI extends JComponent {
         enterField = new EnterField(16);
         controller.bindFileGUI(enterField);
     }
+    public static void main(String[] args){
+        Controller controller = new Controller();
+        viewer.Viewer.test(new GameUI(controller));
+        controller.onFileChosen("data/A810032A7601E5B5.hpyhex");
+    }
 }
