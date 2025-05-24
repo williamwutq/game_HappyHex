@@ -130,10 +130,12 @@ public final class GameUI extends JComponent {
                 if (forward){
                     backward = true;
                     backwardButton.updateCachedCustomPath();
+                    backwardButton.repaint();
                     controller.run();
                 } else controller.stop();
                 forward = !forward;
                 updateCachedCustomPath();
+                repaint();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= 2;
@@ -158,10 +160,12 @@ public final class GameUI extends JComponent {
                 if (backward){
                     forward = true;
                     forwardButton.updateCachedCustomPath();
+                    forwardButton.repaint();
                     controller.back();
                 } else controller.stop();
                 backward = !backward;
                 updateCachedCustomPath();
+                repaint();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
                 radius /= 2;
@@ -186,10 +190,12 @@ public final class GameUI extends JComponent {
                 if (!forward){
                     forward = true;
                     forwardButton.updateCachedCustomPath();
+                    forwardButton.repaint();
                 }
                 if (!backward){
                     backward = true;
                     backwardButton.updateCachedCustomPath();
+                    backwardButton.repaint();
                 }
                 controller.advance();
             }
@@ -212,10 +218,12 @@ public final class GameUI extends JComponent {
                 if (!forward){
                     forward = true;
                     forwardButton.updateCachedCustomPath();
+                    forwardButton.repaint();
                 }
                 if (!backward){
                     backward = true;
                     backwardButton.updateCachedCustomPath();
+                    backwardButton.repaint();
                 }
                 controller.retreat();
             }
