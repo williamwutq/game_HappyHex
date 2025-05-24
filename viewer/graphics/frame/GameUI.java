@@ -182,6 +182,14 @@ public final class GameUI extends JComponent {
         };
         advanceButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
+                if (!forward){
+                    forward = true;
+                    forwardButton.updateCachedCustomPath();
+                }
+                if (!backward){
+                    backward = true;
+                    backwardButton.updateCachedCustomPath();
+                }
                 controller.advance();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
@@ -200,6 +208,14 @@ public final class GameUI extends JComponent {
         };
         retreatButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
+                if (!forward){
+                    forward = true;
+                    forwardButton.updateCachedCustomPath();
+                }
+                if (!backward){
+                    backward = true;
+                    backwardButton.updateCachedCustomPath();
+                }
                 controller.retreat();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
