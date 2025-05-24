@@ -67,7 +67,6 @@ import java.awt.*;
 public class InfoPanel extends JComponent implements InfoGUIInterface {
     private static final Color backgroundColor = new Color(85, 85, 85);
     private final GeneralIndicator scoreIndicator, turnIndicator;
-    private double size;
     /**
      * Creates a new {@code InfoPanel} to display game information
      */
@@ -77,8 +76,8 @@ public class InfoPanel extends JComponent implements InfoGUIInterface {
         this.setBackground(backgroundColor);
         this.scoreIndicator = new GeneralIndicator(10);
         this.turnIndicator = new GeneralIndicator(10);
-        this.scoreIndicator.set("sc:        0");
-        this.turnIndicator.set("tn:        0");
+        this.scoreIndicator.set("sc:      0");
+        this.turnIndicator.set("tn:      0");
         this.add(scoreIndicator);
         this.add(turnIndicator);
     }
@@ -89,7 +88,6 @@ public class InfoPanel extends JComponent implements InfoGUIInterface {
     public void doLayout() {
         double sizeH = getHeight() / 6.0;
         double sizeW = getWidth() / 6.0;
-        size = Math.min(sizeH, sizeW);
         int h = (int) (sizeH * 5.75);
         int hb = (int) (sizeH * 0.125);
         int w = (int) (sizeW * 2.75);
