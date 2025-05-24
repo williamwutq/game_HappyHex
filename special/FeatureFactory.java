@@ -1,3 +1,31 @@
+/*
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ */
+
+/* Authors of mods should put their license and below. */
+
+/* Authors of mods should put their license and above. */
+
 package special;
 
 public class FeatureFactory {
@@ -11,6 +39,8 @@ public class FeatureFactory {
                 return new special.Valentine.FilledWithLove();
             } else if ((date.getMonthValue() == 10 && date.getDayOfMonth() == 31)) {
                 return new special.Halloween.SpookyTheme();
+            } else if (special.Thanksgiving.ThanksgivingDate.isThanksgiving()){
+                return new special.Thanksgiving.GratefulHarvest();
             } else if ((date.getMonthValue() == 7 && date.getDayOfMonth() == 4)) {
                 if (hint.equals("Dark") || hint.equals("4")) {
                     return new special.Independence.AmericanBlackTheme();
@@ -35,6 +65,8 @@ public class FeatureFactory {
             java.time.LocalDate date = java.time.LocalDate.now();
             if ((date.getMonthValue() == 10 && date.getDayOfMonth() == 31)) {
                 return new special.Halloween.SpookyTheme();
+            } else if (special.Thanksgiving.ThanksgivingDate.isThanksgiving()){
+                return new special.Thanksgiving.GratefulHarvest();
             }
         } else if (className.equals("Animation") || className.equals("GUI.animation.Animation")){
             java.time.LocalDate date = java.time.LocalDate.now();

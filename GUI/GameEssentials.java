@@ -426,9 +426,9 @@ public final class GameEssentials {
             System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
         }
         try {
-            if (complete) gameLogger.completeGame();
             gameLogger.setEngine(engine);
             gameLogger.setQueue(queue.getPieces());
+            if (complete) gameLogger.completeGame();
             gameLogger.write();
             gameLogger.write("hex.binary");
         } catch (IOException e) {
