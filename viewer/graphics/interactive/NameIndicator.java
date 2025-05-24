@@ -236,10 +236,19 @@ public final class NameIndicator extends JButton {
     /**
      * Returns the current length of the entered string.
      *
-     * @return number of characters currently displayed (excluding dash, which is used to indicating entering position).
+     * @return number of characters currently displayed (excluding underscore, which is used to indicating entering position).
      */
     public int getStringLength(){
         return pointer;
+    }
+    /**
+     * Returns the total possible length of displayed string.
+     *
+     * @return number of {@code SevenSegment}s contained in this {@code NameIndicator},
+     *         which is the maximum length of displayed string.
+     */
+    public int length(){
+        return sevenSegments.length;
     }
     /**
      * Returns the full string currently shown on the display.
