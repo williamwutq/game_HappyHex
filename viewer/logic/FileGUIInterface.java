@@ -43,11 +43,40 @@ public interface FileGUIInterface {
      */
     void setFilename(String filename);
     /**
+     * Called by the controller to update the GUI with the current file name.
      * Notifies the controller that a new file has been chosen by the user.
      * This will prompt the controller to load a new game file.
      *
-     * @param filename the path or name of the selected file
+     * @return the name of the file currently loaded or selected
      */
-    void onFileChosen(String filename);
+    String getFilename();
+
+    /**
+     * Sets a listener that will be notified when the name or filename changes.
+     * This method allows the implementing class to register a callback that will
+     * be triggered when a new file is chosen or a name change event occurs.
+     *
+     * @param listener the {@link NameChangeListener} instance to be notified of name or file changes
+     */
+    void setNameChangeListener(NameChangeListener listener);
+
+    /**
+     * A listener interface for receiving notifications when a new file has been selected.
+     * <p>
+     * Classes that are interested in being notified when a file has been selected
+     * should implement this interface.
+     * @author William Wu
+     * @version 1.0 (HappyHex 1.3)
+     * @since 1.0 (HappyHex 1.3)
+     */
+    interface NameChangeListener{
+        /**
+         * Notifies the controller that a new file has been chosen by the user.
+         * This will prompt the controller to load a new game file.
+         *
+         * @param filename the path or name of the selected file
+         */
+        void onFileChosen(String filename);
+    }
 }
 
