@@ -27,19 +27,38 @@ package viewer.graphics.frame;
 import viewer.logic.Controller;
 
 import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Graphics;
 
 public final class ViewerGUI extends JComponent {
     private final GameUI gameUI;
     private final EnterField enterField;
     public ViewerGUI(){
         Controller controller = new Controller();
-        gameUI = new GameUI(controller);
-        enterField = new EnterField(16);
+        this.gameUI = new GameUI(controller);
+        this.enterField = new EnterField(16);
         controller.bindFileGUI(enterField);
+        this.setBackground(Color.WHITE);
+        this.add(enterField);
+        this.add(gameUI);
     }
-    public static void main(String[] args){
-        Controller controller = new Controller();
-        viewer.Viewer.test(new GameUI(controller));
-        controller.onFileChosen("data/A810032A7601E5B5.hpyhex");
+
+    public void doLayout(){
+        int h = this.getHeight();
+        int w = this.getWidth();
+        int hf = h * 2 / 15;
+        int hg = h * 13 / 15;
+        gameUI.setBounds(0, hf, w, hg);
+        if (enterField.isKeyboardShown()){
+            enterField.setBounds(0, 0, w, h);
+        } else {
+            enterField.setBounds(0, 0, w, hf);
+        }
+    }
+
+    public void paint(Graphics g) {
+        g.setColor(getBackground());
+        g.fillRect(0, 0, getWidth(), getHeight());
+        paintChildren(g);
     }
 }
