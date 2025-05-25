@@ -159,7 +159,7 @@ public class Tracker {
                 scores[turn] += piece.length();
                 scores[turn] += 5 * eliminated.length;
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Tracker cannot be created because error occurred reading game data, ", e.getCause());
+                // throw new IllegalArgumentException("Tracker cannot be created because error occurred reading game data at index " + turn + " because " + e.getMessage());
             }
             engines[turn] = duplicatedEngine;
         }
