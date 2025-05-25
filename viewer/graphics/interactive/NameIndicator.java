@@ -24,10 +24,12 @@
 
 package viewer.graphics.interactive;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 /**
  * {@code NameIndicator} is a Swing component that visually represents a user-defined
@@ -43,6 +45,7 @@ import java.awt.event.ActionListener;
  * @author William Wu
  * @version 1.0 (HappyHex 1.3)
  * @since 1.0 (HappyHex 1.3)
+ * @see SevenSegment
  * @see JComponent
  * @see JButton
  */
@@ -72,7 +75,7 @@ public final class NameIndicator extends JButton {
             sevenSegments[i] = new SevenSegment();
             this.add(sevenSegments[i]);
         }
-        sevenSegments[0].setCharacter('-');
+        sevenSegments[0].setCharacter('_');
     }
     /**
      * Clears the current string, resetting all segments.
@@ -86,7 +89,7 @@ public final class NameIndicator extends JButton {
         pointer = 0;
         cursor = 0;
         hidden = ' ';
-        sevenSegments[0].setCharacter('-');
+        sevenSegments[0].setCharacter('_');
         for (int i = 1; i < sevenSegments.length; i++) {
             sevenSegments[i].setCharacter(' ');
         }
@@ -105,15 +108,15 @@ public final class NameIndicator extends JButton {
                 cursor--;
                 hidden = ' ';
                 pointer --;
-                sevenSegments[pointer].setCharacter('-');
+                sevenSegments[pointer].setCharacter('_');
             } else if (pointer == 1) {
                 hidden = ' ';
                 pointer --;
-                sevenSegments[pointer].setCharacter('-');
+                sevenSegments[pointer].setCharacter('_');
             } else {
                 pointer--;
                 sevenSegments[pointer].setCharacter(' ');
-                if(pointer == cursor) sevenSegments[pointer].setCharacter('-');
+                if(pointer == cursor) sevenSegments[pointer].setCharacter('_');
             }
             return true;
         } else return false;
@@ -128,30 +131,30 @@ public final class NameIndicator extends JButton {
     public boolean removeChar(){
         if (!locked){
             if (cursor > 0 && cursor < pointer) {
-                hidden = sevenSegments[cursor - 1].character;
+                hidden = sevenSegments[cursor - 1].getCharacter();
                 for (int i = cursor; i < pointer; i++) {
-                    sevenSegments[i - 1].setCharacter(sevenSegments[i].character);
+                    sevenSegments[i - 1].setCharacter(sevenSegments[i].getCharacter());
                 }
                 if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
                 pointer--;
                 cursor--;
-                sevenSegments[cursor].setCharacter('-');
+                sevenSegments[cursor].setCharacter('_');
                 return true;
             } else if (cursor > 0 && cursor == pointer) {
                 sevenSegments[cursor].setCharacter(' ');
                 pointer--;
                 cursor--;
                 hidden = ' ';
-                sevenSegments[cursor].setCharacter('-');
+                sevenSegments[cursor].setCharacter('_');
                 return true;
             } else if (cursor == 0 && pointer > 0) {
-                hidden = sevenSegments[cursor + 1].character;
+                hidden = sevenSegments[cursor + 1].getCharacter();
                 for (int i = cursor + 1; i < pointer; i++) {
-                    sevenSegments[i - 1].setCharacter(sevenSegments[i].character);
+                    sevenSegments[i - 1].setCharacter(sevenSegments[i].getCharacter());
                 }
                 if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
                 pointer--;
-                sevenSegments[cursor].setCharacter('-');
+                sevenSegments[cursor].setCharacter('_');
                 return true;
             }
         } return false;
@@ -171,12 +174,12 @@ public final class NameIndicator extends JButton {
                 pointer ++;
             } else if (cursor <= pointer && pointer < sevenSegments.length) {
                 for (int i = pointer - 1; i >= cursor; i--) {
-                    sevenSegments[i + 1].setCharacter(sevenSegments[i].character);
+                    sevenSegments[i + 1].setCharacter(sevenSegments[i].getCharacter());
                 }
                 sevenSegments[cursor].setCharacter(c);
                 cursor++;
                 pointer++;
-                if (cursor < sevenSegments.length) sevenSegments[cursor].setCharacter('-');
+                if (cursor < sevenSegments.length) sevenSegments[cursor].setCharacter('_');
                 return true;
             }
         } return false;
@@ -200,8 +203,8 @@ public final class NameIndicator extends JButton {
         if (cursor < pointer && cursor < sevenSegments.length-1 && !locked){
             sevenSegments[cursor].setCharacter(hidden);
             cursor ++;
-            hidden = sevenSegments[cursor].character;
-            sevenSegments[cursor].setCharacter('-');
+            hidden = sevenSegments[cursor].getCharacter();
+            sevenSegments[cursor].setCharacter('_');
             return true;
         } else return false;
     }
@@ -215,8 +218,8 @@ public final class NameIndicator extends JButton {
         if (cursor > 0 && !locked){
             sevenSegments[cursor].setCharacter(hidden);
             cursor --;
-            hidden = sevenSegments[cursor].character;
-            sevenSegments[cursor].setCharacter('-');
+            hidden = sevenSegments[cursor].getCharacter();
+            sevenSegments[cursor].setCharacter('_');
             return true;
         } else return false;
     }
@@ -237,10 +240,19 @@ public final class NameIndicator extends JButton {
     /**
      * Returns the current length of the entered string.
      *
-     * @return number of characters currently displayed (excluding dash, which is used to indicating entering position).
+     * @return number of characters currently displayed (excluding underscore, which is used to indicating entering position).
      */
     public int getStringLength(){
         return pointer;
+    }
+    /**
+     * Returns the total possible length of displayed string.
+     *
+     * @return number of {@code SevenSegment}s contained in this {@code NameIndicator},
+     *         which is the maximum length of displayed string.
+     */
+    public int length(){
+        return sevenSegments.length;
     }
     /**
      * Returns the full string currently shown on the display.
@@ -250,9 +262,9 @@ public final class NameIndicator extends JButton {
     public String getString(){
         StringBuilder sb = new StringBuilder(sevenSegments.length);
         for (SevenSegment sevenSegment : sevenSegments) {
-            if (sevenSegment.character == '-'){
+            if (sevenSegment.getCharacter() == '_'){
                 sb.append(hidden);
-            } else sb.append(sevenSegment.character);
+            } else sb.append(sevenSegment.getCharacter());
         }
         return sb.toString();
     }
@@ -272,6 +284,7 @@ public final class NameIndicator extends JButton {
         for (int i = 0; i < sevenSegments.length; i++) {
             int w = (int)((i - sevenSegments.length * 0.5) * 3 * size);
             sevenSegments[i].setBounds(w + sizeQ + halfWidth, halfHeight - sizeHalfH, sizeW, sizeH);
+            sevenSegments[i].setCharSize(size);
         }
     }
     /**
@@ -287,103 +300,5 @@ public final class NameIndicator extends JButton {
         g2.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, size4, size4);
         g2.dispose();
         paintChildren(g);
-    }
-    /**
-     * Internal component representing a single 7-segment digit.
-     */
-    private final class SevenSegment extends JComponent{
-        private static final boolean[][] data = {
-                {true, true, true, false, true, true, true},
-                {false, false, true, false, false, true, false},
-                {true, false, true, true, true, false, true},
-                {true, false, true, true, false, true, true},
-                {false, true, true, true, false, true, false},
-                {true, true, false, true, false, true, true},
-                {true, true, false, true, true, true, true},
-                {true, false, true, false, false, true, false},
-                {true, true, true, true, true, true, true},
-                {true, true, true, true, false, true, true},
-                {true, true, true, true, true, true, false},
-                {false, true, false, true, true, true, true},
-                {true, true, false, false, true, false, true},
-                {false, false, true, true, true, true, true},
-                {true, true, false, true, true, false, true},
-                {true, true, false, true, true, false, false}
-        };
-        private static final double[][] refPosX = {
-                {0.5, 0.25, 0.5, 2, 2.25, 2},
-                {0, 0.25, 0.5, 0.5, 0.25, 0},
-                {2, 2.25, 2.5, 2.5, 2.25, 2},
-                {0.5, 0.25, 0.5, 2, 2.25, 2},
-                {0, 0.25, 0.5, 0.5, 0.25, 0},
-                {2, 2.25, 2.5, 2.5, 2.25, 2},
-                {0.5, 0.25, 0.5, 2, 2.25, 2}
-        };
-        private static final double[][] refPosY = {
-                {0, 0.25, 0.5, 0.5, 0.25, 0},
-                {0.5, 0.25, 0.5, 2, 2.25, 2},
-                {0.5, 0.25, 0.5, 2, 2.25, 2},
-                {2, 2.25, 2.5, 2.5, 2.25, 2},
-                {2.5, 2.25, 2.5, 4, 4.25, 4},
-                {2.5, 2.25, 2.5, 4, 4.25, 4},
-                {4, 4.25, 4.5, 4.5, 4.25, 4}
-        };
-        private char character;
-        private boolean[] states;
-        /** Creates an empty seven-segment display component. */
-        private SevenSegment(){
-            this.character = ' ';
-            states = new boolean[7];
-        }
-        /**
-         * Sets the displayed character and updates the segment states.
-         *
-         * @param character character to display (0-9, A-F, a-f, or '-').
-         */
-        private void setCharacter(char character){
-            this.character = character;
-            states = SevenSegment.getStates(character);
-        }
-        /**
-         * Maps a character to its segment states.
-         *
-         * @param c character to map.
-         * @return boolean array representing which segments to light.
-         */
-        private static boolean[] getStates(char c){
-            if (c == '-'){
-                boolean[] result = new boolean[7];
-                result[3] = true;
-                return result;
-            } else if ('0' <= c && c <= '9'){
-                return data[c - '0'];
-            } else if ('A' <= c && c <= 'F') {
-                return data[c - 55];
-            } else if ('a' <= c && c <= 'f') {
-                return data[c - 87];
-            } else return new boolean[7];
-        }
-        /**
-         * Paints the current character using white-filled polygon segments.
-         *
-         * @param g the graphics context.
-         */
-        public void paint(Graphics g){
-            // Draw key background
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(Color.WHITE);
-            int[] positionX = new int[6];
-            int[] positionY = new int[6];
-            for (int k = 0; k < 7; k ++){
-                if (states[k]){
-                    for (int i = 0; i < 6; i++){
-                        positionX[i] = (int) (size * refPosX[k][i]);
-                        positionY[i] = (int) (size * refPosY[k][i]);
-                    }
-                    g2.fillPolygon(positionX, positionY, 6);
-                }
-            }
-        }
     }
 }
