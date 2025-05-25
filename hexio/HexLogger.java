@@ -205,7 +205,7 @@ public class HexLogger {
         score = 0;
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
-    private HexLogger(String fileName){
+    public HexLogger(String fileName){
         dataFile = fileName;
         currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
