@@ -3,7 +3,7 @@
 **Latest Version:** 1.0  
 **Latest release:** [HappyHex 1.3.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.1)  
 **Last edited:** 24/05/2025  
-**Backward compatible with HappyHex Game Version:** 1.3.0
+**Backward compatible with HappyHex Game Version:** 1.3.0  
 **License:** [MIT](LICENSE)  
 **Author** William Wu  
 **Language** Java  
