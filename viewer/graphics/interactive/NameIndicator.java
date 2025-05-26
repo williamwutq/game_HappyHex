@@ -224,16 +224,18 @@ public final class NameIndicator extends JButton {
         } else return false;
     }
     /**
-     * Lock this {@code NameIndicator}.
+     * Lock this {@code NameIndicator}. If it is currently locked, it will be locked again.
      *
      * @return {@code true} if the indicator is filled and locked,
      *         {@code false} if the cursor cannot be locked because it is not fill.
      */
     public boolean lock(){
-        if (!locked && pointer == sevenSegments.length){
-            sevenSegments[cursor].setCharacter(hidden);
-            hidden = ' ';
-            locked = true;
+        if (pointer == sevenSegments.length){
+            if (!locked) {
+                sevenSegments[cursor].setCharacter(hidden);
+                hidden = ' ';
+                locked = true;
+            }
             return true;
         } else return false;
     }
