@@ -148,7 +148,7 @@ public class Tracker {
                 duplicatedEngine.setState(i, existingEngine.getBlock(i).getState());
             }
             try{
-                Piece piece = logger.getMovePieces()[turn-1];
+                Piece piece = loggerQueues[turn-1][loggerIndexes[turn-1]];
                 piece.setColor(0);
                 duplicatedEngine.add(origins[turn], piece);
                 Block[] eliminated = duplicatedEngine.eliminate();
