@@ -448,10 +448,10 @@ public class HexLogger {
      * @return Whether the engine is changed.
      */
     public boolean setEngine(HexEngine engine){
-        if (completed) {return false;}
-        boolean success = false;
-        currentEngine = (HexEngine) engine.clone();
-        return true;
+        if (!completed){
+            currentEngine = engine.clone();
+            return true;
+        } return false;
     }
     /**
      * Set the current processed {@link Piece} queue to a copy of a new array of pieces.
@@ -459,11 +459,13 @@ public class HexLogger {
      * and is generally safe to use safe.
      * <p>
      * It is necessary to update the queue after the ending of a game before logging.
+     * @return Whether the queue has changed.
      */
-    public void setQueue(Piece[] queue){
+    public boolean setQueue(Piece[] queue){
         if (!completed){
             currentQueue = queue.clone();
-        }
+            return true;
+        } return false;
     }
     /**
      * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
@@ -581,6 +583,55 @@ public class HexLogger {
         return builder.toString();
     }
 
+    /**
+     * Creates and returns a deep clone of this {@code HexLogger} instance.
+     * <p>
+     * The method first attempts to use {@link Object#clone()} via {@code super.clone()} to create a shallow copy of
+     * the object. If cloning is not supported, it manually constructs a new {@code HexLogger} instance by duplicating
+     * key internal state fields then cloning the mutable fields. The clone operations may take some time for loggers
+     * containing significant data.
+     * <p>
+     * The method copy the mutable fields, including:
+     * <ul>
+     *     <li>{@code movePieces} is copied shallowly as it contains {@code Integer} objects, which are immutable.</li>
+     *     <li>{@code moveOrigins} is deep copied by cloning each {@link Hex} object individually.</li>
+     *     <li>{@code moveQueues} is shallowly copied at the array level, because {@link Piece} instances are passed by reference.</li>
+     *     <li>{@code currentEngine} and {@code currentQueue} are deep cloned using their respective {@code clone()} methods.</li>
+     * </ul>
+     * <p>
+     * If the original game was marked as complete (via {@code completeGame()}), this state is also replicated in the clone.
+     *
+     * @return a deep copied new {@code HexLogger} instance contain the exact same information as this one
+     * @since 1.3
+     */
+    public HexLogger clone(){
+        // Setup
+        HexLogger newLogger;
+        try {
+            newLogger = (HexLogger)super.clone();
+        } catch (CloneNotSupportedException e) {
+            newLogger = new HexLogger(getDataFileName());
+            newLogger.setPlayer(getPlayer(), getPlayerID());
+            newLogger.setTurn(getTurn());
+            newLogger.setScore(getScore());
+        }
+        // Copy ArrayLists
+        newLogger.movePieces.addAll(this.movePieces); // Integer, shallow is ok
+        for (Hex hex : this.moveOrigins){
+            newLogger.moveOrigins.add(hex.clone());
+        }
+        for (Piece[] queues : this.moveQueues){
+            newLogger.moveQueues.add(queues.clone());
+        }
+
+        // Deep engine and queue information
+        newLogger.currentEngine = this.currentEngine.clone();
+        newLogger.currentQueue = this.currentQueue.clone();
+        // Score and complete lock
+        if (completed) newLogger.completeGame();
+        return newLogger;
+    }
+
     // JSON
 
     /**
@@ -606,6 +657,13 @@ public class HexLogger {
         }
         return result;
     }
+    /**
+     * Generate loggers for every game logged in JSON format in the data directory.
+     *
+     * @return a list of {@code HexLogger}s representing the .hpyhex.json files found;
+     *         returns an empty list if none are found or if the directory is invalid
+     * @see #findGameJsonFiles()
+     */
     public static ArrayList<HexLogger> generateJsonLoggers(){
         ArrayList<Path> paths = findGameJsonFiles();
         ArrayList<HexLogger> result = new ArrayList<>();
@@ -639,6 +697,13 @@ public class HexLogger {
         }
         return result;
     }
+    /**
+     * Generate loggers for every game logged in binary format the data directory.
+     *
+     * @return a list of {@code HexLogger}s representing the .hpyhex files found in the directory;
+     *         returns an empty list if none are found or if the directory is invalid
+     * @see #findGameBinaryFiles()
+     */
     public static ArrayList<HexLogger> generateBinaryLoggers(){
         ArrayList<Path> paths = findGameBinaryFiles();
         ArrayList<HexLogger> result = new ArrayList<>();
@@ -1279,6 +1344,7 @@ public class HexLogger {
             if (turn != movesSize){
                 throw new IOException("Fail to read game moves because move array size does not match \"turn\"");
             }
+            moveQueues = new ArrayList<>(movesSize);
             moveOrigins = new ArrayList<>(movesSize);
             movePieces = new ArrayList<>(movesSize);
             // Populate moves
@@ -1421,6 +1487,7 @@ public class HexLogger {
         try{
             JsonArray movesJson = jsonObject.getJsonArray("moves");
             int movesSize = movesJson.size();
+            moveQueues = new ArrayList<>(movesSize);
             moveOrigins = new ArrayList<>(movesSize);
             movePieces = new ArrayList<>(movesSize);
             // Populate moves

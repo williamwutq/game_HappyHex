@@ -314,7 +314,6 @@ public final class GameEssentials {
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
-                    //cloned.setColor((int)(Math.random()*12));
                     engine.setBlock(block.getLineI(), block.getLineK(), cloned);
                 }
             }
@@ -322,7 +321,6 @@ public final class GameEssentials {
             for (int i = 0; i < loggerQueue.length; i++) {
                 Piece piece = loggerQueue[i];
                 if (piece != null) {
-                    //piece.setColor((int)(Math.random()*12));
                     queue.inject(piece, i);
                 }
             }
@@ -419,20 +417,23 @@ public final class GameEssentials {
     // Logging at the end
     public static void logGame(){
         boolean complete = gameEnds();
+        gameLogger.setEngine(engine);
+        gameLogger.setQueue(queue.getPieces());
+        if (complete) gameLogger.completeGame();
+        final HexLogger writeOnLogger = gameLogger; // This logger will be used for writing
+        gameLogger = gameLogger.clone(); // Create cloned logger
+        new Thread(() -> {
+            try {
+                writeOnLogger.write();
+                writeOnLogger.write("hex.binary");
+            } catch (IOException e) {
+                System.err.println(GameTime.generateSimpleTime() + " HexLogger: " + e.getMessage());
+        }}).start();
         if (LaunchEssentials.getCurrentPlayerID() == -1 || complete){
             // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
             Launcher.LaunchEssentials.log(turn, score);
         } else {
             System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
-        }
-        try {
-            gameLogger.setEngine(engine);
-            gameLogger.setQueue(queue.getPieces());
-            if (complete) gameLogger.completeGame();
-            gameLogger.write();
-            gameLogger.write("hex.binary");
-        } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " HexLogger: " + e.getMessage());
         }
     }
 

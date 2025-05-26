@@ -25,10 +25,12 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import hexio.HexLogger;
 import io.*;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -167,14 +169,13 @@ public final class LaunchEssentials {
     }
     public static hexio.HexLogger smartCreateLogger(int size, int queueSize){
         hexio.HexLogger logger = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
-        // The start unfinished game feature, implemented below, is disabled due to bugs
         java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
         // Search for incomplete games
         if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
             for (hexio.HexLogger generatedLogger : loggers){
                 try {
+                    generatedLogger.readBinary();
                     generatedLogger.read();
-                    // generatedLogger.readBinary(); /* DISABLED BECAUSE IT DOES NOT READ COLOR */
                 } catch (IOException e) {continue;}
                 if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
                         && generatedLogger.getQueue().length == queueSize
@@ -185,6 +186,38 @@ public final class LaunchEssentials {
             }
         }
         return logger;
+    }
+    public static java.util.ArrayList<hexio.HexLogger> smartFindLoggers(){
+        if (currentGameInfo.getPlayerID() == -1 || currentGameInfo.getPlayer().equals("Guest")){
+            return new ArrayList<hexio.HexLogger>();
+        }
+        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        int radius = 5;
+        int queueSize = 3;
+        if (GameMode.getChar(currentGameInfo.getGameMode()) == 'M'){
+            radius = 8; queueSize = 5;
+        } else if (GameMode.getChar(currentGameInfo.getGameMode()) == 'L'){
+            radius = 11; queueSize = 7;
+        }
+        // Search for incomplete games
+        if(!loggers.isEmpty()){
+            int i = 0;
+            while (i < loggers.size()) {
+                HexLogger generatedLogger = loggers.get(i);
+                try {
+                    generatedLogger.readBinary();
+                    generatedLogger.read();
+                } catch (IOException e) {
+                    loggers.remove(i);
+                }
+                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == radius
+                        && generatedLogger.getQueue().length == queueSize
+                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
+                    i++;
+                } else loggers.remove(i);
+            }
+        }
+        return loggers;
     }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
@@ -305,34 +338,34 @@ public final class LaunchEssentials {
         return (int) Math.round(currentPlayerInfo.getAvgTurn());
     }
 
-    public static boolean log(int turn, int score){
+    public static void log(int turn, int score){
         // Print to console
         System.out.println(GameTime.generateSimpleTime() +
                 " GameEssentials: This game lasted for " + turn +
                 " turn" + (turn == 1 ? "" : "s") + ", resulting in a total score of " + score +
                 " point" + (score == 1 ? "" : "s") + ".");
-        // Try to read previous logs
-        try {
-            LaunchLogger.read();
-        } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
-        }
         // Update current information
         currentPlayerInfo.eraseStats();
         currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
                 new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
-        LaunchLogger.addGame(currentGameInfo);
-        updateRecent();
-        updateHighest();
-        updateOnGame();
-        try {
-            LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
-            LaunchLogger.resetLoggerInfo();
-            return true;
-        } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
-            LaunchLogger.resetLoggerInfo();
-            return false;
-        }
+        new Thread(() -> {
+            // Try to read previous logs
+            try {
+                LaunchLogger.read();
+            } catch (IOException e) {
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
+            }
+            LaunchLogger.addGame(currentGameInfo);
+            updateRecent();
+            updateHighest();
+            updateOnGame();
+            try {
+                LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
+                LaunchLogger.resetLoggerInfo();
+            } catch (IOException e) {
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
+                LaunchLogger.resetLoggerInfo();
+            }
+        }).start();
     }
 }

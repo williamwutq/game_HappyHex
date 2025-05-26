@@ -233,7 +233,9 @@ final class SevenSegment extends JComponent {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2.setColor(Color.WHITE);
-        g2.fill(cachedPath);
-        g2.draw(cachedPath); // Fix for too thin lines
+        try {
+            g2.fill(cachedPath);
+            g2.draw(cachedPath); // Fix for too thin lines
+        } catch (Exception e) {}
     }
 }
