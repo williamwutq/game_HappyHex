@@ -95,7 +95,7 @@ public class LoginPanel extends UniversalPanel {
         super.recalculate();
 
         double referenceEnterTextSize = Math.min(getReferenceHeight()*2, getReferenceWidth());
-        LaunchButton.setSizeConstant((int) Math.round(referenceEnterTextSize/144.0));
+        LaunchButton.setSizeConstant(referenceEnterTextSize/144.0);
 
         launchEnterTextPrompt.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.ITALIC, (int)Math.round(referenceEnterTextSize/24.0)));
         launchEnterTextPrompt.setBorder(new EmptyBorder((int)Math.round(referenceEnterTextSize/150.0)*2, 0, (int)Math.round(referenceEnterTextSize/150.0), 0));
