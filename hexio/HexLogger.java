@@ -1344,6 +1344,7 @@ public class HexLogger {
             if (turn != movesSize){
                 throw new IOException("Fail to read game moves because move array size does not match \"turn\"");
             }
+            moveQueues = new ArrayList<>(movesSize);
             moveOrigins = new ArrayList<>(movesSize);
             movePieces = new ArrayList<>(movesSize);
             // Populate moves
@@ -1486,6 +1487,7 @@ public class HexLogger {
         try{
             JsonArray movesJson = jsonObject.getJsonArray("moves");
             int movesSize = movesJson.size();
+            moveQueues = new ArrayList<>(movesSize);
             moveOrigins = new ArrayList<>(movesSize);
             movePieces = new ArrayList<>(movesSize);
             // Populate moves

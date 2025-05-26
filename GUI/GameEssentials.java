@@ -314,7 +314,6 @@ public final class GameEssentials {
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
-                    //cloned.setColor((int)(Math.random()*12));
                     engine.setBlock(block.getLineI(), block.getLineK(), cloned);
                 }
             }
@@ -322,7 +321,6 @@ public final class GameEssentials {
             for (int i = 0; i < loggerQueue.length; i++) {
                 Piece piece = loggerQueue[i];
                 if (piece != null) {
-                    //piece.setColor((int)(Math.random()*12));
                     queue.inject(piece, i);
                 }
             }
