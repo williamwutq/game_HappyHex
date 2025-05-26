@@ -448,10 +448,10 @@ public class HexLogger {
      * @return Whether the engine is changed.
      */
     public boolean setEngine(HexEngine engine){
-        if (completed) {return false;}
-        boolean success = false;
-        currentEngine = (HexEngine) engine.clone();
-        return true;
+        if (!completed){
+            currentEngine = engine.clone();
+            return true;
+        } return false;
     }
     /**
      * Set the current processed {@link Piece} queue to a copy of a new array of pieces.
@@ -459,11 +459,13 @@ public class HexLogger {
      * and is generally safe to use safe.
      * <p>
      * It is necessary to update the queue after the ending of a game before logging.
+     * @return Whether the queue has changed.
      */
-    public void setQueue(Piece[] queue){
+    public boolean setQueue(Piece[] queue){
         if (!completed){
             currentQueue = queue.clone();
-        }
+            return true;
+        } return false;
     }
     /**
      * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
