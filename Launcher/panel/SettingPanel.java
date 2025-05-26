@@ -88,7 +88,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingEasyModePanel.add(launchSettingEasyModeButton);
         launchSettingEasyModePanel.add(Box.createHorizontalGlue());
 
-        launchSettingRestartGameLabel = new JLabel("Restart Games | ");
+        launchSettingRestartGameLabel = new JLabel(" Auto Restart | ");
         launchSettingRestartGameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
         launchSettingRestartGameLabel.setForeground(LaunchEssentials.launchVersionFontColor);
         launchSettingRestartGameLabel.setHorizontalAlignment(SwingConstants.CENTER);
