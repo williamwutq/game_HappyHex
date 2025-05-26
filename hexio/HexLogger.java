@@ -583,6 +583,55 @@ public class HexLogger {
         return builder.toString();
     }
 
+    /**
+     * Creates and returns a deep clone of this {@code HexLogger} instance.
+     * <p>
+     * The method first attempts to use {@link Object#clone()} via {@code super.clone()} to create a shallow copy of
+     * the object. If cloning is not supported, it manually constructs a new {@code HexLogger} instance by duplicating
+     * key internal state fields then cloning the mutable fields. The clone operations may take some time for loggers
+     * containing significant data.
+     * <p>
+     * The method copy the mutable fields, including:
+     * <ul>
+     *     <li>{@code movePieces} is copied shallowly as it contains {@code Integer} objects, which are immutable.</li>
+     *     <li>{@code moveOrigins} is deep copied by cloning each {@link Hex} object individually.</li>
+     *     <li>{@code moveQueues} is shallowly copied at the array level, because {@link Piece} instances are passed by reference.</li>
+     *     <li>{@code currentEngine} and {@code currentQueue} are deep cloned using their respective {@code clone()} methods.</li>
+     * </ul>
+     * <p>
+     * If the original game was marked as complete (via {@code completeGame()}), this state is also replicated in the clone.
+     *
+     * @return a deep copied new {@code HexLogger} instance contain the exact same information as this one
+     * @since 1.3
+     */
+    public HexLogger clone(){
+        // Setup
+        HexLogger newLogger;
+        try {
+            newLogger = (HexLogger)super.clone();
+        } catch (CloneNotSupportedException e) {
+            newLogger = new HexLogger(getDataFileName());
+            newLogger.setPlayer(getPlayer(), getPlayerID());
+            newLogger.setTurn(getTurn());
+            newLogger.setScore(getScore());
+        }
+        // Copy ArrayLists
+        newLogger.movePieces.addAll(this.movePieces); // Integer, shallow is ok
+        for (Hex hex : this.moveOrigins){
+            newLogger.moveOrigins.add(hex.clone());
+        }
+        for (Piece[] queues : this.moveQueues){
+            newLogger.moveQueues.add(queues.clone());
+        }
+
+        // Deep engine and queue information
+        newLogger.currentEngine = this.currentEngine.clone();
+        newLogger.currentQueue = this.currentQueue.clone();
+        // Score and complete lock
+        if (completed) newLogger.completeGame();
+        return newLogger;
+    }
+
     // JSON
 
     /**
