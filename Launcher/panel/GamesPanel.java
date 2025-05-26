@@ -43,7 +43,9 @@ public class GamesPanel extends JPanel {
         size = 1;
         ArrayList<HexLogger> loggers = LaunchEssentials.smartFindLoggers();
         for (int i = 0; i < loggers.size(); i++) {
-            this.add(new ListGame("Item " + (i + 1)));
+            String fullname = loggers.get(i).getDataFileName();
+
+            this.add(new ListGame(fullname.substring(0, fullname.length() - 12)));
         }
         scrollPane = new JScrollPane(this);
         scrollPane.setBackground(LaunchEssentials.launchBackgroundColor);
@@ -72,22 +74,29 @@ public class GamesPanel extends JPanel {
     }
 
     private class ListGame extends JPanel {
+        private final JLabel fileNameLabel;
         public ListGame(String title) {
-            setBorder(BorderFactory.createLineBorder(Color.GRAY));
-            setAlignmentX(CENTER_ALIGNMENT);
-            setAlignmentY(CENTER_ALIGNMENT);
-            setBackground(LaunchEssentials.launchTitlePanelBackgroundColor);
-            setLayout(new BorderLayout());
-            setOpaque(false);
+            this.fileNameLabel = new JLabel(title);
+            this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+            this.setAlignmentX(CENTER_ALIGNMENT);
+            this.setAlignmentY(CENTER_ALIGNMENT);
+            this.setBackground(LaunchEssentials.launchTitlePanelBackgroundColor);
+            this.setLayout(new BorderLayout());
+            this.setOpaque(false);
 
-            JLabel label = new JLabel(title);
-            label.setFont(new Font("Arial", Font.BOLD, 16));
-            label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            add(label, BorderLayout.CENTER);
+            fileNameLabel.setVerticalAlignment(SwingConstants.CENTER);
+            fileNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            fileNameLabel.setAlignmentX(CENTER_ALIGNMENT);
+            fileNameLabel.setAlignmentY(CENTER_ALIGNMENT);
+            fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, 16));
+            fileNameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            JButton button = new JButton("Action");
-            button.setPreferredSize(new Dimension(80, 30));
-            add(button, BorderLayout.EAST);
+            this.add(fileNameLabel, BorderLayout.CENTER);
+        }
+
+        public void doLayout() {
+            fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, (int) size));
+            super.doLayout();
         }
 
         public void paint(Graphics g) {
@@ -99,7 +108,7 @@ public class GamesPanel extends JPanel {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.fillRoundRect(3+sizeP, 3+sizeP, getWidth()-6-sizeQ, getHeight()-6-sizeQ, sizeInt, sizeInt);
             g2.dispose();
-            //Draw a circle for now
+            paintChildren(g);
         }
     }
 }
