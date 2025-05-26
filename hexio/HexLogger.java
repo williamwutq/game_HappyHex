@@ -657,6 +657,13 @@ public class HexLogger {
         }
         return result;
     }
+    /**
+     * Generate loggers for every game logged in JSON format in the data directory.
+     *
+     * @return a list of {@code HexLogger}s representing the .hpyhex.json files found;
+     *         returns an empty list if none are found or if the directory is invalid
+     * @see #findGameJsonFiles()
+     */
     public static ArrayList<HexLogger> generateJsonLoggers(){
         ArrayList<Path> paths = findGameJsonFiles();
         ArrayList<HexLogger> result = new ArrayList<>();
@@ -690,6 +697,13 @@ public class HexLogger {
         }
         return result;
     }
+    /**
+     * Generate loggers for every game logged in binary format the data directory.
+     *
+     * @return a list of {@code HexLogger}s representing the .hpyhex files found in the directory;
+     *         returns an empty list if none are found or if the directory is invalid
+     * @see #findGameBinaryFiles()
+     */
     public static ArrayList<HexLogger> generateBinaryLoggers(){
         ArrayList<Path> paths = findGameBinaryFiles();
         ArrayList<HexLogger> result = new ArrayList<>();
