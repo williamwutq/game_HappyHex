@@ -130,6 +130,31 @@ public final class LaunchEssentials {
     public static boolean isRestartGame(){
         return restartGame;
     }
+    public static void startNewGame(){
+        gameStarted = true;
+        String player = getCurrentPlayer();
+        hexio.HexLogger logger = new hexio.HexLogger(player, getCurrentPlayerID());
+        int delay = 250;
+        if (currentGameInfo.getGameMode() == GameMode.Small){
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.Medium){
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.Large){
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), player, logger);
+        } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
+            System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else {
+            System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Unknown GameMode detected.");
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        }
+    }
     public static void startGame(){
         gameStarted = true;
         int delay = 250;

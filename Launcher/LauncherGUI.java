@@ -183,6 +183,15 @@ public class LauncherGUI {
         mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
         mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
     }
+    public static void startNewGame(){
+        LaunchEssentials.startNewGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
+        mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
+    }
     public static void toResumeGame(){
         LaunchEssentials.endGame();
 
