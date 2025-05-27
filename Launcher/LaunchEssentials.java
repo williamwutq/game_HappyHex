@@ -348,7 +348,6 @@ public final class LaunchEssentials {
         currentPlayerInfo.eraseStats();
         currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
                 new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
-        new Thread(() -> {
             // Try to read previous logs
             try {
                 LaunchLogger.read();
@@ -366,6 +365,5 @@ public final class LaunchEssentials {
                 System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
                 LaunchLogger.resetLoggerInfo();
             }
-        }).start();
     }
 }
