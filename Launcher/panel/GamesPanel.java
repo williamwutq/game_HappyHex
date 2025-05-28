@@ -42,10 +42,8 @@ public class GamesPanel extends JPanel {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         size = 1;
         ArrayList<HexLogger> loggers = LaunchEssentials.smartFindLoggers();
-        for (int i = 0; i < loggers.size(); i++) {
-            String fullname = loggers.get(i).getDataFileName();
-
-            this.add(new ListGame(fullname.substring(0, fullname.length() - 12)));
+        for (HexLogger logger : loggers) {
+            this.add(new ListGame(logger));
         }
         scrollPane = new JScrollPane(this);
         scrollPane.setBackground(LaunchEssentials.launchBackgroundColor);
@@ -76,8 +74,9 @@ public class GamesPanel extends JPanel {
     private class ListGame extends JPanel {
         private final JLabel fileNameLabel;
         private final JButton gameStartButton;
-        public ListGame(String title) {
-            this.fileNameLabel = new JLabel(title);
+        public ListGame(HexLogger logger) {
+            final String fullname = logger.getDataFileName();
+            this.fileNameLabel = new JLabel(fullname.substring(0, fullname.length() - 12));
             this.gameStartButton = new JButton("RESUME");
             this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
             this.setAlignmentX(CENTER_ALIGNMENT);
@@ -99,7 +98,7 @@ public class GamesPanel extends JPanel {
             gameStartButton.setForeground(LaunchEssentials.launchConfirmButtonBackgroundColor);
             gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 16));
             gameStartButton.addActionListener(e -> {
-                LauncherGUI.startGame(title + ".hpyhex.json");
+                LauncherGUI.startGame(fullname);
             });
 
             this.add(Box.createVerticalGlue());
