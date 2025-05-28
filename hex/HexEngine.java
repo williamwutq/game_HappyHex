@@ -665,11 +665,11 @@ public class HexEngine implements HexGrid{
         double entropy = 0.0;
         int patternTotal = 0;
         int [] patternCounts = new int[128]; // 2^7 because there are 128 available positions
-        for (Hex block : blocks) {
+        for (Block block : blocks) {
             if (block.shiftJ(1).inRange(getRadius() - 1)) {
-                // If it is possible to check patterns without
+                // If it is possible to check patterns without going out of bounds
                 patternTotal++;
-                patternCounts[getPattern(block.getLineI(), block.getLineJ(), false)]++;
+                patternCounts[getPattern(block.getLineI(), block.getLineK(), false)]++;
             }
         }
         for (int count : patternCounts) {
