@@ -24,8 +24,8 @@
 
 package Launcher.panel;
 
-import GUI.GameEssentials;
 import Launcher.LaunchEssentials;
+import Launcher.LauncherGUI;
 import hexio.HexLogger;
 
 import javax.swing.*;
@@ -98,6 +98,9 @@ public class GamesPanel extends JPanel {
             gameStartButton.setBorder(BorderFactory.createEmptyBorder());
             gameStartButton.setForeground(LaunchEssentials.launchConfirmButtonBackgroundColor);
             gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 16));
+            gameStartButton.addActionListener(e -> {
+                LauncherGUI.startGame(title + ".hpyhex.json");
+            });
 
             this.add(Box.createVerticalGlue());
             this.add(fileNameLabel);

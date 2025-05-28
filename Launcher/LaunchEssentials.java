@@ -172,11 +172,11 @@ public final class LaunchEssentials {
         } else {
             hexio.HexLogger appointedLogger = new hexio.HexLogger(name);
             try {
-                appointedLogger.readBinary();
+                appointedLogger.read();
                 logger = appointedLogger;
             } catch (IOException e) {
                 try {
-                    appointedLogger.read();
+                    appointedLogger.readBinary();
                     logger = appointedLogger;
                 } catch (IOException ex) {
                     System.err.println(GameTime.generateSimpleTime() + " GameEssentials: An invalid logger indicated in the GUI.");
