@@ -241,7 +241,7 @@ public class Block extends Hex{
      * @return A new hex coordinate shifted along the I-axis.
      */
     public Block shiftI(int unit){
-        Block temp = this;
+        Block temp = this.clone();
         temp.moveI(unit);
         return temp;
     }
@@ -252,7 +252,7 @@ public class Block extends Hex{
      * @return A new hex coordinate shifted along the J-axis.
      */
     public Block shiftJ(int unit){
-        Block temp = this;
+        Block temp = this.clone();
         temp.moveJ(unit);
         return temp;
     }
@@ -263,7 +263,7 @@ public class Block extends Hex{
      * @return A new hex coordinate shifted along the K-axis.
      */
     public Block shiftK(int unit){
-        Block temp = this;
+        Block temp = this.clone();
         temp.moveK(unit);
         return temp;
     }
