@@ -86,8 +86,21 @@ import java.util.ArrayList;
  * @version 1.3
  */
 public class HexEngine implements HexGrid{
+    private static final double logBaseEOf2 = Math.log(2);
     private int radius;
     private Block[] blocks;
+
+    /**
+     * Computes the base-2 logarithm of a given value.
+     *
+     * @param x the value to compute the logarithm for; must be greater than 0
+     * @return the base-2 logarithm of {@code x}
+     * @throws IllegalArgumentException if {@code x} is less than or equal to 0
+     */
+    public static double log2(double x) {
+        if (x <= 0) throw new IllegalArgumentException("log2 is undefined for non-positive values: " + x);
+        return Math.log(x) / logBaseEOf2;
+    }
     /**
      * Constructs a {@code HexEngine} with the specified radius and default colors.
      * Populates the hexagonal {@link HexGrid block grid} with valid blocks.
