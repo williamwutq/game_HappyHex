@@ -174,14 +174,17 @@ public class LauncherGUI {
     public static void setBackgroundColor(Color color){
         mainFrame.setBackground(color);
     }
-    public static void startGame(){
-        LaunchEssentials.startGame();
+    public static void startGame(String fileName){
+        LaunchEssentials.startGame(fileName);
 
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
         mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
+    }
+    public static void startGame(){
+        startGame("");
     }
     public static void startNewGame(){
         LaunchEssentials.startNewGame();

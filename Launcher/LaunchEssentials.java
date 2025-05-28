@@ -155,27 +155,53 @@ public final class LaunchEssentials {
             GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
         }
     }
-    public static void startGame(){
+    public static void startGame(String name){
         gameStarted = true;
+        String player = getCurrentPlayer();
+        hexio.HexLogger logger = new hexio.HexLogger(player, getCurrentPlayerID());
+        if (name == null || name.isEmpty()){
+            if (currentGameInfo.getGameMode() == GameMode.Small || currentGameInfo.getGameMode() == GameMode.SmallEasy){
+                logger = smartCreateLogger(5, 3);
+            } else if (currentGameInfo.getGameMode() == GameMode.Medium || currentGameInfo.getGameMode() == GameMode.MediumEasy){
+                logger = smartCreateLogger(8, 5);
+            } else if (currentGameInfo.getGameMode() == GameMode.Large || currentGameInfo.getGameMode() == GameMode.LargeEasy){
+                logger = smartCreateLogger(11, 7);
+            } else {
+                logger = new hexio.HexLogger(player, getCurrentPlayerID());
+            }
+        } else {
+            hexio.HexLogger appointedLogger = new hexio.HexLogger(name);
+            try {
+                appointedLogger.readBinary();
+                logger = appointedLogger;
+            } catch (IOException e) {
+                try {
+                    appointedLogger.read();
+                    logger = appointedLogger;
+                } catch (IOException ex) {
+                    System.err.println(GameTime.generateSimpleTime() + " GameEssentials: An invalid logger indicated in the GUI.");
+                }
+            }
+        }
         int delay = 250;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(8, 5));
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(11, 7));
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(8, 5));
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(11, 7));
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), player, logger);
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
             System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else {
             System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Unknown GameMode detected.");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
         }
     }
     public static void endGame(){
