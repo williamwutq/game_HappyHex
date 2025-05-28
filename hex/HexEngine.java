@@ -167,6 +167,7 @@ public class HexEngine implements HexGrid{
      * <p>
      * The number returned will always be between 0 and {@link #length()}.
      * @return the number of occupied (filled) blocks
+     * @since 1.3
      */
     public int getFilled(){
         int total = 0;
@@ -181,6 +182,7 @@ public class HexEngine implements HexGrid{
      * @return the percentage of occupied (filled) blocks in respect to all blocks contained in the grid
      * @see #getFilled()
      * @see #length()
+     * @since 1.3
      */
     public double getPercentFilled(){
         return (double) getFilled() / blocks.length;
@@ -706,6 +708,45 @@ public class HexEngine implements HexGrid{
             }
         }
         return entropy;
+    }
+    /**
+     * Computes an entropy-based index score for hypothetically placing another {@link HexGrid} onto this grid.
+     * <p>
+     * The entropy index is a value between 0 and 1 that measures the change in the grid's entropy when the
+     * specified {@code other} grid is placed at the given {@code origin} coordinate. This index is derived
+     * by computing the difference in Shannon entropy (as calculated by {@link #computeEntropy()}) between
+     * the current grid and a hypothetical grid state after adding {@code other} and performing an elimination
+     * step. The entropy difference is adjusted by a constant offset (0.21) and transformed using a sigmoid
+     * function to map the result to the range [0, 1]. The sigmoid function used is:
+     * <pre>{@code f(x) = 1 / (1 + e^(-3 * (x - 0.2)))}</pre>
+     * where {@code x} is the adjusted entropy difference. A higher index indicates a placement that results
+     * in a grid configuration with significantly different pattern diversity, which may be useful in
+     * reinforcement learning or game strategy evaluation to prioritize moves that decrease or maintain
+     * randomness in block arrangements.
+     * <p>
+     * The method operates on a cloned {@link HexEngine} to avoid modifying the current grid state. It adds
+     * the {@code other} grid at the specified {@code origin}, performs the elimination, and calculates the
+     * entropy difference between the two engines. This method assumes the placement is valid or an exception
+     * may be thrown.
+     *
+     * @param origin the position in the grid where the {@code other} grid is hypothetically placed
+     * @param other the {@link HexGrid} representing the piece to be evaluated for placement
+     * @return a value between 0 and 1 representing the entropy-based index score, where higher values indicate
+     *         a greater increase in pattern entropy after piece placement and elimination
+     * @throws IllegalArgumentException if the piece placement is invalid
+     * @since 1.3
+     * @see #computeEntropy()
+     * @see #clone()
+     * @see #add(Hex, HexGrid)
+     */
+    public double computeEntropyIndex(Hex origin, HexGrid other) throws IllegalArgumentException{
+        // Test move
+        HexEngine copy = clone();
+        copy.add(origin, other);
+        copy.eliminate();
+        double x = copy.computeEntropy() - computeEntropy() - 0.21;
+        // Sigmoid: 1/(1+e^-k(x-c)) k use 3 c use 0.2
+        return 1 / (1 + Math.exp(-3 * x));
     }
 
     /**
