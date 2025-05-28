@@ -82,6 +82,10 @@ import java.util.ArrayList;
  * method. This computes a normalized score (0 to 1) representing how densely the placed grid would interact
  * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
  * <p>
+ * Punishing moves that leave too much blocks on the grid could be enabled with {@link #getPercentFilled()}, a method that
+ * returns the percentage of blocks that are filled. High percentage of filled blocks indicates difficulty regarding elimination,
+ * which, although trivial, may ultimately result in severe problems.
+ * <p>
  * Rewarding moves the simplifies the board can be made using calculations regarding {@link #computeEntropy() entropy}.
  * Generally, moves that reduce entropy should be awarded and moves that increase entropy significantly should be punished.
  * @since 1.0
@@ -157,6 +161,29 @@ public class HexEngine implements HexGrid{
      */
     public int getRadius(){
         return radius;
+    }
+    /**
+     * Returns the number of occupied {@link Block}s in the grid.
+     * <p>
+     * The number returned will always be between 0 and {@link #length()}.
+     * @return the number of occupied (filled) blocks
+     */
+    public int getFilled(){
+        int total = 0;
+        for (Block block : blocks){
+            if (block.getState()) total ++;
+        }
+        return total;
+    }
+    /**
+     * Returns the percentage of occupied {@link Block}s in the grid, as a double between 0 and 1.
+     *
+     * @return the percentage of occupied (filled) blocks in respect to all blocks contained in the grid
+     * @see #getFilled()
+     * @see #length()
+     */
+    public double getPercentFilled(){
+        return (double) getFilled() / blocks.length;
     }
     // Implements HexGrid
     /**
