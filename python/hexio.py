@@ -1,4 +1,4 @@
-from python import hex as hx
+import hex as hx
 from pathlib import Path
 
 __all__ = ['read_f', 'smart_find_f', 'smart_read_f', 'HexReader']
