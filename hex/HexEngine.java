@@ -81,6 +81,9 @@ import java.util.ArrayList;
  * Rewarding effective gap-filling and spatial efficiency is made possible through the {@link #computeDenseIndex(Hex, HexGrid)}
  * method. This computes a normalized score (0 to 1) representing how densely the placed grid would interact
  * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
+ * <p>
+ * Rewarding moves the simplifies the board can be made using calculations regarding {@link #computeEntropy() entropy}.
+ * Generally, moves that reduce entropy should be awarded and moves that increase entropy significantly should be punished.
  * @since 1.0
  * @author William Wu
  * @version 1.3
@@ -582,7 +585,101 @@ public class HexEngine implements HexGrid{
             return 0;
         } else return (double) totalPopulated / totalPossible;
     }
-
+    /**
+     * Determine the pattern of the {@link Block}s around the given {@link Hex position} in the hexagonal grid,
+     * include the block itself. This calculation ignores color of the blocks.
+     * <p>
+     * This method checks up to seven positions in a box bounded around the block located at coordinates (i, k).
+     * This method adheres to the standard of a standard 7-{@link Block} box, returning values representing the pattern
+     * inside the box, taking into account the {@link Block#getState() state} of every block in the range. The returning
+     * value will between 0 and 127, inclusive.
+     * <p>
+     * If a neighboring position is out of range or contains a {@code null} block, it is either counted as occupied
+     * or unoccupied based on the {@code includeNull} flag.
+     *
+     * @param i the I-line coordinate of the block in the center of the box to check for pattern.
+     * @param k the K-line coordinate of the block in the center of the box to check for pattern.
+     * @param includeNull whether to treat {@code null} or out-of-bounds neighbors as occupied ({@code true}) or unoccupied ({@code false}).
+     * @return a number represent the pattern seen in the box around the {@code Block}. This value is in the range [0, 127].
+     * @since 1.3
+     */
+    private int getPattern(int i, int k, boolean includeNull){
+        int pattern = 0;
+        if (inRange(i - 1, k - 1)){
+            if (getBlock(i - 1, k - 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i - 1, k)){
+            if (getBlock(i - 1, k).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i, k - 1)){
+            if (getBlock(i, k - 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i, k )){
+            if (getBlock(i, k ).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i, k + 1)){
+            if (getBlock(i, k + 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i + 1, k)){
+            if (getBlock(i + 1, k).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i + 1, k + 1)){
+            if (getBlock(i + 1, k + 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        return pattern;
+    }
+    /**
+     * Computes the entropy of the hexagonal grid based on the distribution of 7-block patterns.
+     * <p>
+     * Entropy is calculated using the Shannon entropy formula, measuring the randomness of block arrangements
+     * in the grid. Each pattern consists of a central {@link Block} and its six neighboring blocks, forming
+     * a 7-block hexagonal box, as defined by the {@link #getPattern(int, int, boolean)} method. The entropy
+     * reflects the diversity of these patterns, such that a grid with randomly distributed filled and empty
+     * blocks has higher entropy than one with structured patterns (e.g., all blocks in a line or cluster).
+     * A grid with all blocks filled or all empty has zero entropy. Inverting the grid (swapping filled and
+     * empty states) results in the same entropy, as the pattern distribution remains unchanged.
+     * <p>
+     * The method iterates over all blocks within the grid's radius (excluding the outermost layer to ensure
+     * all neighbors are in range), counts the frequency of each possible 7-block pattern (2^7 = 128 patterns),
+     * and computes the entropy according to the
+     * <a href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Shannon entropy formula</a> as:
+     * <pre>
+     * H = -Σ (p * log₂(p))
+     * </pre>
+     * where {@code p} is the probability of each pattern (frequency divided by total patterns counted).
+     * Blocks on the grid's boundary (beyond {@code radius - 1}) are excluded to avoid incomplete patterns.
+     *
+     * @return the entropy of the grid in bits, a non-negative value representing the randomness of block
+     *         arrangements. Returns 0.0 for a uniform grid (all filled or all empty) or if no valid patterns
+     *         are counted.
+     * @since 1.3
+     * @see #getPattern(int, int, boolean)
+     */
+    public double computeEntropy(){
+        double entropy = 0.0;
+        int patternTotal = 0;
+        int [] patternCounts = new int[128]; // 2^7 because there are 128 available positions
+        for (Hex block : blocks) {
+            if (block.shiftJ(1).inRange(getRadius() - 1)) {
+                // If it is possible to check patterns without
+                patternTotal++;
+                patternCounts[getPattern(block.getLineI(), block.getLineJ(), false)]++;
+            }
+        }
+        for (int count : patternCounts) {
+            if (count > 0) {
+                double p = (double) count / patternTotal;
+                entropy -= p * HexEngine.log2(p); // log base 2
+            }
+        }
+        return entropy;
+    }
 
     /**
      * Returns a string representation of the grid color and block states.
