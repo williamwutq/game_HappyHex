@@ -24,6 +24,7 @@
 
 package Launcher.panel;
 
+import GUI.InlineInfoPanel;
 import Launcher.LaunchEssentials;
 import Launcher.LauncherGUI;
 import hexio.HexLogger;
@@ -74,10 +75,13 @@ public class GamesPanel extends JPanel {
     private class ListGame extends JPanel {
         private final JLabel fileNameLabel;
         private final JButton gameStartButton;
+        private final GUI.InlineInfoPanel gameScorePanel, gameTurnPanel;
         public ListGame(HexLogger logger) {
             final String fullname = logger.getDataFileName();
             this.fileNameLabel = new JLabel(fullname.substring(0, fullname.length() - 12));
             this.gameStartButton = new JButton("RESUME");
+            this.gameScorePanel = new InlineInfoPanel();
+            this.gameTurnPanel = new InlineInfoPanel();
             this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
             this.setAlignmentX(CENTER_ALIGNMENT);
             this.setAlignmentY(CENTER_ALIGNMENT);
@@ -101,16 +105,26 @@ public class GamesPanel extends JPanel {
                 LauncherGUI.startGame(fullname);
             });
 
+            gameScorePanel.setTitle("Score: ");
+            gameScorePanel.setInfo(logger.getScore() + "");
+            gameTurnPanel.setTitle("Turn: ");
+            gameTurnPanel.setInfo(logger.getTurn() + "");
+
             this.add(Box.createVerticalGlue());
             this.add(fileNameLabel);
+            this.add(gameScorePanel);
+            this.add(gameTurnPanel);
             this.add(Box.createVerticalGlue());
             this.add(gameStartButton);
             this.add(Box.createVerticalGlue());
         }
 
         public void doLayout() {
-            fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, (int) size));
-            gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, (int) size));
+            int sizeInt = (int)size;
+            gameScorePanel.setSize(sizeInt);
+            gameTurnPanel.setSize(sizeInt);
+            fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, sizeInt));
+            gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, sizeInt));
             super.doLayout();
         }
 
