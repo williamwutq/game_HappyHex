@@ -75,13 +75,15 @@ public class GamesPanel extends JPanel {
 
     private class ListGame extends JPanel {
         private final JLabel fileNameLabel;
+        private final JButton gameStartButton;
         public ListGame(String title) {
             this.fileNameLabel = new JLabel(title);
+            this.gameStartButton = new JButton("RESUME");
             this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
             this.setAlignmentX(CENTER_ALIGNMENT);
             this.setAlignmentY(CENTER_ALIGNMENT);
             this.setBackground(LaunchEssentials.launchTitlePanelBackgroundColor);
-            this.setLayout(new BorderLayout());
+            this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
             this.setOpaque(false);
 
             fileNameLabel.setVerticalAlignment(SwingConstants.CENTER);
@@ -91,11 +93,22 @@ public class GamesPanel extends JPanel {
             fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, 16));
             fileNameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            this.add(fileNameLabel, BorderLayout.CENTER);
+            gameStartButton.setAlignmentX(CENTER_ALIGNMENT);
+            gameStartButton.setAlignmentY(CENTER_ALIGNMENT);
+            gameStartButton.setBorder(BorderFactory.createEmptyBorder());
+            gameStartButton.setForeground(LaunchEssentials.launchConfirmButtonBackgroundColor);
+            gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 16));
+
+            this.add(Box.createVerticalGlue());
+            this.add(fileNameLabel);
+            this.add(Box.createVerticalGlue());
+            this.add(gameStartButton);
+            this.add(Box.createVerticalGlue());
         }
 
         public void doLayout() {
             fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, (int) size));
+            gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, (int) size));
             super.doLayout();
         }
 
