@@ -83,7 +83,9 @@ public final class InlineInfoPanel extends JComponent implements ComponentListen
     public void recalculate(){
         titleLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.BOLD, size));
         infoLabel.setFont(new Font(GameEssentials.gameDisplayFont, Font.PLAIN, size));
-        Dimension lineSize = new Dimension(this.getWidth() - titleLabel.getWidth() - infoLabel.getWidth(),size/8);
+        int lineHeight = size/8;
+        if (lineHeight < 1) lineHeight = 1;
+        Dimension lineSize = new Dimension(this.getWidth() - titleLabel.getWidth() - infoLabel.getWidth(), lineHeight);
         linePanel.setPreferredSize(lineSize);
         linePanel.setMinimumSize(lineSize);
         linePanel.setMaximumSize(lineSize);

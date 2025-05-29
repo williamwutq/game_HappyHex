@@ -55,12 +55,13 @@ public class GamesPanel extends JPanel {
 
     public void doLayout(){
         Dimension rawSize = this.getParent().getBounds().getSize();
-        size = Math.min(rawSize.width, rawSize.height) / 12.0;
+        size = Math.min(rawSize.width, rawSize.height) / 15.0;
         int size5 = (int) (size*5.0);
         for (Component game : getComponents()){
             if (game instanceof ListGame listGame){
                 listGame.setPreferredSize(new Dimension(rawSize.width, size5));
                 listGame.setSize(new Dimension(rawSize.width, size5));
+                listGame.doLayout();
             }
         }
         super.doLayout();
@@ -105,13 +106,14 @@ public class GamesPanel extends JPanel {
                 LauncherGUI.startGame(fullname);
             });
 
-            gameScorePanel.setTitle("Score: ");
-            gameScorePanel.setInfo(logger.getScore() + "");
-            gameTurnPanel.setTitle("Turn: ");
-            gameTurnPanel.setInfo(logger.getTurn() + "");
+            gameScorePanel.setTitle("   Score: ");
+            gameScorePanel.setInfo(logger.getScore() + "   ");
+            gameTurnPanel.setTitle("   Turn: ");
+            gameTurnPanel.setInfo(logger.getTurn() + "   ");
 
             this.add(Box.createVerticalGlue());
             this.add(fileNameLabel);
+            this.add(Box.createVerticalGlue());
             this.add(gameScorePanel);
             this.add(gameTurnPanel);
             this.add(Box.createVerticalGlue());
@@ -120,7 +122,7 @@ public class GamesPanel extends JPanel {
         }
 
         public void doLayout() {
-            int sizeInt = (int)size;
+            int sizeInt = (int)size/2;
             gameScorePanel.setSize(sizeInt);
             gameTurnPanel.setSize(sizeInt);
             fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, sizeInt));
