@@ -32,7 +32,7 @@ import javax.swing.border.*;
 import java.awt.event.*;
 
 public abstract class LaunchButton extends JButton implements ActionListener, Launcher.Recolorable {
-    private static int sizeConstant = 1;
+    private static double sizeConstant = 1;
     private static Color backGroundColor;
     public LaunchButton(String text){
         super();
@@ -42,7 +42,9 @@ public abstract class LaunchButton extends JButton implements ActionListener, La
         this.setOpaque(false);
         this.setContentAreaFilled(false);
         this.setFocusPainted(false);
-        this.setBorder(new EmptyBorder(sizeConstant * 2, sizeConstant * 3, sizeConstant * 2, sizeConstant * 3));
+        int size2 = (int) Math.round(sizeConstant * 2);
+        int size3 = (int) Math.round(sizeConstant * 3);
+        this.setBorder(new EmptyBorder(size2, size3, size2, size3));
 
         this.setLayout(null);
         this.setBounds(0,0,this.getWidth(),this.getHeight());
@@ -50,20 +52,24 @@ public abstract class LaunchButton extends JButton implements ActionListener, La
         this.setAlignmentY(Component.CENTER_ALIGNMENT);
         this.setHorizontalAlignment(SwingConstants.CENTER);
         this.setVerticalAlignment(SwingConstants.CENTER);
-        this.setFont(new Font(LaunchEssentials.launchButtonFont, Font.BOLD, sizeConstant * 5));
+        this.setFont(new Font(LaunchEssentials.launchButtonFont, Font.BOLD, (int) Math.round(sizeConstant * 5)));
         this.addActionListener(this);
     }
     public final void paint(Graphics g) {
-        this.setBorder(new EmptyBorder(sizeConstant * 2, sizeConstant * 3, sizeConstant * 2, sizeConstant * 3));
-        this.setFont(new Font(LaunchEssentials.launchButtonFont, Font.BOLD, sizeConstant * 5));
+        int size = (int) Math.round(sizeConstant);
+        int size2 = (int) Math.round(sizeConstant * 2);
+        int size3 = (int) Math.round(sizeConstant * 3);
+        int size6 = (int) Math.round(sizeConstant * 6);
+        this.setBorder(new EmptyBorder(size2, size3, size2, size3));
+        this.setFont(new Font(LaunchEssentials.launchButtonFont, Font.BOLD, (int) Math.round(sizeConstant * 5)));
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(getBackground());
-        g2.fillRoundRect(sizeConstant, sizeConstant, getWidth()-2*sizeConstant, getHeight()-2*sizeConstant, sizeConstant * 6, sizeConstant * 6);
+        g2.fillRoundRect(size, size, getWidth()-size2, getHeight()-size2, size6, size6);
         g2.dispose();
         super.paintComponent(g);
     }
-    public static void setSizeConstant(int size){
+    public static void setSizeConstant(double size){
         sizeConstant = size;
     }
     public static void setBackGroundColor(Color color){

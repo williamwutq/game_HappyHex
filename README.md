@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 24/05/2025  
-<b>Latest release:</b> [1.3.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.1)
+<b>Last edited:</b> 28/05/2025  
+<b>Latest release:</b> [1.3.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.2)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -29,6 +29,7 @@ felt compelled to actually program a functional game. Combined with my earlier i
 what would be future `HappyHex` formed in my mind. In my spare time, I gradually developed this project through following my [timeline](#Future-Timeline)
 and added increasingly attractive features. From version 0.4 to 1.3, it has grown from just a game page with buggy information display that had to be
 launched through terminal commands and contained no color indication to a comprehensive and enjoyable game that features settings, themes, and animation.
+Game logging and viewing, and even resume game functionalities are slowly build up in [Pull Requests](https://github.com/williamwutq/game_HappyHex/pulls).
 It has become that one project which I could not stop thinking about. Step by step improvements will be made in different aspects and merged together for
 revisions after revisions. In the end, I would incorporate intelligent autoplay systems, unlockable achievements, and even fancier graphics.
 
@@ -58,6 +59,8 @@ How to download the game and play, or, if you want, compile it yourself.
    6. If tests are not needed, remove the `tests` package.
    7. Compile the program.
    8. Run main method in `Main` class in the main directory, usually named `game_HappyHex`.
+
+Usage of the Game Viewer please see its own [README](viewer/README.md). Generally, users may run the [JAR File](viewer/GameViewer.jar).
 
 ### Dependencies
 - [javax.swing](https://docs.oracle.com/javase/7/docs/api/javax/swing/package-summary.html)
@@ -134,7 +137,7 @@ The page contains the following elements:
 
 - <b>Game Title</b>  
   
-  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  This is the exact same element as that in [Main Page](#Main-Page), with the only difference being the elimination of the space above this title.
   The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
   which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
   The sequencing of the colors is randomized every time the page is refreshed.
@@ -189,7 +192,7 @@ The page contains the following elements:
 
 - <b>Game Credits</b>  
 
-  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](#Main-Page).  
 
 #### Settings Page
 
@@ -219,6 +222,9 @@ The page contains the following elements:
 - <b>Restart Games Settings</b>  
   
   Turned `ON` by default. Turning the switch `ON` enables functionality to restart unfinished games, while turning it `OFF` disables it.  
+
+  This setting only applies to the [Start Button](#Main-Page) in the main page. If you want to restart a specific game or start a new game, you may always
+  access the [Resume Page](#Resume-Page).  
   
   This switch controls whether to restart an unfinished game when it is possible to do so. When disabled, ever game will be new no matter how many previously
   unfinished games the player have. When enabled, the game will try to find a previously unfinished game of the player in this particular setting, and if it
@@ -244,17 +250,17 @@ The page contains the following elements:
 - <b>Quit Button</b>  
   
   This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
-  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. All changes in settings will be saved.  
+  When clicked, this button redirects to the [Main Page](#Main-Page) unconditionally. All changes in settings will be saved.  
 
 - <b>Game Credits</b>  
 
-  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](#Main-Page).  
 
 #### Themes Page
 
 - <b>Game Title</b>  
   
-  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  This is the exact same element as that in [Main Page](#Main-Page), with the only difference being the elimination of the space above this title.
   The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
   which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
   The sequencing of the colors is randomized every time the page is refreshed.
@@ -278,11 +284,53 @@ The page contains the following elements:
 - <b>Quit Button</b>  
   
   This is a button similar to all the other redirection buttons, but appears usually in red and contains the text "QUIT".  
-  When clicked, this button redirects to the [Main Page](Main-Page) unconditionally. All changes in theme settings will be saved.  
+  When clicked, this button redirects to the [Main Page](#Main-Page) unconditionally. All changes in theme settings will be saved.  
 
 - <b>Game Credits</b>  
 
-  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](Main-Page).  
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](#Main-Page).  
+
+#### Resume Page
+
+This page helps the player to resume a previously stated but unfinished game stored in the `data` directory. For a game to show up on this page, the following
+requirements all be meet:  
+
+1. Either a valid `.hpyhex` or a valid `.hpyhex.json` game log file exist in the `data` directory. Validity of game file means that they are not corrupted and
+   can be read by the HappyHex program.  
+2. The game is unfinished. This means in both the binary `.hpyhex` or the `.hpyhex.json` files need to have the key `complete` set to `false`.  
+3. The username and user ID recorded in both the binary `.hpyhex` or the `.hpyhex.json` game log files matched the currently [logged-in](#Login-Page) user.
+   In addition, the user logged in, as when user is not logged in, games will not be able to resumed or recorded.  
+4. The game queue and board sizes matches the sizes currently selected in the [settings](#settings-page). If the settings do not match, no game may show up.  
+
+Whenever a game shows up, the panel will have a section with round corners displaying essential information about the game. This information does not include
+username or id because whenever resuming game is possible, the user must be logged in. This information, however, includes the game's file name, which is a
+randomly generated 16 hexadecimal character hash (64 bit). The file name may include its location, namely `data/`, referring to the data directory. In addition,
+the field also displays the game's current score and turn, indicating the game's progress. Players can judge based on the score and turn to decide which game
+to resume and play.  
+
+Each section has a green button, show as green text "RESUME". Click on the button to the specific game. If the game cannot be resumed due to undetected data
+corruption in the game log, or when game log reading encountered an error, the application will automatically start a new game for the player. If the player
+does not want to play the new game, they may quit out of the game.  
+
+If there are no sections indicating existence of unfinished games, the field will be blank. If there are more sections than what can be displayed in the field
+at the same time, a scroll bar will show up, enable scrolling of the field. Move the scroll bar vertically to view more game entries and click on their resume
+buttons to resume those games.  
+
+On the bottom of the page, there are three buttons:  
+
+- <b>Quit Button</b>
+
+  This is a button similar to all the other redirection buttons, appears in red and contains the text "QUIT".  
+  When clicked, this button redirects to the [Main Page](#Main-Page) unconditionally.  
+
+- <b>Start Button</b>
+
+  This button functions exactly like the [start button](#start-game) of the [Main Page](#Main-Page)m appears in black and contains the text "RESUME".  
+  This will start a new game or resume an unfinished game based on the game setting.  
+
+- <b>New Button</b>
+
+  This is a button to start an entirely new game, appears in green and contains the text "START". This button will not resume any game.  
 
 #### Start Game
 
@@ -299,8 +347,9 @@ The game page includes components such as:
 - **Quit Button**: Clicking on the quit button will enable you to quit the game. Current progress will be logged into `log.json` if a game has started.  
 
 ### Theme, Color and Font
-This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](Special-Themes)
-section.
+This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](#Special-Themes)
+section.  
+
 #### Fonts
 The various sections of the game GUI use the following Fonts, they are stored as static variables in
 `GUI.GameEssentials` and `Launcher.LaunchEssentials`. They may be modified by [Easter eggs](#Easter-Eggs).
@@ -408,7 +457,7 @@ This theme can be activated in the launcher page themes, when the `White` switch
 
 #### Screen Shots
 These are screenshots of various portions of the game as of [patch 1.1.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.1.3).
-The colors and fonts of the three basic themes have not changed since.  
+The colors and fonts of the three basic themes have not changed since, but a resume button similar to all other buttons has been added to the main page.  
 - [Normal Color Theme](#Normal-Color-Theme):<br/>
   <img width="275" alt="Normal Theme Main Page" src="https://github.com/user-attachments/assets/febf09bb-7fd2-4824-b8c3-d65e578c41ad" />
   <img width="275" alt="Normal Theme Login Page" src="https://github.com/user-attachments/assets/71475819-ab58-45d8-bba6-fd2bb540480f" />
@@ -651,26 +700,24 @@ the improvements of user experience. The branch `fancy`, which is no longer in u
 How the game is played. This including scoring systems, awards, resetting, fetching and displaying previous game scores, etc. Currently, the most recent score
 and turns, the highest score and turns, and the average score and turns can be seen when the game is over.<br/><br/>
 Future considerations in this include setting passwords for user accounts, adding an achievement and purchasable system that would be linked with graphic themes, 
-and providing a page for more detailed user game analysis. It is also considered to develop a separate runnable program derived from the current
-[Game Graphics](#develop--game-graphics), which can help the player to review their game. This may potentially also help with
-[Machine learning](#develop--machine-learning) and intelligent autoplay. For these reasons, it has its own tab [Game Viewer](#develop--game-viewer).
+and providing a page for more detailed user game analysis.  
 3. <a name="develop--special-themes"><b>Special Themes</b></a>  
 These are themes that could only be activated during certain days, such as Halloween, Independence Day, or Christmas. Some of them also serve as memorial to 
 tragic events such as the September 11th attacks. These themes use the same injection interface as [SpecialModes](#develop--special-modes), and are packaged
-in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`. Only Christmas theme is to be developed.<br/>
-4<a name="develop--machine-learning"><b>Machine Learning</b></a>  
+in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`. Only Christmas theme is to be developed.<br/>  
+4. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
 A more precise way of describing this direction would be auto-game-play. This means a machine would be build to play the game while the player sit there and
 watch. This autoplay would be initially enabled through scoring algorithms and later through trained artificial intelligence operated in Python. This is a feature
 of the future but current architecture is being designed around it. At the same time, scoring and reward functions are gradually coming online.<br/> 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.3.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.1)
-- Version 1.3.2
+- Latest Release: [1.3.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.2)
+- Version 1.3.3
   - More python code for interprocess communication
-  - Add basic panel to select game to continue
-- Version 1.4
+  - More java code to launch the python code and communicate with the python code
   - Add autoplay based on random, turn on via settings
+- Version 1.4
   - Add and compiled game viewer
   - Graphics improvements
 - Version 1.5
@@ -740,8 +787,8 @@ package `Launcher`
 <b>Dependencies</b>:  
 `io`, `hexio`, `GUI`, `special`, and `javax.swing`  
 <b>Function</b>:  
-Provides game launcher graphics through Java Swing. This includes the main page, the settings page, the login page, the game over page, and the themes page.
-It also provides links to set up evironment and start a [game](#Graphics-(GUI)). In addition, it calls to the internal game logger to read local data.
+Provides game launcher graphics through Java Swing. This includes the main page, the settings page, the login page, the game over page, the resume page, and the themes page.
+It also provides links to set up evironment and start or resume a [game](#Graphics-(GUI)). In addition, it calls to the internal game logger to read local data.
 This includes logging player scores and turns, loading previous unfinished games, calculate player average turns and score, and more.
 
 ### Python

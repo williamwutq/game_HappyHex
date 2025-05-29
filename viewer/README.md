@@ -2,7 +2,7 @@
 
 **Latest Version:** 1.0  
 **Latest release:** [HappyHex 1.3.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.1)  
-**Last edited:** 24/05/2025  
+**Last edited:** 27/05/2025  
 **Backward compatible with HappyHex Game Version:** 1.3.0  
 **License:** [MIT](LICENSE)  
 **Author** William Wu  
@@ -60,6 +60,7 @@ Remember, game viewer mainly serves as a developer tool, not a game product or f
 - On-screen keyboard for input.
 - Score and turn indicators included.
 - Fully self-contained in a single JAR.
+- Eye like icon for the program.
 
 ## Dependencies
 
@@ -94,7 +95,13 @@ No additional libraries or themes are needed. There are **No** Easter Eggs, hidd
     - Use the **slider at the bottom** to adjust the playback speed.
     - The **score and turn** will be shown at the top center, between the filename and the game board.
 
-4. **Load Another Game**:
+4. **Refresh Game**:
+   - Games are not automatically refreshed.
+   - Games maybe updated during your viewing experience, so you may need to refresh the game. Click the filename field.
+   - This will display the keyboard. Do nothing to the keyboard. Do NOT press `CLR` (Clear).
+   - Click on the filename field again. This will refresh the game.
+
+5. **Load Another Game**:
     - Click the filename again to re-activate the keyboard.
     - Press `CLR` (Clear), enter a new filename, and press `ENT`.
 
