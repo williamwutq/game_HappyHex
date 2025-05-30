@@ -344,16 +344,3 @@ def smart_read_f () -> [HexReader]:
     rs = [HexReader(p) for p in ps]
     for r in rs: r.read()
     return [r for r in rs if r.game_exist()]
-
-
-if __name__ == '__main__':
-    reader = HexReader("")
-    print(reader.get_path())
-    print(reader.file_exist())
-    print(reader.game_exist())
-    print(reader.read())
-    for f in smart_read_f():
-        print(f.get_path())
-        print(f.read())
-        print(f.game_exist())
-        print(f)

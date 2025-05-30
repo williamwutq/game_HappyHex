@@ -40,7 +40,7 @@ import java.io.InputStreamReader;
  * </ul>
  *
  * <p><b>Note:</b> This assumes the presence of a valid Python 3 interpreter named
- * {@code python3} in the system's PATH and a script located at {@code python/hexio.py}.
+ * {@code python3} in the system's PATH and a script located at {@code python/main.py}.
  */
 public class PythonRunner {
     /**
@@ -55,7 +55,7 @@ public class PythonRunner {
     public static void main(String[] args){
         try {
             // Specify the command: python + script
-            ProcessBuilder pb = new ProcessBuilder("python3", "python/hexio.py");
+            ProcessBuilder pb = new ProcessBuilder("python3", "python/main.py");
 
             // Redirect output
             pb.redirectErrorStream(true);
