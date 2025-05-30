@@ -297,8 +297,11 @@ class HexReader:
 
     def read(self) -> bool:
         try:
-            self.__read()
-        except IOError | ValueError | TypeError:
+            try:
+                self.__read()
+            except IOError | ValueError | TypeError:
+                return False
+        except TypeError:
             return False
         return True
 
