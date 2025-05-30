@@ -736,6 +736,18 @@ public class HexLogger {
     }
 
     /**
+     * Reads a binary log file and parses it into memory.
+     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from binary data.
+     * <p>
+     * For writing binary data, use {@code write("hex.binary")}.
+     * @throws IOException If reading or parsing fails, or data is corrupted.
+     * @deprecated Use {@link #read()} directly instead.
+     * @since 1.3
+     */
+    @Deprecated
+    public void readBinary() throws IOException {read();}
+
+    /**
      * Reads a log file and parses it into memory.
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from binary data.
      * <p>
