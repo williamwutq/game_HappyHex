@@ -27,41 +27,37 @@ package hexio;
 import hex.*;
 import hexio.hexdata.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.ArrayList;
 
 /**
  * The {@code HexLogger} class is designed to log and manage game data for the "HappyHex" game,
- * specifically handling the recording, storage, and retrieval of game state data in JSON and binary format.
+ * specifically handling the recording, storage, and retrieval of game state data in binary formats.
  * It supports logging critical game elements such as the game engine, piece queue, and player moves,
  * ensuring accurate tracking of game progress. The class also provides obfuscation mechanisms for
  * generating unique identifiers and timestamps, enhancing data integrity and uniqueness.
  *
  * <h3>Purpose</h3>
  * The primary purpose of {@code HexLogger} is to serve as a robust logging utility for the HappyHex game,
- * enabling developers to save game states to JSON or binary files, read them back, and manage game data efficiently.
- * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. JSON files
- * also record player information, which means data could be used for reviewing. For machine learning, the
+ * enabling developers to save game states to binary files, read them back, and manage game data efficiently.
+ * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. The
  * logged data, especially in binary format, could be used for training, helping future developers to build
- * advanced autoplay systems. The class supports the {@code hex.basic}, {@code hex} (unnamed), {@code hex.uncolored}
- * and {@code hex.binary} data formats, with plans to support additional formats in future releases.
+ * advanced autoplay systems. The class currently only supports the {@code hex.binary} data formats, with
+ * plans to support additional binary formats in future releases.
  *
  * <h3>Function</h3>
  * The {@code HexLogger} class provides the following key functionalities:
  * <ul>
  *     <li><b>Game State Logging:</b> Records the current state of the game, including the {@link HexEngine},
- *         piece queue, and move history, into a JSON file with the {@code .hpyhex.json} extension or
- *         into a binary file with the {@code .hpyhex} extension.</li>
- *     <li><b>Data Retrieval:</b> Reads and parses JSON and binary log files to reconstruct game states in
+ *         piece queue, and move history, into a binary file with the {@code .hpyhex} extension.</li>
+ *     <li><b>Data Retrieval:</b> Reads and parses binary log files to reconstruct game states in
  *         memory, populating fields like the engine, queue, and moves.</li>
  *     <li><b>Obfuscation:</b> Generates unique, obfuscated hashes and timestamps for filenames and identifiers
  *         using bit-shifting and prime multiplication techniques to ensure uniqueness and security.</li>
- *     <li><b>File Management:</b> Manages JSON and binary files in the {@code /data/} directory, including
+ *     <li><b>File Management:</b> Manages binary files in the {@code /data/} directory, including
  *         creating, reading, writing, and deleting game log files.</li>
  *     <li><b>Player Management:</b> Tracks player information, including name and ID, with support for
  *         guest profile for invalid or non-existent inputs.</li>
@@ -125,11 +121,10 @@ import java.util.ArrayList;
  * <ul>
  *     <li>This class is dependent on {@link hex} package.</li>
  *     <li>This class is dependent on its {@link hexio.hexdata} package and its hexadecimal conversion class {@link HexDataConverter}.</li>
- *     <li>JSON files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
- *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.
- *         Binary files are stored in the same directory with the same naming, but with suffix {@code .hpyhex}.</li>
+ *     <li>Binary files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
+ *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex}.</li>
  *     <li>The {@link #read()}, and {@link #write(String)} methods throw {@link IOException} if file operations
- *         or JSON/binary parsing fail, so proper exception handling is required.</li>
+ *         or binary parsing fail, so proper exception handling is required.</li>
  *     <li>Future versions will expand support for additional data formats beyond {@code hex.binary} and provide colored support.</li>
  * </ul>
  *
@@ -158,13 +153,10 @@ public class HexLogger {
     private ArrayList<Piece[]> moveQueues;
     private ArrayList<Integer> movePieces;
 
-    // JSON
     /** The file name this {@code HexLogger} is assigned to */
     private final String dataFile;
     /** Directory for storing game files. */
     private static final String dataDirectory = "data/";
-    /** Format of the data logged into the JSON file. */
-    private static final String dataFormat = "hex.colored";
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
@@ -181,7 +173,15 @@ public class HexLogger {
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     public HexLogger(String fileName){
-        dataFile = fileName;
+        if (fileName.endsWith(".hpyhex.json")){
+            dataFile = fileName.substring(0, fileName.length()-12);
+        } else if (fileName.endsWith(".json")){
+            dataFile = fileName.substring(0, fileName.length()-5);
+        } else if (fileName.endsWith(".hpyhex")){
+            dataFile = fileName.substring(0, fileName.length()-7);
+        } else {
+            dataFile = fileName;
+        }
         currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
@@ -195,7 +195,7 @@ public class HexLogger {
     }
 
     /**
-     * Returns the assigned filename of this {@code HexLogger}, always end in {@code .hpyhex.json}.
+     * Returns the assigned filename of this {@code HexLogger}, always end in {@code .hpyhex}.
      * @return the assigned filename of this {@code HexLogger}
      */
     public String getDataFileName() {
@@ -419,7 +419,7 @@ public class HexLogger {
      * This is a deep copy and will not receive updates from the game.
      * <p>
      * Normally, this method is not used except during initialization, instead,
-     * {@link #addMove(Hex, Piece)} is used for adding moves, which automatically change the engine.
+     * {@link #addMove(Hex, int, Piece[])} is used for adding moves, which automatically change the engine.
      * @return Whether the engine is changed.
      */
     public boolean setEngine(HexEngine engine){
@@ -441,35 +441,6 @@ public class HexLogger {
             currentQueue = queue.clone();
             return true;
         } return false;
-    }
-    /**
-     * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
-     * representing the origin of the piece placement and a valid {@link Piece}. This will attempt to replicate the
-     * move with the current-holding engine, and if successful, the move would be considered valid and added to the
-     * move list. This would also trigger automatic incrementation of the game score and turns with the engine logic.
-     * Otherwise, the method returns false.
-     * @return Whether the engine is changed and the move was successful.
-     * @deprecated Since 1.2.4 for implementation of recording queue at each move.
-     * @see #addMove(Hex, int, Piece[])
-     */
-    @Deprecated
-    public boolean addMove(Hex origin, Piece piece){
-        if (completed) {return false;}
-        boolean success = false;
-        int eliminated = 0;
-        try {
-            currentEngine.add(origin, piece);
-            eliminated = currentEngine.eliminate().length;
-            success = true;
-        } catch (IllegalArgumentException e) {}
-        if (success) {
-            moveOrigins.add(origin);
-            moveQueues.add(new Piece[]{piece});
-            movePieces.add(0);
-            score += eliminated * 5;
-            turn++;
-        }
-        return success;
     }
     /**
      * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
@@ -517,7 +488,7 @@ public class HexLogger {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder("GameLogger[type = HexLogger, path = ");
+        StringBuilder builder = new StringBuilder("GameLogger[type = HexLogger, file = ");
         builder.append(dataFile);
         builder.append(", player = ");
         builder.append(player);
@@ -607,47 +578,6 @@ public class HexLogger {
         return newLogger;
     }
 
-    // JSON
-
-    /**
-     * Scans the data directory for all files ending with ".hpyhex.json".
-     *
-     * @return a list of {@link Path} objects representing the .hpyhex.json files found;
-     *         returns an empty list if none are found or if the directory is invalid
-     */
-    public static ArrayList<Path> findGameJsonFiles() {
-        ArrayList<Path> result = new ArrayList<>();
-        Path dir = Paths.get(dataDirectory);
-        if (!Files.isDirectory(dir)) {
-            return result; // Return empty list if not a directory
-        }
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{hpyhex.json}")) {
-            for (Path path : stream) {
-                if (path.getFileName().toString().endsWith(".hpyhex.json")) {
-                    result.add(path);
-                }
-            }
-        } catch (IOException | DirectoryIteratorException e) {
-            System.err.println(generateSimpleTime() + " HexLogger: Error occurred finding reading all game data files.");
-        }
-        return result;
-    }
-    /**
-     * Generate loggers for every game logged in JSON format in the data directory.
-     *
-     * @return a list of {@code HexLogger}s representing the .hpyhex.json files found;
-     *         returns an empty list if none are found or if the directory is invalid
-     * @see #findGameJsonFiles()
-     */
-    public static ArrayList<HexLogger> generateJsonLoggers(){
-        ArrayList<Path> paths = findGameJsonFiles();
-        ArrayList<HexLogger> result = new ArrayList<>();
-        for (Path path : paths){
-            result.add(new HexLogger(path.toString()));
-        }
-        return result;
-    }
-
     // Binary
     /**
      * Scans the data directory for all files ending with ".hpyhex".
@@ -696,6 +626,7 @@ public class HexLogger {
         currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
+        moveQueues = new ArrayList<Piece[]>();
         movePieces = new ArrayList<Integer>();
         completed = false;
         turn = 0;
@@ -708,38 +639,17 @@ public class HexLogger {
      */
     public boolean deleteFile() {
         boolean success = false;
-        Path filePath = Paths.get(dataFile);
+        Path filePath = Paths.get(dataFile + ".hpyhex");
         try {
             Files.deleteIfExists(filePath);
-            System.out.println(generateSimpleTime() + " HexLogger: JSON data file " + dataFile + " deleted successfully.");
+            System.out.println(generateSimpleTime() + " HexLogger: Data file " + dataFile + " deleted successfully.");
             success = true;
         } catch (IOException e) {}
         return success;
     }
 
     /**
-     * Attempts to read JSON log files from {@link #dataDirectory}.
-     * @return The raw JSON content as a string, or {@code null} if not found.
-     */
-    private String readJsonFile(){
-        String realJsonFile = dataFile;
-        if (!realJsonFile.endsWith(".json")){
-            realJsonFile += ".json";
-        }
-        File file = new File(realJsonFile);
-        if (file.exists()) {
-            String result;
-            try{
-                result = new String(Files.readAllBytes(file.toPath()));
-            } catch (IOException e) {
-                return null;
-            }
-            return result;
-        } else return null;
-    }
-
-    /**
-     * Create a unique filename with the naming format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.
+     * Create a unique filename with the naming format {@code HTHTHTHTHTHTHTHT}.
      * <p>
      * H and T represent hex bits in the long number. The bits of H(passed in {@code hash}) and
      * T(generated via {@link #generateTime()} are mixed together to maximize uniqueness
@@ -751,7 +661,6 @@ public class HexLogger {
         long time = generateTime();
         StringBuilder stringBuilder = new StringBuilder(16);
         for (int i = 0; i < 16; i++) {
-            // Alternate between LongHash and time, high nibble to low
             int shift = (15 - i) * 4;
             if (i % 2 == 0) {
                 stringBuilder.append(Integer.toHexString((int) ((LongHash >> shift) & 0xF)).toUpperCase());
@@ -759,35 +668,34 @@ public class HexLogger {
                 stringBuilder.append(Integer.toHexString((int) ((time >> shift) & 0xF)).toUpperCase());
             }
         }
-        return stringBuilder.toString() + ".hpyhex.json";
+        return stringBuilder.toString();
     }
 
     /**
-     * Constructs a complete JSON object from the current logger information and writes it to a file.
+     * Writes to a binary file using the {@code hex.binary} format.
      * This includes the basic game information, the current {@link HexEngine} statues, the current
-     * {@link Piece} queue statues, and the moves in the game. Uses the default format {@code hex.uncolored}.
-     * @throws IOException If JSON creation or writing fails.
+     * {@link Piece} queue statues, and the moves in the game.
+     * @throws IOException If binary file writing fails.
      * @see #read()
      * @see #write(String)
      */
     public void write() throws IOException {
-        write(dataFormat);
+        write("hex.binary");
     }
 
     /**
-     * Constructs a complete JSON object or hexadecimal string from the current logger information
-     * and writes it to a JSON or binary file. This includes the basic game information, the current
-     * {@link HexEngine} statues, the current {@link Piece} queue statues, and the moves in the game.
-     * This uses the specified format passed in. If the format is {@code hex.binary}, it out put a .bin file.
-     * @param format The format of the JSON log. Default to the default format {@code hex.basic} if not valid.
-     * @throws IOException If JSON creation or writing fails.
+     * Constructs a hexadecimal string from the current logger information and write to a binary file.
+     * This includes the basic game information, the current {@link HexEngine} statues, the current
+     * {@link Piece} queue statues, and the moves in the game. This uses the specified format passed in.
+     * If the format is {@code hex.binary}, it out put a .hpyhex binary file.
+     * @param format The format of the game data log. If not valid, writing will not occur.
+     * @throws IOException If writing fails.
      * @see #read()
      * @see #write()
      */
     public void write(String format) throws IOException {
         if (format.equals("hex.binary")) {
-            String jsonName = getDataFileName();
-            HexDataWriter writer = HexDataFactory.createWriter(jsonName.substring(0, jsonName.length()-12), "hpyhex");
+            HexDataWriter writer = HexDataFactory.createWriter(getDataFileName(), "hpyhex");
             long obfScore = obfuscate(interleaveIntegers(score * score, ID ^ turn));
             long obfTurn = obfuscate(interleaveIntegers(turn * turn, ID ^ score));
             long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
@@ -836,15 +744,7 @@ public class HexLogger {
      * @since 1.3
      */
     public void read() throws IOException {
-        String jsonName = getDataFileName();
-        if (jsonName.endsWith(".hpyhex.json")){
-            jsonName = jsonName.substring(0, jsonName.length()-12);
-        } else if (jsonName.endsWith(".json")){
-            jsonName = jsonName.substring(0, jsonName.length()-5);
-        } else if (jsonName.endsWith(".hpyhex")){
-            jsonName = jsonName.substring(0, jsonName.length()-7);
-        }
-        HexDataReader reader = HexDataFactory.read(jsonName, "hpyhex");
+        HexDataReader reader = HexDataFactory.read(getDataFileName(), "hpyhex");
         // Format check
         if (!reader.next(32).equals("4B874B1E5A0F5A0F5A964B874B5A5A87")) {
             throw new IOException("Fail to read binary data because file header is corrupted");
