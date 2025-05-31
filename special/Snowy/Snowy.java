@@ -95,7 +95,13 @@ public class Snowy implements SpecialFeature {
                     isColorBaseArray = false;
                 } else k++;
             }
-            if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
+            if (isColorBaseArray){
+                return new Color[]{
+                        Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW,
+                        Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW,
+                        Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW
+                };
+            } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
                 String hint = (String) objects[1];
                 if(hint.contains("SlidingButtonOn")){
                     objects[0] = Color.BLUE;
