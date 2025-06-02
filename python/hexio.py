@@ -26,8 +26,6 @@ import hex as hx
 from pathlib import Path
 
 __all__ = ['read_f', 'smart_find_f', 'smart_read_f', 'HexReader']
-__version__ = "1.3.0"
-__version_info__ = (1,3,0)
 
 script_path = Path(__file__).resolve()
 data_path = script_path.parents[1] / 'data'

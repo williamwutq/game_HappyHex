@@ -28,12 +28,8 @@ from math import log2, exp
 from abc import ABC, abstractmethod
 from typing import List
 
-
-__all__ = ['Hex', 'Block', 'HexEngine', 'Piece', 'HexGrid', '__sin60__', '__version__', '__version__', '__version_info__']
+__all__ = ['Hex', 'Block', 'HexEngine', 'Piece', 'HexGrid', '__sin60__']
 __sin60__ = math.sqrt(3) / 2
-__version__ = "1.3.0"
-__version_info__ = (1,3,0)
-
 
 class Hex:
     """
