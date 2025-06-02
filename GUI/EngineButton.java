@@ -74,7 +74,6 @@ public class EngineButton extends HexButton {
         // Communicate clicked index
         GameEssentials.setClickedOnIndex(getIndex());
         if(GameEssentials.getSelectedBlockIndex() != -1) {
-            GameEssentials.incrementTurn();
             // Fetch position
             Hex position = fetchBlock().thisHex();
             // Get index
@@ -86,6 +85,7 @@ public class EngineButton extends HexButton {
             position = position.subtract(piece.getBlock(blockIndex));
             // Check this position, if good then add
             if (GameEssentials.engine().checkAdd(position, piece)) {
+                GameEssentials.incrementTurn();
                 GameEssentials.incrementScore(piece.length());
                 GameEssentials.move(position);
                 GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
