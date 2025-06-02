@@ -25,8 +25,10 @@
 package python;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 /**
  * The {@code PythonRunner} class is a simple Java utility that launches and executes
@@ -54,14 +56,12 @@ public class PythonRunner {
      */
     public static void main(String[] args){
         try {
-            // Specify the command: python + script
-            ProcessBuilder pb = new ProcessBuilder("python3", "python/main.py");
-
-            // Redirect output
+            ProcessBuilder pb = new ProcessBuilder("python3", "python/main.py", "start", "Java", "0");
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
             // Read the output
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
