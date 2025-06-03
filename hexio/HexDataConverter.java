@@ -72,6 +72,7 @@ public class HexDataConverter {
      * @return a hexadecimal string representing the block
      * @see Block#block
      * @see #convertHex(Hex)
+     * @see #convertColoredBlock(Block)
      */
     public static String convertBlock(Block block){
         StringBuilder builder = new StringBuilder();
@@ -83,6 +84,43 @@ public class HexDataConverter {
             builder.append(String.format("%04X", (short)block.getLineI()));
             builder.append(String.format("%04X", (short)block.getLineK()));
             builder.append(String.format(block.getState() ? "F" : "0"));
+        }
+        return builder.toString();
+    }
+    /**
+     * Converts a colored {@code Block} to a hexadecimal string.
+     * The hexadecimal string includes the block's I and K coordinates, its state (occupied or not) and color index.
+     * These coordinates are stored as integers and J coordinate can be calculated. The color index is not related to state.
+     * If the input is null, returns a hexadecimal string with coordinates set to 0 and state set to false, color set to -1 (F).
+     *
+     * @param block the {@code Block} object to convert
+     * @return a hexadecimal string representing the block with color
+     * @see Block#block
+     * @see #convertHex(Hex)
+     * @see #convertBlock(Block)
+     * @since 1.3.3
+     */
+    public static String convertColoredBlock(Block block){
+        StringBuilder builder = new StringBuilder();
+        if (block == null) {
+            builder.append(String.format("%04X", 0));
+            builder.append(String.format("%04X", 0));
+            builder.append("0");
+            builder.append("F");
+        } else {
+            builder.append(String.format("%04X", (short)block.getLineI()));
+            builder.append(String.format("%04X", (short)block.getLineK()));
+            builder.append(block.getState() ? "F" : "0");
+            int blockColor = block.getColor();
+            if (blockColor == -2) {
+                builder.append("E");
+            } else if (blockColor == -1) {
+                builder.append("F");
+            } else if (0 <= blockColor && blockColor < 10) {
+                builder.append((char)(blockColor - '0'));
+            } else if (10 <= blockColor && blockColor < 12) {
+                builder.append((char)(blockColor - 'A'));
+            }
         }
         return builder.toString();
     }
@@ -164,7 +202,7 @@ public class HexDataConverter {
         if (hexString == null) {
             throw new IOException("\"Hex\" object is null or not found");
         } else if (hexString.length() != 8){
-            throw new IOException("\"Hex\" object hexadecimal string length is not 16");
+            throw new IOException("\"Hex\" object hexadecimal string length is not 8");
         }
         short i; short k;
         try {
@@ -178,9 +216,10 @@ public class HexDataConverter {
     /**
      * Converts a hexadecimal string to a {@link Block}.
      * The hexadecimal string must contain two integer represent the coordinates and the state of the block.
-     * Color is ignored and replaced with black. The length of the string must be 9.
+     * Color is ignored if not present and replaced with black. The length of the string must be 9 if color is not
+     * included, 10 if color is included.
      * <p>
-     * This is the inverse method of {@link #convertBlock(Block)}.
+     * This is the inverse method of {@link #convertBlock(Block)} and {@link #convertColoredBlock(Block)}.
      *
      * @param hexString the hexadecimal string containing the block data
      * @return a {@code Block} object
@@ -191,11 +230,11 @@ public class HexDataConverter {
     public static Block convertBlock(String hexString) throws IOException {
         if (hexString == null) {
             throw new IOException("\"Block\" object is null or not found");
-        } else if (hexString.length() != 9){
-            throw new IOException("\"Block\" object hexadecimal string length is not 17");
+        } else if (hexString.length() != 9 && hexString.length() != 10){
+            throw new IOException("\"Block\" object hexadecimal string length is not 9 or 10");
         }
         Hex hex = convertHex(hexString.substring(0,8));
-        boolean state;
+        boolean state; int color;
         try {
             char stateChar = hexString.charAt(8);
             if (stateChar == 'F'){
@@ -208,7 +247,23 @@ public class HexDataConverter {
         } catch (NumberFormatException e) {
             throw new IOException("\"Block\" object does not contain valid state");
         }
-        return new Block(hex, state ? -2 : -1, state);
+        try {
+            char colorChar = hexString.charAt(9);
+            if (colorChar == 'F'){
+                color = -1;
+            } else if (colorChar == 'E'){
+                color = -2;
+            } else if ('0' <= colorChar && colorChar <= '9'){
+                color = colorChar - '0';
+            } else if ('A' <= colorChar && colorChar <= 'D'){
+                color = colorChar - 'A';
+            } else {
+                color = state ? -2 : -1;
+            }
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            color = state ? -2 : -1;
+        }
+        return new Block(hex, color, state);
     }
     /**
      * Converts a hexadecimal string to a {@link Piece}.
