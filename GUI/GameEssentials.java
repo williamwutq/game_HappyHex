@@ -453,9 +453,6 @@ public final class GameEssentials {
         score += addedScore;
         scoreLabel.setInfo(score + "");
     }
-    public static void move(hex.Hex origin){
-        gameLogger.addMove(origin, selectedPieceIndex, queue.getPieces());
-    }
 
     // Setters
     public static void setSelectedPieceIndex(int index){
@@ -503,7 +500,7 @@ public final class GameEssentials {
         if (GameEssentials.engine().checkAdd(position, piece)) {
             GameEssentials.incrementTurn();
             GameEssentials.incrementScore(piece.length());
-            GameEssentials.move(position);
+            gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
             GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
             // Generate animation
             for (int i = 0; i < piece.length(); i ++){
