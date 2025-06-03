@@ -22,7 +22,7 @@
   SOFTWARE.
  */
 
-package python;
+package comm;
 
 /**
  * An interface for processing commands with optional arguments and callback functionality.
