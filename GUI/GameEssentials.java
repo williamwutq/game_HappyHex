@@ -26,6 +26,7 @@ package GUI;
 
 import GUI.animation.*;
 import Launcher.LaunchEssentials;
+import hex.Hex;
 import hex.HexEngine;
 import game.Queue;
 import hex.Piece;
@@ -489,6 +490,35 @@ public final class GameEssentials {
             GameEssentials.clickedOnIndex = index;
             window.repaint();
         } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + engine.length());
+    }
+
+    public static void addMove(Hex position){
+        int pieceIndex = GameEssentials.getSelectedPieceIndex();
+        int blockIndex = GameEssentials.getSelectedBlockIndex();
+        // Get piece
+        Piece piece = GameEssentials.queue().get(pieceIndex);
+        // Modify position relative to selected block
+        position = position.subtract(piece.getBlock(blockIndex));
+        // Check this position, if good then add
+        if (GameEssentials.engine().checkAdd(position, piece)) {
+            GameEssentials.incrementTurn();
+            GameEssentials.incrementScore(piece.length());
+            GameEssentials.move(position);
+            GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
+            // Generate animation
+            for (int i = 0; i < piece.length(); i ++){
+                GameEssentials.addAnimation(GameEssentials.createCenterEffect(piece.getBlock(i).add(position)));
+            }
+        }
+        // Reset index
+        GameEssentials.setSelectedPieceIndex(-1);
+        GameEssentials.setClickedOnIndex(-1);
+        // Paint and eliminate
+        GameEssentials.window().repaint();
+        if (GameEssentials.engine().checkEliminate()) {
+            // Eliminate code is here, see GameTimer class
+            new GameTimer().start();
+        } else GameEssentials.checkEnd();
     }
 
     // Getters
