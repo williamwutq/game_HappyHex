@@ -53,7 +53,7 @@ public final class PieceFactory {
     private static boolean easy = false;
     /**
      * Returns whether the game or context is currently set to "easy" mode.
-     * Easy mode affects game piece generation and is usually respected by {@link special.SpecialFeature}.
+     * Easy mode affects game piece generation and is usually respected by {@code special.SpecialFeature}.
      * @return {@code true} if in easy mode, {@code false} otherwise.
      */
     public static boolean isEasy(){return easy;}

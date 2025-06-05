@@ -110,7 +110,7 @@ public final class GameEssentials {
      */
     public static void setDelay(int delay) {
         if (delay <= 100000 && delay >= 10) {
-            GameEssentials.actionDelay = delay;
+            actionDelay = delay;
         }
     }
     /**
@@ -184,7 +184,7 @@ public final class GameEssentials {
     }
     public static void changeFontProcessor(special.SpecialFeature newProcessor){
         fontProcessor = newProcessor;
-        gameDisplayFont = GameEssentials.processFont("Courier", "GameDisplayFont");
+        gameDisplayFont = processFont("Courier", "GameDisplayFont");
     }
     /**
      * Paints a hexagon at the origin (0,0) with a specified color and size.
@@ -396,8 +396,8 @@ public final class GameEssentials {
     }
     private static boolean gameEnds(){
         // Helper to check
-        for(int i = 0; i < GameEssentials.queue().length(); i ++) {
-            if(GameEssentials.engine().checkPositions(GameEssentials.queue().get(i)).size() != 0){
+        for(int i = 0; i < queue().length(); i ++) {
+            if(!engine().checkPositions(queue().get(i)).isEmpty()){
                 return false;
             }
         }
@@ -437,7 +437,7 @@ public final class GameEssentials {
         }}).start();
         if (LaunchEssentials.getCurrentPlayerID() == -1 || complete){
             // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
-            Launcher.LaunchEssentials.log(turn, score);
+            LaunchEssentials.log(turn, score);
         } else {
             System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
         }
@@ -462,8 +462,8 @@ public final class GameEssentials {
     // Setters
     public static void setSelectedPieceIndex(int index){
         if(index == -1 || (index >= 0 && index < queue.length())){
-            GameEssentials.selectedPieceIndex = index;
-            GameEssentials.selectedBlockIndex = -1;
+            selectedPieceIndex = index;
+            selectedBlockIndex = -1;
             window.repaint();
         } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + queue.length());
     }
@@ -477,50 +477,64 @@ public final class GameEssentials {
                 throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + pieceLength);
             } else {
                 window.repaint();
-                GameEssentials.selectedBlockIndex = index;
+                selectedBlockIndex = index;
             }
         }
     }
     public static void setHoveredOverIndex(int index) {
         if(index == -1 || (index >= 0 && index < engine.length())){
-            GameEssentials.hoveredOverIndex = index;
+            hoveredOverIndex = index;
             window.repaint();
         } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + engine.length());
     }
     public static void setClickedOnIndex(int index) {
         if(index == -1 || (index >= 0 && index < engine.length())){
-            GameEssentials.clickedOnIndex = index;
+            clickedOnIndex = index;
             window.repaint();
         } else throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + engine.length());
     }
 
     public static void addMove(Hex position){
-        int pieceIndex = GameEssentials.getSelectedPieceIndex();
-        int blockIndex = GameEssentials.getSelectedBlockIndex();
+        int pieceIndex = getSelectedPieceIndex();
+        int blockIndex = getSelectedBlockIndex();
         // Get piece
-        Piece piece = GameEssentials.queue().get(pieceIndex);
+        Piece piece = queue().get(pieceIndex);
         // Modify position relative to selected block
         position = position.subtract(piece.getBlock(blockIndex));
         // Check this position, if good then add
-        if (GameEssentials.engine().checkAdd(position, piece)) {
-            GameEssentials.incrementTurn();
-            GameEssentials.incrementScore(piece.length());
+        if (engine().checkAdd(position, piece)) {
+            incrementTurn();
+            incrementScore(piece.length());
             gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
-            GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
+            engine().add(position, queue().fetch(pieceIndex));
             // Generate animation
             for (int i = 0; i < piece.length(); i ++){
-                GameEssentials.addAnimation(GameEssentials.createCenterEffect(piece.getBlock(i).add(position)));
+                addAnimation(createCenterEffect(piece.getBlock(i).add(position)));
             }
         }
         // Reset index
-        GameEssentials.setSelectedPieceIndex(-1);
-        GameEssentials.setClickedOnIndex(-1);
+        setSelectedPieceIndex(-1);
+        setClickedOnIndex(-1);
         // Paint and eliminate
-        GameEssentials.window().repaint();
-        if (GameEssentials.engine().checkEliminate()) {
+        window().repaint();
+        if (engine().checkEliminate()) {
             // Eliminate code is here, see GameTimer class
             new GameTimer().start();
-        } else GameEssentials.checkEnd();
+        } else checkEnd();
+    }
+    public static void eliminate(){
+        // Run elimination
+        hex.Block[] eliminated = engine().eliminate();
+        // Add animation
+        for(hex.Block block : eliminated){
+            addAnimation(createDisappearEffect(block));
+            addAnimation(createCenterEffect(new hex.Block(block)));
+        }
+        // Add score
+        incrementScore(5 * eliminated.length);
+        // Check end after eliminate
+        checkEnd();
+        window().repaint();
     }
 
     // Getters
