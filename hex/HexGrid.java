@@ -41,6 +41,19 @@ package hex;
  * representing the I-line and K-line respectively. These correspond to {@link Hex} objects used
  * throughout the interface. See {@link Hex} for detailed description on coordinate system in use.
  *
+ * <h3>Standard 7-Block piece</h3>
+ * A standard 7-{@link Block} grid is defined by the game as a {@link HexGrid} that contains blocks at:
+ * <ul>
+ *     <li>Line coordinate {-1, 0, -1}</li>
+ *     <li>Line coordinate {-1, 1, 0}</li>
+ *     <li>Line coordinate {0, -1, -1}</li>
+ *     <li>Line coordinate {0, 0, 0}</li>
+ *     <li>Line coordinate {0, 1, 1}</li>
+ *     <li>Line coordinate {1, -1, 0}</li>
+ *     <li>Line coordinate {1, 0, 1}</li>
+ * </ul>
+ * This grid represent a grid of {@link Hex#inRange radius} 2 and center at {@link Hex#hex() zero}.
+ *
  * <h3>Usage</h3>
  * Typical use involves iterating through blocks using {@link #length()} and {@link #getBlock(int)},
  * or accessing specific positions using {@link #getBlock(int, int)}. Additional functionality includes
