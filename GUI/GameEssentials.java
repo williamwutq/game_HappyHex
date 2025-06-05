@@ -292,7 +292,7 @@ public final class GameEssentials {
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
     // Initializing
-    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player, HexLogger logger){
+    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player, HexLogger logger, boolean autoPlay){
         System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
         if(easy) {
             game.PieceFactory.setEasy();
@@ -331,6 +331,11 @@ public final class GameEssentials {
             gameLogger.setQueue(queue.getPieces());
             gameLogger.setScore(0);
             gameLogger.setTurn(0);
+        }
+        if (autoPlay) {
+            try {
+                new GameCommandProcessor().query();
+            } catch (InterruptedException e) {}
         }
         // Construct labels
         turnLabel = new GameInfoPanel();
