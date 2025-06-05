@@ -518,8 +518,10 @@ public final class GameEssentials {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
-            // Eliminate code is here, see GameTimer class
-            new GameTimer().start();
+            Timer gameTimer = new Timer(getDelay(), null);
+            gameTimer.setRepeats(false);
+            gameTimer.addActionListener(e -> GameEssentials.eliminate());
+            gameTimer.start();
         } else checkEnd();
     }
     public static void eliminate(){
