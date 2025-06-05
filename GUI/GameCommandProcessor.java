@@ -26,9 +26,62 @@ package GUI;
 
 import comm.CommandProcessor;
 import hex.Hex;
+import hex.HexEngine;
 import hex.Piece;
 
 public class GameCommandProcessor implements CommandProcessor {
+    private CommandProcessor callBackProcessor;
+    public GameCommandProcessor(){
+        callBackProcessor = null;
+    }
+    @Override
+    public CommandProcessor getCallBackProcessor(){
+        return callBackProcessor;
+    }
+    @Override
+    public void setCallBackProcessor(CommandProcessor processor) throws IllegalArgumentException, UnsupportedOperationException {
+        if (this == processor){
+            throw new IllegalArgumentException("Cannot add instance processor itself as callback processor");
+        }
+        callBackProcessor = processor;
+    }
+    public void query() throws InterruptedException {
+        HexEngine engine = GameEssentials.engine();
+        Piece[] queue = GameEssentials.queue().getPieces();
+
+        if (callBackProcessor == null) {
+            throw new IllegalStateException("Call back processor is not properly initialized");
+        } else {
+            callBackProcessor.execute("automove", new String[]{
+                    getEngineString(engine), getQueueString(queue)
+            });
+        }
+    }
+    public static String getEngineString(HexEngine engine) {
+        if (engine == null || engine.length() == 0){
+            return "";
+        } else {
+            StringBuilder builder = new StringBuilder(engine.getBlock(0).getState() ? "X" : "O");
+            for (int i = 1; i < engine.length(); i ++){
+                builder.append("-").append(engine.getBlock(i).getState() ? "X" : "O");
+            }
+            return builder.toString();
+        }
+    }
+    public static String getQueueString(Piece[] pieces) {
+        if (pieces == null || pieces.length == 0){
+            return "";
+        } else {
+            StringBuilder builder = new StringBuilder(getPieceString(pieces[0]));
+            for (int i = 1; i < pieces.length; i ++){
+                builder.append("-").append(getPieceString(pieces[i]));
+            }
+            return builder.toString();
+        }
+    }
+    public static String getPieceString(Piece piece) {
+        return Byte.toString(piece.toByte());
+    }
     @Override
     public void execute(String command, String[] args) throws IllegalArgumentException, InterruptedException {
         if (command.equals("move") && args.length == 3){
