@@ -49,6 +49,25 @@ package hex;
  * p.add(Block.block(1, 1));
  * }</pre>
  * This produces a shape containing blocks at line coordinates (0,0), (0,1), and (1,1).
+ * <p>
+ * <h5>Standard 7-{@code Block} piece</h5>
+ * <p>
+ * A standard 7-{@link Block} grid is defined by the game as a {@link HexGrid} that contains blocks at:
+ * <ul>
+ *     <li>Line coordinate {-1, 0, -1}</li>
+ *     <li>Line coordinate {-1, 1, 0}</li>
+ *     <li>Line coordinate {0, -1, -1}</li>
+ *     <li>Line coordinate {0, 0, 0}</li>
+ *     <li>Line coordinate {0, 1, 1}</li>
+ *     <li>Line coordinate {1, -1, 0}</li>
+ *     <li>Line coordinate {1, 0, 1}</li>
+ * </ul>
+ * This grid represent a grid of {@link Hex#inRange radius} 2 and center at {@link Hex#hex() zero}.
+ * <p>
+ * In application of the {@link Piece} class, this means the piece have {@link #length} of at least one
+ * and only contain {@link Block}s at the specific positions listed above. Pieces can contain fewer than
+ * 7 blocks, and empty blocks can be represented either as missing blocks or blocks that are
+ * {@link Block#getState empty}.
  *
  * @see Block
  * @see Hex
