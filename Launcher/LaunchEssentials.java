@@ -256,7 +256,7 @@ public final class LaunchEssentials {
                 }
                 if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == radius
                         && generatedLogger.getQueue().length == queueSize
-                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
+                        ) {
                     i++;
                 } else loggers.remove(i);
             }
