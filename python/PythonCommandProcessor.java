@@ -31,6 +31,9 @@ import java.util.concurrent.Executors;
  *   <li>The Python process is terminated if the callback throws {@link InterruptedException} or
  *   if the process ends naturally.</li>
  * </ul></p>
+ * @version 1.3.3
+ * @author William Wu
+ * @since 1.3.3
  */
 public class PythonCommandProcessor implements CommandProcessor {
     private final Process process;
