@@ -203,7 +203,7 @@ public class Block extends Hex{
         try{
             block = (Block) super.clone();
             block.setColor(this.color);
-        } catch (CloneNotSupportedException e) {
+        } catch (Exception e) {
             block = new Block(this.thisHex(), this.color);
         }
         block.state = this.state;

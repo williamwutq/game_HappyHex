@@ -88,6 +88,19 @@ public class LauncherGUI {
                 "Choose white if you like it",
                 "Choose dark if you like it",
                 "Choose a theme you like",
+                "Want to resume a game?",
+                "Wonder if my game are saved",
+                "Colors are saved in above v1.3",
+                "Games are saved since v1.2",
+                "What does resume button do?",
+                "Resume Resume Resume Resume",
+                "What if HappyHex... was dark",
+                "What if HappyHex... was white",
+                "How do I turn resume game off",
+                "Everyday I play this game",
+                "Everyday my life is better",
+                "Everyday is a blessing",
+                "I tried, I said"
         };
         return hints[LaunchEssentials.getRandomIndex(hints.length)];
     }
@@ -99,6 +112,9 @@ public class LauncherGUI {
     }
     private static JPanel fetchLaunchPanel(){
         return new LaunchPanel();
+    }
+    private static JPanel fetchResumePanel(){
+        return new ResumePanel();
     }
     private static JPanel fetchLoginPanel(){
         return new LoginPanel();
@@ -158,8 +174,8 @@ public class LauncherGUI {
     public static void setBackgroundColor(Color color){
         mainFrame.setBackground(color);
     }
-    public static void startGame(){
-        LaunchEssentials.startGame();
+    public static void startGame(String fileName){
+        LaunchEssentials.startGame(fileName);
 
         // Initialization
         removeAllFromFrame();
@@ -167,12 +183,32 @@ public class LauncherGUI {
         mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
         mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
     }
+    public static void startGame(){
+        startGame("");
+    }
+    public static void startNewGame(){
+        LaunchEssentials.startNewGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
+        mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
+    }
+    public static void toResumeGame(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
+        mainFrame.add(fetchResumePanel(), BorderLayout.CENTER);
+    }
     public static void toLogInPage(){
         LaunchEssentials.endGame();
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchLoginPanel(), BorderLayout.CENTER);
     }
     public static void toSettings(){
@@ -180,7 +216,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
     }
     public static void toThemes(){
@@ -188,7 +224,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchThemePanel(), BorderLayout.CENTER);
     }
     public static void returnHome(){
@@ -196,7 +232,7 @@ public class LauncherGUI {
 
         // Initialization
         removeAllFromFrame();
-        setBackgroundColor(GameEssentials.gameBackgroundColor);
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
     }
     public static void toGameOver(){

@@ -117,7 +117,7 @@ public class ThemePanel extends UniversalPanel {
     public void recalculate(){
         super.recalculate();
         double referenceStartButtonSize = Math.min(getReferenceHeight(), getReferenceWidth());
-        LaunchButton.setSizeConstant((int)Math.round(referenceStartButtonSize*0.0100));
+        LaunchButton.setSizeConstant(referenceStartButtonSize*0.01);
         Font labelFont = new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/24.0));
         launchThemeMainLabel.setFont(labelFont);
         for(JLabel label : launchThemeLabels){

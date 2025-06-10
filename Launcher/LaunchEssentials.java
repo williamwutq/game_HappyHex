@@ -25,10 +25,12 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import hexio.HexLogger;
 import io.*;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -36,7 +38,7 @@ import java.io.IOException;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 3, 1);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 3, 2);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
@@ -128,27 +130,78 @@ public final class LaunchEssentials {
     public static boolean isRestartGame(){
         return restartGame;
     }
-    public static void startGame(){
+    public static void startNewGame(){
         gameStarted = true;
+        String player = getCurrentPlayer();
+        hexio.HexLogger logger = new hexio.HexLogger(player, getCurrentPlayerID());
         int delay = 250;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(8, 5));
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(11, 7));
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(8, 5));
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), player, logger);
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(11, 7));
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), player, logger);
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
             System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
         } else {
             System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Unknown GameMode detected.");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), getCurrentPlayer(), smartCreateLogger(5, 3));
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        }
+    }
+    public static void startGame(String name){
+        gameStarted = true;
+        String player = getCurrentPlayer();
+        hexio.HexLogger logger = new hexio.HexLogger(player, getCurrentPlayerID());
+        if (name == null || name.isEmpty()){
+            if (currentGameInfo.getGameMode() == GameMode.Small || currentGameInfo.getGameMode() == GameMode.SmallEasy){
+                logger = smartCreateLogger(5, 3);
+            } else if (currentGameInfo.getGameMode() == GameMode.Medium || currentGameInfo.getGameMode() == GameMode.MediumEasy){
+                logger = smartCreateLogger(8, 5);
+            } else if (currentGameInfo.getGameMode() == GameMode.Large || currentGameInfo.getGameMode() == GameMode.LargeEasy){
+                logger = smartCreateLogger(11, 7);
+            } else {
+                logger = new hexio.HexLogger(player, getCurrentPlayerID());
+            }
+        } else {
+            hexio.HexLogger appointedLogger = new hexio.HexLogger(name);
+            try {
+                appointedLogger.read();
+                logger = appointedLogger;
+            } catch (IOException e) {
+                try {
+                    appointedLogger.readBinary();
+                    logger = appointedLogger;
+                } catch (IOException ex) {
+                    System.err.println(GameTime.generateSimpleTime() + " GameEssentials: An invalid logger indicated in the GUI.");
+                }
+            }
+        }
+        int delay = 250;
+        if (currentGameInfo.getGameMode() == GameMode.Small){
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.Medium){
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.Large){
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), player, logger);
+        } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), player, logger);
+        } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
+            System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
+        } else {
+            System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Unknown GameMode detected.");
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger);
         }
     }
     public static void endGame(){
@@ -167,14 +220,13 @@ public final class LaunchEssentials {
     }
     public static hexio.HexLogger smartCreateLogger(int size, int queueSize){
         hexio.HexLogger logger = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
-        // The start unfinished game feature, implemented below, is disabled due to bugs
         java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
         // Search for incomplete games
         if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
             for (hexio.HexLogger generatedLogger : loggers){
                 try {
+                    generatedLogger.readBinary();
                     generatedLogger.read();
-                    // generatedLogger.readBinary(); /* DISABLED BECAUSE IT DOES NOT READ COLOR */
                 } catch (IOException e) {continue;}
                 if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
                         && generatedLogger.getQueue().length == queueSize
@@ -185,6 +237,38 @@ public final class LaunchEssentials {
             }
         }
         return logger;
+    }
+    public static java.util.ArrayList<hexio.HexLogger> smartFindLoggers(){
+        if (currentGameInfo.getPlayerID() == -1 || currentGameInfo.getPlayer().equals("Guest")){
+            return new ArrayList<hexio.HexLogger>();
+        }
+        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        int radius = 5;
+        int queueSize = 3;
+        if (GameMode.getChar(currentGameInfo.getGameMode()) == 'M'){
+            radius = 8; queueSize = 5;
+        } else if (GameMode.getChar(currentGameInfo.getGameMode()) == 'L'){
+            radius = 11; queueSize = 7;
+        }
+        // Search for incomplete games
+        if(!loggers.isEmpty()){
+            int i = 0;
+            while (i < loggers.size()) {
+                HexLogger generatedLogger = loggers.get(i);
+                try {
+                    generatedLogger.readBinary();
+                    generatedLogger.read();
+                } catch (IOException e) {
+                    loggers.remove(i);
+                }
+                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == radius
+                        && generatedLogger.getQueue().length == queueSize
+                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
+                    i++;
+                } else loggers.remove(i);
+            }
+        }
+        return loggers;
     }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
@@ -305,34 +389,32 @@ public final class LaunchEssentials {
         return (int) Math.round(currentPlayerInfo.getAvgTurn());
     }
 
-    public static boolean log(int turn, int score){
+    public static void log(int turn, int score){
         // Print to console
         System.out.println(GameTime.generateSimpleTime() +
                 " GameEssentials: This game lasted for " + turn +
                 " turn" + (turn == 1 ? "" : "s") + ", resulting in a total score of " + score +
                 " point" + (score == 1 ? "" : "s") + ".");
-        // Try to read previous logs
-        try {
-            LaunchLogger.read();
-        } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
-        }
         // Update current information
         currentPlayerInfo.eraseStats();
         currentGameInfo = new GameInfo(turn, score, Long.toHexString(currentGameInfo.getPlayerID()), currentGameInfo.getPlayer(),
                 new GameTime(), Long.toHexString(currentGameInfo.getGameID()), currentGameInfo.getGameMode(), currentGameVersion);
-        LaunchLogger.addGame(currentGameInfo);
-        updateRecent();
-        updateHighest();
-        updateOnGame();
-        try {
-            LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
-            LaunchLogger.resetLoggerInfo();
-            return true;
-        } catch (IOException e) {
-            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
-            LaunchLogger.resetLoggerInfo();
-            return false;
-        }
+            // Try to read previous logs
+            try {
+                LaunchLogger.read();
+            } catch (IOException e) {
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
+            }
+            LaunchLogger.addGame(currentGameInfo);
+            updateRecent();
+            updateHighest();
+            updateOnGame();
+            try {
+                LaunchLogger.write(currentGameName, currentEnvironment, currentGameVersion);
+                LaunchLogger.resetLoggerInfo();
+            } catch (IOException e) {
+                System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: " + e.getMessage());
+                LaunchLogger.resetLoggerInfo();
+            }
     }
 }
