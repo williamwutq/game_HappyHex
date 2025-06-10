@@ -36,7 +36,7 @@ import java.io.IOException;
  * storage, transmission, or interoperability. The class is designed to handle null inputs gracefully
  * and provides robust error handling for invalid binary or hexadecimal string data.
  *
- * @version 1.3
+ * @version 1.3.3
  * @author William Wu
  * @since 1.3
  */
@@ -120,6 +120,8 @@ public class HexDataConverter {
                 builder.append((char)(blockColor - '0'));
             } else if (10 <= blockColor && blockColor < 12) {
                 builder.append((char)(blockColor - 'A'));
+            } else {
+                builder.append("D");
             }
         }
         return builder.toString();
@@ -194,6 +196,52 @@ public class HexDataConverter {
                 }
             }
             builder.append(String.format("%X", hexValue));
+        }
+        return builder.toString();
+    }
+    /**
+     * Converts a colored {@link HexEngine} to a hexadecimal string.
+     * This conversion first convert the engine's radius into an int value and {@link Block} state into an array of
+     * booleans and convert it into hexadecimal string, then follow it with the color values of the blocks contained.
+     * It has nothing to do with {@link #convertColoredBlock(Block)} and shares limited similarity other engine conversion.
+     * If the input is null, returns a hexadecimal string as a HexEngine with radius one, state false, and color -1.
+     *
+     * @param engine the colored {@code HexEngine} object to convert
+     * @return a hexadecimal string representing the engine
+     * @see HexEngine#HexEngine
+     * @see #convertBooleanEngine(HexEngine)
+     * @since 1.3.3
+     */
+    public static String convertColoredEngine(HexEngine engine){
+        if (engine == null) return "00010F";
+        int length = engine.length();
+        StringBuilder builder = new StringBuilder(String.format("%04X", (short)engine.getRadius()));
+        int fullLength = (length + 3) / 4 * 4; // Round up to multiple of 4
+        // Write state
+        for (int i = 0; i < fullLength; i += 4) {
+            int hexValue = 0;
+            for (int j = 0; j < 4 && i + j < length; j++) {
+                if (engine.getBlock(i + j).getState()) {
+                    // Set bit j for true
+                    hexValue |= (1 << j);
+                }
+            }
+            builder.append(String.format("%X", hexValue));
+        }
+        // Write color
+        for (int i = 0; i < length; i ++){
+            int blockColor = engine.getBlock(i).getColor();
+            if (blockColor == -2) {
+                builder.append("E");
+            } else if (blockColor == -1) {
+                builder.append("F");
+            } else if (0 <= blockColor && blockColor < 10) {
+                builder.append((char)(blockColor - '0'));
+            } else if (10 <= blockColor && blockColor < 12) {
+                builder.append((char)(blockColor - 'A'));
+            } else {
+                builder.append("D");
+            }
         }
         return builder.toString();
     }
