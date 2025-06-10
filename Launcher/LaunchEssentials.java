@@ -175,12 +175,7 @@ public final class LaunchEssentials {
                 appointedLogger.read();
                 logger = appointedLogger;
             } catch (IOException e) {
-                try {
-                    appointedLogger.readBinary();
-                    logger = appointedLogger;
-                } catch (IOException ex) {
-                    System.err.println(GameTime.generateSimpleTime() + " GameEssentials: An invalid logger indicated in the GUI.");
-                }
+                System.err.println(GameTime.generateSimpleTime() + " GameEssentials: An invalid logger indicated in the GUI.");
             }
         }
         int delay = 250;
@@ -220,12 +215,11 @@ public final class LaunchEssentials {
     }
     public static hexio.HexLogger smartCreateLogger(int size, int queueSize){
         hexio.HexLogger logger = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
-        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateBinaryLoggers();
         // Search for incomplete games
         if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
             for (hexio.HexLogger generatedLogger : loggers){
                 try {
-                    generatedLogger.readBinary();
                     generatedLogger.read();
                 } catch (IOException e) {continue;}
                 if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
@@ -242,7 +236,7 @@ public final class LaunchEssentials {
         if (currentGameInfo.getPlayerID() == -1 || currentGameInfo.getPlayer().equals("Guest")){
             return new ArrayList<hexio.HexLogger>();
         }
-        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateJsonLoggers();
+        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateBinaryLoggers();
         int radius = 5;
         int queueSize = 3;
         if (GameMode.getChar(currentGameInfo.getGameMode()) == 'M'){
@@ -256,7 +250,6 @@ public final class LaunchEssentials {
             while (i < loggers.size()) {
                 HexLogger generatedLogger = loggers.get(i);
                 try {
-                    generatedLogger.readBinary();
                     generatedLogger.read();
                 } catch (IOException e) {
                     loggers.remove(i);

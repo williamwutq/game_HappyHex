@@ -78,8 +78,7 @@ public class GamesPanel extends JPanel {
         private final JButton gameStartButton;
         private final GUI.InlineInfoPanel gameScorePanel, gameTurnPanel;
         public ListGame(HexLogger logger) {
-            final String fullname = logger.getDataFileName();
-            this.fileNameLabel = new JLabel(fullname.substring(0, fullname.length() - 12));
+            this.fileNameLabel = new JLabel(logger.getDataFileName());
             this.gameStartButton = new JButton("RESUME");
             this.gameScorePanel = new InlineInfoPanel();
             this.gameTurnPanel = new InlineInfoPanel();
@@ -103,7 +102,7 @@ public class GamesPanel extends JPanel {
             gameStartButton.setForeground(LaunchEssentials.launchConfirmButtonBackgroundColor);
             gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 16));
             gameStartButton.addActionListener(e -> {
-                LauncherGUI.startGame(fullname);
+                LauncherGUI.startGame(logger.getDataFileName());
             });
 
             gameScorePanel.setTitle("   Score: ");
