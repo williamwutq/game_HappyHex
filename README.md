@@ -591,7 +591,14 @@ These themes can change the color of every component in the game and the launche
 
    This theme is packaged inside `special.Thanksgiving` and contained in `special.FeatureFactory` with the class tag `java.awt.Color` and
    `java.awt.Font`. In the package, a special date class is defined to determine whether a day is Thanksgiving.  
+6. <b>Snowy!!!</b>  
+   This is a really special theme. This feature is to celebrate my friend Matthew Ye, who is the first person to reach 40 turns in Devil Mode,
+   which is part of the [Easter Eggs](#easter-eggs-) and can be activated by typing keywords into the [Login Page](#login-page). As he really enjoys at that
+   time the version 1.3.2 of HappyHex, I revealed to him the ways to access hidden modes and my friend found Devil Mode especially interesting.
+   For that, I promise him that I will add a new theme designed by him if he can reach a record score in that mode, and so he did. All colors in this special
+   theme are picked by my friend and implemented by me as promised.
 
+   This theme is packaged inside `special.Snowy` and contained in `special.FeatureFactory` with the class tag `java.awt.Color`.
 
 ### Auto Play
 The autoplay feature will be added in the future. With a click of a button, the player will be able to enjoy hands-off automatic piece placement in the 
