@@ -41,6 +41,8 @@ public class FeatureFactory {
                 return new special.Halloween.SpookyTheme();
             } else if (special.Thanksgiving.ThanksgivingDate.isThanksgiving()){
                 return new special.Thanksgiving.GratefulHarvest();
+            } else if ((date.getMonthValue() == 6 && date.getDayOfMonth() == 16)) {
+                return new special.Snowy.Snowy();
             } else if ((date.getMonthValue() == 7 && date.getDayOfMonth() == 4)) {
                 if (hint.equals("Dark") || hint.equals("4")) {
                     return new special.Independence.AmericanBlackTheme();
