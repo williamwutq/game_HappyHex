@@ -408,9 +408,9 @@ public class HexDataConverter {
     /**
      * Converts a hexadecimal string to a {@link HexEngine}.
      * The hexadecimal string must contain a radius and an array of boolean representing blocks.
-     * The total length of the hexadecimal string must match the engine size.
+     * The total length of the hexadecimal string must match the engine size, either include or exclude color section.
      * <p>
-     * This is the inverse method of {@link #convertBooleanEngine(HexEngine)}.
+     * This is the inverse method of {@link #convertBooleanEngine(HexEngine)} and {@link #convertColoredEngine(HexEngine)}.
      * This method is not related to {@link #convertBlock(String)}.
      *
      * @param hexString the hexadecimal string containing the engine data
@@ -435,19 +435,40 @@ public class HexDataConverter {
         if (radius <= 0) throw new IOException("\"HexEngine\" object cannot be generated because radius is negative or 0");
         // Create engine
         HexEngine engine = new HexEngine(radius);
-        if ((engine.length()+3)/4 != hexString.length() - 4){
-            throw new IOException("\"HexEngine\" object cannot be generated because input string have incorrect length");
-        }
-        int index = 0;
-        for (int i = 4; i < hexString.length(); i++) {
-            int hexValue = Character.digit(hexString.charAt(i), 16);
-            for (int bit = 0; bit < 4 && index < engine.length(); bit++) {
-                boolean state = (hexValue & (1 << bit)) != 0;
-                engine.getBlock(index).setState(state);
-                engine.getBlock(index).setColor(-2);
-                index ++;
+        int testL = hexString.length() - 4;
+        int engineL = engine.length();
+        int binL = (engineL+3)/4;
+        if (binL == testL || binL + engineL == testL) {
+            int index = 0;
+            for (int i = 4; i < hexString.length(); i++) {
+                int hexValue = Character.digit(hexString.charAt(i), 16);
+                for (int bit = 0; bit < 4 && index < engineL; bit++) {
+                    boolean state = (hexValue & (1 << bit)) != 0;
+                    engine.getBlock(index).setState(state);
+                    engine.getBlock(index).setColor(-2);
+                    index++;
+                }
             }
-        }
+            // If color is included
+            if (binL + engineL == testL) {
+                for (int i = 4 + binL; i < hexString.length(); i++) {
+                    int color = -1;
+                    try {
+                        char colorChar = hexString.charAt(i);
+                        if (colorChar == 'E') {
+                            color = -2;
+                        } else if ('0' <= colorChar && colorChar <= '9') {
+                            color = colorChar - '0';
+                        } else if ('A' <= colorChar && colorChar <= 'D') {
+                            color = colorChar - 'A';
+                        }
+                    } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
+                    } finally {
+                        engine.setColor(i - binL - 4, color);
+                    }
+                }
+            }
+        } else throw new IOException("\"HexEngine\" object cannot be generated because input string have incorrect length");
         return engine;
     }
 }
