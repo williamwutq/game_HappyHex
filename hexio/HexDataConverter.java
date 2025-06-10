@@ -473,7 +473,6 @@ public class HexDataConverter {
                 for (int bit = 0; bit < 4 && index < engineL; bit++) {
                     boolean state = (hexValue & (1 << bit)) != 0;
                     engine.getBlock(index).setState(state);
-                    engine.getBlock(index).setColor(-2);
                     index++;
                 }
             }

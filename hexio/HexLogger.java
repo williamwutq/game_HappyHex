@@ -770,11 +770,11 @@ public class HexLogger {
             writer.add(playerID);
             writer.add(formatStringToLength(player, 24));
             writer.addDivider(2);
-            writer.addHex(HexDataConverter.convertBooleanEngine(currentEngine));
+            writer.addHex(HexDataConverter.convertColoredEngine(currentEngine));
             writer.addDivider(1);
             writer.add((short)currentQueue.length);
             for (Piece piece : currentQueue){
-                writer.addHex(HexDataConverter.convertBooleanPiece(piece));
+                writer.addHex(HexDataConverter.convertColoredPiece(piece));
             }
             writer.addDivider(1);
             int totalMoves = moveOrigins.size();
@@ -782,7 +782,7 @@ public class HexLogger {
                 writer.addHex(HexDataConverter.convertHex(moveOrigins.get(i)));
                 writer.add((byte)(int)(movePieces.get(i)));
                 for (Piece piece : moveQueues.get(i)) {
-                    writer.addHex(HexDataConverter.convertBooleanPiece(piece));
+                    writer.addHex(HexDataConverter.convertColoredPiece(piece));
                 }
             }
             writer.addDivider(2);
