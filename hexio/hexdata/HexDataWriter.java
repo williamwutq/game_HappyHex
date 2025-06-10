@@ -57,7 +57,7 @@ import java.nio.file.*;
  * }</pre>
  *
  * @author William Wu
- * @version 1.3
+ * @version 1.3.3
  * @since 1.3
  */
 public class HexDataWriter {
