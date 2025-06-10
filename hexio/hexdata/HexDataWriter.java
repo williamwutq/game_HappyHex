@@ -57,7 +57,7 @@ import java.nio.file.*;
  * }</pre>
  *
  * @author William Wu
- * @version 1.3
+ * @version 1.3.3
  * @since 1.3
  */
 public class HexDataWriter {
@@ -115,6 +115,22 @@ public class HexDataWriter {
      */
     public HexDataReader getHexDataReader() {
         return new HexDataReader(filePath, suffix, data);
+    }
+    /**
+     * Returns the relative file name to the file to write to, excluding suffix
+     * @return the relative file name to the targeted file
+     * @since 1.3.3
+     */
+    public String getFileName(){
+        return filePath;
+    }
+    /**
+     * Returns the suffix to the file to write to.
+     * @return the suffix to the targeted file
+     * @since 1.3.3
+     */
+    public String getFileSuffix(){
+        return suffix;
     }
     /**
      * Get the full file path of the {@code HexDataWriter}.

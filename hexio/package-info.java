@@ -1,6 +1,6 @@
 /**
  * The {@code hexio} package provides a collection of utility classes designed for managing
- * hexadecimal-encoded data and game data logging in file systems, including both JSON and binary formats.
+ * hexadecimal-encoded data and game data logging in file systems in binary formats.
  * It is primarily used in conjunction with the {@code hex} package, which provides core hexagonal
  * grid-based game logic and models.
  * <p>
@@ -9,7 +9,7 @@
  * <p>
  * The package includes subpackages and utility classes used to persist,
  * convert, and manage game-related data in various formats, including text-based
- * hexadecimal, JSON, and binary formats. It has the permission to create, write, read, and destroy files.
+ * hexadecimal, and binary formats. It has the permission to create, write, read, and destroy files.
  *
  * <h2>Components</h2>
  * <h3>{@code hexio.hexdata} Subpackage</h3>
@@ -35,13 +35,8 @@
  *         and {@code read(reader)}.</li>
  * </ul>
  *
- * <h3>Converters</h3>
+ * <h3>Converter</h3>
  * <ul>
- *     <li>{@link hexio.HexConverter} –
- *         Converts game components (e.g., {@code Hex}, {@code Block}, {@code Piece}, {@code HexEngine})
- *         to and from JSON format. Supports integration with standard tools for JSON-based game logging,
- *         user state backup, or network transport.</li>
- *
  *     <li>{@link hexio.HexDataConverter} –
  *         Converts the same set of game components to and from the binary and text-based
  *         hexadecimal format handled by {@code HexDataWriter} and {@code HexDataReader}.
@@ -52,9 +47,8 @@
  * <ul>
  *     <li>{@link hexio.HexLogger} –
  *         The central class of the package. This logger provides high-level API for
- *         logging game sessions into files. It can write JSON-formatted log files
- *         (ending in {@code .hpyhex.json}) and binary logs ({@code .hpyhex}), both stored
- *         under the {@code /data/} directory.
+ *         logging game sessions into files. It can write binary logs ({@code .hpyhex}),
+ *         stored in the {@code /data/} directory.
  *         It stores the game engine, piece queue, move history, and player info.
  *         Methods like {@code setEngine}, {@code setQueue}, {@code addMove}, and
  *         {@code completeGame} allow building the log step-by-step.
@@ -70,7 +64,7 @@
  *     <li>Set the game engine and piece queue using {@link hexio.HexLogger#setEngine} and {@link hexio.HexLogger#setQueue}.</li>
  *     <li>Add moves to the log with {@link hexio.HexLogger#addMove} during gameplay.</li>
  *     <li>Once the game ends, call {@link hexio.HexLogger#completeGame} to mark the log final.</li>
- *     <li>Call {@code write()} to export the game session as a JSON file or {@code writeBinary()} to save in a compact binary format.</li>
+ *     <li>Call {@code write()} to save in a compact binary format.</li>
  *     <li>Later, reconstruct the game state with {@code read()} or {@code read("hex.binary")} using a new {@code HexLogger} pointing to the same file name.</li>
  *     <li>Optionally call {@link hexio.HexLogger#deleteFile} to remove the saved game data.</li>
  * </ol>
@@ -81,13 +75,13 @@
  *
  * <h2>Notes</h2>
  * <ul>
- *     <li>JSON logs store both gameplay and player information. Binary logs are lighter and do not include user info.</li>
+ *     <li>New versions of binary logs include user information and colors for game pieces. Old versions of binary logs are lighter and do not include user info.</li>
  *     <li>File names are generated using hash-based obfuscation and are guaranteed to be unique.</li>
  *     <li>Errors during file I/O or parsing throw {@code IOException}; callers must handle such cases.</li>
  *     <li>The package integrates with the {@code hex} game framework and depends on its core components.</li>
  * </ul>
  * @author William Wu
- * @version 1.3
+ * @version 1.3.2-binary
  * @since 1.3
  */
 package hexio;

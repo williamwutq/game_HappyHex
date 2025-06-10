@@ -54,7 +54,7 @@ import java.io.IOException;
  * }</pre>
  *
  * @author William Wu
- * @version 1.3
+ * @version 1.3.3
  * @since 1.3
  */
 public class HexDataFactory {
@@ -136,6 +136,18 @@ public class HexDataFactory {
             reader.readBinary();
         } catch (IOException e) {}
         return reader;
+    }
+
+    /**
+     * Clone a {@link HexDataReader}, reading binary data from the same file.
+     * If the original reader contains data, the cloned reader is loaded with data,
+     * but its pointer is set to the start of the data stream.
+     * @param reader the original reader to clone from
+     * @return a {@code HexDataReader} instance with the same file path and data stored
+     * @since 1.3.3
+     */
+    public static HexDataReader cloneReader(HexDataReader reader){
+        return new HexDataReader(reader.getFileName(), reader.getFileSuffix(), reader.getData());
     }
 
     /**

@@ -27,45 +27,37 @@ package hexio;
 import hex.*;
 import hexio.hexdata.*;
 
-import javax.json.*;
-import javax.json.stream.*;
-import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.nio.file.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.ArrayList;
 
 /**
  * The {@code HexLogger} class is designed to log and manage game data for the "HappyHex" game,
- * specifically handling the recording, storage, and retrieval of game state data in JSON and binary format.
+ * specifically handling the recording, storage, and retrieval of game state data in binary formats.
  * It supports logging critical game elements such as the game engine, piece queue, and player moves,
  * ensuring accurate tracking of game progress. The class also provides obfuscation mechanisms for
  * generating unique identifiers and timestamps, enhancing data integrity and uniqueness.
  *
  * <h3>Purpose</h3>
  * The primary purpose of {@code HexLogger} is to serve as a robust logging utility for the HappyHex game,
- * enabling developers to save game states to JSON or binary files, read them back, and manage game data efficiently.
- * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. JSON files
- * also record player information, which means data could be used for reviewing. For machine learning, the
+ * enabling developers to save game states to binary files, read them back, and manage game data efficiently.
+ * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. The
  * logged data, especially in binary format, could be used for training, helping future developers to build
- * advanced autoplay systems. The class supports the {@code hex.basic}, {@code hex} (unnamed), {@code hex.uncolored}
- * and {@code hex.binary} data formats, with plans to support additional formats in future releases.
+ * advanced autoplay systems. The class currently only supports the {@code hex.binary} data formats, with
+ * plans to support additional binary formats in future releases.
  *
  * <h3>Function</h3>
  * The {@code HexLogger} class provides the following key functionalities:
  * <ul>
  *     <li><b>Game State Logging:</b> Records the current state of the game, including the {@link HexEngine},
- *         piece queue, and move history, into a JSON file with the {@code .hpyhex.json} extension or
- *         into a binary file with the {@code .hpyhex} extension.</li>
- *     <li><b>Data Retrieval:</b> Reads and parses JSON and binary log files to reconstruct game states in
+ *         piece queue, and move history, into a binary file with the {@code .hpyhex} extension.</li>
+ *     <li><b>Data Retrieval:</b> Reads and parses binary log files to reconstruct game states in
  *         memory, populating fields like the engine, queue, and moves.</li>
  *     <li><b>Obfuscation:</b> Generates unique, obfuscated hashes and timestamps for filenames and identifiers
  *         using bit-shifting and prime multiplication techniques to ensure uniqueness and security.</li>
- *     <li><b>File Management:</b> Manages JSON and binary files in the {@code /data/} directory, including
+ *     <li><b>File Management:</b> Manages binary files in the {@code /data/} directory, including
  *         creating, reading, writing, and deleting game log files.</li>
  *     <li><b>Player Management:</b> Tracks player information, including name and ID, with support for
  *         guest profile for invalid or non-existent inputs.</li>
@@ -74,12 +66,8 @@ import java.util.ArrayList;
  * </ul>
  *
  * <h3>Data Format</h3>
- * This is version 1.3 of the {@code HexLogger} class, adhering to the {@code hex.basic} format standard.
- * It currently supports reading in the {@code hex.basic}, {@code hex} (unnamed), and {@code hex.uncolored} formats,
- * and writes in the {@code hex.uncolored} format.
- * In addition to ordinary json data, it also supports reading and writing binary data in the format {@code hex.binary},
- * stored in files with suffix {@code .hpyhex}.
- * Support for additional data formats is planned for future releases. See {@link #readBasicHexData} for formats.
+ * This is version 1.3 of the {@code HexLogger} class, adhering to the {@code hex.binary} format standard.
+ * It currently only supports reading and writing n the {@code hex.binary} format, stored in files with suffix {@code .hpyhex}.
  *
  * <h3>Example Usage</h3>
  * Below is an example demonstrating how to use the {@code HexLogger} class to log a game session,
@@ -105,32 +93,15 @@ import java.util.ArrayList;
  * // Complete the game, lock data
  * logger.completeGame();
  *
- * // Write the game data to a JSON file
- * try {
- *     logger.write();
- *     System.out.println("Game data saved to: " + logger.getDataFileName());
- * } catch (IOException e) {
- *     System.err.println("Failed to save game data: " + e.getMessage());
- * }
- *
  * // Write the game data to a binary file
  * try {
- *     logger.writeBinary();
+ *     logger.write();
  *     System.out.println("Game data saved to binary file");
  * } catch (IOException e) {
  *     System.err.println("Failed to save game data: " + e.getMessage());
  * }
  *
- * // Read the game data from the JSON file
- * HexLogger newLogger = new HexLogger(logger.getDataFileName());
- * try {
- *     newLogger.read();
- *     System.out.println("Game data loaded: " + newLogger.toString());
- * } catch (IOException e) {
- *     System.err.println("Failed to load game data: " + e.getMessage());
- * }
- *
- * // Read the game data from the binary file (This does not include user information)
+ * // Read the game data from the binary file (This currently does not include user information)
  * HexLogger newLogger = new HexLogger(logger.getDataFileName());
  * try {
  *     newLogger.read("hex.binary");
@@ -148,14 +119,13 @@ import java.util.ArrayList;
  *
  * <h3>Notes</h3>
  * <ul>
- *     <li>This class is dependent on {@link hex} package and its JSON conversion class {@link HexConverter}.</li>
+ *     <li>This class is dependent on {@link hex} package.</li>
  *     <li>This class is dependent on its {@link hexio.hexdata} package and its hexadecimal conversion class {@link HexDataConverter}.</li>
- *     <li>JSON files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
- *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.
- *         Binary files are stored in the same directory with the same naming, but with suffix {@code .hpyhex}.</li>
- *     <li>The {@link #read()}, {@link #readBinary()}, and {@link #write(String)} methods throw {@link IOException} if file operations
- *         or JSON/binary parsing fail, so proper exception handling is required.</li>
- *     <li>Future versions will expand support for additional data formats beyond {@code hex.basic}, {@code hex}, and {@code hex.uncolored}.</li>
+ *     <li>Binary files are stored in the {@code /data/} directory with names {@link #generateFileName generated} using
+ *         obfuscated hashes for uniqueness, following the format {@code HTHTHTHTHTHTHTHT.hpyhex}.</li>
+ *     <li>The {@link #read()}, and {@link #write(String)} methods throw {@link IOException} if file operations
+ *         or binary parsing fail, so proper exception handling is required.</li>
+ *     <li>Future versions will expand support for additional data formats beyond {@code hex.binary} and provide colored support.</li>
  * </ul>
  *
  * @author William Wu
@@ -183,13 +153,10 @@ public class HexLogger {
     private ArrayList<Piece[]> moveQueues;
     private ArrayList<Integer> movePieces;
 
-    // JSON
     /** The file name this {@code HexLogger} is assigned to */
     private final String dataFile;
     /** Directory for storing game files. */
     private static final String dataDirectory = "data/";
-    /** Format of the data logged into the JSON file. */
-    private static final String dataFormat = "hex.colored";
     /** Constructs a {@code HexLogger} assigned to a specific file */
     public HexLogger(String playerName, long playerID){
         dataFile = dataDirectory + generateFileName(ID);
@@ -206,7 +173,15 @@ public class HexLogger {
     }
     /** Constructs a {@code HexLogger} with a pre-assigned file name */
     public HexLogger(String fileName){
-        dataFile = fileName;
+        if (fileName.endsWith(".hpyhex.json")){
+            dataFile = fileName.substring(0, fileName.length()-12);
+        } else if (fileName.endsWith(".json")){
+            dataFile = fileName.substring(0, fileName.length()-5);
+        } else if (fileName.endsWith(".hpyhex")){
+            dataFile = fileName.substring(0, fileName.length()-7);
+        } else {
+            dataFile = fileName;
+        }
         currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
@@ -220,7 +195,7 @@ public class HexLogger {
     }
 
     /**
-     * Returns the assigned filename of this {@code HexLogger}, always end in {@code .hpyhex.json}.
+     * Returns the assigned filename of this {@code HexLogger}, always end in {@code .hpyhex}.
      * @return the assigned filename of this {@code HexLogger}
      */
     public String getDataFileName() {
@@ -334,6 +309,26 @@ public class HexLogger {
         return eL ^ oL << 1;
     }
     /**
+     * Ensures the string is exactly the given length.
+     * If the string is longer, it is truncated.
+     * If the string is shorter, it is padded with spaces.
+     *
+     * @param input The original string.
+     * @param length The desired length of the result.
+     * @return The formatted string.
+     * @since 1.3.3
+     */
+    public static String formatStringToLength(String input, int length) {
+        if (input == null) input = "";
+        if (input.length() > length) {
+            return input.substring(0, length);
+        } else if (input.length() < length) {
+            return String.format("%-" + length + "s", input);
+        } else {
+            return input;
+        }
+    }
+    /**
      * Retrieves the static identifier used by the logger.
      * This identifier is guaranteed to be the same regardless of run time evironment.
      * @return The unique logger ID.
@@ -444,7 +439,7 @@ public class HexLogger {
      * This is a deep copy and will not receive updates from the game.
      * <p>
      * Normally, this method is not used except during initialization, instead,
-     * {@link #addMove(Hex, Piece)} is used for adding moves, which automatically change the engine.
+     * {@link #addMove(Hex, int, Piece[])} is used for adding moves, which automatically change the engine.
      * @return Whether the engine is changed.
      */
     public boolean setEngine(HexEngine engine){
@@ -466,35 +461,6 @@ public class HexLogger {
             currentQueue = queue.clone();
             return true;
         } return false;
-    }
-    /**
-     * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
-     * representing the origin of the piece placement and a valid {@link Piece}. This will attempt to replicate the
-     * move with the current-holding engine, and if successful, the move would be considered valid and added to the
-     * move list. This would also trigger automatic incrementation of the game score and turns with the engine logic.
-     * Otherwise, the method returns false.
-     * @return Whether the engine is changed and the move was successful.
-     * @deprecated Since 1.2.4 for implementation of recording queue at each move.
-     * @see #addMove(Hex, int, Piece[])
-     */
-    @Deprecated
-    public boolean addMove(Hex origin, Piece piece){
-        if (completed) {return false;}
-        boolean success = false;
-        int eliminated = 0;
-        try {
-            currentEngine.add(origin, piece);
-            eliminated = currentEngine.eliminate().length;
-            success = true;
-        } catch (IllegalArgumentException e) {}
-        if (success) {
-            moveOrigins.add(origin);
-            moveQueues.add(new Piece[]{piece});
-            movePieces.add(0);
-            score += eliminated * 5;
-            turn++;
-        }
-        return success;
     }
     /**
      * Update the engine and the move list by adding a move, which is composed of a {@link Hex hexagonal coordinate}
@@ -542,7 +508,7 @@ public class HexLogger {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder("GameLogger[type = HexLogger, path = ");
+        StringBuilder builder = new StringBuilder("GameLogger[type = HexLogger, file = ");
         builder.append(dataFile);
         builder.append(", player = ");
         builder.append(player);
@@ -632,47 +598,6 @@ public class HexLogger {
         return newLogger;
     }
 
-    // JSON
-
-    /**
-     * Scans the data directory for all files ending with ".hpyhex.json".
-     *
-     * @return a list of {@link Path} objects representing the .hpyhex.json files found;
-     *         returns an empty list if none are found or if the directory is invalid
-     */
-    public static ArrayList<Path> findGameJsonFiles() {
-        ArrayList<Path> result = new ArrayList<>();
-        Path dir = Paths.get(dataDirectory);
-        if (!Files.isDirectory(dir)) {
-            return result; // Return empty list if not a directory
-        }
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{hpyhex.json}")) {
-            for (Path path : stream) {
-                if (path.getFileName().toString().endsWith(".hpyhex.json")) {
-                    result.add(path);
-                }
-            }
-        } catch (IOException | DirectoryIteratorException e) {
-            System.err.println(generateSimpleTime() + " HexLogger: Error occurred finding reading all game data files.");
-        }
-        return result;
-    }
-    /**
-     * Generate loggers for every game logged in JSON format in the data directory.
-     *
-     * @return a list of {@code HexLogger}s representing the .hpyhex.json files found;
-     *         returns an empty list if none are found or if the directory is invalid
-     * @see #findGameJsonFiles()
-     */
-    public static ArrayList<HexLogger> generateJsonLoggers(){
-        ArrayList<Path> paths = findGameJsonFiles();
-        ArrayList<HexLogger> result = new ArrayList<>();
-        for (Path path : paths){
-            result.add(new HexLogger(path.toString()));
-        }
-        return result;
-    }
-
     // Binary
     /**
      * Scans the data directory for all files ending with ".hpyhex".
@@ -721,6 +646,7 @@ public class HexLogger {
         currentEngine = new HexEngine(1);
         currentQueue = new Piece[0];
         moveOrigins = new ArrayList<Hex>();
+        moveQueues = new ArrayList<Piece[]>();
         movePieces = new ArrayList<Integer>();
         completed = false;
         turn = 0;
@@ -733,38 +659,17 @@ public class HexLogger {
      */
     public boolean deleteFile() {
         boolean success = false;
-        Path filePath = Paths.get(dataFile);
+        Path filePath = Paths.get(dataFile + ".hpyhex");
         try {
             Files.deleteIfExists(filePath);
-            System.out.println(generateSimpleTime() + " HexLogger: JSON data file " + dataFile + " deleted successfully.");
+            System.out.println(generateSimpleTime() + " HexLogger: Data file " + dataFile + " deleted successfully.");
             success = true;
         } catch (IOException e) {}
         return success;
     }
 
     /**
-     * Attempts to read JSON log files from {@link #dataDirectory}.
-     * @return The raw JSON content as a string, or {@code null} if not found.
-     */
-    private String readJsonFile(){
-        String realJsonFile = dataFile;
-        if (!realJsonFile.endsWith(".json")){
-            realJsonFile += ".json";
-        }
-        File file = new File(realJsonFile);
-        if (file.exists()) {
-            String result;
-            try{
-                result = new String(Files.readAllBytes(file.toPath()));
-            } catch (IOException e) {
-                return null;
-            }
-            return result;
-        } else return null;
-    }
-
-    /**
-     * Create a unique filename with the naming format {@code HTHTHTHTHTHTHTHT.hpyhex.json}.
+     * Create a unique filename with the naming format {@code HTHTHTHTHTHTHTHT}.
      * <p>
      * H and T represent hex bits in the long number. The bits of H(passed in {@code hash}) and
      * T(generated via {@link #generateTime()} are mixed together to maximize uniqueness
@@ -776,7 +681,6 @@ public class HexLogger {
         long time = generateTime();
         StringBuilder stringBuilder = new StringBuilder(16);
         for (int i = 0; i < 16; i++) {
-            // Alternate between LongHash and time, high nibble to low
             int shift = (15 - i) * 4;
             if (i % 2 == 0) {
                 stringBuilder.append(Integer.toHexString((int) ((LongHash >> shift) & 0xF)).toUpperCase());
@@ -784,65 +688,34 @@ public class HexLogger {
                 stringBuilder.append(Integer.toHexString((int) ((time >> shift) & 0xF)).toUpperCase());
             }
         }
-        return stringBuilder.toString() + ".hpyhex.json";
+        return stringBuilder.toString();
     }
 
     /**
-     * Writes the provided JSON object to the appropriate log file.
-     * If an existing file is found, it writes to it; otherwise, it creates a new one.
-     * It writes important messages to console.
-     * @param jsonObject The JSON object to write.
-     */
-    private void writeJsonToFile(JsonObject jsonObject) {
-        StringWriter stringWriter = new StringWriter();
-        JsonWriterFactory writerFactory = Json.createWriterFactory(
-                Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
-
-        try (JsonWriter jsonWriter = writerFactory.createWriter(stringWriter)) {
-            jsonWriter.write(jsonObject);
-        }
-
-        String jsonString = stringWriter.toString();
-        Path filePath = Paths.get(dataFile);
-        try {
-            Files.write(filePath, jsonString.getBytes());
-            System.out.println(generateSimpleTime() + " HexLogger: JSON data written to " + dataFile + " successfully.");
-        } catch (IOException e) {
-            System.err.println(generateSimpleTime() + " HexLogger: Log game JSON data failed.");
-        }
-    }
-
-    /**
-     * Constructs a complete JSON object from the current logger information and writes it to a file.
+     * Writes to a binary file using the {@code hex.binary} format.
      * This includes the basic game information, the current {@link HexEngine} statues, the current
-     * {@link Piece} queue statues, and the moves in the game. Uses the default format {@code hex.uncolored}.
-     * @throws IOException If JSON creation or writing fails.
-     * @see #createBasicData(JsonObjectBuilder)
-     * @see #createUncoloredData(JsonObjectBuilder)
+     * {@link Piece} queue statues, and the moves in the game.
+     * @throws IOException If binary file writing fails.
      * @see #read()
      * @see #write(String)
      */
     public void write() throws IOException {
-        write(dataFormat);
+        write("hex.binary");
     }
 
     /**
-     * Constructs a complete JSON object or hexadecimal string from the current logger information
-     * and writes it to a JSON or binary file. This includes the basic game information, the current
-     * {@link HexEngine} statues, the current {@link Piece} queue statues, and the moves in the game.
-     * This uses the specified format passed in. If the format is {@code hex.binary}, it out put a .bin file.
-     * @param format The format of the JSON log. Default to the default format {@code hex.basic} if not valid.
-     * @throws IOException If JSON creation or writing fails.
-     * @see #createBasicData(JsonObjectBuilder)
-     * @see #createColoredData(JsonObjectBuilder)
-     * @see #createUncoloredData(JsonObjectBuilder)
+     * Constructs a hexadecimal string from the current logger information and write to a binary file.
+     * This includes the basic game information, the current {@link HexEngine} statues, the current
+     * {@link Piece} queue statues, and the moves in the game. This uses the specified format passed in.
+     * If the format is {@code hex.binary} or {@code hex.coloredbinary}, it out put a .hpyhex binary file.
+     * @param format The format of the game data log. If not valid, writing will not occur.
+     * @throws IOException If writing fails.
      * @see #read()
      * @see #write()
      */
     public void write(String format) throws IOException {
         if (format.equals("hex.binary")) {
-            String jsonName = getDataFileName();
-            HexDataWriter writer = HexDataFactory.createWriter(jsonName.substring(0, jsonName.length()-12), "hpyhex");
+            HexDataWriter writer = HexDataFactory.createWriter(getDataFileName(), "hpyhex");
             long obfScore = obfuscate(interleaveIntegers(score * score, ID ^ turn));
             long obfTurn = obfuscate(interleaveIntegers(turn * turn, ID ^ score));
             long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
@@ -877,181 +750,47 @@ public class HexLogger {
             writer.addDivider(2);
             writer.add((short) (obfuscate(ID) << 5));
             HexDataFactory.write(writer);
+        } else if (format.equals("hex.coloredbinary")) {
+            HexDataWriter writer = HexDataFactory.createWriter(getDataFileName(), "hpyhex");
+            long obfScore = obfuscate(interleaveIntegers(score * score, ID ^ turn));
+            long obfTurn = obfuscate(interleaveIntegers(turn * turn, ID ^ score));
+            long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
+            writer.addHex("4B874B1E5A0F5A0F" + "5A964B874B5A5A87");
+            writer.add(obfuscate(ID * 43L ^ obfCombined ^ obfTurn) ^ obfScore);
+            writer.addHex("4A41564148584C47");
+            writer.add((byte)HexIOInfo.major);
+            writer.add((byte)HexIOInfo.minor);
+            writer.add((byte)HexIOInfo.patch);
+            writer.addDivider(1);
+            writer.add(ID);
+            writer.addHex("214845582D42494E");
+            writer.add(turn);
+            writer.add(score);
+            writer.add(completed);
+            writer.add(playerID);
+            writer.add(formatStringToLength(player, 24));
+            writer.addDivider(2);
+            writer.addHex(HexDataConverter.convertColoredEngine(currentEngine));
+            writer.addDivider(1);
+            writer.add((short)currentQueue.length);
+            for (Piece piece : currentQueue){
+                writer.addHex(HexDataConverter.convertColoredPiece(piece));
+            }
+            writer.addDivider(1);
+            int totalMoves = moveOrigins.size();
+            for (int i = 0; i < totalMoves; i ++) {
+                writer.addHex(HexDataConverter.convertHex(moveOrigins.get(i)));
+                writer.add((byte)(int)(movePieces.get(i)));
+                for (Piece piece : moveQueues.get(i)) {
+                    writer.addHex(HexDataConverter.convertColoredPiece(piece));
+                }
+            }
+            writer.addDivider(2);
+            writer.add((short) (obfuscate(ID) << 5));
+            HexDataFactory.write(writer);
         } else {
-            // Create JSON Object
-            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-            // Write basics
-            jsonObjectBuilder.add("Game", HexIOInfo.gameName);
-            jsonObjectBuilder.add("Environment", HexIOInfo.gameEnvironment);
-            jsonObjectBuilder.add("Generator", "HexLogger");
-            jsonObjectBuilder.add("GeneratorID", ID);
 
-            // Write version
-            JsonObjectBuilder versionBuilder = Json.createObjectBuilder();
-            versionBuilder.add("Major", HexIOInfo.major);
-            versionBuilder.add("Minor", HexIOInfo.minor);
-            versionBuilder.add("Patch", HexIOInfo.patch);
-            jsonObjectBuilder.add("Version", versionBuilder);
-
-            // Write player
-            jsonObjectBuilder.add("Player", player);
-            jsonObjectBuilder.add("PlayerID", Long.toHexString(playerID));
-
-            // Write data format
-            jsonObjectBuilder.add("format", dataFormat);
-
-            // Write data
-            if (format.substring(0, 3).equals("hex")) {
-                if (format.equals("hex.uncolored")) {
-                    createUncoloredData(jsonObjectBuilder);
-                } if (format.equals("hex.colored")) {
-                    createColoredData(jsonObjectBuilder);
-                } else {
-                    createBasicData(jsonObjectBuilder);
-                }
-            } else throw new IOException("Data format is not \"hex\" for this version of \"HexLogger\"");
-
-            // Write to file
-            writeJsonToFile(jsonObjectBuilder.build());
         }
-    }
-    /**
-     * Constructs a complete JSON object from the current logger information.
-     * This includes the basic game information, the current {@link HexEngine} statues, the current
-     * {@link Piece} queue statues, and the moves in the game. This use the {@code hex.basic} format.
-     * <p>
-     * This method appends information to the {@link JsonObjectBuilder} passed in as parameter.
-     * @param builder The builder to accept JSON information.
-     * @throws IOException If JSON creation fails.
-     * @see #write(String)
-     */
-    public void createBasicData(JsonObjectBuilder builder) throws IOException {
-        // Write game statues
-        builder.add("completed", completed);
-
-        // Write engine
-        builder.add("engine", HexConverter.convertEngine(currentEngine));
-
-        // Write queue
-        JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
-        for (Piece piece : currentQueue) {
-            jsonQueueBuilder.add(HexConverter.convertPiece(piece));
-        }
-        builder.add("queue", jsonQueueBuilder);
-
-        // Write moves
-        JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
-        int totalMoves = moveOrigins.size();
-        for (int i = 0; i < totalMoves; i ++) {
-            JsonObjectBuilder jsonMoveBuilder = Json.createObjectBuilder();
-            try {
-                jsonMoveBuilder.add("order", i);
-                jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
-                jsonMoveBuilder.add("piece", HexConverter.convertPiece(moveQueues.get(i)[movePieces.get(i)]));
-            } catch (Exception e) {
-                throw new IOException("Failed to create JSON objects for moves");
-            }
-            jsonMoveArrayBuilder.add(jsonMoveBuilder);
-        }
-        builder.add("moves", jsonMoveArrayBuilder);
-    }
-
-    /**
-     * Constructs a complete JSON object from the current logger information and writes it to a file.
-     * This includes the basic game information, the current {@link HexEngine} statues and its color,
-     * the current {@link Piece} queue statues and piece colors, and the moves in the game.
-     * This use the {@code hex.colored} format.
-     * <p>
-     * This method appends information to the {@link JsonObjectBuilder} passed in as parameter.
-     * @param builder The builder to accept JSON information.
-     * @throws IOException If JSON creation or writing fails.
-     * @see #write(String)
-     * @since 1.3
-     */
-    public void createColoredData(JsonObjectBuilder builder) throws IOException {
-        // Write game statues
-        builder.add("completed", completed);
-        builder.add("turn", turn);
-        builder.add("score", score);
-
-        // Write engine
-        builder.add("engine", HexConverter.convertIndexColoredEngine(currentEngine));
-
-        // Write queue
-        JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
-        for (Piece piece : currentQueue) {
-            jsonQueueBuilder.add(HexConverter.convertIndexColoredPiece(piece));
-        }
-        builder.add("queue", jsonQueueBuilder);
-
-        // Write moves
-        JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
-        int totalMoves = moveOrigins.size();
-        for (int i = 0; i < totalMoves; i ++) {
-            JsonObjectBuilder jsonMoveBuilder = Json.createObjectBuilder();
-            try {
-                jsonMoveBuilder.add("order", i);
-                jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
-                jsonMoveBuilder.add("index", movePieces.get(i));
-                JsonArrayBuilder jsonMoveQueueBuilder = Json.createArrayBuilder();
-                for (Piece piece : moveQueues.get(i)) {
-                    jsonMoveQueueBuilder.add(HexConverter.convertIndexColoredPiece(piece));
-                }
-                jsonMoveBuilder.add("queue", jsonMoveQueueBuilder);
-            } catch (Exception e) {
-                throw new IOException("Failed to create JSON objects for moves");
-            }
-            jsonMoveArrayBuilder.add(jsonMoveBuilder);
-        }
-        builder.add("moves", jsonMoveArrayBuilder);
-    }
-
-    /**
-     * Constructs a complete JSON object from the current logger information and writes it to a file.
-     * This includes the basic game information, the current {@link HexEngine} statues, the current
-     * {@link Piece} queue statues, and the moves in the game. This use the {@code hex.uncolored} format.
-     * <p>
-     * This method appends information to the {@link JsonObjectBuilder} passed in as parameter.
-     * @param builder The builder to accept JSON information.
-     * @throws IOException If JSON creation or writing fails.
-     * @see #write(String)
-     */
-    public void createUncoloredData(JsonObjectBuilder builder) throws IOException {
-        // Write game statues
-        builder.add("completed", completed);
-        builder.add("turn", turn);
-        builder.add("score", score);
-
-        // Write engine
-        builder.add("engine", HexConverter.convertEngine(currentEngine));
-
-        // Write queue
-        JsonArrayBuilder jsonQueueBuilder = Json.createArrayBuilder();
-        for (Piece piece : currentQueue) {
-            jsonQueueBuilder.add(HexConverter.convertPiece(piece));
-        }
-        builder.add("queue", jsonQueueBuilder);
-
-        // Write moves
-        JsonArrayBuilder jsonMoveArrayBuilder = Json.createArrayBuilder();
-        int totalMoves = moveOrigins.size();
-        for (int i = 0; i < totalMoves; i ++) {
-            JsonObjectBuilder jsonMoveBuilder = Json.createObjectBuilder();
-            try {
-                jsonMoveBuilder.add("order", i);
-                jsonMoveBuilder.add("center", HexConverter.convertHex(moveOrigins.get(i)));
-                jsonMoveBuilder.add("index", movePieces.get(i));
-                JsonArrayBuilder jsonMoveQueueBuilder = Json.createArrayBuilder();
-                for (Piece piece : moveQueues.get(i)) {
-                    jsonMoveQueueBuilder.add(HexConverter.convertPiece(piece));
-                }
-                jsonMoveBuilder.add("queue", jsonMoveQueueBuilder);
-            } catch (Exception e) {
-                throw new IOException("Failed to create JSON objects for moves");
-            }
-            jsonMoveArrayBuilder.add(jsonMoveBuilder);
-        }
-        builder.add("moves", jsonMoveArrayBuilder);
     }
 
     /**
@@ -1060,18 +799,22 @@ public class HexLogger {
      * <p>
      * For writing binary data, use {@code write("hex.binary")}.
      * @throws IOException If reading or parsing fails, or data is corrupted.
+     * @deprecated Use {@link #read()} directly instead.
      * @since 1.3
      */
-    public void readBinary() throws IOException {
-        String jsonName = getDataFileName();
-        if (jsonName.endsWith(".hpyhex.json")){
-            jsonName = jsonName.substring(0, jsonName.length()-12);
-        } else if (jsonName.endsWith(".json")){
-            jsonName = jsonName.substring(0, jsonName.length()-5);
-        } else if (jsonName.endsWith(".hpyhex")){
-            jsonName = jsonName.substring(0, jsonName.length()-7);
-        }
-        HexDataReader reader = HexDataFactory.read(jsonName, "hpyhex");
+    @Deprecated
+    public void readBinary() throws IOException {read();}
+
+    /**
+     * Reads a log file and parses it into memory. Reads both "hex.binary" and "hex.coloredbinary".
+     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from binary data.
+     * <p>
+     * For writing binary data, use {@code write("hex.binary")}.
+     * @throws IOException If reading or parsing fails, or data is corrupted.
+     * @since 1.3
+     */
+    public void read() throws IOException {
+        HexDataReader reader = HexDataFactory.read(getDataFileName(), "hpyhex");
         // Format check
         if (!reader.next(32).equals("4B874B1E5A0F5A0F5A964B874B5A5A87")) {
             throw new IOException("Fail to read binary data because file header is corrupted");
@@ -1093,62 +836,139 @@ public class HexLogger {
         if (obfCombined != code){
             throw new IOException("Fail to read binary data because file data encoding is corrupted or version is not supported");
         }
-        if (!reader.next(4).equals("FFFF")) {
+        long playerIDData = this.playerID;
+        String playerNameData = this.player;
+        if (!reader.get(reader.pointer(), 4).equals("FFFF")) {
+            // If is colored binary including player info
+            playerIDData = reader.nextLong();
+            playerNameData = reader.nextString(24).trim();
+            if (!reader.next(4).equals("FFFF")) {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
-        }
-        // Read engine
-        HexEngine engineData;
-        try {
-            int radius = reader.getShort(reader.pointer());
-            int l = (3*(radius)*(radius-1))/4 + 5;
-            engineData = HexDataConverter.convertEngine(reader.next(l));
-        } catch (IOException e) {
-            throw new IOException("Fail to read engine data in binary data");
-        }
-        if (!reader.next(2).equals("FF")) {
-            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
-        }
-        // Read queue
-        Piece[] queueData;
-        try {
-            int length = reader.nextShort();
-            queueData = new Piece[length];
-            for (int i = 0; i < length; i ++){
-                queueData[i] = HexDataConverter.convertPiece(reader.next(2));
             }
-        } catch (IOException e) {
-            throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
-        }
-        if (!reader.next(2).equals("FF")) {
-            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
-        }
-        // Read moves
+        } else reader.advance(4);
+        int startingDataPointerPosition = reader.pointer();
+        HexDataReader clonedReader = HexDataFactory.cloneReader(reader);;
+        HexEngine engineData;
+        Piece[] queueData;
         ArrayList<Hex> moveOriginsData = new ArrayList<Hex>(turnData);
         ArrayList<Piece[]> moveQueuesData = new ArrayList<Piece[]>(turnData);
         ArrayList<Integer> movePiecesData = new ArrayList<Integer>(turnData);
-        for (int i = 0; i < turnData; i ++){
-            try{
-                moveOriginsData.add(HexDataConverter.convertHex(reader.next(8)));
-            } catch (IOException e) {
-                throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
-            }
-            int index = reader.nextByte();
-            if (index < 0 || index >= queueData.length) {
-                throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
-            } else movePiecesData.add(index);
-            Piece[] moveQueueData;
+        // Attempt uncolored
+        try {
+            clonedReader.advance(startingDataPointerPosition);
+            // Read engine
             try {
-                moveQueueData = new Piece[queueData.length];
-                for (int j = 0; j < queueData.length; j++){
-                    moveQueueData[j] = HexDataConverter.convertPiece(reader.next(2));
+                int radius = clonedReader.getShort(clonedReader.pointer());
+                int l = (3 * (radius) * (radius - 1)) / 4 + 5;
+                engineData = HexDataConverter.convertEngine(clonedReader.next(l));
+            } catch (IOException e) {
+                throw new IOException("Fail to read engine data in binary data");
+            }
+            if (!clonedReader.next(2).equals("FF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+            // Read queue
+            try {
+                int length = clonedReader.nextShort();
+                queueData = new Piece[length];
+                for (int i = 0; i < length; i++) {
+                    queueData[i] = HexDataConverter.convertPiece(clonedReader.next(2));
                 }
             } catch (IOException e) {
-                throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
             }
-            moveQueuesData.add(moveQueueData.clone());
-        }
-        if (!reader.next(4).equals("FFFF")) {
-            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            if (!clonedReader.next(2).equals("FF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+            // Read moves
+            for (int i = 0; i < turnData; i++) {
+                try {
+                    moveOriginsData.add(HexDataConverter.convertHex(clonedReader.next(8)));
+                } catch (IOException e) {
+                    throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
+                }
+                int index = clonedReader.nextByte();
+                if (index < 0 || index >= queueData.length) {
+                    throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
+                } else movePiecesData.add(index);
+                Piece[] moveQueueData;
+                try {
+                    moveQueueData = new Piece[queueData.length];
+                    for (int j = 0; j < queueData.length; j++) {
+                        moveQueueData[j] = HexDataConverter.convertPiece(clonedReader.next(2));
+                    }
+                } catch (IOException e) {
+                    throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                }
+                moveQueuesData.add(moveQueueData.clone());
+            }
+            if (!clonedReader.next(4).equals("FFFF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+        } catch (Exception exceptionReadingUncolored) {
+            // If fail, also attempt colored
+            clonedReader = HexDataFactory.cloneReader(reader);
+            clonedReader.advance(startingDataPointerPosition);
+            moveOriginsData = new ArrayList<Hex>(turnData);
+            moveQueuesData = new ArrayList<Piece[]>(turnData);
+            movePiecesData = new ArrayList<Integer>(turnData);
+            try {
+                // Read engine
+                try {
+                    int radius = clonedReader.getShort(clonedReader.pointer());
+                    int c = 3 * (radius) * (radius - 1);
+                    int l = c + c / 4 + 6;
+                    engineData = HexDataConverter.convertEngine(clonedReader.next(l));
+                } catch (IOException e) {
+                    throw new IOException("Fail to read engine data in binary data");
+                }
+                if (!clonedReader.next(2).equals("FF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+                // Read queue
+                try {
+                    int length = clonedReader.nextShort();
+                    queueData = new Piece[length];
+                    for (int i = 0; i < length; i++) {
+                        queueData[i] = HexDataConverter.convertPiece(clonedReader.next(3));
+                    }
+                } catch (IOException e) {
+                    throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
+                }
+                if (!clonedReader.next(2).equals("FF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+                // Read moves
+                for (int i = 0; i < turnData; i++) {
+                    try {
+                        moveOriginsData.add(HexDataConverter.convertHex(clonedReader.next(8)));
+                    } catch (IOException e) {
+                        throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
+                    }
+                    int index = clonedReader.nextByte();
+                    if (index < 0 || index >= queueData.length) {
+                        throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
+                    } else movePiecesData.add(index);
+                    Piece[] moveQueueData;
+                    try {
+                        moveQueueData = new Piece[queueData.length];
+                        for (int j = 0; j < queueData.length; j++) {
+                            moveQueueData[j] = HexDataConverter.convertPiece(clonedReader.next(3));
+                        }
+                    } catch (IOException e) {
+                        throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                    }
+                    moveQueuesData.add(moveQueueData.clone());
+                }
+                if (!clonedReader.next(4).equals("FFFF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+            } catch (Exception exceptionReadingColored) {
+                throw new IOException("Fail to read binary data in both uncolored and colored format because in uncolored format, "
+                        + exceptionReadingUncolored.getMessage() + "; in colored format, " + exceptionReadingColored.getMessage());
+            }
+        } finally {
+            reader.advance(clonedReader.pointer() - startingDataPointerPosition);
         }
         // Final check
         if ((short) (obfuscate(id) << 5) != reader.nextShort()){
@@ -1163,372 +983,7 @@ public class HexLogger {
         completed = completeBooleanData;
         turn = turnData;
         score = scoreData;
-    }
-
-    /**
-     * Reads the log file and parses it into memory.
-     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
-     * @throws IOException If reading or parsing fails or if the game type is unsupported.
-     * @see #write()
-     * @see #readJsonFile()
-     * @see #readBasicHexData(JsonObject)
-     * @see #readAdvancedHexData(JsonObject)
-     */
-    public void read() throws IOException {
-        String jsonString = readJsonFile();
-        if (jsonString == null) {
-            throw new IOException("Failed to read JSON file because it is null");
-        }
-
-        JsonObject jsonObject;
-        try (JsonReader jsonReader = Json.createReader(new StringReader(jsonString))) {
-            jsonObject = jsonReader.readObject();
-        } catch (Exception e) {
-            throw new IOException("Failed to parse JSON file", e);
-        }
-
-        // Game Check
-        String game;
-        try {
-            game = jsonObject.getString("Game");
-        } catch (Exception e) {
-            throw new IOException("Game type is not found", e);
-        }
-        if (!"HappyHex".equals(game)) {
-            throw new IOException("Game type is not HappyHex");
-        }
-
-        // Read player
-        try{
-            playerID = Long.parseUnsignedLong(jsonObject.getString("PlayerID"), 16);
-        } catch (Exception e){
-            throw new IOException("Fail to read Player ID");
-        }
-        try{
-            player = jsonObject.getString("Player");
-        } catch (Exception e){
-            throw new IOException("Fail to read Player");
-        }
-
-        // Read data format (This support versions without format)
-        String dataFormat;
-        try {
-            dataFormat = jsonObject.getString("format");
-        } catch (Exception e) {
-            try {
-                dataFormat = jsonObject.getString("Format");
-            } catch (Exception ex) {
-                dataFormat = "hex";
-            }
-        }
-
-        if(dataFormat.substring(0, 3).equals("hex")) {
-            if(dataFormat.equals("hex")) {
-                readBasicHexData(jsonObject);
-            } else if (dataFormat.equals("hex.basic")) {
-                readBasicHexData(jsonObject);
-            } else if (dataFormat.equals("hex.uncolored")) {
-                readAdvancedHexData(jsonObject);
-            } else if (dataFormat.equals("hex.colored")) {
-                readAdvancedHexData(jsonObject);
-            } else {
-                throw new IOException("Data format is not compatible for this version of \"HexLogger\"");
-            }
-        } else throw new IOException("Data format is not \"hex\" for this version of \"HexLogger\"");
-    }
-
-    /**
-     * Reads the hexagonal grid data of a format {@code hex.uncolored} or {@code hex.uncolored} data and parse it into memory.
-     * <p>
-     * To reflect the fact that it can read both colored and uncolored formats, the method is renamed from
-     * {@code readUncoloredHexData(JsonObject)} to {@code readAdvancedHexData(JsonObject)}.
-     * <p>
-     * The {@code hex.uncolored} format contains:
-     * <ul>
-     *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
-     *     be non-modifiable.</li>
-     *     <li><b>{@code turn}:</b> The number of turns already occurred in the game.</li>
-     *     <li><b>{@code score}:</b> The score already obtained by the player in the game.</li>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its
-     *     radius, and blocks. The block record of the engine does not contain colors.</li>
-     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
-     *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
-     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
-     *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
-     *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>
-     * </ul>
-     * The {@code hex.uncolored} format contains:
-     * <ul>
-     *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
-     *     be non-modifiable.</li>
-     *     <li><b>{@code turn}:</b> The number of turns already occurred in the game.</li>
-     *     <li><b>{@code score}:</b> The score already obtained by the player in the game.</li>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
-     *     radius, and blocks. The block record of the engine does contain colors.</li>
-     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple colored
-     *     seven-block pieces, each represented by an array of blocks. The queue is colored and not ordered</li>
-     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
-     *     number representing the move order, a snapshot of the game queue, a hex coordinate representing the center,
-     *     and an index indicate which piece is placed. The moves are ordered according to move sequence</li>
-     * </ul>
-     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
-     * @throws IOException If reading or parsing fails or if the game type is unsupported.
-     * @see #read()
-     * @since 1.3
-     */
-    public void readAdvancedHexData(JsonObject jsonObject) throws IOException {
-        // Read completed
-        try{
-            completed = jsonObject.getBoolean("completed");
-        } catch (Exception e){
-            try{
-                completed = jsonObject.getBoolean("Completed");
-            } catch (Exception ex){
-                throw new IOException("Fail to read game completion status");
-            }
-        }
-
-        // Read score and turn
-        try{
-            score = jsonObject.getInt("score");
-        } catch (Exception e){
-            try{
-                score = jsonObject.getInt("Score");
-            } catch (Exception ex){
-                throw new IOException("Fail to read game score");
-            }
-        }
-        try{
-            turn = jsonObject.getInt("turn");
-        } catch (Exception e){
-            try{
-                turn = jsonObject.getInt("Turn");
-            } catch (Exception ex){
-                throw new IOException("Fail to read game turn");
-            }
-        }
-
-        // Read engine
-        try{
-            JsonObject engineJson = jsonObject.getJsonObject("engine");
-            currentEngine = HexConverter.convertEngine(engineJson);
-        } catch (Exception e) {
-            throw new IOException("Fail to read game engine");
-        }
-
-        // Read queue
-        int queueSize;
-        try{
-            JsonArray queueJson = jsonObject.getJsonArray("queue");
-            queueSize = queueJson.size();
-            currentQueue = new Piece[queueSize];
-            // Populate queue
-            for (int i = 0; i < queueSize; i ++){
-                try {
-                    JsonArray pieceJson = queueJson.getJsonArray(i);
-                    currentQueue[i] = HexConverter.convertPiece(pieceJson);
-                } catch (Exception e) {
-                    throw new IOException("Fail to read piece at index " + i + " in game queue");
-                }
-            }
-        } catch (Exception e) {
-            if (e instanceof IOException) throw e;
-            throw new IOException("Fail to read game queue");
-        }
-
-        // Read moves
-        try{
-            JsonArray movesJson = jsonObject.getJsonArray("moves");
-            int movesSize = movesJson.size();
-            // Check move number matching
-            if (turn != movesSize){
-                throw new IOException("Fail to read game moves because move array size does not match \"turn\"");
-            }
-            moveQueues = new ArrayList<>(movesSize);
-            moveOrigins = new ArrayList<>(movesSize);
-            movePieces = new ArrayList<>(movesSize);
-            // Populate moves
-            for (int i = 0; i < movesSize; i ++){
-                try {
-                    JsonObject moveJson = movesJson.getJsonObject(i);
-                    // Check move order
-                    int moveNumber = -1;
-                    try {
-                        moveNumber = moveJson.getInt("order");
-                    } catch (Exception e) {}
-                    if (moveNumber != i) {
-                        throw new IOException("Fail to read move at index " + i + " in game moves because move order does not match");
-                    }
-                    // Record move queue
-                    Piece[] moveQueue;
-                    try{
-                        JsonArray moveQueueJson = moveJson.getJsonArray("queue");
-                        int moveQueueSize = moveQueueJson.size();
-                        // Check queue size
-                        if (moveQueueSize != queueSize){
-                            throw new IOException("Fail to read move at index " + i + " because move's queue array size does not match global game queue size");
-                        }
-                        moveQueue = new Piece[moveQueueSize];
-                        // Populate queue
-                        for (int j = 0; j < moveQueueSize; j++){
-                            try {
-                                JsonArray pieceJson = moveQueueJson.getJsonArray(j);
-                                moveQueue[j] = HexConverter.convertPiece(pieceJson);
-                            } catch (Exception e) {
-                                throw new IOException("Fail to read move at index \" + i + \" in game moves because queue cannot be read at index " + j);
-                            }
-                        }
-                    } catch (Exception e) {
-                        if (e instanceof IOException) throw e;
-                        throw new IOException("Fail to read game queue");
-                    }
-                    // Record move center
-                    Hex moveOrigin;
-                    try {
-                        JsonObject moveOriginJson = moveJson.getJsonObject("center");
-                        moveOrigin = HexConverter.convertHex(moveOriginJson);
-                    } catch (Exception e) {
-                        throw new IOException("Fail to read move at index " + i + " in game moves due to failed center conversion");
-                    }
-                    // Record move
-                    int moveIndex = -1;
-                    try {
-                        moveIndex = moveJson.getInt("index");
-                    } catch (Exception e) {}
-                    if (moveIndex < 0 || moveIndex >= queueSize) {
-                        throw new IOException("Fail to read move at index " + i + " in game moves because move index is out of bounds");
-                    }
-                    // Addition
-                    moveQueues.add(moveQueue);
-                    movePieces.add(moveIndex);
-                    moveOrigins.add(moveOrigin);
-                } catch (Exception e) {
-                    if (e instanceof IOException) throw e;
-                    throw new IOException("Fail to read move at index " + i + " in game moves");
-                }
-            }
-        } catch (Exception e) {
-            if (e instanceof IOException) throw e;
-            throw new IOException("Fail to read game moves");
-        }
-    }
-
-    /**
-     * Reads the hexagonal grid data of a format {@code hex} or {@code hex.basic} data and parse it into memory.
-     * <p>
-     * The {@code hex} format contains:
-     * <ul>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
-     *     radius, and blocks. The block record of the engine does not contain colors.</li>
-     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
-     *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
-     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a hex
-     *     coordinate representing the center, and the piece that is placed. The moves are automatically ordered.</li>
-     * </ul>
-     * <p>
-     * The {@code hex.simple} format contains:
-     * <ul>
-     *     <li><b>{@code completed}:</b> Whether this game should be consider completed. If completed, the data would
-     *     be non-modifiable.</li>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
-     *     radius, and blocks. The block record of the engine does not contain colors.</li>
-     *     <li><b>{@code engine}:</b> This field representing the current game engine, containing its default colors
-     *     radius, and blocks. The block record of the engine does not contain colors.</li>
-     *     <li><b>{@code queue}:</b> This field representing the current game queue, containing multiple uncolored
-     *     seven-block pieces, each represented by an array of blocks. The queue is not ordered</li>
-     *     <li><b>{@code moves}:</b> This field representing the past moves of the game, each instance contains a
-     *     number representing the move order, a hex coordinate representing the center, and the piece that is placed,
-     *     The moves are ordered according to move sequence</li>
-     * </ul>
-     * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from JSON.
-     * @throws IOException If reading or parsing fails or if the game type is unsupported.
-     * @see #read()
-     */
-    public void readBasicHexData(JsonObject jsonObject) throws IOException {
-        // Read completed (This support versions without completed)
-        try{
-            completed = jsonObject.getBoolean("completed");
-        } catch (Exception e){
-            try{
-                completed = jsonObject.getBoolean("Completed");
-            } catch (Exception ex){
-                completed = true;
-            }
-        }
-
-        // Read engine
-        try{
-            JsonObject engineJson = jsonObject.getJsonObject("engine");
-            currentEngine = HexConverter.convertEngine(engineJson);
-        } catch (Exception e) {
-            throw new IOException("Fail to read game engine");
-        }
-
-        // Read queue
-        try{
-            JsonArray queueJson = jsonObject.getJsonArray("queue");
-            int queueSize = queueJson.size();
-            currentQueue = new Piece[queueSize];
-            // Populate queue
-            for (int i = 0; i < queueSize; i ++){
-                try {
-                    JsonArray pieceJson = queueJson.getJsonArray(i);
-                    currentQueue[i] = HexConverter.convertPiece(pieceJson);
-                } catch (Exception e) {
-                    throw new IOException("Fail to read piece at index " + i + " in game queue");
-                }
-            }
-        } catch (Exception e) {
-            if (e instanceof IOException) throw e;
-            throw new IOException("Fail to read game queue");
-        }
-
-        // Read moves
-        try{
-            JsonArray movesJson = jsonObject.getJsonArray("moves");
-            int movesSize = movesJson.size();
-            moveQueues = new ArrayList<>(movesSize);
-            moveOrigins = new ArrayList<>(movesSize);
-            movePieces = new ArrayList<>(movesSize);
-            // Populate moves
-            for (int i = 0; i < movesSize; i ++){
-                try {
-                    JsonObject moveJson = movesJson.getJsonObject(i);
-                    // Check move order
-                    int moveNumber = -1;
-                    try {
-                        moveNumber = moveJson.getInt("order");
-                    } catch (Exception e) {}
-                    if (moveNumber != i) {
-                        throw new IOException("Fail to read move at index " + i + " in game moves because move order does not match");
-                    }
-                    // Record move
-                    Hex moveOrigin; Piece movePiece;
-                    try {
-                        JsonObject moveOriginJson = moveJson.getJsonObject("center");
-                        moveOrigin = HexConverter.convertHex(moveOriginJson);
-                    } catch (Exception e) {
-                        throw new IOException("Fail to read move at index " + i + " in game moves due to failed center conversion");
-                    }
-                    try {
-                        JsonArray movePieceJson = moveJson.getJsonArray("piece");
-                        movePiece = HexConverter.convertPiece(movePieceJson);
-                    } catch (Exception e) {
-                        throw new IOException("Fail to read move at index " + i + " in game moves due to failed piece conversion");
-                    }
-                    moveOrigins.add(moveOrigin);
-                    movePieces.add(0);
-                    moveQueues.add(new Piece[]{movePiece});
-                } catch (Exception e) {
-                    if (e instanceof IOException) throw e;
-                    throw new IOException("Fail to read move at index " + i + " in game moves");
-                }
-            }
-        } catch (Exception e) {
-            if (e instanceof IOException) throw e;
-            throw new IOException("Fail to read game moves");
-        }
-        turn = 0;
-        score = 0;
+        playerID = playerIDData;
+        player = playerNameData;
     }
 }

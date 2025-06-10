@@ -424,8 +424,8 @@ public final class GameEssentials {
         gameLogger = gameLogger.clone(); // Create cloned logger
         new Thread(() -> {
             try {
-                writeOnLogger.write();
-                writeOnLogger.write("hex.binary");
+                writeOnLogger.write("hex.coloredbinary");
+                System.out.println(GameTime.generateSimpleTime() + " HexLogger: file written to " + writeOnLogger.getDataFileName() + ".hpyhex");
             } catch (IOException e) {
                 System.err.println(GameTime.generateSimpleTime() + " HexLogger: " + e.getMessage());
         }}).start();

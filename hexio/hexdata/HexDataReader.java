@@ -49,7 +49,7 @@ import java.nio.file.Path;
  * }</pre>
  *
  * @author William Wu
- * @version 1.3
+ * @version 1.3.3
  * @since 1.3
  */
 public class HexDataReader {
@@ -80,6 +80,7 @@ public class HexDataReader {
     public HexDataReader(String filePath, String suffix, String data) {
         this.filePath = filePath;
         this.suffix = suffix;
+        this.pointer = 0;
         StringBuilder builder = new StringBuilder();
         for (char c : data.toUpperCase().toCharArray()) {
             if (Character.digit(c, 16) != -1) {
@@ -89,6 +90,22 @@ public class HexDataReader {
             }
         }
         this.data = builder.toString();
+    }
+    /**
+     * Returns the relative file name to the file to read from, excluding suffix
+     * @return the relative file name to the targeted file
+     * @since 1.3.3
+     */
+    public String getFileName(){
+        return filePath;
+    }
+    /**
+     * Returns the suffix to the file to read from.
+     * @return the suffix to the targeted file
+     * @since 1.3.3
+     */
+    public String getFileSuffix(){
+        return suffix;
     }
     /**
      * Get the full file path of the {@code HexDataWriter}.
