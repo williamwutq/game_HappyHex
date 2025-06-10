@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 28/05/2025  
-<b>Latest release:</b> [1.3.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.2)
+<b>Last edited:</b> 11/06/2025  
+<b>Latest release:</b> [1.3.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.3)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -295,10 +295,10 @@ The page contains the following elements:
 This page helps the player to resume a previously stated but unfinished game stored in the `data` directory. For a game to show up on this page, the following
 requirements all be meet:  
 
-1. Either a valid `.hpyhex` or a valid `.hpyhex.json` game log file exist in the `data` directory. Validity of game file means that they are not corrupted and
+1. A valid `.hpyhex` game log file, in colored format, must exist in the `data` directory. Validity of game file means that they are not corrupted and
    can be read by the HappyHex program.  
-2. The game is unfinished. This means in both the binary `.hpyhex` or the `.hpyhex.json` files need to have the key `complete` set to `false`.  
-3. The username and user ID recorded in both the binary `.hpyhex` or the `.hpyhex.json` game log files matched the currently [logged-in](#Login-Page) user.
+2. The game is unfinished. This means in the binary `.hpyhex` files need to have the key `complete` set to `false`.  
+3. The username and user ID recorded in the binary `.hpyhex` game log files matched the currently [logged-in](#Login-Page) user.
    In addition, the user logged in, as when user is not logged in, games will not be able to resumed or recorded.  
 4. The game queue and board sizes matches the sizes currently selected in the [settings](#settings-page). If the settings do not match, no game may show up.  
 
@@ -515,12 +515,12 @@ generate the single-block piece but may generate the full 7-block piece.
 #### Game Ending
 - When a piece is placed, queue updated, and elimination checked such that no more piece can be placed, the game ends.
 - The score and turns of the game will be recorded.
-- The game will be logged in a `.hpyhex.json` file and/or binary `.hpyhex` file inside the folder `data`.
+- The game will be logged in a colored binary `.hpyhex` file inside the folder `data`.
 - The terminated game will be connected with the user information.
 #### Game Quitting
 - The player may quit the game by clicking on the quit button inside the game at any time.
 - The score and turns of the game will be recorded.
-- The game will be logged in a `.hpyhex.json` file and/or binary `.hpyhex` file  inside the folder `data`.
+- The game will be logged in a colored binary `.hpyhex` file  inside the folder `data`.
 - The unfinished game will be connected with the user information.
 - If the player logs in again with the identical information and game setting, and the game log exists in the correct location, the unfinished game
   could be revived with the unfinished board and game queue. The color of the board and queue of the unfinished game will be the exact same according
@@ -761,7 +761,7 @@ package `hexio`
 `javax.json`  
 <b>Function</b>:  
 Provides utility methods for converting hexagonal game components such as Hex, Block, Piece, HexEngine, and game moves to and from
-JSON representations. It helps developers to save game states to `.hpyhex.json` and binary `.hpyhex` files, read them back,
+colored and uncolored binary representations. It helps developers to save game states to binary `.hpyhex` files, read them back,
 and manage game data efficiently. It is not dependent on any other packages and use internal versioning separated from `Launcher`.  
 
 ### Logging
