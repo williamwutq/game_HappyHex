@@ -846,59 +846,129 @@ public class HexLogger {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
             }
         } else reader.advance(4);
-        // Read engine
+        int startingDataPointerPosition = reader.pointer();
+        HexDataReader clonedReader = HexDataFactory.cloneReader(reader);;
         HexEngine engineData;
-        try {
-            int radius = reader.getShort(reader.pointer());
-            int l = (3*(radius)*(radius-1))/4 + 5;
-            engineData = HexDataConverter.convertEngine(reader.next(l));
-        } catch (IOException e) {
-            throw new IOException("Fail to read engine data in binary data");
-        }
-        if (!reader.next(2).equals("FF")) {
-            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
-        }
-        // Read queue
         Piece[] queueData;
-        try {
-            int length = reader.nextShort();
-            queueData = new Piece[length];
-            for (int i = 0; i < length; i ++){
-                queueData[i] = HexDataConverter.convertPiece(reader.next(2));
-            }
-        } catch (IOException e) {
-            throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
-        }
-        if (!reader.next(2).equals("FF")) {
-            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
-        }
-        // Read moves
         ArrayList<Hex> moveOriginsData = new ArrayList<Hex>(turnData);
         ArrayList<Piece[]> moveQueuesData = new ArrayList<Piece[]>(turnData);
         ArrayList<Integer> movePiecesData = new ArrayList<Integer>(turnData);
-        for (int i = 0; i < turnData; i ++){
-            try{
-                moveOriginsData.add(HexDataConverter.convertHex(reader.next(8)));
-            } catch (IOException e) {
-                throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
-            }
-            int index = reader.nextByte();
-            if (index < 0 || index >= queueData.length) {
-                throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
-            } else movePiecesData.add(index);
-            Piece[] moveQueueData;
+        // Attempt uncolored
+        try {
+            clonedReader.advance(startingDataPointerPosition);
+            // Read engine
             try {
-                moveQueueData = new Piece[queueData.length];
-                for (int j = 0; j < queueData.length; j++){
-                    moveQueueData[j] = HexDataConverter.convertPiece(reader.next(2));
+                int radius = clonedReader.getShort(clonedReader.pointer());
+                int l = (3 * (radius) * (radius - 1)) / 4 + 5;
+                engineData = HexDataConverter.convertEngine(clonedReader.next(l));
+            } catch (IOException e) {
+                throw new IOException("Fail to read engine data in binary data");
+            }
+            if (!clonedReader.next(2).equals("FF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+            // Read queue
+            try {
+                int length = clonedReader.nextShort();
+                queueData = new Piece[length];
+                for (int i = 0; i < length; i++) {
+                    queueData[i] = HexDataConverter.convertPiece(clonedReader.next(2));
                 }
             } catch (IOException e) {
-                throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
             }
-            moveQueuesData.add(moveQueueData.clone());
-        }
-        if (!reader.next(4).equals("FFFF")) {
-            throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            if (!clonedReader.next(2).equals("FF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+            // Read moves
+            for (int i = 0; i < turnData; i++) {
+                try {
+                    moveOriginsData.add(HexDataConverter.convertHex(clonedReader.next(8)));
+                } catch (IOException e) {
+                    throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
+                }
+                int index = clonedReader.nextByte();
+                if (index < 0 || index >= queueData.length) {
+                    throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
+                } else movePiecesData.add(index);
+                Piece[] moveQueueData;
+                try {
+                    moveQueueData = new Piece[queueData.length];
+                    for (int j = 0; j < queueData.length; j++) {
+                        moveQueueData[j] = HexDataConverter.convertPiece(clonedReader.next(2));
+                    }
+                } catch (IOException e) {
+                    throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                }
+                moveQueuesData.add(moveQueueData.clone());
+            }
+            if (!clonedReader.next(4).equals("FFFF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+        } catch (Exception exceptionReadingUncolored) {
+            // If fail, also attempt colored
+            clonedReader = HexDataFactory.cloneReader(reader);
+            clonedReader.advance(startingDataPointerPosition);
+            moveOriginsData = new ArrayList<Hex>(turnData);
+            moveQueuesData = new ArrayList<Piece[]>(turnData);
+            movePiecesData = new ArrayList<Integer>(turnData);
+            try {
+                // Read engine
+                try {
+                    int radius = clonedReader.getShort(clonedReader.pointer());
+                    int c = 3 * (radius) * (radius - 1);
+                    int l = c + c / 4 + 6;
+                    engineData = HexDataConverter.convertEngine(clonedReader.next(l));
+                } catch (IOException e) {
+                    throw new IOException("Fail to read engine data in binary data");
+                }
+                if (!clonedReader.next(2).equals("FF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+                // Read queue
+                try {
+                    int length = clonedReader.nextShort();
+                    queueData = new Piece[length];
+                    for (int i = 0; i < length; i++) {
+                        queueData[i] = HexDataConverter.convertPiece(clonedReader.next(3));
+                    }
+                } catch (IOException e) {
+                    throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
+                }
+                if (!clonedReader.next(2).equals("FF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+                // Read moves
+                for (int i = 0; i < turnData; i++) {
+                    try {
+                        moveOriginsData.add(HexDataConverter.convertHex(clonedReader.next(8)));
+                    } catch (IOException e) {
+                        throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
+                    }
+                    int index = clonedReader.nextByte();
+                    if (index < 0 || index >= queueData.length) {
+                        throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
+                    } else movePiecesData.add(index);
+                    Piece[] moveQueueData;
+                    try {
+                        moveQueueData = new Piece[queueData.length];
+                        for (int j = 0; j < queueData.length; j++) {
+                            moveQueueData[j] = HexDataConverter.convertPiece(clonedReader.next(3));
+                        }
+                    } catch (IOException e) {
+                        throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                    }
+                    moveQueuesData.add(moveQueueData.clone());
+                }
+                if (!clonedReader.next(4).equals("FFFF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+            } catch (Exception exceptionReadingColored) {
+                throw new IOException("Fail to read binary data in both uncolored and colored format because in uncolored format, "
+                        + exceptionReadingUncolored.getMessage() + "; in colored format, " + exceptionReadingColored.getMessage());
+            }
+        } finally {
+            reader.advance(clonedReader.pointer() - startingDataPointerPosition);
         }
         // Final check
         if ((short) (obfuscate(id) << 5) != reader.nextShort()){
