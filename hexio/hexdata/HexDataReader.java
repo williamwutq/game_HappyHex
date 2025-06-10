@@ -91,6 +91,22 @@ public class HexDataReader {
         this.data = builder.toString();
     }
     /**
+     * Returns the relative file name to the file to read from, excluding suffix
+     * @return the relative file name to the targeted file
+     * @since 1.3.3
+     */
+    public String getFileName(){
+        return filePath;
+    }
+    /**
+     * Returns the suffix to the file to read from.
+     * @return the suffix to the targeted file
+     * @since 1.3.3
+     */
+    public String getFileSuffix(){
+        return suffix;
+    }
+    /**
      * Get the full file path of the {@code HexDataWriter}.
      * @return the full file path of the file written to, include the suffix.
      */
