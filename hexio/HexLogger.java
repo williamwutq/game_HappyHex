@@ -748,7 +748,7 @@ public class HexLogger {
     public void readBinary() throws IOException {read();}
 
     /**
-     * Reads a log file and parses it into memory.
+     * Reads a log file and parses it into memory. Reads both "hex.binary" and "hex.coloredbinary".
      * This populates the {@code engine}, {@code queue}, {@code moves}, and other game data from binary data.
      * <p>
      * For writing binary data, use {@code write("hex.binary")}.
@@ -778,9 +778,16 @@ public class HexLogger {
         if (obfCombined != code){
             throw new IOException("Fail to read binary data because file data encoding is corrupted or version is not supported");
         }
-        if (!reader.next(4).equals("FFFF")) {
+        long playerIDData = this.playerID;
+        String playerNameData = this.player;
+        if (!reader.get(reader.pointer(), 4).equals("FFFF")) {
+            // If is colored binary including player info
+            playerIDData = reader.nextLong();
+            playerNameData = reader.nextString(24).trim();
+            if (!reader.next(4).equals("FFFF")) {
             throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
-        }
+            }
+        } else reader.advance(4);
         // Read engine
         HexEngine engineData;
         try {
@@ -848,5 +855,7 @@ public class HexLogger {
         completed = completeBooleanData;
         turn = turnData;
         score = scoreData;
+        playerID = playerIDData;
+        player = playerNameData;
     }
 }
