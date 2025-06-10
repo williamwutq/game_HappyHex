@@ -140,6 +140,37 @@ public class HexDataConverter {
         return String.format("%02X", piece.toByte());
     }
     /**
+     * Converts a colored {@link Piece} to a hexadecimal string.
+     * This conversion use the internal build conversion methods to get an ordinary piece's byte representation
+     * and convert it into hexadecimal string. It has nothing to do with {@link #convertColoredBlock(Block)}.
+     * The color of the piece is added separately as a hexadecimal character.
+     * If the input is null, returns a hexadecimal string containing no blocks and default color.
+     *
+     * @param piece the {@code Piece} object to convert
+     * @return a hexadecimal string of length 3 representing the colored piece
+     * @see Piece#Piece
+     * @see Piece#toByte()
+     * @see #convertBooleanPiece(Piece)
+     * @since 1.3.3
+     */
+    public static String convertColoredPiece(Piece piece){
+        if (piece == null) return "00F";
+        int blockColor = piece.getColor();
+        char colorChar;
+        if (blockColor == -2) {
+            colorChar = 'E';
+        } else if (blockColor == -1) {
+            colorChar = 'F';
+        } else if (0 <= blockColor && blockColor < 10) {
+            colorChar = (char)(blockColor - '0');
+        } else if (10 <= blockColor && blockColor < 12) {
+            colorChar = (char)(blockColor - 'A');
+        } else {
+            colorChar = 'D';
+        }
+        return String.format("%02X", piece.toByte()) + colorChar;
+    }
+    /**
      * Converts a {@link HexEngine} to a hexadecimal string.
      * This conversion convert the engine's radius into an int value and {@link Block} state into an array of booleans
      * and convert it into hexadecimal string. It has nothing to do with {@link #convertBlock(Block)}.
@@ -180,6 +211,24 @@ public class HexDataConverter {
         StringBuilder builder = new StringBuilder();
         builder.append(convertHex(center));
         builder.append(convertBooleanPiece(piece));
+        return builder.toString();
+    }
+    /**
+     * Converts a colored game move to a hexadecimal string.
+     * The hexadecimal string includes the move center coordinate and colored piece.
+     *
+     * @param center    the {@code Hex} center coordinate of the move
+     * @param piece     the colored {@code Piece} involved in the move
+     * @return a hexadecimal string representing the move
+     * @see #convertHex(Hex)
+     * @see #convertColoredPiece(Piece)
+     * @see #convertBooleanMove(Hex, Piece)
+     * @since 1.3.3
+     */
+    public static String convertColoredMove(Hex center, Piece piece){
+        StringBuilder builder = new StringBuilder();
+        builder.append(convertHex(center));
+        builder.append(convertColoredPiece(piece));
         return builder.toString();
     }
 
