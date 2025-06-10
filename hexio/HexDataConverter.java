@@ -272,7 +272,7 @@ public class HexDataConverter {
      *
      * @param hexString the hexadecimal string containing the block data
      * @return a {@code Block} object
-     * @throws IOException if the hexadecimal string is null or is not of length 9
+     * @throws IOException if the hexadecimal string is null or is not of length 9 or 10
      * @see Block#block
      * @see #convertHex(String)
      */
@@ -316,27 +316,44 @@ public class HexDataConverter {
     }
     /**
      * Converts a hexadecimal string to a {@link Piece}.
-     * The hexadecimal string must be of length 2 and following the format for piece.
+     * The hexadecimal string must be of length 2 if color is not involved and 3 if color is included, and following
+     * the format for piece. Color is not mandatory.
      * <p>
-     * This is the inverse method of {@link #convertBooleanPiece(Piece)}.
+     * This is the inverse method of {@link #convertBooleanPiece(Piece)} and {@link #convertColoredPiece(Piece)}.
      * This method is not related to {@link #convertBlock(String)}.
      *
      * @param hexString the hexadecimal string containing the piece data
      * @return a {@code Piece} object
-     * @throws IOException if the hexadecimal string is null, is not 2 characters long, or contain invalid characters
+     * @throws IOException if the hexadecimal string is null, is not 2 or 3 characters long, or contain invalid characters
      * @see Piece#Piece
      */
     public static Piece convertPiece(String hexString) throws IOException {
         if (hexString == null) {
             throw new IOException("\"Piece\" object is null or not found");
-        } else if (hexString.length() != 2){
-            throw new IOException("\"Piece\" object hexadecimal string length is not 2");
+        } else if (hexString.length() != 2 && hexString.length() != 3){
+            throw new IOException("\"Piece\" object hexadecimal string length is not 2 or 3");
         }
         Piece piece;
         try {
-            piece = Piece.pieceFromByte((byte) Integer.parseUnsignedInt(hexString, 16), -2);
+            piece = Piece.pieceFromByte((byte) Integer.parseUnsignedInt(hexString.substring(0, 2), 16), -2);
         } catch (IllegalArgumentException e) {
             throw new IOException("\"Piece\" object creation failed due to invalid format or missing blocks");
+        }
+        if (hexString.length() == 3){
+            int color = -1;
+            try {
+                char colorChar = hexString.charAt(2);
+                if (colorChar == 'E'){
+                    color = -2;
+                } else if ('0' <= colorChar && colorChar <= '9'){
+                    color = colorChar - '0';
+                } else if ('A' <= colorChar && colorChar <= 'D'){
+                    color = colorChar - 'A';
+                }
+            } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
+            } finally {
+                piece.setColor(color);
+            }
         }
         return piece;
     }
