@@ -201,8 +201,8 @@ public class HexDataConverter {
     }
     /**
      * Converts a colored {@link HexEngine} to a hexadecimal string.
-     * This conversion first convert the engine's radius into an int value and {@link Block} state into an array of
-     * booleans and convert it into hexadecimal string, then follow it with the color values of the blocks contained.
+     * This conversion first convert the engine's radius into an int value and {@link Block} color values into hexadecimal
+     * representations, then block state into an array of booleans and convert it into hexadecimal string.
      * It has nothing to do with {@link #convertColoredBlock(Block)} and shares limited similarity other engine conversion.
      * If the input is null, returns a hexadecimal string as a HexEngine with radius one, state false, and color -1.
      *
@@ -216,18 +216,6 @@ public class HexDataConverter {
         if (engine == null) return "00010F";
         int length = engine.length();
         StringBuilder builder = new StringBuilder(String.format("%04X", (short)engine.getRadius()));
-        int fullLength = (length + 3) / 4 * 4; // Round up to multiple of 4
-        // Write state
-        for (int i = 0; i < fullLength; i += 4) {
-            int hexValue = 0;
-            for (int j = 0; j < 4 && i + j < length; j++) {
-                if (engine.getBlock(i + j).getState()) {
-                    // Set bit j for true
-                    hexValue |= (1 << j);
-                }
-            }
-            builder.append(String.format("%X", hexValue));
-        }
         // Write color
         for (int i = 0; i < length; i ++){
             int blockColor = engine.getBlock(i).getColor();
@@ -242,6 +230,18 @@ public class HexDataConverter {
             } else {
                 builder.append("D");
             }
+        }
+        int fullLength = (length + 3) / 4 * 4; // Round up to multiple of 4
+        // Write state
+        for (int i = 0; i < fullLength; i += 4) {
+            int hexValue = 0;
+            for (int j = 0; j < 4 && i + j < length; j++) {
+                if (engine.getBlock(i + j).getState()) {
+                    // Set bit j for true
+                    hexValue |= (1 << j);
+                }
+            }
+            builder.append(String.format("%X", hexValue));
         }
         return builder.toString();
     }
@@ -438,7 +438,7 @@ public class HexDataConverter {
         int testL = hexString.length() - 4;
         int engineL = engine.length();
         int binL = (engineL+3)/4;
-        if (binL == testL || binL + engineL == testL) {
+        if (binL == testL) {
             int index = 0;
             for (int i = 4; i < hexString.length(); i++) {
                 int hexValue = Character.digit(hexString.charAt(i), 16);
@@ -449,23 +449,32 @@ public class HexDataConverter {
                     index++;
                 }
             }
+        } else if (binL + engineL == testL) {
             // If color is included
-            if (binL + engineL == testL) {
-                for (int i = 4 + binL; i < hexString.length(); i++) {
-                    int color = -1;
-                    try {
-                        char colorChar = hexString.charAt(i);
-                        if (colorChar == 'E') {
-                            color = -2;
-                        } else if ('0' <= colorChar && colorChar <= '9') {
-                            color = colorChar - '0';
-                        } else if ('A' <= colorChar && colorChar <= 'D') {
-                            color = colorChar - 'A';
-                        }
-                    } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
-                    } finally {
-                        engine.setColor(i - binL - 4, color);
+            for (int i = 4; i < hexString.length() - binL; i++) {
+                int color = -1;
+                try {
+                    char colorChar = hexString.charAt(i);
+                    if (colorChar == 'E') {
+                        color = -2;
+                    } else if ('0' <= colorChar && colorChar <= '9') {
+                        color = colorChar - '0';
+                    } else if ('A' <= colorChar && colorChar <= 'D') {
+                        color = colorChar - 'A';
                     }
+                } catch (NumberFormatException | IndexOutOfBoundsException ignored) {
+                } finally {
+                    engine.setColor(i - 4, color);
+                }
+            }
+            int index = 0;
+            for (int i = 4 + engineL; i < hexString.length(); i++) {
+                int hexValue = Character.digit(hexString.charAt(i), 16);
+                for (int bit = 0; bit < 4 && index < engineL; bit++) {
+                    boolean state = (hexValue & (1 << bit)) != 0;
+                    engine.getBlock(index).setState(state);
+                    engine.getBlock(index).setColor(-2);
+                    index++;
                 }
             }
         } else throw new IOException("\"HexEngine\" object cannot be generated because input string have incorrect length");
