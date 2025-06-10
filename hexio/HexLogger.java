@@ -309,6 +309,26 @@ public class HexLogger {
         return eL ^ oL << 1;
     }
     /**
+     * Ensures the string is exactly the given length.
+     * If the string is longer, it is truncated.
+     * If the string is shorter, it is padded with spaces.
+     *
+     * @param input The original string.
+     * @param length The desired length of the result.
+     * @return The formatted string.
+     * @since 1.3.3
+     */
+    public static String formatStringToLength(String input, int length) {
+        if (input == null) input = "";
+        if (input.length() > length) {
+            return input.substring(0, length);
+        } else if (input.length() < length) {
+            return String.format("%-" + length + "s", input);
+        } else {
+            return input;
+        }
+    }
+    /**
      * Retrieves the static identifier used by the logger.
      * This identifier is guaranteed to be the same regardless of run time evironment.
      * @return The unique logger ID.
@@ -687,7 +707,7 @@ public class HexLogger {
      * Constructs a hexadecimal string from the current logger information and write to a binary file.
      * This includes the basic game information, the current {@link HexEngine} statues, the current
      * {@link Piece} queue statues, and the moves in the game. This uses the specified format passed in.
-     * If the format is {@code hex.binary}, it out put a .hpyhex binary file.
+     * If the format is {@code hex.binary} or {@code hex.coloredbinary}, it out put a .hpyhex binary file.
      * @param format The format of the game data log. If not valid, writing will not occur.
      * @throws IOException If writing fails.
      * @see #read()
@@ -711,6 +731,44 @@ public class HexLogger {
             writer.add(turn);
             writer.add(score);
             writer.add(completed);
+            writer.addDivider(2);
+            writer.addHex(HexDataConverter.convertBooleanEngine(currentEngine));
+            writer.addDivider(1);
+            writer.add((short)currentQueue.length);
+            for (Piece piece : currentQueue){
+                writer.addHex(HexDataConverter.convertBooleanPiece(piece));
+            }
+            writer.addDivider(1);
+            int totalMoves = moveOrigins.size();
+            for (int i = 0; i < totalMoves; i ++) {
+                writer.addHex(HexDataConverter.convertHex(moveOrigins.get(i)));
+                writer.add((byte)(int)(movePieces.get(i)));
+                for (Piece piece : moveQueues.get(i)) {
+                    writer.addHex(HexDataConverter.convertBooleanPiece(piece));
+                }
+            }
+            writer.addDivider(2);
+            writer.add((short) (obfuscate(ID) << 5));
+            HexDataFactory.write(writer);
+        } else if (format.equals("hex.coloredbinary")) {
+            HexDataWriter writer = HexDataFactory.createWriter(getDataFileName(), "hpyhex");
+            long obfScore = obfuscate(interleaveIntegers(score * score, ID ^ turn));
+            long obfTurn = obfuscate(interleaveIntegers(turn * turn, ID ^ score));
+            long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
+            writer.addHex("4B874B1E5A0F5A0F" + "5A964B874B5A5A87");
+            writer.add(obfuscate(ID * 43L ^ obfCombined ^ obfTurn) ^ obfScore);
+            writer.addHex("4A41564148584C47");
+            writer.add((byte)HexIOInfo.major);
+            writer.add((byte)HexIOInfo.minor);
+            writer.add((byte)HexIOInfo.patch);
+            writer.addDivider(1);
+            writer.add(ID);
+            writer.addHex("214845582D42494E");
+            writer.add(turn);
+            writer.add(score);
+            writer.add(completed);
+            writer.add(playerID);
+            writer.add(formatStringToLength(player, 24));
             writer.addDivider(2);
             writer.addHex(HexDataConverter.convertBooleanEngine(currentEngine));
             writer.addDivider(1);
