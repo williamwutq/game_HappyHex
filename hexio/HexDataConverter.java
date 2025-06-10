@@ -117,9 +117,9 @@ public class HexDataConverter {
             } else if (blockColor == -1) {
                 builder.append("F");
             } else if (0 <= blockColor && blockColor < 10) {
-                builder.append((char)(blockColor - '0'));
+                builder.append((char)(blockColor + '0'));
             } else if (10 <= blockColor && blockColor < 12) {
-                builder.append((char)(blockColor - 'A'));
+                builder.append((char)(blockColor - 10 + 'A'));
             } else {
                 builder.append("D");
             }
@@ -164,9 +164,9 @@ public class HexDataConverter {
         } else if (blockColor == -1) {
             colorChar = 'F';
         } else if (0 <= blockColor && blockColor < 10) {
-            colorChar = (char)(blockColor - '0');
+            colorChar = (char)(blockColor + '0');
         } else if (10 <= blockColor && blockColor < 12) {
-            colorChar = (char)(blockColor - 'A');
+            colorChar = (char)(blockColor - 10 + 'A');
         } else {
             colorChar = 'D';
         }
@@ -219,14 +219,15 @@ public class HexDataConverter {
         // Write color
         for (int i = 0; i < length; i ++){
             int blockColor = engine.getBlock(i).getColor();
+            System.out.println(blockColor);
             if (blockColor == -2) {
                 builder.append("E");
             } else if (blockColor == -1) {
                 builder.append("F");
             } else if (0 <= blockColor && blockColor < 10) {
-                builder.append((char)(blockColor - '0'));
+                builder.append((char)(blockColor + '0'));
             } else if (10 <= blockColor && blockColor < 12) {
-                builder.append((char)(blockColor - 'A'));
+                builder.append((char)(blockColor - 10 + 'A'));
             } else {
                 builder.append("D");
             }
