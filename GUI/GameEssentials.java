@@ -336,11 +336,6 @@ public final class GameEssentials {
             gameLogger.setScore(0);
             gameLogger.setTurn(0);
         }
-        if (autoPlay) {
-            try {
-                new GameCommandProcessor().query();
-            } catch (InterruptedException e) {}
-        }
         // Construct labels
         turnLabel = new GameInfoPanel();
         scoreLabel = new GameInfoPanel();
@@ -360,31 +355,33 @@ public final class GameEssentials {
         calculateButtonSize();
         calculateLabelSize();
         // Start autoplay
-        autoplayThread = new Thread(() -> {
-            GameCommandProcessor gameCommandProcessor = new GameCommandProcessor();
-            PythonCommandProcessor pythonCommandProcessor;
-            try {
-                pythonCommandProcessor = new PythonCommandProcessor("python/comm.py");
-            } catch (IOException e) {
-                return; // exit the thread if initialization fails
-            }
-            gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
-            pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
-            while (!gameEnds() && !Thread.currentThread().isInterrupted()) {
+        if (autoPlay) {
+            autoplayThread = new Thread(() -> {
+                GameCommandProcessor gameCommandProcessor = new GameCommandProcessor();
+                PythonCommandProcessor pythonCommandProcessor;
                 try {
-                    gameCommandProcessor.query();
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    // Re-set the interrupt flag and break loop
-                    Thread.currentThread().interrupt();
-                    break;
-                } catch (Exception e) {
-                    break;
+                    pythonCommandProcessor = new PythonCommandProcessor("python/comm.py");
+                } catch (IOException e) {
+                    return; // exit the thread if initialization fails
                 }
-            }
-            frame.repaint();
-        });
-        autoplayThread.start();
+                gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
+                pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
+                while (!gameEnds() && !Thread.currentThread().isInterrupted()) {
+                    try {
+                        gameCommandProcessor.query();
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        // Re-set the interrupt flag and break loop
+                        Thread.currentThread().interrupt();
+                        break;
+                    } catch (Exception e) {
+                        break;
+                    }
+                }
+                frame.repaint();
+            });
+            autoplayThread.start();
+        } else autoplayThread = null;
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
