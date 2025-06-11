@@ -385,7 +385,6 @@ class HexReader:
         self._g_m_queues = d_move_queues
 
     def read(self) -> bool:
-        self.__read()
         try:
             try:
                 self.__read()
