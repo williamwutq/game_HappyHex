@@ -49,6 +49,7 @@ public final class LaunchEssentials {
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
+    private static boolean useAutoplay = false;
     private static boolean restartGame = false; // Whether to restart previously ended game
 
     // Graphics Theme
@@ -130,6 +131,9 @@ public final class LaunchEssentials {
     public static boolean isRestartGame(){
         return restartGame;
     }
+    public static boolean isUseAutoplay(){
+        return useAutoplay;
+    }
     public static void startNewGame(){
         gameStarted = true;
         String player = getCurrentPlayer();
@@ -180,29 +184,30 @@ public final class LaunchEssentials {
         }
         int delay = 250;
         if (currentGameInfo.getGameMode() == GameMode.Small){
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         } else if (currentGameInfo.getGameMode() == GameMode.Medium){
-            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(8, 5, delay, false, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         } else if (currentGameInfo.getGameMode() == GameMode.Large){
-            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(11, 7, delay, false, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         } else if (currentGameInfo.getGameMode() == GameMode.SmallEasy){
-            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(5, 3, delay, true, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         } else if (currentGameInfo.getGameMode() == GameMode.MediumEasy){
-            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(8, 5, delay, true, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         } else if (currentGameInfo.getGameMode() == GameMode.LargeEasy){
-            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(11, 7, delay, true, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         } else if(currentGameInfo.getGameMode() == GameMode.Unspecified){
             System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Legacy GameMode.Unspecified GameMode unsupported since Version 0.4.1");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         } else {
             System.err.println(GameTime.generateSimpleTime() + " GameEssentials: Unknown GameMode detected.");
-            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger, false);
+            GameEssentials.initialize(5, 3, delay, false, LauncherGUI.getMainFrame(), player, logger, useAutoplay);
         }
     }
     public static void endGame(){
         gameStarted = false;
     }
     public static void setRestartGame(boolean restartGame){LaunchEssentials.restartGame = restartGame;}
+    public static void setUseAutoplay(boolean useAutoplay){LaunchEssentials.useAutoplay = useAutoplay;}
     public static void setCurrentPlayer(Username currentPlayer, long currentPlayerID) {
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
