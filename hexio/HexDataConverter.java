@@ -219,7 +219,6 @@ public class HexDataConverter {
         // Write color
         for (int i = 0; i < length; i ++){
             int blockColor = engine.getBlock(i).getColor();
-            System.out.println(blockColor);
             if (blockColor == -2) {
                 builder.append("E");
             } else if (blockColor == -1) {

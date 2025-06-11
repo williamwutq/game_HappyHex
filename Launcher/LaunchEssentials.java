@@ -49,7 +49,7 @@ public final class LaunchEssentials {
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
-    private static boolean restartGame = true; // Whether to restart previously ended game
+    private static boolean restartGame = false; // Whether to restart previously ended game
 
     // Graphics Theme
     private static int themeIndex = 2;
