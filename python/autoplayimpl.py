@@ -100,7 +100,7 @@ class MainProcessor(CommandProcessor):
                     best_placement = max(options, key=lambda item: item[2])
                     best_piece_option, best_position_option, best_score_result = best_placement
                     # callback
-                    self._callback.execute(f'move {best_piece_option} {best_position_option.get_line_i()} {best_position_option.get_line_k()}')
+                    self._callback.execute(f'move {best_position_option.get_line_i()} {best_position_option.get_line_k()} {best_piece_option}')
                 else: raise ValueError('Missing arguments for move')
             else: raise ValueError('Invalid command')
 

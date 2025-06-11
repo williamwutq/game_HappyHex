@@ -52,9 +52,7 @@ public class GameCommandProcessor implements CommandProcessor {
         if (callBackProcessor == null) {
             throw new IllegalStateException("Call back processor is not properly initialized");
         } else {
-            callBackProcessor.execute("automove", new String[]{
-                    getEngineString(engine), getQueueString(queue)
-            });
+            callBackProcessor.execute("move " + getEngineString(engine) + " " + getQueueString(queue));
         }
     }
     public static String getEngineString(HexEngine engine) {
@@ -63,7 +61,7 @@ public class GameCommandProcessor implements CommandProcessor {
         } else {
             StringBuilder builder = new StringBuilder(engine.getBlock(0).getState() ? "X" : "O");
             for (int i = 1; i < engine.length(); i ++){
-                builder.append("-").append(engine.getBlock(i).getState() ? "X" : "O");
+                builder.append(engine.getBlock(i).getState() ? "X" : "O");
             }
             return builder.toString();
         }
@@ -74,7 +72,7 @@ public class GameCommandProcessor implements CommandProcessor {
         } else {
             StringBuilder builder = new StringBuilder(getPieceString(pieces[0]));
             for (int i = 1; i < pieces.length; i ++){
-                builder.append("-").append(getPieceString(pieces[i]));
+                builder.append(" ").append(getPieceString(pieces[i]));
             }
             return builder.toString();
         }
