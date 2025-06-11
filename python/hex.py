@@ -784,6 +784,10 @@ class HexEngine(HexGrid):
         """Return the number of blocks in the grid."""
         return len(self._blocks) if self._blocks is not None else 0
 
+    def len(self) -> int:
+        """Return the number of blocks in the grid."""
+        return self.length()
+
     def blocks(self) -> List[Block]:
         """Return all blocks in the grid."""
         return self._blocks
@@ -1188,6 +1192,52 @@ class HexEngine(HexGrid):
             str_builder.append(block.basic_str())
         str_builder.append("}]")
         return "".join(str_builder)
+
+    def to_booleans(self) -> list[bool]:
+        """
+        Returns a boolean list representation of the blocks in this HexEngine.
+
+        Empty blocks are represented with False and filled blocks with True.
+        This method does not record color information.
+        """
+        length = self.length()
+        booleans = [False] * length
+        for i in range(length):
+            if self._blocks[i].get_state():
+                booleans[i] = True
+        return booleans
+
+    @staticmethod
+    def solve_radius(length: int) -> int:
+        """
+        Solves for the radius of a HexEngine based on its length.
+        """
+        if length <= 1:
+            return -1
+        if length % 3 != 1:
+            return -1
+        target = (length - 1) // 3
+        for x in range(1, target + 1):
+            if x * (x - 1) == target:
+                return x
+        return -1
+
+    @staticmethod
+    def engine_from_booleans(data: list[bool]):
+        """
+        Constructs a HexEngine instance from a boolean array.
+
+        The boolean array should follow the format produced by the `to_booleans()` method.
+        Raises a ValueError if the data does not represent a valid engine configuration.
+        """
+        length = len(data)
+        radius = HexEngine.solve_radius(length)
+        if radius == -1:
+            raise ValueError("Data array is of invalid length")
+        engine = HexEngine(radius)
+        for i in range(length):
+            engine._blocks[i].set_state(data[i])
+        return engine
 
     def __copy__(self):
         """Return a deep copy of this HexEngine."""
