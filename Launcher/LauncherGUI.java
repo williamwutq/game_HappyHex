@@ -100,7 +100,16 @@ public class LauncherGUI {
                 "Everyday I play this game",
                 "Everyday my life is better",
                 "Everyday is a blessing",
-                "I tried, I said"
+                "I tried, I said",
+                "Are you better than the bot?",
+                "Sure, tough guy, try autoplay",
+                "Turn autoplay on to enjoy",
+                "Playing without a brain",
+                "Interesting things it is doing",
+                "Let computer do it",
+                "Try autoplay, I said",
+                "Games are no-brainer",
+                "What is the coolest feature?",
         };
         return hints[LaunchEssentials.getRandomIndex(hints.length)];
     }
