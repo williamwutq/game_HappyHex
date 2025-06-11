@@ -32,6 +32,7 @@ import game.Queue;
 import hex.Piece;
 import hexio.HexLogger;
 import io.GameTime;
+import python.PythonCommandProcessor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -355,6 +356,28 @@ public final class GameEssentials {
         setDelay(delay);
         calculateButtonSize();
         calculateLabelSize();
+        // Start autoplay
+        Thread autoplayThread = new Thread(() -> {
+            GameCommandProcessor gameCommandProcessor = new GameCommandProcessor();
+            PythonCommandProcessor pythonCommandProcessor;
+            try {
+                pythonCommandProcessor = new PythonCommandProcessor("comm.py");
+            } catch (IOException e) {
+                throw new RuntimeException();
+            }
+            gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
+            pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
+            while (!gameEnds()){
+                try {
+                    gameCommandProcessor.query();
+                    frame.repaint();
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        autoplayThread.start();
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
