@@ -71,6 +71,9 @@ public final class GameEssentials {
     private static int turn = 0;
     private static int score = 0;
 
+    // Autoplay
+    private static Thread autoplayThread;
+
     // Special Features
     private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
     private static special.SpecialFeature fontProcessor = special.FeatureFactory.createFeature(Font.class.getName());
@@ -357,23 +360,26 @@ public final class GameEssentials {
         calculateButtonSize();
         calculateLabelSize();
         // Start autoplay
-        Thread autoplayThread = new Thread(() -> {
+        autoplayThread = new Thread(() -> {
             GameCommandProcessor gameCommandProcessor = new GameCommandProcessor();
             PythonCommandProcessor pythonCommandProcessor;
             try {
-                pythonCommandProcessor = new PythonCommandProcessor("comm.py");
+                pythonCommandProcessor = new PythonCommandProcessor("python/comm.py");
             } catch (IOException e) {
-                throw new RuntimeException();
+                return; // exit the thread if initialization fails
             }
             gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
             pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
-            while (!gameEnds()){
+            while (!gameEnds() && !Thread.currentThread().isInterrupted()) {
                 try {
                     gameCommandProcessor.query();
-                    frame.repaint();
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    // Re-set the interrupt flag and break loop
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    break;
                 }
             }
         });
@@ -411,6 +417,7 @@ public final class GameEssentials {
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
+            if (autoplayThread != null) autoplayThread.interrupt();
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             logGame();
             resetGame();
@@ -440,7 +447,12 @@ public final class GameEssentials {
         queue.reset();
         gameLogger.setEngine(engine);
         gameLogger.setQueue(queue.getPieces());
+        if (autoplayThread != null) autoplayThread.interrupt();
         window.repaint();
+    }
+
+    public static void interruptAutoplay(){
+        if (autoplayThread != null) autoplayThread.interrupt();
     }
 
     // Logging at the end
