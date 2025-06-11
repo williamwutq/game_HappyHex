@@ -221,8 +221,11 @@ class HexReader:
         if d_obf_combined != d_code:
             self.__fail('file data encoding is corrupted or version is not supported')
         if not hex_str[41:45] == 'FFFF':
-            self.__fail('file data divider cannot be found at the correct position')
-        hex_str = hex_str[45:]
+            # If contains user info, ignore it
+            if not hex_str[153:157] == 'FFFF':
+                self.__fail('file data divider cannot be found at the correct position')
+            else: hex_str = hex_str[157:]
+        else: hex_str = hex_str[45:]
         # read engine
         d_engine_radius = int(hex_str[:4], 16)
         if d_engine_radius < 1:
@@ -294,6 +297,7 @@ class HexReader:
         self._g_m_queues = d_move_queues
 
     def read(self) -> bool:
+        self.__read()
         try:
             try:
                 self.__read()
