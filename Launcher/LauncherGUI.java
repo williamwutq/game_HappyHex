@@ -154,8 +154,10 @@ public class LauncherGUI {
                     GameEssentials.resetGame();
                 }
                 // Close
+                GameEssentials.interruptAutoplay();
                 System.out.println(io.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
+                System.exit(0);
             }
         });
     }
@@ -242,5 +244,7 @@ public class LauncherGUI {
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(fetchGameOverPanel(), BorderLayout.CENTER);
+        mainFrame.revalidate();
+        mainFrame.repaint();
     }
 }

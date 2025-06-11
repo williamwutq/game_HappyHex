@@ -382,6 +382,7 @@ public final class GameEssentials {
                     break;
                 }
             }
+            frame.repaint();
         });
         autoplayThread.start();
     }
