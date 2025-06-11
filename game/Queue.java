@@ -44,7 +44,7 @@ import hex.Piece;
  * internal {@link #generate()} method.
  * @since 0.6
  * @author William Wu
- * @version 1.2
+ * @version 1.3
  */
 public class Queue{
     /** Internal fixed-size array of Piece elements. */
@@ -175,7 +175,7 @@ public class Queue{
      * @see #generate(Piece)
      */
     protected Piece generate(){
-        return (Piece) pieceProcessor.process(new Object[]{PieceFactory.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine()})[0];
+        return (Piece) pieceProcessor.process(new Object[]{PieceFactory.generatePiece(), PieceFactory.isEasy(), GUI.GameEssentials.engine()})[0];
     }
     /**
      * Generates a new {@link Piece} according to piece generation logic.
@@ -186,7 +186,7 @@ public class Queue{
      * @since 1.1
      */
     protected Piece generate(Piece dequeued){
-        return (Piece) pieceProcessor.process(new Object[]{PieceFactory.generatePiece(), Launcher.LaunchEssentials.isEasyMode(), GUI.GameEssentials.engine(), dequeued})[0];
+        return (Piece) pieceProcessor.process(new Object[]{PieceFactory.generatePiece(), PieceFactory.isEasy(), GUI.GameEssentials.engine(), dequeued})[0];
     }
     /**
      * Returns the first {@link Piece} in the queue without removing it.

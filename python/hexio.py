@@ -1,9 +1,31 @@
-from python import hex as hx
+"""
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+"""
+
+import hex as hx
 from pathlib import Path
 
 __all__ = ['read_f', 'smart_find_f', 'smart_read_f', 'HexReader']
-__version__ = "1.3.0"
-__version_info__ = (1,3,0)
 
 script_path = Path(__file__).resolve()
 data_path = script_path.parents[1] / 'data'
@@ -199,67 +221,160 @@ class HexReader:
         if d_obf_combined != d_code:
             self.__fail('file data encoding is corrupted or version is not supported')
         if not hex_str[41:45] == 'FFFF':
-            self.__fail('file data divider cannot be found at the correct position')
-        hex_str = hex_str[45:]
-        # read engine
-        d_engine_radius = int(hex_str[:4], 16)
-        if d_engine_radius < 1:
-            self.__fail('engine data cannot be read due to impossible radius')
-        d_engine = hx.HexEngine(d_engine_radius)
-        d_engine_block_index = 0
-        d_engine_read_limit = (d_engine.length()+3)//4
-        for i in range(d_engine_read_limit):
-            d_engine_read_value = int(hex_str[4+i:5+i], 16)
-            d_engine_read_bit = 0
-            while d_engine_read_bit < 4 and d_engine_block_index < d_engine.length():
-                d_engine_block_state = (d_engine_read_value & (0x1 << d_engine_read_bit)) != 0
-                d_engine.get_block(d_engine_block_index).set_state(d_engine_block_state)
-                d_engine.get_block(d_engine_block_index).set_color(-2)
-                d_engine_read_bit += 1
-                d_engine_block_index += 1
-        if not hex_str[d_engine_read_limit+4:d_engine_read_limit+6] == 'FF':
-            self.__fail('file data divider cannot be found at the correct position')
-        else: hex_str = hex_str[d_engine_read_limit+6:]
-        # read queue
-        d_queue_length = int(hex_str[:4], 16)
-        d_queue_data = [hx.Piece()]
-        for i in range(d_queue_length):
-            d_queue_piece_byte = int(hex_str[i*2+4:i*2+6], 16)
-            try:
-                d_queue_piece = hx.Piece.piece_from_byte(d_queue_piece_byte, -2)
-                d_queue_data.append(d_queue_piece)
-            except ValueError:
-                self.__fail('failed to read queue data')
-        if not hex_str[d_queue_length*2+4:d_queue_length*2+6] == 'FF':
-            self.__fail('file data divider cannot be found at the correct position')
-        else: hex_str = hex_str[d_queue_length*2+6:]
-        # read moves
-        d_move_origins = [hx.Hex()]
-        d_move_indexes = [int()]
-        d_move_queues = [[hx.Piece()]]
-        for i in range(d_turn):
-            d_move_base_index = i * (10 + 2 * d_queue_length)
-            d_move_origin_i = int(hex_str[d_move_base_index:d_move_base_index+4], 16)
-            d_move_origin_k = int(hex_str[d_move_base_index+4:d_move_base_index+8], 16)
-            d_move_origins.append(hx.Hex.hex(d_move_origin_i, d_move_origin_k))
-            d_move_index = int(hex_str[d_move_base_index+8:d_move_base_index+10], 16)
-            d_move_indexes.append(d_move_index)
-            d_move_queue_data = [hx.Piece()]
-            for q in range(d_queue_length):
-                d_move_queue_piece_byte = int(hex_str[q*2+d_move_base_index+10:q*2+d_move_base_index+12], 16)
+            # If contains user info, ignore it
+            if not hex_str[153:157] == 'FFFF':
+                self.__fail('file data divider cannot be found at the correct position')
+            else: hex_str = hex_str[157:]
+        else: hex_str = hex_str[45:]
+        hex_str_clone = hex_str
+        # read uncolored
+        try:
+            # read engine
+            d_engine_radius = int(hex_str_clone[:4], 16)
+            if d_engine_radius < 1:
+                self.__fail('engine data cannot be read due to impossible radius')
+            d_engine = hx.HexEngine(d_engine_radius)
+            d_engine_block_index = 0
+            d_engine_read_limit = (d_engine.length()+3)//4
+            for i in range(d_engine_read_limit):
+                d_engine_read_value = int(hex_str_clone[4+i:5+i], 16)
+                d_engine_read_bit = 0
+                while d_engine_read_bit < 4 and d_engine_block_index < d_engine.length():
+                    d_engine_block_state = (d_engine_read_value & (0x1 << d_engine_read_bit)) != 0
+                    d_engine.get_block(d_engine_block_index).set_state(d_engine_block_state)
+                    d_engine.get_block(d_engine_block_index).set_color(-2)
+                    d_engine_read_bit += 1
+                    d_engine_block_index += 1
+            if not hex_str_clone[d_engine_read_limit+4:d_engine_read_limit+6] == 'FF':
+                self.__fail('file data divider cannot be found at the correct position')
+            else: hex_str_clone = hex_str_clone[d_engine_read_limit+6:]
+            # read queue
+            d_queue_length = int(hex_str_clone[:4], 16)
+            d_queue_data = [hx.Piece()]
+            if not hex_str_clone[d_queue_length*2+4:d_queue_length*2+6] == 'FF':
+                self.__fail('file data divider cannot be found at the correct position')
+            else: hex_str_clone = hex_str_clone[d_queue_length*2+6:]
+            for i in range(d_queue_length):
+                d_queue_piece_byte = int(hex_str_clone[i*2+4:i*2+6], 16)
                 try:
-                    d_move_queue_piece = hx.Piece.piece_from_byte(d_move_queue_piece_byte, -2)
-                    d_move_queue_data.append(d_move_queue_piece)
+                    d_queue_piece = hx.Piece.piece_from_byte(d_queue_piece_byte, -2)
+                    d_queue_data.append(d_queue_piece)
                 except ValueError:
-                    self.__fail('failed to read queue data in move data')
-            d_move_queues.append(d_move_queue_data)
-        d_move_read_length = (10 + 2 * d_queue_length) * d_turn
-        if not hex_str[d_move_read_length:d_move_read_length+4] == 'FFFF':
-            self.__fail('file data divider cannot be found at the correct position')
-        else: hex_str = hex_str[d_move_read_length+4:]
-        # final check
-        if int(hex_str[:4], 16) != self.obfuscate(d_id)<<5 & 0xFFFF:
-            self.__fail('file data encoding is corrupted or version is not supported')
+                    self.__fail('failed to read queue data')
+            # read moves
+            d_move_origins = [hx.Hex()]
+            d_move_indexes = [int()]
+            d_move_queues = [[hx.Piece()]]
+            d_move_read_length = (10 + 2 * d_queue_length) * d_turn
+            if not hex_str_clone[d_move_read_length:d_move_read_length+4] == 'FFFF':
+                self.__fail('file data divider cannot be found at the correct position')
+            else: hex_str_clone = hex_str_clone[d_move_read_length+4:]
+            for i in range(d_turn):
+                d_move_base_index = i * (10 + 2 * d_queue_length)
+                d_move_origin_i = int(hex_str_clone[d_move_base_index:d_move_base_index+4], 16)
+                d_move_origin_k = int(hex_str_clone[d_move_base_index+4:d_move_base_index+8], 16)
+                d_move_origins.append(hx.Hex.hex(d_move_origin_i, d_move_origin_k))
+                d_move_index = int(hex_str_clone[d_move_base_index+8:d_move_base_index+10], 16)
+                d_move_indexes.append(d_move_index)
+                d_move_queue_data = [hx.Piece()]
+                for q in range(d_queue_length):
+                    d_move_queue_piece_byte = int(hex_str_clone[q*2+d_move_base_index+10:q*2+d_move_base_index+12], 16)
+                    try:
+                        d_move_queue_piece = hx.Piece.piece_from_byte(d_move_queue_piece_byte, -2)
+                        d_move_queue_data.append(d_move_queue_piece)
+                    except ValueError:
+                        self.__fail('failed to read queue data in move data')
+                d_move_queues.append(d_move_queue_data)
+            # final check
+            if int(hex_str_clone[:4], 16) != self.obfuscate(d_id)<<5 & 0xFFFF:
+                self.__fail('file data encoding is corrupted or version is not supported')
+        except Exception as exception_while_reading_uncolored:
+            hex_str_clone = hex_str
+            # read colored binary format
+            try:
+                # read engine
+                d_engine_radius = int(hex_str_clone[:4], 16)
+                if d_engine_radius < 1:
+                    self.__fail('engine data cannot be read due to impossible radius')
+                d_engine = hx.HexEngine(d_engine_radius)
+                d_engine_block_index = 0
+                d_engine_read_limit = (d_engine.length()+3)//4
+                for i in range(d_engine.length()):
+                    d_engine_block_color = -1
+                    c_engine_color = int(hex_str_clone[4+i:5+i], 16)
+                    if c_engine_color == 14:
+                        d_engine_block_color = -2
+                    elif 0 <= c_engine_color <= 13:
+                        d_engine_block_color = c_engine_color
+                    d_engine.get_block(i).set_color(d_engine_block_color)
+                hex_str_clone = hex_str_clone[d_engine.length()+4:]
+                for i in range(d_engine_read_limit):
+                    d_engine_read_value = int(hex_str_clone[4+i:5+i], 16)
+                    d_engine_read_bit = 0
+                    while d_engine_read_bit < 4 and d_engine_block_index < d_engine.length():
+                        d_engine_block_state = (d_engine_read_value & (0x1 << d_engine_read_bit)) != 0
+                        d_engine.get_block(d_engine_block_index).set_state(d_engine_block_state)
+                        d_engine_read_bit += 1
+                        d_engine_block_index += 1
+                if not hex_str_clone[d_engine_read_limit:d_engine_read_limit+2] == 'FF':
+                    self.__fail('file data divider cannot be found at the correct position')
+                else: hex_str_clone = hex_str_clone[d_engine_read_limit+2:]
+                # read queue
+                d_queue_length = int(hex_str_clone[:4], 16)
+                d_queue_data = [hx.Piece()]
+                for i in range(d_queue_length):
+                    d_queue_piece_byte = int(hex_str_clone[i*3+4:i*3+6], 16)
+                    d_queue_piece_color = -1
+                    c_piece_color = int(hex_str_clone[i*3+6:i*3+7], 16)
+                    if c_piece_color == 14:
+                        d_queue_piece_color = -2
+                    elif 0 <= c_piece_color <= 13:
+                        d_queue_piece_color = c_piece_color
+                    try:
+                        d_queue_piece = hx.Piece.piece_from_byte(d_queue_piece_byte, d_queue_piece_color)
+                        d_queue_data.append(d_queue_piece)
+                    except ValueError:
+                        self.__fail('failed to read queue data')
+                if not hex_str_clone[d_queue_length*3+4:d_queue_length*3+6] == 'FF':
+                    self.__fail('file data divider cannot be found at the correct position')
+                else: hex_str_clone = hex_str_clone[d_queue_length*3+6:]
+                # read moves
+                d_move_origins = [hx.Hex()]
+                d_move_indexes = [int()]
+                d_move_queues = [[hx.Piece()]]
+                for i in range(d_turn):
+                    d_move_base_index = i * (10 + 3 * d_queue_length)
+                    d_move_origin_i = int(hex_str_clone[d_move_base_index:d_move_base_index+4], 16)
+                    d_move_origin_k = int(hex_str_clone[d_move_base_index+4:d_move_base_index+8], 16)
+                    d_move_origins.append(hx.Hex.hex(d_move_origin_i, d_move_origin_k))
+                    d_move_index = int(hex_str_clone[d_move_base_index+8:d_move_base_index+10], 16)
+                    d_move_indexes.append(d_move_index)
+                    d_move_queue_data = [hx.Piece()]
+                    for q in range(d_queue_length):
+                        d_move_queue_piece_byte = int(hex_str_clone[q*3+d_move_base_index+10:q*3+d_move_base_index+12], 16)
+                        d_move_queue_piece_color = -1
+                        c_move_piece_color = int(hex_str_clone[q*3+d_move_base_index+12:q*3+d_move_base_index+13], 16)
+                        if c_move_piece_color == 14:
+                            d_move_queue_piece_color = -2
+                        elif 0 <= c_move_piece_color <= 13:
+                            d_move_queue_piece_color = c_move_piece_color
+                        try:
+                            d_move_queue_piece = hx.Piece.piece_from_byte(d_move_queue_piece_byte, d_move_queue_piece_color)
+                            d_move_queue_data.append(d_move_queue_piece)
+                        except ValueError:
+                            self.__fail('failed to read queue data in move data')
+                    d_move_queues.append(d_move_queue_data)
+                d_move_read_length = (10 + 3 * d_queue_length) * d_turn
+                if not hex_str_clone[d_move_read_length:d_move_read_length+4] == 'FFFF':
+                    self.__fail('file data divider cannot be found at the correct position')
+                else: hex_str_clone = hex_str_clone[d_move_read_length+4:]
+                # final check
+                if int(hex_str_clone[:4], 16) != self.obfuscate(d_id)<<5 & 0xFFFF:
+                    self.__fail('file data encoding is corrupted or version is not supported')
+            except Exception as exception_while_reading_colored:
+                raise IOError (' in both uncolored and colored format because in uncolored format, '
+                               + exception_while_reading_uncolored.__str__() + '; in colored format, '
+                               + exception_while_reading_colored.__str__())
         # record
         self._g_ = True
         self._g_completed = d_complete
@@ -273,8 +388,11 @@ class HexReader:
 
     def read(self) -> bool:
         try:
-            self.__read()
-        except IOError | ValueError | TypeError:
+            try:
+                self.__read()
+            except IOError | ValueError | TypeError:
+                return False
+        except TypeError:
             return False
         return True
 
@@ -320,16 +438,3 @@ def smart_read_f () -> [HexReader]:
     rs = [HexReader(p) for p in ps]
     for r in rs: r.read()
     return [r for r in rs if r.game_exist()]
-
-
-if __name__ == '__main__':
-    reader = HexReader("")
-    print(reader.get_path())
-    print(reader.file_exist())
-    print(reader.game_exist())
-    print(reader.read())
-    for f in smart_read_f():
-        print(f.get_path())
-        print(f.read())
-        print(f.game_exist())
-        print(f)

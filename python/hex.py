@@ -1,14 +1,35 @@
+"""
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+"""
+
 import copy
 import math
+from math import log2, exp
 from abc import ABC, abstractmethod
 from typing import List
 
-
-__all__ = ['Hex', 'Block', 'HexEngine', 'Piece', 'HexGrid', '__sin60__', '__version__', '__version__', '__version_info__']
+__all__ = ['Hex', 'Block', 'HexEngine', 'Piece', 'HexGrid', '__sin60__']
 __sin60__ = math.sqrt(3) / 2
-__version__ = "1.3.0"
-__version_info__ = (1,3,0)
-
 
 class Hex:
     """
@@ -763,6 +784,10 @@ class HexEngine(HexGrid):
         """Return the number of blocks in the grid."""
         return len(self._blocks) if self._blocks is not None else 0
 
+    def len(self) -> int:
+        """Return the number of blocks in the grid."""
+        return self.length()
+
     def blocks(self) -> List[Block]:
         """Return all blocks in the grid."""
         return self._blocks
@@ -1019,6 +1044,144 @@ class HexEngine(HexGrid):
                 total_populated += self.count_neighbors(placed_block, True)
         return total_populated / total_possible if total_possible > 0 else 0.0
 
+    def _get_pattern(self, __hex__: Hex, include_null: bool) -> int:
+        """
+        Determine the pattern of blocks around the given position in the hexagonal grid, including the block itself.
+
+        This method checks up to seven positions in a hexagonal box centered at coordinates (i, k).
+        It returns a value representing the pattern of occupied/unoccupied blocks, ignoring block colors.
+        The pattern is encoded as a 7-bit integer (0 to 127) based on the state of the central block
+        and its six neighbors. If a neighboring position is out of range or contains a None block,
+        it is treated as occupied or unoccupied based on the include_null flag.
+
+        Args:
+            __hex__ (Hex): The hex coordinate of the block at the center of the box.
+            include_null (bool): Whether to treat None or out-of-bounds neighbors as occupied (True) or unoccupied (False).
+
+        Returns:
+            int: A number in the range [0, 127] representing the pattern of blocks in the hexagonal box.
+        """
+        pattern = 0
+        if self.in_range(__hex__.shift_j(-1)):
+            if self.get_block(__hex__.shift_j(-1)).get_state():
+                pattern += 1
+        elif include_null:
+            pattern += 1
+        pattern <<= 1
+        if self.in_range(__hex__.shift_i(-1)):
+            if self.get_block(__hex__.shift_i(-1)).get_state():
+                pattern += 1
+        elif include_null:
+            pattern += 1
+        pattern <<= 1
+        if self.in_range(__hex__.shift_k(-1)):
+            if self.get_block(__hex__.shift_k(-1)).get_state():
+                pattern += 1
+        elif include_null:
+            pattern += 1
+        pattern <<= 1
+        if self.in_range(__hex__):
+            if self.get_block(__hex__).get_state():
+                pattern += 1
+        elif include_null:
+            pattern += 1
+        pattern <<= 1
+        if self.in_range(__hex__.shift_k(1)):
+            if self.get_block(__hex__.shift_k(1)).get_state():
+                pattern += 1
+        elif include_null:
+            pattern += 1
+        pattern <<= 1
+        if self.in_range(__hex__.shift_i(1)):
+            if self.get_block(__hex__.shift_i(1)).get_state():
+                pattern += 1
+        elif include_null:
+            pattern += 1
+        pattern <<= 1
+        if self.in_range(__hex__.shift_j(1)):
+            if self.get_block(__hex__.shift_j(1)).get_state():
+                pattern += 1
+        elif include_null:
+            pattern += 1
+        return pattern
+
+    def compute_entropy(self) -> float:
+        """
+        Compute the entropy of the hexagonal grid based on the distribution of 7-block patterns.
+
+        Entropy is calculated using the Shannon entropy formula, measuring the randomness of block
+        arrangements in the grid. Each pattern consists of a central block and its six neighbors,
+        forming a 7-block hexagonal box, as defined by the _get_pattern method. The entropy reflects
+        the diversity of these patterns: a grid with randomly distributed filled and empty blocks
+        has higher entropy than one with structured patterns (e.g., all blocks in a line or cluster).
+        A grid with all blocks filled or all empty has zero entropy. Inverting the grid (swapping
+        filled and empty states) results in the same entropy, as the pattern distribution is unchanged.
+
+        The method iterates over all blocks within the grid's radius (excluding the outermost layer
+        to ensure all neighbors are in range), counts the frequency of each possible 7-block pattern
+        (2^7 = 128 patterns), and computes the entropy using the Shannon entropy formula:
+            H = -Σ (p * log₂(p))
+        where p is the probability of each pattern (frequency divided by total patterns counted).
+        Blocks on the grid's boundary (beyond radius - 1) are excluded to avoid incomplete patterns.
+
+        Returns:
+            float: The entropy of the grid in bits, a non-negative value representing the randomness
+                   of block arrangements. Returns 0.0 for a uniform grid (all filled or all empty)
+                   or if no valid patterns are counted.
+        """
+        entropy = 0.0
+        pattern_total = 0
+        pattern_counts = [0] * 128  # 2^7 because there are 128 possible patterns
+        for block in self._blocks:
+            if block.__this__().shift_j(1).in_range(self.get_radius() - 1):
+                # If it is possible to check patterns without going out of bounds
+                pattern_total += 1
+                pattern_counts[self._get_pattern(block.__this__(), False)] += 1
+        for count in pattern_counts:
+            if count > 0:
+                p = count / pattern_total
+                entropy -= p * log2(p)
+        return entropy
+
+    def compute_entropy_index(self, origin: Hex, other: HexGrid) -> float:
+        """
+        Compute an entropy-based index score for hypothetically placing another grid.
+
+        The entropy index is a value between 0 and 1 that measures the change in the grid's entropy
+        when the specified other grid is placed at the given origin coordinate. This index is derived
+        by computing the difference in Shannon entropy (as calculated by compute_entropy) between
+        the current grid and a hypothetical grid state after adding other and performing an elimination
+        step. The entropy difference is adjusted by a constant offset (0.21) and transformed using a
+        sigmoid function to map the result to the range [0, 1]. The sigmoid function used is:
+            f(x) = 1 / (1 + e^(-3 * x))
+        where x is the adjusted entropy difference. A higher index indicates a placement that results
+        in a grid configuration with significantly different pattern diversity, which may be useful in
+        reinforcement learning or game strategy evaluation to prioritize moves that increase or maintain
+        randomness in block arrangements.
+
+        The method operates on a deep copy of the HexEngine to avoid modifying the current grid state.
+        It adds the other grid at the specified origin, performs an elimination step (e.g., removing
+        completed lines or clusters as per game rules), and calculates the entropy difference.
+
+        Args:
+            origin (Hex): The position in the grid where the other grid is hypothetically placed.
+            other (HexGrid): The HexGrid representing the piece to be evaluated for placement.
+
+        Returns:
+            float: A value between 0 and 1 representing the entropy-based index score, where higher
+                   values indicate a greater change in pattern diversity after placement and elimination.
+
+        Raises:
+            ValueError: If the piece placement is invalid.
+        """
+        # Test move on a deep copy to avoid affecting the current grid
+        copy_engine = copy.deepcopy(self)
+        copy_engine.add(origin, other)
+        copy_engine.eliminate()
+        x = copy_engine.compute_entropy() - self.compute_entropy() - 0.21
+        # Sigmoid: 1/(1+e^-k(x)) k=3
+        return 1 / (1 + exp(-3 * x))
+
     def __str__(self) -> str:
         """Return a string representation of the grid color and block states."""
         str_builder = ["HexEngine[blocks = {"]
@@ -1029,6 +1192,52 @@ class HexEngine(HexGrid):
             str_builder.append(block.basic_str())
         str_builder.append("}]")
         return "".join(str_builder)
+
+    def to_booleans(self) -> list[bool]:
+        """
+        Returns a boolean list representation of the blocks in this HexEngine.
+
+        Empty blocks are represented with False and filled blocks with True.
+        This method does not record color information.
+        """
+        length = self.length()
+        booleans = [False] * length
+        for i in range(length):
+            if self._blocks[i].get_state():
+                booleans[i] = True
+        return booleans
+
+    @staticmethod
+    def solve_radius(length: int) -> int:
+        """
+        Solves for the radius of a HexEngine based on its length.
+        """
+        if length <= 1:
+            return -1
+        if length % 3 != 1:
+            return -1
+        target = (length - 1) // 3
+        for x in range(1, target + 1):
+            if x * (x - 1) == target:
+                return x
+        return -1
+
+    @staticmethod
+    def engine_from_booleans(data: list[bool]):
+        """
+        Constructs a HexEngine instance from a boolean array.
+
+        The boolean array should follow the format produced by the `to_booleans()` method.
+        Raises a ValueError if the data does not represent a valid engine configuration.
+        """
+        length = len(data)
+        radius = HexEngine.solve_radius(length)
+        if radius == -1:
+            raise ValueError("Data array is of invalid length")
+        engine = HexEngine(radius)
+        for i in range(length):
+            engine._blocks[i].set_state(data[i])
+        return engine
 
     def __copy__(self):
         """Return a deep copy of this HexEngine."""

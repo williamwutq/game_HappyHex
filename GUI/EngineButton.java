@@ -71,38 +71,10 @@ public class EngineButton extends HexButton {
         return super.fetchColor();
     }
     protected void clicked(){
-        // Communicate clicked index
         GameEssentials.setClickedOnIndex(getIndex());
+        GameEssentials.interruptAutoplay();
         if(GameEssentials.getSelectedBlockIndex() != -1) {
-            GameEssentials.incrementTurn();
-            // Fetch position
-            Hex position = fetchBlock().thisHex();
-            // Get index
-            int pieceIndex = GameEssentials.getSelectedPieceIndex();
-            int blockIndex = GameEssentials.getSelectedBlockIndex();
-            // Get piece
-            Piece piece = GameEssentials.queue().get(pieceIndex);
-            // Modify position relative to selected block
-            position = position.subtract(piece.getBlock(blockIndex));
-            // Check this position, if good then add
-            if (GameEssentials.engine().checkAdd(position, piece)) {
-                GameEssentials.incrementScore(piece.length());
-                GameEssentials.move(position);
-                GameEssentials.engine().add(position, GameEssentials.queue().fetch(pieceIndex));
-                // Generate animation
-                for (int i = 0; i < piece.length(); i ++){
-                    GameEssentials.addAnimation(GameEssentials.createCenterEffect(piece.getBlock(i).add(position)));
-                }
-            }
-            // Reset index
-            GameEssentials.setSelectedPieceIndex(-1);
-            GameEssentials.setClickedOnIndex(-1);
-            // Paint and eliminate
-            GameEssentials.window().repaint();
-            if (GameEssentials.engine().checkEliminate()) {
-                // Eliminate code is here, see GameTimer class
-                new GameTimer().start();
-            } else GameEssentials.checkEnd();
+            GameEssentials.addMove(fetchBlock().thisHex());
         }
     }
     protected void hovered(){

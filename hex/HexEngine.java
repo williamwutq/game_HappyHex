@@ -81,13 +81,33 @@ import java.util.ArrayList;
  * Rewarding effective gap-filling and spatial efficiency is made possible through the {@link #computeDenseIndex(Hex, HexGrid)}
  * method. This computes a normalized score (0 to 1) representing how densely the placed grid would interact
  * with surrounding blocks, encouraging agents to maximize filled neighbors and minimize empty space.
+ * <p>
+ * Punishing moves that leave too much blocks on the grid could be enabled with {@link #getPercentFilled()}, a method that
+ * returns the percentage of blocks that are filled. High percentage of filled blocks indicates difficulty regarding elimination,
+ * which, although trivial, may ultimately result in severe problems.
+ * <p>
+ * Rewarding moves the simplifies the board can be made using calculations regarding {@link #computeEntropy() entropy}.
+ * Generally, moves that reduce entropy should be awarded and moves that increase entropy significantly should be punished.
  * @since 1.0
  * @author William Wu
  * @version 1.3
  */
 public class HexEngine implements HexGrid{
+    private static final double logBaseEOf2 = Math.log(2);
     private int radius;
     private Block[] blocks;
+
+    /**
+     * Computes the base-2 logarithm of a given value.
+     *
+     * @param x the value to compute the logarithm for; must be greater than 0
+     * @return the base-2 logarithm of {@code x}
+     * @throws IllegalArgumentException if {@code x} is less than or equal to 0
+     */
+    public static double log2(double x) {
+        if (x <= 0) throw new IllegalArgumentException("log2 is undefined for non-positive values: " + x);
+        return Math.log(x) / logBaseEOf2;
+    }
     /**
      * Constructs a {@code HexEngine} with the specified radius and default colors.
      * Populates the hexagonal {@link HexGrid block grid} with valid blocks.
@@ -141,6 +161,31 @@ public class HexEngine implements HexGrid{
      */
     public int getRadius(){
         return radius;
+    }
+    /**
+     * Returns the number of occupied {@link Block}s in the grid.
+     * <p>
+     * The number returned will always be between 0 and {@link #length()}.
+     * @return the number of occupied (filled) blocks
+     * @since 1.3
+     */
+    public int getFilled(){
+        int total = 0;
+        for (Block block : blocks){
+            if (block.getState()) total ++;
+        }
+        return total;
+    }
+    /**
+     * Returns the percentage of occupied {@link Block}s in the grid, as a double between 0 and 1.
+     *
+     * @return the percentage of occupied (filled) blocks in respect to all blocks contained in the grid
+     * @see #getFilled()
+     * @see #length()
+     * @since 1.3
+     */
+    public double getPercentFilled(){
+        return (double) getFilled() / blocks.length;
     }
     // Implements HexGrid
     /**
@@ -569,7 +614,140 @@ public class HexEngine implements HexGrid{
             return 0;
         } else return (double) totalPopulated / totalPossible;
     }
-
+    /**
+     * Determine the pattern of the {@link Block}s around the given {@link Hex position} in the hexagonal grid,
+     * include the block itself. This calculation ignores color of the blocks.
+     * <p>
+     * This method checks up to seven positions in a box bounded around the block located at coordinates (i, k).
+     * This method adheres to the standard of a standard 7-{@link Block} box, returning values representing the pattern
+     * inside the box, taking into account the {@link Block#getState() state} of every block in the range. The returning
+     * value will between 0 and 127, inclusive.
+     * <p>
+     * If a neighboring position is out of range or contains a {@code null} block, it is either counted as occupied
+     * or unoccupied based on the {@code includeNull} flag.
+     *
+     * @param i the I-line coordinate of the block in the center of the box to check for pattern.
+     * @param k the K-line coordinate of the block in the center of the box to check for pattern.
+     * @param includeNull whether to treat {@code null} or out-of-bounds neighbors as occupied ({@code true}) or unoccupied ({@code false}).
+     * @return a number represent the pattern seen in the box around the {@code Block}. This value is in the range [0, 127].
+     * @since 1.3
+     */
+    private int getPattern(int i, int k, boolean includeNull){
+        int pattern = 0;
+        if (inRange(i - 1, k - 1)){
+            if (getBlock(i - 1, k - 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i - 1, k)){
+            if (getBlock(i - 1, k).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i, k - 1)){
+            if (getBlock(i, k - 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i, k )){
+            if (getBlock(i, k ).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i, k + 1)){
+            if (getBlock(i, k + 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i + 1, k)){
+            if (getBlock(i + 1, k).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        pattern <<= 1;
+        if (inRange(i + 1, k + 1)){
+            if (getBlock(i + 1, k + 1).getState()) pattern ++;
+        } else if (includeNull) pattern ++;
+        return pattern;
+    }
+    /**
+     * Computes the entropy of the hexagonal grid based on the distribution of 7-block patterns.
+     * <p>
+     * Entropy is calculated using the Shannon entropy formula, measuring the randomness of block arrangements
+     * in the grid. Each pattern consists of a central {@link Block} and its six neighboring blocks, forming
+     * a 7-block hexagonal box, as defined by the {@link #getPattern(int, int, boolean)} method. The entropy
+     * reflects the diversity of these patterns, such that a grid with randomly distributed filled and empty
+     * blocks has higher entropy than one with structured patterns (e.g., all blocks in a line or cluster).
+     * A grid with all blocks filled or all empty has zero entropy. Inverting the grid (swapping filled and
+     * empty states) results in the same entropy, as the pattern distribution remains unchanged.
+     * <p>
+     * The method iterates over all blocks within the grid's radius (excluding the outermost layer to ensure
+     * all neighbors are in range), counts the frequency of each possible 7-block pattern (2^7 = 128 patterns),
+     * and computes the entropy according to the
+     * <a href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Shannon entropy formula</a> as:
+     * <pre>
+     * H = -Σ (p * log₂(p))
+     * </pre>
+     * where {@code p} is the probability of each pattern (frequency divided by total patterns counted).
+     * Blocks on the grid's boundary (beyond {@code radius - 1}) are excluded to avoid incomplete patterns.
+     *
+     * @return the entropy of the grid in bits, a non-negative value representing the randomness of block
+     *         arrangements. Returns 0.0 for a uniform grid (all filled or all empty) or if no valid patterns
+     *         are counted.
+     * @since 1.3
+     * @see #getPattern(int, int, boolean)
+     */
+    public double computeEntropy(){
+        double entropy = 0.0;
+        int patternTotal = 0;
+        int [] patternCounts = new int[128]; // 2^7 because there are 128 available positions
+        for (Block block : blocks) {
+            if (block.shiftJ(1).inRange(getRadius() - 1)) {
+                // If it is possible to check patterns without going out of bounds
+                patternTotal++;
+                patternCounts[getPattern(block.getLineI(), block.getLineK(), false)]++;
+            }
+        }
+        for (int count : patternCounts) {
+            if (count > 0) {
+                double p = (double) count / patternTotal;
+                entropy -= p * HexEngine.log2(p); // log base 2
+            }
+        }
+        return entropy;
+    }
+    /**
+     * Computes an entropy-based index score for hypothetically placing another {@link HexGrid} onto this grid.
+     * <p>
+     * The entropy index is a value between 0 and 1 that measures the change in the grid's entropy when the
+     * specified {@code other} grid is placed at the given {@code origin} coordinate. This index is derived
+     * by computing the difference in Shannon entropy (as calculated by {@link #computeEntropy()}) between
+     * the current grid and a hypothetical grid state after adding {@code other} and performing an elimination
+     * step. The entropy difference is adjusted by a constant offset (0.21) and transformed using a sigmoid
+     * function to map the result to the range [0, 1]. The sigmoid function used is:
+     * <pre>{@code f(x) = 1 / (1 + e^(-3 * (x - 0.2)))}</pre>
+     * where {@code x} is the adjusted entropy difference. A higher index indicates a placement that results
+     * in a grid configuration with significantly different pattern diversity, which may be useful in
+     * reinforcement learning or game strategy evaluation to prioritize moves that decrease or maintain
+     * randomness in block arrangements.
+     * <p>
+     * The method operates on a cloned {@link HexEngine} to avoid modifying the current grid state. It adds
+     * the {@code other} grid at the specified {@code origin}, performs the elimination, and calculates the
+     * entropy difference between the two engines. This method assumes the placement is valid or an exception
+     * may be thrown.
+     *
+     * @param origin the position in the grid where the {@code other} grid is hypothetically placed
+     * @param other the {@link HexGrid} representing the piece to be evaluated for placement
+     * @return a value between 0 and 1 representing the entropy-based index score, where higher values indicate
+     *         a greater increase in pattern entropy after piece placement and elimination
+     * @throws IllegalArgumentException if the piece placement is invalid
+     * @since 1.3
+     * @see #computeEntropy()
+     * @see #clone()
+     * @see #add(Hex, HexGrid)
+     */
+    public double computeEntropyIndex(Hex origin, HexGrid other) throws IllegalArgumentException{
+        // Test move
+        HexEngine copy = clone();
+        copy.add(origin, other);
+        copy.eliminate();
+        double x = copy.computeEntropy() - computeEntropy() - 0.21;
+        // Sigmoid: 1/(1+e^-k(x-c)) k use 3 c use 0.2
+        return 1 / (1 + Math.exp(-3 * x));
+    }
 
     /**
      * Returns a string representation of the grid color and block states.
@@ -587,6 +765,62 @@ public class HexEngine implements HexGrid{
             str.append(block.toBasicString());
         }
         return str + "}]";
+    }
+    /**
+     * Returns a boolean array representation of the blocks in this {@code HexEngine}.
+     * <p>
+     * Empty blocks will be represented with false and filled blocks will be represented with true.
+     * This method does not record color.
+     * @return a boolean array representing this engine.
+     * @since 1.3.3
+     */
+    public boolean[] toBooleans(){
+        int length = blocks.length;
+        boolean[] booleans = new boolean[length];
+        for (int i = 0; i < length; i ++){
+            if (getBlock(i).getState()) booleans[i] = true;
+        }
+        return booleans;
+    }
+    /**
+     * Solve for the radius of a {@link HexEngine} based on its {@link #length}.
+     * @param length the length of the {@code HexEngine} object, must be positive.
+     * @return the solved radius of the engine to match the length given,
+     *         -1 if the length does not match with any engine configuration or is invalid.
+     * @since 1.3.3
+     */
+    public static int solveRadius(int length) {
+        if (length <= 1) return -1;
+        // y = 1 + 3 * x * (x - 1) => (y - 1) / 3 = x * (x - 1)
+        if (length % 3 != 1) return -1;
+        int target = (length - 1) / 3;
+        for (int x = 1; x * (x - 1) <= target; x++) {
+            if (x * (x - 1) == target) {
+                return x;
+            }
+        }
+        return -1;
+    }
+    /**
+     * Construct a {@link HexEngine} piece from a boolean array data.
+     * Throws {@link IllegalArgumentException} if the byte data does not match with any engine configuration.
+     * Colors are set to default.
+     * <p>
+     * The boolean array data conversion is in accordance with the {@link #toBooleans()} method.
+     * @param data the boolean array data used to create this {@code HexEngine}.
+     * @throws IllegalArgumentException if the boolean array data does not represent any engine.
+     * @return an engine constructed from the input data.
+     * @since 1.3.3
+     */
+    public static HexEngine engineFromBooleans(boolean[] data) throws IllegalArgumentException{
+        int length = data.length;
+        int radius = solveRadius(length);
+        if (radius == -1) throw new IllegalArgumentException("Data array is of invalid length");
+        HexEngine engine = new HexEngine(radius);
+        for (int i = 0; i < length; i ++){
+            engine.setState(i, data[i]);
+        }
+        return engine;
     }
 
     /**

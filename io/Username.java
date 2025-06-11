@@ -45,7 +45,7 @@ import java.util.Set;
  *
  * @since 1.0
  * @author William Wu
- * @version 1.1
+ * @version 1.3.3
  */
 public final class Username {
     /** The maximum allowed length of a username, inclusive. */
@@ -68,6 +68,9 @@ public final class Username {
      *     <li>"host"</li>
      *     <li>"user"</li>
      *     <li>"driver"</li>
+     *     <li>"auto"</li>
+     *     <li>"autoplay"</li>
+     *     <li>"execute"</li>
      *     <li>"god"</li>
      *     <li>"evil"</li>
      *     <li>"devil"</li>
@@ -90,7 +93,8 @@ public final class Username {
      */
     private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
             "player", "default", "dev", "guest", "host", "user", "harmony", "game", "gamer",
-            "happyhex", "hex", "name", "club", "event", "driver", "hash", "code", "easy"
+            "happyhex", "hex", "name", "club", "event", "driver", "hash", "code", "easy",
+            "auto", "autoplay", "execute"
     ));
 
     /**
