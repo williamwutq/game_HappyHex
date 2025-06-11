@@ -70,8 +70,38 @@ class MainProcessor(CommandProcessor):
                     e = hex.HexEngine.engine_from_booleans(bools)
                     self._callback.execute(f'print {e}')
                 else: raise ValueError('Missing or extra argument for engine')
-
-
+            elif command == 'move':
+                if len(args) > 1:
+                    # engine
+                    bools = str_to_bools(args[0])
+                    engine = hex.HexEngine.engine_from_booleans(bools)
+                    engine.eliminate()
+                    # queue
+                    queue : list[hex.Piece] = []
+                    for arg in args[1:]:
+                        piece = hex.Piece.piece_from_byte(int(arg), -1)
+                        queue.append(piece)
+                    # evaluate
+                    options = []
+                    for piece_option in range(len(queue)):
+                        piece = queue[piece_option]
+                        for coordinate in engine.check_positions(piece):
+                            cloned_engine = engine.__copy__()
+                            try:
+                                cloned_engine.add(coordinate, piece)
+                            except ValueError:
+                                options.append((piece_option, coordinate, 0))
+                                continue
+                            score = len(cloned_engine.eliminate()) / engine.get_radius() * 10
+                            score += engine.compute_dense_index(coordinate, piece) * 8
+                            score += engine.compute_entropy_index(coordinate, piece) * 14
+                            options.append((piece_option, coordinate, score))
+                    # choose best option
+                    best_placement = max(options, key=lambda item: item[2])
+                    best_piece_option, best_position_option, best_score_result = best_placement
+                    # callback
+                    self._callback.execute(f'move {best_piece_option} {best_position_option.get_line_i()} {best_position_option.get_line_k()}')
+                else: raise ValueError('Missing arguments for move')
             else: raise ValueError('Invalid command')
 
     def get_callback_processor(self) -> Optional['CommandProcessor']:
