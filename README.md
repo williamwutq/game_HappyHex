@@ -4,8 +4,8 @@ A hexagonal Block Blast (e.g. Hex FRVR) implementation using java, build with cu
 This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
-<b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for [ML](#develop--machine-learning))  
-<b>Last edited:</b> 11/06/2025  
+<b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for autoplay and [ML](#develop--machine-learning))  
+<b>Last edited:</b> 12/06/2025  
 <b>Latest release:</b> [1.3.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.3)
 
 > [!IMPORTANT]
@@ -346,6 +346,11 @@ The game page includes components such as:
 - **Player Information**: The current player name is displayed in the down right corner.  
 - **Quit Button**: Clicking on the quit button will enable you to quit the game. Current progress will be logged into `log.json` if a game has started.  
 
+If autoplay is turned on in settings, the game will call a python script in the background and initiate autoplay sequence, which will place a piece at
+relatively optimal position every 1 second. Manually placing pieces is also available during autoplay, but that will interrupt the autoplay. IF the quit
+button is clicked during autoplay or the python script stopped running, the autoplay may end. To restart the autoplay, quit the current game and resume
+it in the resume panel.  
+
 ### Theme, Color and Font
 This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](#Special-Themes)
 section.  
@@ -545,6 +550,9 @@ functional keywords the logs the current player out.
 - host<br/>
 - user<br/>
 - driver<br/>
+- auto<br/>
+- autoplay<br/>
+- execute<br/>
 - god<br/>
 - evil<br/>
 - devil<br/>
@@ -750,7 +758,7 @@ The packages in the source code, their dependencies, and their functions.
 ### Mechanics
 package `hex`  
 <b>Dependencies</b>:  
-`java.awt.Color`  
+None  
 <b>Function</b>:  
 The backbone of the game. It provides classes and interfaces for managing a hexagonal grid system, including coordinate calculations,
 game engine operations, and game piece operations.  
@@ -765,7 +773,7 @@ Handles more complex data of the game build on `hex`. This includes game piece q
 ### Game Data Logging
 package `hexio`  
 <b>Dependencies</b>:  
-`javax.json`  
+None  
 <b>Function</b>:  
 Provides utility methods for converting hexagonal game components such as Hex, Block, Piece, HexEngine, and game moves to and from
 colored and uncolored binary representations. It helps developers to save game states to binary `.hpyhex` files, read them back,
@@ -783,7 +791,7 @@ or transmission. It is not dependent on any other packages.
 ### Graphics (GUI)
 package `GUI`  
 <b>Dependencies</b>:  
-`hex`, `hexio`, `Launcher`, `special`, and `javax.swing`  
+`hex`, `hexio`, `Launcher`, `special`, `comm` and `javax.swing`  
 <b>Function</b>:  
 Provides game page graphics through Java Swing. It also records critical game information and serves fundamental game logic to make the game function.
 This includes functions for buttons, color indication generations, interaction with the launcher, timer for elimination, and more.  
@@ -801,10 +809,10 @@ This includes logging player scores and turns, loading previous unfinished games
 ### Python
 package `python`  
 <b>Dependencies</b>:  
-`pathlib`
+`pathlib` and `comm`
 <b>Function</b>:  
 All python code are packaged here. These include basic hex package, game log reading, both coded in python and following the exact same logic as
-the java code in other packages.
+the java code in other packages. This also include autoplay code.
 
 ### Tests
 package `tests`  
@@ -828,3 +836,11 @@ package `viewer`
 The Game Viewer, a developer tool and standalone, grayscale visualizer for `.hpyhex` game logs created with the game.
 It is not integrated with the main game’s Launcher and is grayscale by design for simplicity. See
 [Game Viewer README](viewer/README.md) for more.  
+
+### Command Processors
+[package `comm`  
+**Dependencies**:  
+None  
+**Function**:  
+To establish an interface to execute commands and enable callbacks between controllers and runners. This facilitates thus
+the communication between different processes by streamlining the command execution service.  
