@@ -26,6 +26,22 @@ from typing import Optional, List
 from comm import CommandProcessor
 import hex
 
+__all__ = ['MainProcessor']
+
+def str_to_bools(s: str) -> list[bool]:
+    true_set = {'X', '1', 'T'}
+    false_set = {'O', '0', 'F'}
+    result = []
+    for char in s:
+        if char in true_set:
+            result.append(True)
+        elif char in false_set:
+            result.append(False)
+        else:
+            raise ValueError(f"Invalid character '{char}' in input string")
+    return result
+
+
 class MainProcessor(CommandProcessor):
     def __init__(self):
         self._callback: Optional[CommandProcessor] = None
@@ -48,6 +64,14 @@ class MainProcessor(CommandProcessor):
                     p = hex.Piece.piece_from_byte(int(args[0]), -1)
                     self._callback.execute(f'print {p}')
                 else: raise ValueError('Missing or extra argument for piece')
+            elif command == 'engine':
+                if len(args) == 1:
+                    bools = str_to_bools(args[0])
+                    e = hex.HexEngine.engine_from_booleans(bools)
+                    self._callback.execute(f'print {e}')
+                else: raise ValueError('Missing or extra argument for engine')
+
+
             else: raise ValueError('Invalid command')
 
     def get_callback_processor(self) -> Optional['CommandProcessor']:
