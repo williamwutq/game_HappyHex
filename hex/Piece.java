@@ -345,6 +345,7 @@ public class Piece implements HexGrid{
      * The byte data conversion is in accordance with the {@link #toByte()} method.
      * @param data the byte data used to create this {@code piece}.
      * @param color the color for this piece's blocks.
+     * @throws IllegalArgumentException if the byte data does not represent any standard 7-block piece.
      * @return a piece constructed from the byte data with the input color applied to its {@link Block}s.
      * @since 1.3
      */

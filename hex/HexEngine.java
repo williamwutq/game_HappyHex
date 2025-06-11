@@ -766,6 +766,62 @@ public class HexEngine implements HexGrid{
         }
         return str + "}]";
     }
+    /**
+     * Returns a boolean array representation of the blocks in this {@code HexEngine}.
+     * <p>
+     * Empty blocks will be represented with false and filled blocks will be represented with true.
+     * This method does not record color.
+     * @return a boolean array representing this engine.
+     * @since 1.3.3
+     */
+    public boolean[] toBooleans(){
+        int length = blocks.length;
+        boolean[] booleans = new boolean[length];
+        for (int i = 0; i < length; i ++){
+            if (getBlock(i).getState()) booleans[i] = true;
+        }
+        return booleans;
+    }
+    /**
+     * Solve for the radius of a {@link HexEngine} based on its {@link #length}.
+     * @param length the length of the {@code HexEngine} object, must be positive.
+     * @return the solved radius of the engine to match the length given,
+     *         -1 if the length does not match with any engine configuration or is invalid.
+     * @since 1.3.3
+     */
+    public static int solveRadius(int length) {
+        if (length <= 1) return -1;
+        // y = 1 + 3 * x * (x - 1) => (y - 1) / 3 = x * (x - 1)
+        if (length % 3 != 1) return -1;
+        int target = (length - 1) / 3;
+        for (int x = 1; x * (x - 1) <= target; x++) {
+            if (x * (x - 1) == target) {
+                return x;
+            }
+        }
+        return -1;
+    }
+    /**
+     * Construct a {@link HexEngine} piece from a boolean array data.
+     * Throws {@link IllegalArgumentException} if the byte data does not match with any engine configuration.
+     * Colors are set to default.
+     * <p>
+     * The boolean array data conversion is in accordance with the {@link #toBooleans()} method.
+     * @param data the boolean array data used to create this {@code HexEngine}.
+     * @throws IllegalArgumentException if the boolean array data does not represent any engine.
+     * @return an engine constructed from the input data.
+     * @since 1.3.3
+     */
+    public static HexEngine engineFromBooleans(boolean[] data) throws IllegalArgumentException{
+        int length = data.length;
+        int radius = solveRadius(length);
+        if (radius == -1) throw new IllegalArgumentException("Data array is of invalid length");
+        HexEngine engine = new HexEngine(radius);
+        for (int i = 0; i < length; i ++){
+            engine.setState(i, data[i]);
+        }
+        return engine;
+    }
 
     /**
      * Returns an identical deep clone of this {@code HexEngine}.
