@@ -221,7 +221,7 @@ The page contains the following elements:
 
 - <b>Restart Games Settings</b>  
   
-  Turned `ON` by default. Turning the switch `ON` enables functionality to restart unfinished games, while turning it `OFF` disables it.  
+  Turned `OFF` by default. Turning the switch `ON` enables functionality to restart unfinished games, while turning it `OFF` disables it.  
 
   This setting only applies to the [Start Button](#Main-Page) in the main page. If you want to restart a specific game or start a new game, you may always
   access the [Resume Page](#Resume-Page).  
@@ -231,6 +231,14 @@ The page contains the following elements:
   cannot find such games, it will start a new game.
   
   Disabling restart game will not in any ways affect the data logging of games, in `logs.json`, `.hyphex.json`, and binary `.hyphex` data files.
+
+- <b>Use Autoplay Settings</b>
+
+  Turned `OFF` by default. Turning the switch `ON` enables Autoplay, while turning it `OFF` disables Autoplay.
+
+  This switch controls whether to use Autoplay, which starts a python script to place pieces for the player at relatively optimal positions determined by multiple factors.
+
+  Autoplay can be enabled in all piece generation and game mode settings.
 
 - <b>Game Board Size Setting</b>  
 
