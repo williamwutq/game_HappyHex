@@ -712,46 +712,39 @@ This program can be grayscale and simple to run with minimal dependencies. This 
 The Game Viewer feature on screen keyboard inputs to select which file to view, buttons to increment and decrement the moves recorded in the game,
 buttons to animate the game process forward or backward, slider for adjusting animation speed. It displays real time game scores, turn, and state 
 associated with the moves. The game viewer is developed and should be a separate concern. See [Game Viewer README](viewer/README.md) for more.<br/>
-
-### Directions of Development
-The developing process are mainly separated into the following parts:
-1. <a name="develop--launcher-graphics"><b>Launcher Graphics</b></a>   
+6. <a name="develop--launcher-graphics"><b>Launcher Graphics</b></a>   
 This section concerns about the launcher of the game, namely the window that shows up when you open the application. The current launcher consists of a main
 page, with buttons redirecting to pages for player log in, settings, graphics themes, and, of course, the game itself. Branches such as `gui` are dedicated to
 the improvements of user experience. The branch `fancy`, which is no longer in use, was typically used to add fancy graphics.<br/>
-2. <a name="develop--game-play"><b>Game Play</b></a>  
+
+### Directions of Development
+The developing process are mainly separated into the following parts:
+1. <a name="develop--game-play"><b>Game Play</b></a>  
 How the game is played. This including scoring systems, awards, resetting, fetching and displaying previous game scores, etc. Currently, the most recent score
 and turns, the highest score and turns, and the average score and turns can be seen when the game is over.<br/><br/>
 Future considerations in this include setting passwords for user accounts, adding an achievement and purchasable system that would be linked with graphic themes, 
 and providing a page for more detailed user game analysis.  
-3. <a name="develop--special-themes"><b>Special Themes</b></a>  
+2. <a name="develop--special-themes"><b>Special Themes</b></a>  
 These are themes that could only be activated during certain days, such as Halloween, Independence Day, or Christmas. Some of them also serve as memorial to 
 tragic events such as the September 11th attacks. These themes use the same injection interface as [SpecialModes](#develop--special-modes), and are packaged
 in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`. Only Christmas theme is to be developed.<br/>  
-4. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
+3. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
 A more precise way of describing this direction would be auto-game-play. This means a machine would be build to play the game while the player sit there and
 watch. This autoplay would be initially enabled through scoring algorithms and later through trained artificial intelligence operated in Python. This is a feature
 of the future but current architecture is being designed around it. At the same time, scoring and reward functions are gradually coming online.<br/> 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.3.2](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.2)
-- Version 1.3.3
-  - More python code for interprocess communication
-  - More java code to launch the python code and communicate with the python code
-  - Add autoplay based on random, turn on via settings
+- Latest Release: [1.3.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.3)
 - Version 1.4
-  - Add and compiled game viewer
   - Graphics improvements
-- Version 1.5
-  - Complete [resume game on demand](https://github.com/williamwutq/game_HappyHex/issues/21)
+  - Autoplay logic improvements
+  - Remove autoplay activation from settings
+  - Add pause and run autoplay buttons to the game graphics
   - Add rare chance shinning font ("HappyHex" font animated by `animation` class switching between the colors of the rainbow)
   - Add Christmas super special (Christmas colors, gift blocks, decals)
-- Version 1.6
-  - Add autoplay based on rating algo
-  - Remove autoplay activation from settings and add autoplay mode selection
+- Version 1.5
   - Potentially add 3 way selection button
-  - Add pause and run autoplay buttons to the game graphics
 
 - Version 2  
 
