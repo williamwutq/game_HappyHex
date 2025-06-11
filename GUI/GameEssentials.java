@@ -517,6 +517,19 @@ public final class GameEssentials {
             }
         }
     }
+    public static void setDualIndexesWithoutRepaint(int pieceIndex, int blockIndex){
+        if(pieceIndex >= 0 && pieceIndex < queue.length()){
+            selectedPieceIndex = pieceIndex;
+            int pieceLength = queue.get(selectedPieceIndex).length();
+            if(blockIndex < -1 || blockIndex >= pieceLength){
+                throw new IndexOutOfBoundsException("Index " + blockIndex + " out of bounds for length " + pieceLength);
+            } else {
+                selectedBlockIndex = blockIndex;
+            }
+        } else if (pieceIndex == -1){
+            throw new IndexOutOfBoundsException("Index " + blockIndex + " out of bounds for length 0");
+        } else throw new IndexOutOfBoundsException("Index " + pieceIndex + " out of bounds for length " + queue.length());
+    }
     public static void setHoveredOverIndex(int index) {
         if(index == -1 || (index >= 0 && index < engine.length())){
             hoveredOverIndex = index;

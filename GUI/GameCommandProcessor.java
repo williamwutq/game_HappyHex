@@ -104,8 +104,7 @@ public class GameCommandProcessor implements CommandProcessor {
             Hex origin = Hex.hex(i, k); Piece piece;
             try {
                 piece = GameEssentials.queue().get(index);
-                GameEssentials.setSelectedPieceIndex(index);
-                GameEssentials.setSelectedBlockIndex(0);
+                GameEssentials.setDualIndexesWithoutRepaint(index, 0);
             } catch (IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Command move is invalid because piece index out of bounds");
             }
