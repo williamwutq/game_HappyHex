@@ -21,7 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 """
-
+import sys
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
@@ -150,7 +150,7 @@ class NullProcessor(CommandProcessor):
         """
         Initializes the NullProcessor with no callback processor assigned.
         """
-        self._callback = None
+        self._callback: Optional[CommandProcessor] = None
     def execute_command(self, command: str, args: List[str]) -> None:
         """
         Raises an error when an attempt is made to execute a command.
@@ -188,6 +188,117 @@ class NullProcessor(CommandProcessor):
         else: self._callback = processor
 
 
+class PeripheralCommandProcessor(CommandProcessor):
+    """
+    A command processor that acts as an interface between this Python subprocess and an external controller.
+
+    This processor is responsible for:
+
+    - Receiving commands (typically from stdin) issued by an external controller.
+    - Formatting and forwarding its own commands (as responses) to stdout.
+    - Delegating commands to an optional callback processor (typically a MainProcessor implementation).
+
+    This design enables a two-way protocol where this process can act on incoming instructions
+    and also issue outbound commands or termination signals based on internal logic.
+
+    Expected protocol:
+
+    - Incoming lines are read from stdin, parsed, and dispatched via `respond_to_call()`.
+    - Valid commands may be forwarded to the callback processor.
+    - Special commands "interrupt" and "kill" will terminate this process with appropriate exit codes.
+    - Outbound responses are printed to stdout via `execute_command()`.
+
+    This processor typically delegates meaningful work to a `MainProcessor`, which may:
+
+    - Modify internal state
+    - Issue outbound commands (via this processor's `execute_command`)
+    - Decide whether to continue or issue an "interrupt" to end the session.
+    """
+    def __init__(self):
+        """
+        Initializes the processor with no callback processor set.
+        The callback should later be set to a valid CommandProcessor (e.g., MainProcessor).
+        """
+        self._callback_processor: Optional[CommandProcessor] = None
+
+    def execute_command(self, command: str, args: List[str]) -> None:
+        """
+        Sends a command and its arguments to stdout as a response to the controller.
+
+        This is typically called by the callback processor (MainProcessor) to send
+        results, follow-up commands, or status messages back to the controlling program.
+
+        :param command: The command to be sent and executed.
+        :param args: The list of arguments for the command.
+        """
+        if command == "interrupt":
+            sys.exit(0) # Terminate gracefully on interrupt
+        elif command == "kill":
+            sys.exit(1) # Signal failure on kill
+        # Format response as command and args, send to stdout for execution
+        response = f"{command} {' '.join(args)}"
+        print(response, flush=True)
+
+    def respond_to_call(self, command_string: str) -> None:
+        """
+        Processes an incoming command string from the controller.
+
+        Parses the command string into a command and arguments, and then:
+
+        - Terminates the process on "interrupt" or "kill".
+        - Delegates the command to the callback processor if one is set.
+
+        Behavior:
+            - "interrupt" → exit(0)  (normal termination)
+            - "kill"      → exit(1)  (failure termination)
+            - other       → delegate to callback processor, if set
+
+        :param command_string: The raw command line string from stdin.
+        """
+        if command_string is not None:
+            command_string = command_string.strip()
+            if command_string:
+                parts = command_string.split(None, 1)
+                command = parts[0]
+                args = parts[1].split() if len(parts) > 1 else []
+                if command == "interrupt":
+                    sys.exit(0) # Terminate gracefully on interrupt
+                elif command == "kill":
+                    sys.exit(1) # Signal failure on kill
+                elif self._callback_processor:
+                    # If callback processor is set, delegate the response to it
+                    try:
+                        self._callback_processor.execute_command(command, args)
+                    except ValueError:
+                        pass # Ignore invalid commands
+                    except InterruptedError:
+                        sys.exit(0) # Terminate on interrupt
+
+    def get_callback_processor(self) -> Optional['CommandProcessor']:
+        """
+        Returns the callback processor associated with this processor, if any.
+
+        :returns: The callback processor, or None if not set.
+        """
+        return self._callback_processor
+
+    def set_callback_processor(self, processor: Optional['CommandProcessor']) -> None:
+        """
+        Sets the callback processor to be used after command execution.
+
+        The callback processor must not be the same instance as this processor.
+        If `None` is provided, any existing callback processor is cleared.
+
+        :param processor: The processor to set as a callback.
+
+        :raise ValueError: If attempting to set the callback processor to self.
+        """
+        if processor is self:
+            raise ValueError("Cannot add self as callback processor")
+        self._callback_processor = processor
+
+
+
 # processor importing
 try:
     from autoplay import MainProcessor
@@ -201,3 +312,21 @@ except ImportError:
             class MainProcessor(NullProcessor):
                 pass
 
+
+if __name__ == "__main__":
+    processor = PeripheralCommandProcessor()
+    callback = MainProcessor()
+    try:
+        callback.set_callback_processor(processor)
+    except NotImplementedError:
+        pass
+    try:
+        processor.set_callback_processor(callback)
+    except NotImplementedError:
+        pass
+    try:
+        # Read commands from stdin
+        for line in sys.stdin:
+            processor.respond_to_call(line)
+    except KeyboardInterrupt:
+        sys.exit(0)
