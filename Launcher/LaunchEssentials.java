@@ -249,16 +249,20 @@ public final class LaunchEssentials {
             int i = 0;
             while (i < loggers.size()) {
                 HexLogger generatedLogger = loggers.get(i);
+                boolean valid = true;
                 try {
                     generatedLogger.read();
                 } catch (IOException e) {
                     loggers.remove(i);
+                    valid = false;
                 }
-                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == radius
-                        && generatedLogger.getQueue().length == queueSize
-                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
-                    i++;
-                } else loggers.remove(i);
+                if (valid) {
+                    if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == radius
+                            && generatedLogger.getQueue().length == queueSize
+                            && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
+                        i++;
+                    } else loggers.remove(i);
+                }
             }
         }
         return loggers;
