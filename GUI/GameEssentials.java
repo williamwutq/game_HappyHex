@@ -366,10 +366,11 @@ public final class GameEssentials {
                 }
                 gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
                 pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
+                int time = (queueSize*queueSize + 1) * (queueSize - 1) * 50;
                 while (!gameEnds() && !Thread.currentThread().isInterrupted()) {
                     try {
                         gameCommandProcessor.query();
-                        Thread.sleep(1000);
+                        Thread.sleep(time);
                     } catch (InterruptedException e) {
                         // Re-set the interrupt flag and break loop
                         Thread.currentThread().interrupt();
