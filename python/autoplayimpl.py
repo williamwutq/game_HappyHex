@@ -80,7 +80,7 @@ class MainProcessor(CommandProcessor):
                     queue : list[hex.Piece] = []
                     for arg in args[1:]:
                         piece = hex.Piece.piece_from_byte(int(arg), -1)
-                        queue.append(piece)
+                        if not queue.__contains__(piece): queue.append(piece)
                     # evaluate
                     options = []
                     for piece_option in range(len(queue)):
