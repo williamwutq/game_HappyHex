@@ -29,6 +29,6 @@ public class NextGameButton extends GUI.SimpleButton {
         super("NEW", Launcher.LaunchEssentials.launchNewButtonBackgroundColor);
     }
     protected void clicked() {
-        Launcher.LauncherGUI.startNewGame();
+        Launcher.LauncherGUI.startGame("");
     }
 }
