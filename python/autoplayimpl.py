@@ -90,7 +90,6 @@ class MainProcessor(CommandProcessor):
                             try:
                                 cloned_engine.add(coordinate, piece)
                             except ValueError:
-                                options.append((piece_option, coordinate, 0))
                                 continue
                             score = len(cloned_engine.eliminate()) / engine.get_radius() * 10
                             score += engine.compute_dense_index(coordinate, piece) * 8
