@@ -38,6 +38,7 @@ class Hex:
     and derived line-based computations across three axes: I, J, and K.
 
     Coordinate System:
+
     - Designed by William Wu.
     - Axes I, J, K run diagonally through the hexagonal grid.
     - I+ is 60 degrees to J+, J+ is 60 degrees to K+, K+ is 60 degrees to J-.
@@ -47,11 +48,13 @@ class Hex:
     - Line coordinates are preferred due to complexities with raw coordinates.
 
     Coordinate System Implementation:
+
     - x and y are base values stored in each Hex instance.
     - I = x, K = y, J = x + y.
     - Line indices: get_line_i = (2y + x) / 3, get_line_j = (x - y) / 3, get_line_k = (2x + y) / 3.
 
     Functionality:
+
     - Access raw coordinates: I(), J(), K().
     - Access line coordinates: get_line_i(), get_line_j(), get_line_k().
     - Create Hex objects: constructors or factory methods hex().
@@ -62,6 +65,7 @@ class Hex:
     - Clone instances.
 
     Usage Notes:
+
     - Use factory method hex(i, k) instead of direct constructors for correct line coordinate shifts.
     """
     _half_sin_of_60 = math.sqrt(3) / 4
@@ -253,6 +257,7 @@ class Block(Hex):
     coordinate system, including both raw and line-based coordinates.
 
     In addition to Hex functionality, each Block instance encapsulates:
+
     - A color index: -1 for empty, -2 for default filled, 0-n for real colors.
     - A boolean state: True for occupied, False for unoccupied.
 
@@ -362,11 +367,13 @@ class HexGrid(ABC):
     provide methods for determining grid boundaries and merging with other grids.
 
     Coordinate System:
+
     - Uses a hexagonal coordinate system with positions indexed by (i, k),
       representing the I-line and K-line respectively, corresponding to Hex objects.
     - See Hex for detailed description of the coordinate system.
 
     Usage:
+
     - Iterate through blocks using length() and get_block(index).
     - Access specific positions using get_block(__hex__).
     - Merge grids using add(origin, other) and check in-bounds with in_range(__hex__).
@@ -716,6 +723,7 @@ class HexEngine(HexGrid):
 
     The engine maintains an array of Block instances arranged in a hexagonal pattern
     with its leftmost Block at origin (0,0), and provides operations such as:
+
     - Grid initialization and reset
     - Automatic coloring through color indexes
     - Efficient block lookup using binary search
@@ -724,6 +732,7 @@ class HexEngine(HexGrid):
     - Deep copy support through the clone method
 
     Grid Structure:
+
     - Uses an axial coordinate system (i, k), where i - j + k = 0, and j is derived as j = i + k.
     - Three axes: I, J, K. I+ is 60° from J+, J+ is 60° from K+, K+ is 60° from I-.
     - Raw coordinates: distance along an axis multiplied by 2.
@@ -731,15 +740,18 @@ class HexEngine(HexGrid):
     - Blocks are stored in a sorted array by increasing raw coordinate i, then k.
 
     Grid Size:
+
     - Total blocks for radius r: Aₖ = 1 + 3*r*(r-1)
     - Derived from: Aₖ = Aₖ₋₁ + 6*(k-1); A₁ = 1
 
     Block Coloring:
+
     - Default: two colors for empty (False) and filled (True) states.
     - State updates via set_state or initialization/reset change colors automatically.
     - set_block allows manual color assignment.
 
     Machine Learning:
+
     - Supports reward functions for evaluating action quality.
     - check_add discourages invalid moves (e.g., overlaps).
     - compute_dense_index evaluates placement density for rewarding efficient gap-filling.
@@ -752,8 +764,7 @@ class HexEngine(HexGrid):
         Populates the hexagonal block grid with valid blocks, tested via Block.in_range.
         Blocks are inserted in row-major order (by i, then k) for binary search efficiency.
 
-        Args:
-            radius: Radius of the hexagonal grid, must be greater than 1.
+        :arg radius: Radius of the hexagonal grid, must be greater than 1.
         """
         self._radius = radius
         # Calculate array size: Aₖ = 1 + 3*r*(r-1)
@@ -800,11 +811,9 @@ class HexEngine(HexGrid):
         """
         Retrieve a Block at the given Hex coordinate or array index.
 
-        Args:
-            *args: Either a Hex object or a single index.
+        :param args: Either a Hex object or a single index.
 
-        Returns:
-            Block: The Block if found, or None if out of range.
+        :return: Block The Block if found, or None if out of range.
         """
         if len(args) == 1 and isinstance(args[0], int):
             return self._blocks[args[0]]
@@ -820,9 +829,8 @@ class HexEngine(HexGrid):
         """
         Set the Block at a specific grid coordinate using binary search.
 
-        Args:
-            __hex__: The Hex coordinate.
-            block: The new Block to place.
+        :param __hex__: The Hex coordinate.
+        :param block: The new Block to place.
         """
         if self.in_range(__hex__):
             index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
@@ -835,9 +843,8 @@ class HexEngine(HexGrid):
 
         Automatically sets the color based on state (-2 for True, -1 for False).
 
-        Args:
-            __hex__: The Hex coordinate.
-            state: The new state (True = occupied).
+        :param __hex__: The Hex coordinate.
+        :param state: The new state (True = occupied).
         """
         if self.in_range(__hex__):
             index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
@@ -853,14 +860,12 @@ class HexEngine(HexGrid):
 
         Assumes the array is sorted by I, then K.
 
-        Args:
-            i: I coordinate.
-            k: K coordinate.
-            start: Search range start index.
-            end: Search range end index.
+        :param i: I coordinate.
+        :param k: K coordinate.
+        :param start: Search range start index.
+        :param end: Search range end index.
 
-        Returns:
-            int: Index of the block, or -1 if not found.
+        :return: Index of the block, or -1 if not found.
         """
         if start > end:
             return -1
@@ -877,12 +882,10 @@ class HexEngine(HexGrid):
         """
         Check if another grid can be added at the given origin without overlap or out-of-bounds.
 
-        Args:
-            origin: Origin offset for placement.
-            other: The other HexGrid to check.
+        :param origin: Origin offset for placement.
+        :param other: The other HexGrid to check.
 
-        Returns:
-            bool: True if placement is valid.
+        :return: True if placement is valid.
         """
         for block in other.blocks():
             if block is not None and block.get_state():
@@ -898,12 +901,10 @@ class HexEngine(HexGrid):
 
         Modifies the grid permanently. Throws an exception if placement is invalid.
 
-        Args:
-            origin: Offset for placement.
-            other: The grid to add.
+        :param origin: Offset for placement.
+        :param other: The grid to add.
 
-        Raises:
-            ValueError: If placement is out of bounds or overlaps.
+        :raises ValueError: If placement is out of bounds or overlaps.
         """
         for block in other.blocks():
             if block is not None and block.get_state():
@@ -919,11 +920,9 @@ class HexEngine(HexGrid):
         """
         Return all valid positions where another grid can be added.
 
-        Args:
-            other: The HexGrid to place.
+        :param other: The HexGrid to place.
 
-        Returns:
-            List[Hex]: List of possible Hex origins for valid placement.
+        :returns: List of possible Hex origins for valid placement.
         """
         positions = []
         for block in self._blocks:
@@ -938,8 +937,7 @@ class HexEngine(HexGrid):
 
         Modifies the grid permanently.
 
-        Returns:
-            List[Block]: Blocks eliminated.
+        :returns: Blocks eliminated.
         """
         eliminate = []
         # Check I
@@ -968,8 +966,7 @@ class HexEngine(HexGrid):
         """
         Check if any full line can be eliminated.
 
-        Returns:
-            bool: True if at least one line is full.
+        :returns: True if at least one line is full.
         """
         for i in range(self._radius * 2 - 1):
             if self.check_eliminate_i(i):
@@ -986,11 +983,9 @@ class HexEngine(HexGrid):
         """
         Check if the entire line of constant I can be eliminated.
 
-        Args:
-            i: The I-line to check.
+        :param i: The I-line to check.
 
-        Returns:
-            bool: True if all blocks are filled.
+        :return: True if all blocks are filled.
         """
         return all(b.get_state() for b in self._blocks if b.get_line_i() == i)
 
@@ -998,11 +993,9 @@ class HexEngine(HexGrid):
         """
         Check if the entire line of constant J can be eliminated.
 
-        Args:
-            j: The J-line to check.
+        :param j: The J-line to check.
 
-        Returns:
-            bool: True if all blocks are filled.
+        :return: True if all blocks are filled.
         """
         return all(b.get_state() for b in self._blocks if b.get_line_j() == j)
 
@@ -1010,11 +1003,9 @@ class HexEngine(HexGrid):
         """
         Check if the entire line of constant K can be eliminated.
 
-        Args:
-            k: The K-line to check.
+        :param k: The K-line to check.
 
-        Returns:
-            bool: True if all blocks are filled.
+        :return: True if all blocks are filled.
         """
         return all(b.get_state() for b in self._blocks if b.get_line_k() == k)
 
@@ -1025,12 +1016,10 @@ class HexEngine(HexGrid):
         Returns a value between 0 and 1 representing surrounding density.
         A score of 1 means all surrounding blocks would be filled, 0 means the grid would be alone.
 
-        Args:
-            origin: Position for hypothetical placement.
-            other: The HexGrid to evaluate.
+        :param origin: Position for hypothetical placement.
+        :param other: The HexGrid to evaluate.
 
-        Returns:
-            float: Density index (0 to 1), or 0 if placement is invalid or no neighbors exist.
+        :returns: Density index (0 to 1), or 0 if placement is invalid or no neighbors exist.
         """
         total_possible = 0
         total_populated = 0
@@ -1054,12 +1043,10 @@ class HexEngine(HexGrid):
         and its six neighbors. If a neighboring position is out of range or contains a None block,
         it is treated as occupied or unoccupied based on the include_null flag.
 
-        Args:
-            __hex__ (Hex): The hex coordinate of the block at the center of the box.
-            include_null (bool): Whether to treat None or out-of-bounds neighbors as occupied (True) or unoccupied (False).
+        :param __hex__: The hex coordinate of the block at the center of the box.
+        :param include_null: Whether to treat None or out-of-bounds neighbors as occupied (True) or unoccupied (False).
 
-        Returns:
-            int: A number in the range [0, 127] representing the pattern of blocks in the hexagonal box.
+        :return: A number in the range [0, 127] representing the pattern of blocks in the hexagonal box.
         """
         pattern = 0
         if self.in_range(__hex__.shift_j(-1)):
@@ -1124,8 +1111,7 @@ class HexEngine(HexGrid):
         where p is the probability of each pattern (frequency divided by total patterns counted).
         Blocks on the grid's boundary (beyond radius - 1) are excluded to avoid incomplete patterns.
 
-        Returns:
-            float: The entropy of the grid in bits, a non-negative value representing the randomness
+        :return: The entropy of the grid in bits, a non-negative value representing the randomness
                    of block arrangements. Returns 0.0 for a uniform grid (all filled or all empty)
                    or if no valid patterns are counted.
         """
@@ -1163,16 +1149,13 @@ class HexEngine(HexGrid):
         It adds the other grid at the specified origin, performs an elimination step (e.g., removing
         completed lines or clusters as per game rules), and calculates the entropy difference.
 
-        Args:
-            origin (Hex): The position in the grid where the other grid is hypothetically placed.
-            other (HexGrid): The HexGrid representing the piece to be evaluated for placement.
+        :param origin: The position in the grid where the other grid is hypothetically placed.
+        :param other: The HexGrid representing the piece to be evaluated for placement.
 
-        Returns:
-            float: A value between 0 and 1 representing the entropy-based index score, where higher
+        :returns: A value between 0 and 1 representing the entropy-based index score, where higher
                    values indicate a greater change in pattern diversity after placement and elimination.
 
-        Raises:
-            ValueError: If the piece placement is invalid.
+        :raises ValueError: If the piece placement is invalid.
         """
         # Test move on a deep copy to avoid affecting the current grid
         copy_engine = copy.deepcopy(self)
@@ -1199,6 +1182,8 @@ class HexEngine(HexGrid):
 
         Empty blocks are represented with False and filled blocks with True.
         This method does not record color information.
+
+        :returns: Boolean list representation of this engine.
         """
         length = self.length()
         booleans = [False] * length
@@ -1211,6 +1196,9 @@ class HexEngine(HexGrid):
     def solve_radius(length: int) -> int:
         """
         Solves for the radius of a HexEngine based on its length.
+
+        :param length: Length of the potential HexEngine.
+        :returns: Radius of the potential HexEngine, or -1 if no such engine exist.
         """
         if length <= 1:
             return -1
