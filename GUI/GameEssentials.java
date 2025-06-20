@@ -425,8 +425,10 @@ public final class GameEssentials {
     }
     private static boolean gameEnds(){
         // Helper to check
+        HexEngine clonedEngine = engine().clone();
+        clonedEngine.eliminate();
         for(int i = 0; i < queue().length(); i ++) {
-            if(!engine().checkPositions(queue().get(i)).isEmpty()){
+            if(!clonedEngine.checkPositions(queue().get(i)).isEmpty()){
                 return false;
             }
         }
