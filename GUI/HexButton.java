@@ -119,10 +119,50 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
         // Fetch block color
         Color blockColor = fetchColor();
         if (hover) {
-            GameEssentials.paintHexagon(g, GameEssentials.dimColor(blockColor), (extended - 1) / 2, (extended - 1) / 2, size, extended);
+            paintHexagon(g, GameEssentials.dimColor(blockColor), (extended - 1) / 2, (extended - 1) / 2, size, extended);
         } else {
-            GameEssentials.paintHexagon(g, blockColor, size);
+            paintHexagon(g, blockColor, 0, 0, size, 0.9);
         }
+    }
+    /**
+     * Paints a hexagon at a specified (x, y) position with a given color, size, and fill ratio.
+     *
+     * @param g     the {@code Graphics} context used for rendering.
+     * @param color the {@code Color} of the hexagon.
+     * @param x     the x-coordinate of the hexagon's center.
+     * @param y     the y-coordinate of the hexagon's center.
+     * @param size  the size (radius) of the hexagon.
+     * @param fill  the fill ratio, affecting how much of the hexagon is drawn.
+     *              It is usually between 0.0 (exclusive) and 1.0 (inclusive),
+     *              but greater values may also be used in special cases.
+     */
+    public static void paintHexagon(Graphics g, Color color, double x, double y, double size, double fill) {
+        // Basic Polygon
+        double sinOf60 = GameEssentials.sinOf60;
+        int[] xPoints = new int[6];
+        int[] yPoints = new int[6];
+        for (int i = 0; i < 6; i++) {
+            double angle = Math.toRadians(60 * i);
+            xPoints[i] = (int) Math.round(size * (x * 2 + sinOf60 + Math.sin(angle) * fill));
+            yPoints[i] = (int) Math.round(size * (y * 2 + 1.0 + Math.cos(angle) * fill));
+        }
+        g.setColor(color);
+        g.fillPolygon(xPoints, yPoints, 6);
+        // Highlight
+        xPoints = new int[4];
+        yPoints = new int[4];
+        double r1 = 0.7;
+        double r2 = 0.8;
+        xPoints[0] = (int) Math.round(size * (x * 2 + sinOf60));
+        yPoints[0] = (int) Math.round(size * (y * 2 + 1.0 + r1 * fill));
+        xPoints[1] = (int) Math.round(size * (x * 2 + sinOf60 + r1 * sinOf60 * fill));
+        yPoints[1] = (int) Math.round(size * (y * 2 + 1.0 + r1 * fill * 0.5));
+        xPoints[2] = (int) Math.round(size * (x * 2 + sinOf60 + r2 * sinOf60 * fill));
+        yPoints[2] = (int) Math.round(size * (y * 2 + 1.0 + r2 * fill * 0.5));
+        xPoints[3] = xPoints[0];
+        yPoints[3] = (int) Math.round(size * (y * 2 + 1.0 + r2 * fill));
+        g.setColor(GameEssentials.gameBackgroundColor);
+        g.fillPolygon(xPoints, yPoints, 4);
     }
     // Actions
     public final void mouseClicked(MouseEvent e) {}
