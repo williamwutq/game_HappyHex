@@ -44,7 +44,7 @@ public class ResumePanel extends UniversalPanel {
         buttonsPanel.add(new LaunchButton(" NEW "){
             @Override
             protected void clicked() {
-                Launcher.LauncherGUI.startNewGame();
+                Launcher.LauncherGUI.startGame("");
             }
             @Override
             protected Color fetchColor() {

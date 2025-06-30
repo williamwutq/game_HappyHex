@@ -97,7 +97,7 @@ public class CenteringEffect extends Animation {
      * and the game's background color, creating a fading effect. The hexagon is centered on
      * the block's coordinates, adjusted for the game panel's offsets.
      * <p>
-     * This method does not use the {@link GameEssentials#paintHexagon} method, but implement drawing
+     * This method does not use the {@code paintHexagon} method, but implement drawing
      * with a similar logic.
      *
      * @param g the {@code Graphics} context to draw on.
