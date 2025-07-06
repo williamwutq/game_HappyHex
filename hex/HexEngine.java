@@ -443,6 +443,9 @@ public class HexEngine implements HexGrid{
      * <p>
      * For checking the possibility of eliminating a piece, use the {@link #checkEliminate()} method
      * instead. For adding pieces into this {@code HexEngine}, see {@link #add}.
+     * <p>
+     * Refactored with new algorithm since version 1.3.4 to reduce time complexity from O(radius^3)
+     * to O(radius^2), significantly reducing cost.
      * @return blocks eliminated
      */
     public Block[] eliminate(){
@@ -463,6 +466,7 @@ public class HexEngine implements HexGrid{
      * <p>
      * For checking the possibility of eliminating a piece, use the {@link #checkEliminateI(int)} method instead.
      * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     * @since 1.3.4
      */
     public void eliminateI(ArrayList<Block> eliminate){
         int index = 0;
@@ -476,7 +480,10 @@ public class HexEngine implements HexGrid{
                 index++;
             }
             if (allValid) {
-                eliminate.addAll(Arrays.asList(blocks).subList(startIndex, radius + i + startIndex));
+                eliminate.ensureCapacity(eliminate.size() + radius + i);
+                for (int b = 0; b < radius + i; b++) {
+                    eliminate.add(blocks[startIndex + b]);
+                }
             }
         }
         for (int i = radius - 2; i >= 0; i--){
@@ -489,7 +496,10 @@ public class HexEngine implements HexGrid{
                 index++;
             }
             if (allValid) {
-                eliminate.addAll(Arrays.asList(blocks).subList(startIndex, radius + i + startIndex));
+                eliminate.ensureCapacity(eliminate.size() + radius + i);
+                for (int b = 0; b < radius + i; b++) {
+                    eliminate.add(blocks[startIndex + b]);
+                }
             }
         }
     }
@@ -498,6 +508,7 @@ public class HexEngine implements HexGrid{
      * <p>
      * For checking the possibility of eliminating a piece, use the {@link #checkEliminateJ(int)} method instead.
      * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     * @since 1.3.4
      */
     public void eliminateJ(ArrayList<Block> eliminate){
         for(int j = 1 - radius; j < radius; j ++){
@@ -522,23 +533,66 @@ public class HexEngine implements HexGrid{
      * <p>
      * For checking the possibility of eliminating a piece, use the {@link #checkEliminateK(int)} method instead.
      * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     * @since 1.3.4
      */
     public void eliminateK(ArrayList<Block> eliminate){
-        for(int k = 0; k < radius*2 - 1; k ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineK() == k){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 0; c < radius - 1; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c <= r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 2;
+            }
+            if (allValid) {
+                index = r;
+                for (int c = 0; c < radius - 1; c++){
+                    eliminate.add(blocks[index]);
+                    index += radius + c;
+                }
+                for (int c = 0; c <= r; c++){
+                    eliminate.add(blocks[index]);
+                    index += 2 * radius - c - 2;
                 }
             }
-            eliminate.addAll(line);
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
+            int startIndex = index;
+            boolean allValid = true;
+            for (int c = r; c < radius - 1; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = radius - 1; c >= 0; c--)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c - 1;
+            }
+            if (allValid) {
+                for (int c = r; c < radius - 1; c++)
+                {
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += radius + c;
+                }
+                for (int c = radius - 1; c >= 0; c--)
+                {
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += radius + c - 1;
+                }
+            }
         }
     }
     /**
