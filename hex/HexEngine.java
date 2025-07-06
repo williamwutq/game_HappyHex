@@ -644,6 +644,9 @@ public class HexEngine implements HexGrid{
     }
     /**
      * Checks whether any full line can be eliminated in the hex grid.
+     * <p>
+     * Refactored with new algorithm since version 1.3.4 to reduce time complexity from O(radius^3)
+     * to O(radius^2), significantly reducing cost.
      * @return true if at least one line is full and able to be eliminated.
      * @see #checkEliminateI()
      * @see #checkEliminateJ()
@@ -657,6 +660,7 @@ public class HexEngine implements HexGrid{
      * @return true if any lines are filled and part of a valid piece
      * @see Block#getLineI()
      * @see #checkEliminate()
+     * @since 1.3.4
      */
     public boolean checkEliminateI(){
         int index = 0;
@@ -687,6 +691,7 @@ public class HexEngine implements HexGrid{
      * @return true if any lines are filled and part of a valid piece
      * @see Block#getLineJ()
      * @see #checkEliminate()
+     * @since 1.3.4
      */
     public boolean checkEliminateJ(){
         for (int r = 0; r < radius; r++){
@@ -732,6 +737,7 @@ public class HexEngine implements HexGrid{
      * @return true if any lines are filled and part of a valid piece
      * @see Block#getLineK()
      * @see #checkEliminate()
+     * @since 1.3.4
      */
     public boolean checkEliminateK(){
         for (int r = 0; r < radius; r++){
@@ -771,6 +777,144 @@ public class HexEngine implements HexGrid{
             if (allValid) return true;
         }
         return false;
+    }
+    /**
+     * Return the number of blocks to be eliminated during an elimination. This does not perform
+     * the actual elimination but can be used for scoring. For just checking the possibility of
+     * elimination, use {@link #checkEliminate()} instead.
+     * @see #numEliminateI()
+     * @see #numEliminateJ()
+     * @see #numEliminateK()
+     * @since 1.3.4
+     */
+    public int numEliminate(){
+        return numEliminateI() + numEliminateJ() + numEliminateK();
+    }
+    /**
+     * Checks the number of blocks to be eliminated in the direction I.
+     * @return the total number of potential elimination candidates
+     * @see Block#getLineI()
+     * @see #numEliminate()
+     * @since 1.3.4
+     */
+    public int numEliminateI(){
+        int index = 0;
+        int count = 0;
+        for (int i = 0; i < radius; i++){
+            boolean allValid = true;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index++;
+            }
+            if (allValid) count += radius + i;
+        }
+        for (int i = radius - 2; i >= 0; i--){
+            boolean allValid = true;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index++;
+            }
+            if (allValid) count += radius + i;
+        }
+        return count;
+    }
+    /**
+     * Checks the number of blocks to be eliminated in the direction J.
+     * @return the total number of potential elimination candidates
+     * @see Block#getLineJ()
+     * @see #numEliminate()
+     * @since 1.3.4
+     */
+    public int numEliminateJ(){
+        int count = 0;
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 1; c < radius; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c < radius - r; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) count += 2 * radius - r - 1;
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * r + r * (r - 1) / 2;
+            boolean allValid = true;
+            for (int c = 1; c < radius - r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c + r;
+            }
+            for (int c = 0; c < radius; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) count += 2 * radius - r - 1;
+        }
+        return count;
+    }
+    /**
+     * Checks the number of blocks to be eliminated in the direction K.
+     * @return the total number of potential elimination candidates
+     * @see Block#getLineK()
+     * @see #numEliminate()
+     * @since 1.3.4
+     */
+    public int numEliminateK(){
+        int count = 0;
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 0; c < radius - 1; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c <= r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 2;
+            }
+            if (allValid) count += radius + r;
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
+            boolean allValid = true;
+            for (int c = r; c < radius - 1; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = radius - 1; c >= 0; c--)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c - 1;
+            }
+            if (allValid) count += 2 * radius - r - 1;
+        }
+        return count;
     }
     /**
      * Computes a density index score for hypothetically placing another {@link HexGrid} onto this grid.
