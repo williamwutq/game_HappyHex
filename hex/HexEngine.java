@@ -447,7 +447,23 @@ public class HexEngine implements HexGrid{
     public Block[] eliminate(){
         // Eliminate according to I, J, K, then return how many blocks are being eliminated
         ArrayList<Block> eliminate = new ArrayList<Block>();
-        // Check I
+        eliminateI(eliminate); eliminateJ(eliminate); eliminateK(eliminate);
+        // Eliminate
+        Block[] eliminated = new Block[eliminate.size()];
+        for (int i = 0; i < eliminate.size(); i++) {
+            Block block = eliminate.get(i);
+            eliminated[i] = block.clone();
+            setState(block.getLineI(), block.getLineK(), false);
+        }
+        return eliminated; // blocks being eliminated
+    }
+    /**
+     * Identify blocks along I axis that can be eliminated and insert them into the input {@link ArrayList}.
+     * <p>
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateI(int)} method instead.
+     * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     */
+    public void eliminateI(ArrayList<Block> eliminate){
         for(int i = 0; i < radius*2 - 1; i ++){
             ArrayList<Block> line = new ArrayList<Block>();
             for(int index = 0; index < length(); index ++){
@@ -464,7 +480,14 @@ public class HexEngine implements HexGrid{
             }
             eliminate.addAll(line);
         }
-        // Check J
+    }
+    /**
+     * Identify blocks along J axis that can be eliminated and insert them into the input {@link ArrayList}.
+     * <p>
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateJ(int)} method instead.
+     * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     */
+    public void eliminateJ(ArrayList<Block> eliminate){
         for(int j = 1 - radius; j < radius; j ++){
             ArrayList<Block> line = new ArrayList<Block>();
             for(int index = 0; index < length(); index ++){
@@ -481,7 +504,14 @@ public class HexEngine implements HexGrid{
             }
             eliminate.addAll(line);
         }
-        // Check K
+    }
+    /**
+     * Identify blocks along K axis that can be eliminated and insert them into the input {@link ArrayList}.
+     * <p>
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateK(int)} method instead.
+     * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     */
+    public void eliminateK(ArrayList<Block> eliminate){
         for(int k = 0; k < radius*2 - 1; k ++){
             ArrayList<Block> line = new ArrayList<Block>();
             for(int index = 0; index < length(); index ++){
@@ -498,14 +528,6 @@ public class HexEngine implements HexGrid{
             }
             eliminate.addAll(line);
         }
-        // Eliminate
-        Block[] eliminated = new Block[eliminate.size()];
-        for (int i = 0; i < eliminate.size(); i++) {
-            Block block = eliminate.get(i);
-            eliminated[i] = block.clone();
-            setState(block.getLineI(), block.getLineK(), false);
-        }
-        return eliminated; // blocks being eliminated
     }
     /**
      * Checks whether any full line can be eliminated in the hex grid.
