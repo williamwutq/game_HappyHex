@@ -469,7 +469,7 @@ public class HexEngine implements HexGrid{
     /**
      * Identify blocks along I axis that can be eliminated and insert them into the input {@link ArrayList}.
      * <p>
-     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateI(int)} method instead.
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateI()} method instead.
      * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
      * @since 1.3.4
      */
@@ -511,7 +511,7 @@ public class HexEngine implements HexGrid{
     /**
      * Identify blocks along J axis that can be eliminated and insert them into the input {@link ArrayList}.
      * <p>
-     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateJ(int)} method instead.
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateJ()} method instead.
      * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
      * @since 1.3.4
      */
@@ -578,7 +578,7 @@ public class HexEngine implements HexGrid{
     /**
      * Identify blocks along K axis that can be eliminated and insert them into the input {@link ArrayList}.
      * <p>
-     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateK(int)} method instead.
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateK()} method instead.
      * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
      * @since 1.3.4
      */
@@ -645,63 +645,132 @@ public class HexEngine implements HexGrid{
     /**
      * Checks whether any full line can be eliminated in the hex grid.
      * @return true if at least one line is full and able to be eliminated.
-     * @see #checkEliminateI(int)
-     * @see #checkEliminateJ(int)
-     * @see #checkEliminateK(int)
+     * @see #checkEliminateI()
+     * @see #checkEliminateJ()
+     * @see #checkEliminateK()
      */
     public boolean checkEliminate(){
-        // Check I
-        for(int i = 0; i < radius*2 - 1; i ++){
-            if(checkEliminateI(i)) return true;
+        return checkEliminateI() || checkEliminateJ() || checkEliminateK();
+    }
+    /**
+     * Checks if any lines of in the direction I can be eliminated.
+     * @return true if any lines are filled and part of a valid piece
+     * @see Block#getLineI()
+     * @see #checkEliminate()
+     */
+    public boolean checkEliminateI(){
+        int index = 0;
+        for (int i = 0; i < radius; i++){
+            boolean allValid = true;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index++;
+            }
+            if (allValid) return true;
         }
-        // Check J
-        for(int j = 1 - radius; j < radius; j ++){
-            if(checkEliminateJ(j)) return true;
-        }
-        // Check K
-        for(int k = 0; k < radius*2 - 1; k ++){
-            if(checkEliminateK(k)) return true;
+        for (int i = radius - 2; i >= 0; i--){
+            boolean allValid = true;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index++;
+            }
+            if (allValid) return true;
         }
         return false;
     }
     /**
-     * Checks if the entire line of constant I can be eliminated.
-     * @param i the I-line to check
-     * @return true if all blocks are filled and part of a valid piece
-     * @see Block#getLineI()
-     * @see #checkEliminate()
-     */
-    public boolean checkEliminateI(int i){
-        for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineI() == i && !blocks[index].getState()) return false;
-        }
-        return true;
-    }
-    /**
-     * Checks if the entire line of constant J can be eliminated.
-     * @param j the J-line to check
-     * @return true if all blocks are filled and part of a valid piece
+     * Checks if any lines of in the direction J can be eliminated.
+     * @return true if any lines are filled and part of a valid piece
      * @see Block#getLineJ()
      * @see #checkEliminate()
      */
-    public boolean checkEliminateJ(int j){
-        for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineJ() == j && !blocks[index].getState()) return false;
+    public boolean checkEliminateJ(){
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 1; c < radius; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c < radius - r; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) return true;
         }
-        return true;
+        for (int r = 1; r < radius; r++){
+            int index = radius * r + r * (r - 1) / 2;
+            boolean allValid = true;
+            for (int c = 1; c < radius - r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c + r;
+            }
+            for (int c = 0; c < radius; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) return true;
+        }
+        return false;
     }
     /**
-     * Checks if the entire line of constant K can be eliminated.
-     * @param k the K-line to check
-     * @return true if all blocks are filled and part of a valid piece
+     * Checks if any lines of in the direction K can be eliminated.
+     * @return true if any lines are filled and part of a valid piece
      * @see Block#getLineK()
      * @see #checkEliminate()
      */
-    public boolean checkEliminateK(int k){
-        for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineK() == k && !blocks[index].getState()) return false;
+    public boolean checkEliminateK(){
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 0; c < radius - 1; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c <= r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 2;
+            }
+            if (allValid) return true;
         }
-        return true;
+        for (int r = 1; r < radius; r++){
+            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
+            boolean allValid = true;
+            for (int c = r; c < radius - 1; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = radius - 1; c >= 0; c--)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c - 1;
+            }
+            if (allValid) return true;
+        }
+        return false;
     }
     /**
      * Computes a density index score for hypothetically placing another {@link HexGrid} onto this grid.
