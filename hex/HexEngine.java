@@ -25,7 +25,6 @@
 package hex;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * The {@code HexEngine} class implements the {@link HexGrid} interface and provides a
