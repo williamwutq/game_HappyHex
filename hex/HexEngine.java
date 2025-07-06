@@ -516,21 +516,63 @@ public class HexEngine implements HexGrid{
      * @since 1.3.4
      */
     public void eliminateJ(ArrayList<Block> eliminate){
-        for(int j = 1 - radius; j < radius; j ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineJ() == j){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 1; c < radius; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c < radius - r; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid){
+                index = r;
+                for (int c = 1; c < radius; c++)
+                {
+                    eliminate.add(blocks[index]);
+                    index += radius + c;
+                }
+                for (int c = 0; c < radius - r; c++)
+                {
+                    eliminate.add(blocks[index]);
+                    index += 2 * radius - c - 1;
                 }
             }
-            eliminate.addAll(line);
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * r + r * (r - 1) / 2;
+            int startIndex = index;
+            boolean allValid = true;
+            for (int c = 1; c < radius - r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += radius + c + r;
+            }
+            for (int c = 0; c < radius; c++){
+                if (!blocks[index].getState()){
+                    allValid = false;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid){
+                for (int c = 1; c < radius - r; c++){
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += radius + c + r;
+                }
+                for (int c = 0; c < radius; c++){
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += 2 * radius - c - 1;
+                }
+            }
         }
     }
     /**
@@ -934,41 +976,5 @@ public class HexEngine implements HexGrid{
             newEngine.blocks[i] = this.blocks[i].clone();
         }
         return newEngine;
-    }
-    public static void main(String[] args){
-        // Set up test engine
-        HexEngine engine = new HexEngine(4);
-        engine.setState(2, 0, true);
-        engine.setState(2, 1, true);
-        engine.setState(2, 2, true);
-        engine.setState(2, 3, true);
-        engine.setState(2, 4, true);
-        engine.setState(2, 5, true);
-        engine.setState(0, 3, true);
-        engine.setState(1, 3, true);
-        engine.setState(3, 3, true);
-        engine.setState(4, 3, true);
-        engine.setState(5, 3, true);
-        engine.setState(6, 3, true);
-        engine.setState(1, 0, true);
-        engine.setState(3, 2, true);
-        engine.setState(5, 4, true);
-        engine.setState(6, 5, true);
-        // Initial output
-        System.out.println(engine.toString());
-        System.out.println(Arrays.toString(engine.toBooleans()));
-        int count = 0;
-        for (boolean bool : engine.toBooleans()){
-            if (bool) count ++;
-        }
-        System.out.println(count);
-        System.out.println("After elimination");
-        engine.eliminate();
-        System.out.println(Arrays.toString(engine.toBooleans()));
-        count = 0;
-        for (boolean bool : engine.toBooleans()){
-            if (bool) count ++;
-        }
-        System.out.println(count);
     }
 }
