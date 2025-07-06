@@ -52,6 +52,11 @@ import java.util.Arrays;
  * refers to the perpendicular distance to those axes and are calculated based on raw coordinates.
  * Blocks are constructed and stored in a sorted array by increasing raw coordinate i and then k.
  * See {@link Hex} for more coordinate information.
+ * <p>
+ * This coordinate system is used with {@link #search binary search} and index-accelerated algorithm
+ * to reduce time complexity significantly in relevant operations such as {@link #eliminate() elimination}
+ * and {@link #getBlock(int, int) individual block access}. This also constitutes the non-changing nature
+ * of this implementation of {@link HexGrid} interface.
  *
  * <p><h3>Grid Size:</h3>
  * The total number of blocks in a hexagonal grid of radius {@code r} is calculated as:
@@ -91,7 +96,7 @@ import java.util.Arrays;
  * Generally, moves that reduce entropy should be awarded and moves that increase entropy significantly should be punished.
  * @since 1.0
  * @author William Wu
- * @version 1.3
+ * @version 1.3.4
  */
 public class HexEngine implements HexGrid{
     private static final double logBaseEOf2 = Math.log(2);
