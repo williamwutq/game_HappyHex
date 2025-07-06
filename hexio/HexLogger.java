@@ -129,7 +129,7 @@ import java.util.ArrayList;
  * </ul>
  *
  * @author William Wu
- * @version 1.3
+ * @version 1.3.4
  * @since 1.2
  */
 public class HexLogger {
@@ -479,7 +479,7 @@ public class HexLogger {
         try {
             piece = queue[index];
             currentEngine.add(origin, piece);
-            eliminated = currentEngine.eliminate().length;
+            eliminated = currentEngine.numEliminate();
             score += piece.length();
             success = true;
         } catch (IndexOutOfBoundsException | IllegalArgumentException e){}
