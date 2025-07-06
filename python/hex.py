@@ -964,60 +964,6 @@ class HexEngine(HexGrid):
             self.set_state(block, False)
         return eliminated
 
-    def check_eliminate(self) -> bool:
-        """
-        Check if any full line can be eliminated.
-
-        Returns:
-            bool: True if at least one line is full.
-        """
-        for i in range(self._radius * 2 - 1):
-            if self.check_eliminate_i(i):
-                return True
-        for j in range(1 - self._radius, self._radius):
-            if self.check_eliminate_j(j):
-                return True
-        for k in range(self._radius * 2 - 1):
-            if self.check_eliminate_k(k):
-                return True
-        return False
-
-    def check_eliminate_i(self, i: int) -> bool:
-        """
-        Check if the entire line of constant I can be eliminated.
-
-        Args:
-            i: The I-line to check.
-
-        Returns:
-            bool: True if all blocks are filled.
-        """
-        return all(b.get_state() for b in self._blocks if b.get_line_i() == i)
-
-    def check_eliminate_j(self, j: int) -> bool:
-        """
-        Check if the entire line of constant J can be eliminated.
-
-        Args:
-            j: The J-line to check.
-
-        Returns:
-            bool: True if all blocks are filled.
-        """
-        return all(b.get_state() for b in self._blocks if b.get_line_j() == j)
-
-    def check_eliminate_k(self, k: int) -> bool:
-        """
-        Check if the entire line of constant K can be eliminated.
-
-        Args:
-            k: The K-line to check.
-
-        Returns:
-            bool: True if all blocks are filled.
-        """
-        return all(b.get_state() for b in self._blocks if b.get_line_k() == k)
-
     def compute_dense_index(self, origin: Hex, other: HexGrid) -> float:
         """
         Compute a density index score for hypothetically placing another grid.
