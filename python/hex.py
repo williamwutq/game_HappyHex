@@ -960,10 +960,25 @@ class HexEngine(HexGrid):
         Args:
             eliminate: The list of Blocks to insert into.
         """
-        for i in range(self._radius * 2 - 1):
-            line = [b for b in self._blocks if b.get_line_i() == i]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
+        for i in range(self._radius):
+            all_valid = True
+            index = i * (self._radius * 2 + i - 1) // 2
+            for b in range(self._radius + i):
+                if not self._blocks[index + b].get_state():
+                    all_valid = False
+                    break
+            if all_valid:
+               eliminate.extend(self._blocks[index + b] for b in range(self._radius + i))
+        const_term = self._radius * (self._radius * 3 - 1) // 2
+        for i in range(self._radius - 2, -1, -1):
+            all_valid = True
+            index = const_term + (self._radius - i - 2) * (self._radius * 3 - 1 + i) // 2
+            for b in range(self._radius + i):
+                if not self._blocks[index + b].get_state():
+                    all_valid = False
+                    break
+            if all_valid:
+                eliminate.extend(self._blocks[index + b] for b in range(self._radius + i))
 
     def _eliminate_j(self, eliminate : List[Block]):
         """
