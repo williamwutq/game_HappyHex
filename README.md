@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for autoplay and [ML](#develop--machine-learning))  
-<b>Last edited:</b> 12/06/2025  
-<b>Latest release:</b> [1.3.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.3)
+<b>Last edited:</b> 07/07/2025  
+<b>Latest release:</b> [1.3.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.4)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -735,7 +735,7 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.3.3](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.3)
+- Latest Release: [1.3.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.4)
 - Version 1.4
   - Graphics improvements
   - Autoplay logic improvements
@@ -839,7 +839,7 @@ It is not integrated with the main game’s Launcher and is grayscale by design 
 [Game Viewer README](viewer/README.md) for more.  
 
 ### Command Processors
-[package `comm`  
+package `comm`  
 **Dependencies**:  
 None  
 **Function**:  

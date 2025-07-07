@@ -21,7 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 """
-
+import time
 from typing import Optional, List
 from comm import CommandProcessor
 import hex
@@ -83,19 +83,15 @@ class MainProcessor(CommandProcessor):
                         queue.append(piece)
                     # evaluate
                     options = []
-                    for piece_option in range(len(queue)):
-                        piece = queue[piece_option]
-                        for coordinate in engine.check_positions(piece):
-                            cloned_engine = engine.__copy__()
-                            try:
-                                cloned_engine.add(coordinate, piece)
-                            except ValueError:
-                                options.append((piece_option, coordinate, 0))
-                                continue
-                            score = len(cloned_engine.eliminate()) / engine.get_radius() * 10
-                            score += engine.compute_dense_index(coordinate, piece) * 8
-                            score += engine.compute_entropy_index(coordinate, piece) * 14
-                            options.append((piece_option, coordinate, score))
+                    w_current_entropy = engine.compute_entropy() - 0.21
+                    seen_pieces = {}
+                    for piece_index, piece in enumerate(queue):
+                        key = piece.to_byte()
+                        if key in seen_pieces: continue
+                        seen_pieces[key] = piece_index
+                        for coord in engine.check_positions(piece):
+                            score = engine.compute_weighted_index(coord, piece, w_current_entropy)
+                            options.append((piece_index, coord, score))
                     # choose best option
                     best_placement = max(options, key=lambda item: item[2])
                     best_piece_option, best_position_option, best_score_result = best_placement

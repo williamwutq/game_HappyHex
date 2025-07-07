@@ -942,21 +942,10 @@ class HexEngine(HexGrid):
             List[Block]: Blocks eliminated.
         """
         eliminate = []
-        # Check I
-        for i in range(self._radius * 2 - 1):
-            line = [b for b in self._blocks if b.get_line_i() == i]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
-        # Check J
-        for j in range(1 - self._radius, self._radius):
-            line = [b for b in self._blocks if b.get_line_j() == j]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
-        # Check K
-        for k in range(self._radius * 2 - 1):
-            line = [b for b in self._blocks if b.get_line_k() == k]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
+        # Find candidates
+        self._eliminate_i(eliminate)
+        self._eliminate_j(eliminate)
+        self._eliminate_k(eliminate)
         # Eliminate
         eliminated = []
         for block in eliminate:
@@ -964,59 +953,132 @@ class HexEngine(HexGrid):
             self.set_state(block, False)
         return eliminated
 
-    def check_eliminate(self) -> bool:
+    def _eliminate_i(self, eliminate : list[Block]):
         """
-        Check if any full line can be eliminated.
-
-        Returns:
-            bool: True if at least one line is full.
-        """
-        for i in range(self._radius * 2 - 1):
-            if self.check_eliminate_i(i):
-                return True
-        for j in range(1 - self._radius, self._radius):
-            if self.check_eliminate_j(j):
-                return True
-        for k in range(self._radius * 2 - 1):
-            if self.check_eliminate_k(k):
-                return True
-        return False
-
-    def check_eliminate_i(self, i: int) -> bool:
-        """
-        Check if the entire line of constant I can be eliminated.
+        Identify blocks along I axis that can be eliminated and insert them into the input list
 
         Args:
-            i: The I-line to check.
-
-        Returns:
-            bool: True if all blocks are filled.
+            eliminate: The list of Blocks to insert into.
         """
-        return all(b.get_state() for b in self._blocks if b.get_line_i() == i)
+        for i in range(self._radius):
+            _all_valid = True
+            _index = i * (self._radius * 2 + i - 1) // 2
+            for b in range(self._radius + i):
+                if not self._blocks[_index + b].get_state():
+                    _all_valid = False
+                    break
+            if _all_valid:
+               eliminate.extend(self._blocks[_index + b] for b in range(self._radius + i))
+        const_term = self._radius * (self._radius * 3 - 1) // 2
+        for i in range(self._radius - 2, -1, -1):
+            _all_valid = True
+            _index = const_term + (self._radius - i - 2) * (self._radius * 3 - 1 + i) // 2
+            for b in range(self._radius + i):
+                if not self._blocks[_index + b].get_state():
+                    _all_valid = False
+                    break
+            if _all_valid:
+                eliminate.extend(self._blocks[_index + b] for b in range(self._radius + i))
 
-    def check_eliminate_j(self, j: int) -> bool:
+    def _eliminate_j(self, eliminate : list[Block]):
         """
-        Check if the entire line of constant J can be eliminated.
+        Identify blocks along J axis that can be eliminated and insert them into the input list
 
         Args:
-            j: The J-line to check.
-
-        Returns:
-            bool: True if all blocks are filled.
+            eliminate: The list of Blocks to insert into.
         """
-        return all(b.get_state() for b in self._blocks if b.get_line_j() == j)
+        for r in range(self._radius):
+            _index = r
+            _all_valid = True
+            for c in range(1, self._radius):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c
+            for c in range(self._radius - r):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += 2 * self._radius - c - 1
+            if _all_valid:
+                _index = r
+                for c in range(1, self._radius):
+                    eliminate.append(self._blocks[_index])
+                    _index += self._radius + c
+                for c in range(self._radius - r):
+                    eliminate.append(self._blocks[_index])
+                    _index += 2 * self._radius - c - 1
+        for r in range(1, self._radius):
+            _index = self._radius * r + r * (r - 1) // 2
+            _start_index = _index
+            _all_valid = True
+            for c in range(1, self._radius - r):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c + r
+            for c in range(self._radius):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += 2 * self._radius - c - 1
+            if _all_valid:
+                for c in range(1, self._radius - r):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += self._radius + c + r
+                for c in range(self._radius):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += 2 * self._radius - c - 1
 
-    def check_eliminate_k(self, k: int) -> bool:
+    def _eliminate_k(self, eliminate : list[Block]):
         """
-        Check if the entire line of constant K can be eliminated.
+        Identify blocks along K axis that can be eliminated and insert them into the input list
 
         Args:
-            k: The K-line to check.
-
-        Returns:
-            bool: True if all blocks are filled.
+            eliminate: The list of Blocks to insert into.
         """
-        return all(b.get_state() for b in self._blocks if b.get_line_k() == k)
+        for r in range(self._radius):
+            _index = r
+            _all_valid = True
+            for c in range(self._radius - 1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c
+            for c in range(r + 1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += 2 * self._radius - c - 2
+            if _all_valid:
+                _index = r
+                for c in range(self._radius - 1):
+                    eliminate.append(self._blocks[_index])
+                    _index += self._radius + c
+                for c in range(r + 1):
+                    eliminate.append(self._blocks[_index])
+                    _index += 2 * self._radius - c - 2
+        for r in range(1, self._radius):
+            _index = self._radius * (r + 1) + r * (r + 1) // 2 - 1
+            _start_index = _index
+            _all_valid = True
+            for c in range(r, self._radius - 1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c
+            for c in range(self._radius - 1, -1, -1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c - 1
+            if _all_valid:
+                for c in range(r, self._radius - 1):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += self._radius + c
+                for c in range(self._radius - 1, -1, -1):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += self._radius + c - 1
 
     def compute_dense_index(self, origin: Hex, other: HexGrid) -> float:
         """
@@ -1062,47 +1124,22 @@ class HexEngine(HexGrid):
             int: A number in the range [0, 127] representing the pattern of blocks in the hexagonal box.
         """
         pattern = 0
-        if self.in_range(__hex__.shift_j(-1)):
-            if self.get_block(__hex__.shift_j(-1)).get_state():
+        shifts = [
+            __hex__.shift_j(-1),
+            __hex__.shift_i(-1),
+            __hex__.shift_k(-1),
+            __hex__,
+            __hex__.shift_k(1),
+            __hex__.shift_i(1),
+            __hex__.shift_j(1)
+        ]
+        for neighbor in shifts:
+            pattern <<= 1
+            if self.in_range(neighbor):
+                if self.get_block(neighbor).get_state():
+                    pattern += 1
+            elif include_null:
                 pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_i(-1)):
-            if self.get_block(__hex__.shift_i(-1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_k(-1)):
-            if self.get_block(__hex__.shift_k(-1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__):
-            if self.get_block(__hex__).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_k(1)):
-            if self.get_block(__hex__.shift_k(1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_i(1)):
-            if self.get_block(__hex__.shift_i(1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_j(1)):
-            if self.get_block(__hex__.shift_j(1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
         return pattern
 
     def compute_entropy(self) -> float:
@@ -1129,14 +1166,18 @@ class HexEngine(HexGrid):
                    of block arrangements. Returns 0.0 for a uniform grid (all filled or all empty)
                    or if no valid patterns are counted.
         """
-        entropy = 0.0
+        pattern_counts = [0] * 128
         pattern_total = 0
-        pattern_counts = [0] * 128  # 2^7 because there are 128 possible patterns
+        radius = self.get_radius() - 1
+
         for block in self._blocks:
-            if block.__this__().shift_j(1).in_range(self.get_radius() - 1):
-                # If it is possible to check patterns without going out of bounds
+            center = block.__this__()
+            if center.shift_j(1).in_range(radius):
+                pattern = self._get_pattern(center, False)
+                pattern_counts[pattern] += 1
                 pattern_total += 1
-                pattern_counts[self._get_pattern(block.__this__(), False)] += 1
+
+        entropy = 0.0
         for count in pattern_counts:
             if count > 0:
                 p = count / pattern_total
@@ -1182,6 +1223,14 @@ class HexEngine(HexGrid):
         # Sigmoid: 1/(1+e^-k(x)) k=3
         return 1 / (1 + exp(-3 * x))
 
+    def compute_weighted_index(self, origin: Hex, other: HexGrid, w_current_entropy) -> float:
+        score = self.compute_dense_index(origin, other) * 8
+        copy_engine = self.__copy__()
+        copy_engine.add(origin, other)
+        score += len(copy_engine.eliminate()) / self._radius * 10
+        x = copy_engine.compute_entropy() - w_current_entropy
+        return score + 14 / (1 + exp(-3 * x))
+
     def __str__(self) -> str:
         """Return a string representation of the grid color and block states."""
         str_builder = ["HexEngine[blocks = {"]
@@ -1212,8 +1261,14 @@ class HexEngine(HexGrid):
         """
         Solves for the radius of a HexEngine based on its length.
         """
+        valid_pairs = {
+            7: 2, 19: 3, 37: 4, 61: 5, 91: 6, 127: 7, 169: 8, 217: 9, 271: 10, 331: 11, 397: 12, 469: 13
+        }
         if length <= 1:
             return -1
+        if 0 <= length <= 546:
+            v = valid_pairs.get(length, -1)
+            return v if v is not None else -1
         if length % 3 != 1:
             return -1
         target = (length - 1) // 3

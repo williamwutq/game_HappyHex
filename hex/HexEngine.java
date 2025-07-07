@@ -51,6 +51,11 @@ import java.util.ArrayList;
  * refers to the perpendicular distance to those axes and are calculated based on raw coordinates.
  * Blocks are constructed and stored in a sorted array by increasing raw coordinate i and then k.
  * See {@link Hex} for more coordinate information.
+ * <p>
+ * This coordinate system is used with {@link #search binary search} and index-accelerated algorithm
+ * to reduce time complexity significantly in relevant operations such as {@link #eliminate() elimination}
+ * and {@link #getBlock(int, int) individual block access}. This also constitutes the non-changing nature
+ * of this implementation of {@link HexGrid} interface.
  *
  * <p><h3>Grid Size:</h3>
  * The total number of blocks in a hexagonal grid of radius {@code r} is calculated as:
@@ -90,7 +95,7 @@ import java.util.ArrayList;
  * Generally, moves that reduce entropy should be awarded and moves that increase entropy significantly should be punished.
  * @since 1.0
  * @author William Wu
- * @version 1.3
+ * @version 1.3.4
  */
 public class HexEngine implements HexGrid{
     private static final double logBaseEOf2 = Math.log(2);
@@ -442,62 +447,15 @@ public class HexEngine implements HexGrid{
      * <p>
      * For checking the possibility of eliminating a piece, use the {@link #checkEliminate()} method
      * instead. For adding pieces into this {@code HexEngine}, see {@link #add}.
+     * <p>
+     * Refactored with new algorithm since version 1.3.4 to reduce time complexity from O(radius^3)
+     * to O(radius^2), significantly reducing cost.
      * @return blocks eliminated
      */
     public Block[] eliminate(){
         // Eliminate according to I, J, K, then return how many blocks are being eliminated
         ArrayList<Block> eliminate = new ArrayList<Block>();
-        // Check I
-        for(int i = 0; i < radius*2 - 1; i ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineI() == i){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
-                }
-            }
-            eliminate.addAll(line);
-        }
-        // Check J
-        for(int j = 1 - radius; j < radius; j ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineJ() == j){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
-                }
-            }
-            eliminate.addAll(line);
-        }
-        // Check K
-        for(int k = 0; k < radius*2 - 1; k ++){
-            ArrayList<Block> line = new ArrayList<Block>();
-            for(int index = 0; index < length(); index ++){
-                if(blocks[index].getLineK() == k){
-                    // Found block
-                    if(blocks[index].getState()){
-                        line.add(blocks[index]);
-                    } else {
-                        // Else this line does not satisfy, clean up line and break out of the for loop
-                        line.clear();
-                        break;
-                    }
-                }
-            }
-            eliminate.addAll(line);
-        }
+        eliminateI(eliminate); eliminateJ(eliminate); eliminateK(eliminate);
         // Eliminate
         Block[] eliminated = new Block[eliminate.size()];
         for (int i = 0; i < eliminate.size(); i++) {
@@ -508,65 +466,452 @@ public class HexEngine implements HexGrid{
         return eliminated; // blocks being eliminated
     }
     /**
+     * Identify blocks along I axis that can be eliminated and insert them into the input {@link ArrayList}.
+     * <p>
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateI()} method instead.
+     * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     * @since 1.3.4
+     */
+    public void eliminateI(ArrayList<Block> eliminate){
+        for (int i = 0; i < radius; i++){
+            boolean allValid = true;
+            int index = i * (radius * 2 + i - 1) / 2;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) {
+                eliminate.ensureCapacity(eliminate.size() + radius + i);
+                for (int b = 0; b < radius + i; b++) {
+                    eliminate.add(blocks[index + b]);
+                }
+            }
+        }
+        int constTerm = radius * (radius * 3 - 1) / 2;
+        for (int i = radius - 2; i >= 0; i--){
+            boolean allValid = true;
+            int index = constTerm + (radius - i - 2) * (radius * 3 - 1 + i) / 2;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) {
+                eliminate.ensureCapacity(eliminate.size() + radius + i);
+                for (int b = 0; b < radius + i; b++) {
+                    eliminate.add(blocks[index + b]);
+                }
+            }
+        }
+    }
+    /**
+     * Identify blocks along J axis that can be eliminated and insert them into the input {@link ArrayList}.
+     * <p>
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateJ()} method instead.
+     * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     * @since 1.3.4
+     */
+    public void eliminateJ(ArrayList<Block> eliminate){
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 1; c < radius; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c < radius - r; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid){
+                index = r;
+                for (int c = 1; c < radius; c++)
+                {
+                    eliminate.add(blocks[index]);
+                    index += radius + c;
+                }
+                for (int c = 0; c < radius - r; c++)
+                {
+                    eliminate.add(blocks[index]);
+                    index += 2 * radius - c - 1;
+                }
+            }
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * r + r * (r - 1) / 2;
+            int startIndex = index;
+            boolean allValid = true;
+            for (int c = 1; c < radius - r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c + r;
+            }
+            for (int c = 0; c < radius; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid){
+                for (int c = 1; c < radius - r; c++){
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += radius + c + r;
+                }
+                for (int c = 0; c < radius; c++){
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += 2 * radius - c - 1;
+                }
+            }
+        }
+    }
+    /**
+     * Identify blocks along K axis that can be eliminated and insert them into the input {@link ArrayList}.
+     * <p>
+     * For checking the possibility of eliminating a piece, use the {@link #checkEliminateK()} method instead.
+     * @param eliminate the input ArrayList for insertion of elimination {@link Block} candidates.
+     * @since 1.3.4
+     */
+    public void eliminateK(ArrayList<Block> eliminate){
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 0; c < radius - 1; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c <= r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 2;
+            }
+            if (allValid) {
+                index = r;
+                for (int c = 0; c < radius - 1; c++){
+                    eliminate.add(blocks[index]);
+                    index += radius + c;
+                }
+                for (int c = 0; c <= r; c++){
+                    eliminate.add(blocks[index]);
+                    index += 2 * radius - c - 2;
+                }
+            }
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
+            int startIndex = index;
+            boolean allValid = true;
+            for (int c = r; c < radius - 1; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = radius - 1; c >= 0; c--)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c - 1;
+            }
+            if (allValid) {
+                for (int c = r; c < radius - 1; c++)
+                {
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += radius + c;
+                }
+                for (int c = radius - 1; c >= 0; c--)
+                {
+                    eliminate.add(blocks[startIndex]);
+                    startIndex += radius + c - 1;
+                }
+            }
+        }
+    }
+    /**
      * Checks whether any full line can be eliminated in the hex grid.
+     * <p>
+     * Refactored with new algorithm since version 1.3.4 to reduce time complexity from O(radius^3)
+     * to O(radius^2), significantly reducing cost.
      * @return true if at least one line is full and able to be eliminated.
-     * @see #checkEliminateI(int)
-     * @see #checkEliminateJ(int)
-     * @see #checkEliminateK(int)
+     * @see #checkEliminateI()
+     * @see #checkEliminateJ()
+     * @see #checkEliminateK()
      */
     public boolean checkEliminate(){
-        // Check I
-        for(int i = 0; i < radius*2 - 1; i ++){
-            if(checkEliminateI(i)) return true;
+        return checkEliminateI() || checkEliminateJ() || checkEliminateK();
+    }
+    /**
+     * Checks if any lines of in the direction I can be eliminated.
+     * @return true if any lines are filled and part of a valid piece
+     * @see Block#getLineI()
+     * @see #checkEliminate()
+     * @since 1.3.4
+     */
+    public boolean checkEliminateI(){
+        for (int i = 0; i < radius; i++){
+            int index = i * (radius * 2 + i - 1) / 2;
+            boolean allValid = true;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) return true;
         }
-        // Check J
-        for(int j = 1 - radius; j < radius; j ++){
-            if(checkEliminateJ(j)) return true;
-        }
-        // Check K
-        for(int k = 0; k < radius*2 - 1; k ++){
-            if(checkEliminateK(k)) return true;
+        int constTerm = radius * (radius * 3 - 1) / 2;
+        for (int i = radius - 2; i >= 0; i--){
+            boolean allValid = true;
+            int index = constTerm + (radius - i - 2) * (radius * 3 - 1 + i) / 2;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) return true;
         }
         return false;
     }
     /**
-     * Checks if the entire line of constant I can be eliminated.
-     * @param i the I-line to check
-     * @return true if all blocks are filled and part of a valid piece
-     * @see Block#getLineI()
-     * @see #checkEliminate()
-     */
-    public boolean checkEliminateI(int i){
-        for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineI() == i && !blocks[index].getState()) return false;
-        }
-        return true;
-    }
-    /**
-     * Checks if the entire line of constant J can be eliminated.
-     * @param j the J-line to check
-     * @return true if all blocks are filled and part of a valid piece
+     * Checks if any lines of in the direction J can be eliminated.
+     * @return true if any lines are filled and part of a valid piece
      * @see Block#getLineJ()
      * @see #checkEliminate()
+     * @since 1.3.4
      */
-    public boolean checkEliminateJ(int j){
-        for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineJ() == j && !blocks[index].getState()) return false;
+    public boolean checkEliminateJ(){
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 1; c < radius; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c < radius - r; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) return true;
         }
-        return true;
+        for (int r = 1; r < radius; r++){
+            int index = radius * r + r * (r - 1) / 2;
+            boolean allValid = true;
+            for (int c = 1; c < radius - r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c + r;
+            }
+            for (int c = 0; c < radius; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) return true;
+        }
+        return false;
     }
     /**
-     * Checks if the entire line of constant K can be eliminated.
-     * @param k the K-line to check
-     * @return true if all blocks are filled and part of a valid piece
+     * Checks if any lines of in the direction K can be eliminated.
+     * @return true if any lines are filled and part of a valid piece
      * @see Block#getLineK()
      * @see #checkEliminate()
+     * @since 1.3.4
      */
-    public boolean checkEliminateK(int k){
-        for(int index = 0; index < length(); index ++){
-            if(blocks[index].getLineK() == k && !blocks[index].getState()) return false;
+    public boolean checkEliminateK(){
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 0; c < radius - 1; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c <= r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 2;
+            }
+            if (allValid) return true;
         }
-        return true;
+        for (int r = 1; r < radius; r++){
+            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
+            boolean allValid = true;
+            for (int c = r; c < radius - 1; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = radius - 1; c >= 0; c--)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c - 1;
+            }
+            if (allValid) return true;
+        }
+        return false;
+    }
+    /**
+     * Return the number of blocks to be eliminated during an elimination. This does not perform
+     * the actual elimination but can be used for scoring. For just checking the possibility of
+     * elimination, use {@link #checkEliminate()} instead.
+     * @see #numEliminateI()
+     * @see #numEliminateJ()
+     * @see #numEliminateK()
+     * @since 1.3.4
+     */
+    public int numEliminate(){
+        return numEliminateI() + numEliminateJ() + numEliminateK();
+    }
+    /**
+     * Checks the number of blocks to be eliminated in the direction I.
+     * @return the total number of potential elimination candidates
+     * @see Block#getLineI()
+     * @see #numEliminate()
+     * @since 1.3.4
+     */
+    public int numEliminateI(){
+        int count = 0;
+        for (int i = 0; i < radius; i++){
+            int index = i * (radius * 2 + i - 1) / 2;
+            boolean allValid = true;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) count += radius + i;
+        }
+        int constTerm = radius * (radius * 3 - 1) / 2;
+        for (int i = radius - 2; i >= 0; i--){
+            boolean allValid = true;
+            int index = constTerm + (radius - i - 2) * (radius * 3 - 1 + i) / 2;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) count += radius + i;
+        }
+        return count;
+    }
+    /**
+     * Checks the number of blocks to be eliminated in the direction J.
+     * @return the total number of potential elimination candidates
+     * @see Block#getLineJ()
+     * @see #numEliminate()
+     * @since 1.3.4
+     */
+    public int numEliminateJ(){
+        int count = 0;
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 1; c < radius; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c < radius - r; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) count += 2 * radius - r - 1;
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * r + r * (r - 1) / 2;
+            boolean allValid = true;
+            for (int c = 1; c < radius - r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c + r;
+            }
+            for (int c = 0; c < radius; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid) count += 2 * radius - r - 1;
+        }
+        return count;
+    }
+    /**
+     * Checks the number of blocks to be eliminated in the direction K.
+     * @return the total number of potential elimination candidates
+     * @see Block#getLineK()
+     * @see #numEliminate()
+     * @since 1.3.4
+     */
+    public int numEliminateK(){
+        int count = 0;
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 0; c < radius - 1; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c <= r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 2;
+            }
+            if (allValid) count += radius + r;
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
+            boolean allValid = true;
+            for (int c = r; c < radius - 1; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = radius - 1; c >= 0; c--)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c - 1;
+            }
+            if (allValid) count += 2 * radius - r - 1;
+        }
+        return count;
     }
     /**
      * Computes a density index score for hypothetically placing another {@link HexGrid} onto this grid.
