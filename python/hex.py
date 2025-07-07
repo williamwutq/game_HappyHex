@@ -942,27 +942,52 @@ class HexEngine(HexGrid):
             List[Block]: Blocks eliminated.
         """
         eliminate = []
-        # Check I
-        for i in range(self._radius * 2 - 1):
-            line = [b for b in self._blocks if b.get_line_i() == i]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
-        # Check J
-        for j in range(1 - self._radius, self._radius):
-            line = [b for b in self._blocks if b.get_line_j() == j]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
-        # Check K
-        for k in range(self._radius * 2 - 1):
-            line = [b for b in self._blocks if b.get_line_k() == k]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
+        # Find candidates
+        self._eliminate_i(eliminate)
+        self._eliminate_j(eliminate)
+        self._eliminate_k(eliminate)
         # Eliminate
         eliminated = []
         for block in eliminate:
             eliminated.append(block.__copy__())
             self.set_state(block, False)
         return eliminated
+
+    def _eliminate_i(self, eliminate : List[Block]):
+        """
+        Identify blocks along I axis that can be eliminated and insert them into the input list
+
+        Args:
+            eliminate: The list of Blocks to insert into.
+        """
+        for i in range(self._radius * 2 - 1):
+            line = [b for b in self._blocks if b.get_line_i() == i]
+            if all(b.get_state() for b in line):
+                eliminate.extend(line)
+
+    def _eliminate_j(self, eliminate : List[Block]):
+        """
+        Identify blocks along J axis that can be eliminated and insert them into the input list
+
+        Args:
+            eliminate: The list of Blocks to insert into.
+        """
+        for j in range(1 - self._radius, self._radius):
+            line = [b for b in self._blocks if b.get_line_j() == j]
+            if all(b.get_state() for b in line):
+                eliminate.extend(line)
+
+    def _eliminate_k(self, eliminate : List[Block]):
+        """
+        Identify blocks along K axis that can be eliminated and insert them into the input list
+
+        Args:
+            eliminate: The list of Blocks to insert into.
+        """
+        for k in range(self._radius * 2 - 1):
+            line = [b for b in self._blocks if b.get_line_k() == k]
+            if all(b.get_state() for b in line):
+                eliminate.extend(line)
 
     def compute_dense_index(self, origin: Hex, other: HexGrid) -> float:
         """
