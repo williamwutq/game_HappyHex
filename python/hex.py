@@ -953,7 +953,7 @@ class HexEngine(HexGrid):
             self.set_state(block, False)
         return eliminated
 
-    def _eliminate_i(self, eliminate : List[Block]):
+    def _eliminate_i(self, eliminate : list[Block]):
         """
         Identify blocks along I axis that can be eliminated and insert them into the input list
 
@@ -961,38 +961,81 @@ class HexEngine(HexGrid):
             eliminate: The list of Blocks to insert into.
         """
         for i in range(self._radius):
-            all_valid = True
-            index = i * (self._radius * 2 + i - 1) // 2
+            _all_valid = True
+            _index = i * (self._radius * 2 + i - 1) // 2
             for b in range(self._radius + i):
-                if not self._blocks[index + b].get_state():
-                    all_valid = False
+                if not self._blocks[_index + b].get_state():
+                    _all_valid = False
                     break
-            if all_valid:
-               eliminate.extend(self._blocks[index + b] for b in range(self._radius + i))
+            if _all_valid:
+               eliminate.extend(self._blocks[_index + b] for b in range(self._radius + i))
         const_term = self._radius * (self._radius * 3 - 1) // 2
         for i in range(self._radius - 2, -1, -1):
-            all_valid = True
-            index = const_term + (self._radius - i - 2) * (self._radius * 3 - 1 + i) // 2
+            _all_valid = True
+            _index = const_term + (self._radius - i - 2) * (self._radius * 3 - 1 + i) // 2
             for b in range(self._radius + i):
-                if not self._blocks[index + b].get_state():
-                    all_valid = False
+                if not self._blocks[_index + b].get_state():
+                    _all_valid = False
                     break
-            if all_valid:
-                eliminate.extend(self._blocks[index + b] for b in range(self._radius + i))
+            if _all_valid:
+                eliminate.extend(self._blocks[_index + b] for b in range(self._radius + i))
 
-    def _eliminate_j(self, eliminate : List[Block]):
+    def _eliminate_j(self, eliminate : list[Block]):
         """
         Identify blocks along J axis that can be eliminated and insert them into the input list
 
         Args:
             eliminate: The list of Blocks to insert into.
         """
-        for j in range(1 - self._radius, self._radius):
-            line = [b for b in self._blocks if b.get_line_j() == j]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
+        for r in range(self._radius):
+            _index = r
+            _all_valid = True
+            # Check first part of the path
+            for c in range(1, self._radius):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c
+            # Check second part of the path
+            for c in range(self._radius - r):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += 2 * self._radius - c - 1
+            if _all_valid:
+                _index = r
+                for c in range(1, self._radius):
+                    eliminate.append(self._blocks[_index])
+                    _index += self._radius + c
+                for c in range(self._radius - r):
+                    eliminate.append(self._blocks[_index])
+                    _index += 2 * self._radius - c - 1
 
-    def _eliminate_k(self, eliminate : List[Block]):
+        # Second loop: Process lower pattern
+        for r in range(1, self._radius):
+            _index = self._radius * r + r * (r - 1) // 2
+            _start_index = _index
+            _all_valid = True
+            for c in range(1, self._radius - r):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c + r
+            # Check second part of the path
+            for c in range(self._radius):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += 2 * self._radius - c - 1
+            if _all_valid:
+                for c in range(1, self._radius - r):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += self._radius + c + r
+                for c in range(self._radius):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += 2 * self._radius - c - 1
+
+    def _eliminate_k(self, eliminate : list[Block]):
         """
         Identify blocks along K axis that can be eliminated and insert them into the input list
 
