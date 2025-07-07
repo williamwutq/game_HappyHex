@@ -86,16 +86,7 @@ class MainProcessor(CommandProcessor):
                     for piece_option in range(len(queue)):
                         piece = queue[piece_option]
                         for coordinate in engine.check_positions(piece):
-                            cloned_engine = engine.__copy__()
-                            try:
-                                cloned_engine.add(coordinate, piece)
-                            except ValueError:
-                                options.append((piece_option, coordinate, 0))
-                                continue
-                            score = len(cloned_engine.eliminate()) / engine.get_radius() * 10
-                            score += engine.compute_dense_index(coordinate, piece) * 8
-                            score += engine.compute_entropy_index(coordinate, piece) * 14
-                            options.append((piece_option, coordinate, score))
+                            options.append((piece_option, coordinate, engine.compute_weighted_index(coordinate, piece)))
                     # choose best option
                     best_placement = max(options, key=lambda item: item[2])
                     best_piece_option, best_position_option, best_score_result = best_placement

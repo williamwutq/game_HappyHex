@@ -1244,6 +1244,14 @@ class HexEngine(HexGrid):
         # Sigmoid: 1/(1+e^-k(x)) k=3
         return 1 / (1 + exp(-3 * x))
 
+    def compute_weighted_index(self, origin: Hex, other: HexGrid) -> float:
+        score = self.compute_dense_index(origin, other) * 8
+        copy_engine = self.__copy__()
+        copy_engine.add(origin, other)
+        score += len(copy_engine.eliminate()) / self._radius * 10
+        x = copy_engine.compute_entropy() - self.compute_entropy() - 0.21
+        return score + 14 / (1 + exp(-3 * x))
+
     def __str__(self) -> str:
         """Return a string representation of the grid color and block states."""
         str_builder = ["HexEngine[blocks = {"]
@@ -1274,8 +1282,14 @@ class HexEngine(HexGrid):
         """
         Solves for the radius of a HexEngine based on its length.
         """
+        valid_pairs = {
+            7: 2, 19: 3, 37: 4, 61: 5, 91: 6, 127: 7, 169: 8, 217: 9, 271: 10, 331: 11, 397: 12, 469: 13
+        }
         if length <= 1:
             return -1
+        if 0 <= length <= 546:
+            v = valid_pairs.get(length, -1)
+            return v if v is not None else -1
         if length % 3 != 1:
             return -1
         target = (length - 1) // 3
