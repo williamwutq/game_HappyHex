@@ -1223,12 +1223,12 @@ class HexEngine(HexGrid):
         # Sigmoid: 1/(1+e^-k(x)) k=3
         return 1 / (1 + exp(-3 * x))
 
-    def compute_weighted_index(self, origin: Hex, other: HexGrid) -> float:
+    def compute_weighted_index(self, origin: Hex, other: HexGrid, w_current_entropy) -> float:
         score = self.compute_dense_index(origin, other) * 8
         copy_engine = self.__copy__()
         copy_engine.add(origin, other)
         score += len(copy_engine.eliminate()) / self._radius * 10
-        x = copy_engine.compute_entropy() - self.compute_entropy() - 0.21
+        x = copy_engine.compute_entropy() - w_current_entropy
         return score + 14 / (1 + exp(-3 * x))
 
     def __str__(self) -> str:
