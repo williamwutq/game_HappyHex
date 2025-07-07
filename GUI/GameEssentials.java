@@ -359,6 +359,19 @@ public final class GameEssentials {
     }
 
     // End checking
+    public static void quitGame(){
+        if(Launcher.LaunchEssentials.isGameStarted()) {
+            // Log if it has score and reset
+            if (GameEssentials.getTurn() != 0) {
+                System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
+                GameEssentials.logGame();
+            } else {
+                System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game quits without change.");
+            }
+            GameEssentials.resetGame();
+        }
+        Launcher.LauncherGUI.returnHome();
+    }
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
