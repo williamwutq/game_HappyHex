@@ -990,13 +990,11 @@ class HexEngine(HexGrid):
         for r in range(self._radius):
             _index = r
             _all_valid = True
-            # Check first part of the path
             for c in range(1, self._radius):
                 if not self._blocks[_index].get_state():
                     _all_valid = False
                     break
                 _index += self._radius + c
-            # Check second part of the path
             for c in range(self._radius - r):
                 if not self._blocks[_index].get_state():
                     _all_valid = False
@@ -1010,8 +1008,6 @@ class HexEngine(HexGrid):
                 for c in range(self._radius - r):
                     eliminate.append(self._blocks[_index])
                     _index += 2 * self._radius - c - 1
-
-        # Second loop: Process lower pattern
         for r in range(1, self._radius):
             _index = self._radius * r + r * (r - 1) // 2
             _start_index = _index
@@ -1021,7 +1017,6 @@ class HexEngine(HexGrid):
                     _all_valid = False
                     break
                 _index += self._radius + c + r
-            # Check second part of the path
             for c in range(self._radius):
                 if not self._blocks[_index].get_state():
                     _all_valid = False
@@ -1042,10 +1037,48 @@ class HexEngine(HexGrid):
         Args:
             eliminate: The list of Blocks to insert into.
         """
-        for k in range(self._radius * 2 - 1):
-            line = [b for b in self._blocks if b.get_line_k() == k]
-            if all(b.get_state() for b in line):
-                eliminate.extend(line)
+        for r in range(self._radius):
+            _index = r
+            _all_valid = True
+            for c in range(self._radius - 1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c
+            for c in range(r + 1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += 2 * self._radius - c - 2
+            if _all_valid:
+                _index = r
+                for c in range(self._radius - 1):
+                    eliminate.append(self._blocks[_index])
+                    _index += self._radius + c
+                for c in range(r + 1):
+                    eliminate.append(self._blocks[_index])
+                    _index += 2 * self._radius - c - 2
+        for r in range(1, self._radius):
+            _index = self._radius * (r + 1) + r * (r + 1) // 2 - 1
+            _start_index = _index
+            _all_valid = True
+            for c in range(r, self._radius - 1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c
+            for c in range(self._radius - 1, -1, -1):
+                if not self._blocks[_index].get_state():
+                    _all_valid = False
+                    break
+                _index += self._radius + c - 1
+            if _all_valid:
+                for c in range(r, self._radius - 1):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += self._radius + c
+                for c in range(self._radius - 1, -1, -1):
+                    eliminate.append(self._blocks[_start_index])
+                    _start_index += self._radius + c - 1
 
     def compute_dense_index(self, origin: Hex, other: HexGrid) -> float:
         """
