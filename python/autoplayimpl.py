@@ -82,14 +82,16 @@ class MainProcessor(CommandProcessor):
                         piece = hex.Piece.piece_from_byte(int(arg), -1)
                         queue.append(piece)
                     # evaluate
-                    t = time.time()
                     options = []
                     w_current_entropy = engine.compute_entropy() - 0.21
-                    for piece_option in range(len(queue)):
-                        piece = queue[piece_option]
-                        for coordinate in engine.check_positions(piece):
-                            options.append((piece_option, coordinate, engine.compute_weighted_index(coordinate, piece, w_current_entropy)))
-                    print (time.time() - t)
+                    seen_pieces = {}
+                    for piece_index, piece in enumerate(queue):
+                        key = piece.to_byte()
+                        if key in seen_pieces: continue
+                        seen_pieces[key] = piece_index
+                        for coord in engine.check_positions(piece):
+                            score = engine.compute_weighted_index(coord, piece, w_current_entropy)
+                            options.append((piece_index, coord, score))
                     # choose best option
                     best_placement = max(options, key=lambda item: item[2])
                     best_piece_option, best_position_option, best_score_result = best_placement
