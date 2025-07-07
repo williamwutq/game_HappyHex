@@ -521,14 +521,14 @@ public class HexEngine implements HexGrid{
             for (int c = 1; c < radius; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = 0; c < radius - r; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 1;
             }
@@ -552,13 +552,13 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int c = 1; c < radius - r; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c + r;
             }
             for (int c = 0; c < radius; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 1;
             }
@@ -587,13 +587,13 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int c = 0; c < radius - 1; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = 0; c <= r; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 2;
             }
@@ -616,14 +616,14 @@ public class HexEngine implements HexGrid{
             for (int c = r; c < radius - 1; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = radius - 1; c >= 0; c--)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c - 1;
             }
@@ -699,14 +699,14 @@ public class HexEngine implements HexGrid{
             for (int c = 1; c < radius; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = 0; c < radius - r; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 1;
             }
@@ -717,13 +717,13 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int c = 1; c < radius - r; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c + r;
             }
             for (int c = 0; c < radius; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 1;
             }
@@ -744,13 +744,13 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int c = 0; c < radius - 1; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = 0; c <= r; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 2;
             }
@@ -762,14 +762,14 @@ public class HexEngine implements HexGrid{
             for (int c = r; c < radius - 1; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = radius - 1; c >= 0; c--)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c - 1;
             }
@@ -803,7 +803,7 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int b = 0; b < radius + i; b++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index++;
             }
@@ -813,7 +813,7 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int b = 0; b < radius + i; b++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index++;
             }
@@ -836,14 +836,14 @@ public class HexEngine implements HexGrid{
             for (int c = 1; c < radius; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = 0; c < radius - r; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 1;
             }
@@ -854,13 +854,13 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int c = 1; c < radius - r; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c + r;
             }
             for (int c = 0; c < radius; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 1;
             }
@@ -882,13 +882,13 @@ public class HexEngine implements HexGrid{
             boolean allValid = true;
             for (int c = 0; c < radius - 1; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = 0; c <= r; c++){
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += 2 * radius - c - 2;
             }
@@ -900,14 +900,14 @@ public class HexEngine implements HexGrid{
             for (int c = r; c < radius - 1; c++)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c;
             }
             for (int c = radius - 1; c >= 0; c--)
             {
                 if (!blocks[index].getState()){
-                    allValid = false;
+                    allValid = false; break;
                 }
                 index += radius + c - 1;
             }
