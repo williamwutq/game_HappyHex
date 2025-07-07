@@ -60,6 +60,7 @@ import java.util.concurrent.Executors;
  * @since 1.3.3
  */
 public class PythonCommandProcessor implements CommandProcessor {
+    private int time;
     private final Process process;
     private final BufferedWriter writer;
     private final BufferedReader reader;
@@ -93,9 +94,9 @@ public class PythonCommandProcessor implements CommandProcessor {
     private void listenForOutput() {
         try {
             String line;
+            CommandProcessor processor = this.getCallBackProcessor();
             while ((line = reader.readLine()) != null) {
                 final String received = line.trim();
-                CommandProcessor processor = this.getCallBackProcessor();
                 if (processor != null && !received.isEmpty()) {
                     executor.submit(() -> {
                         try {
