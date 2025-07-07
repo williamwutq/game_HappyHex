@@ -1124,47 +1124,22 @@ class HexEngine(HexGrid):
             int: A number in the range [0, 127] representing the pattern of blocks in the hexagonal box.
         """
         pattern = 0
-        if self.in_range(__hex__.shift_j(-1)):
-            if self.get_block(__hex__.shift_j(-1)).get_state():
+        shifts = [
+            __hex__.shift_j(-1),
+            __hex__.shift_i(-1),
+            __hex__.shift_k(-1),
+            __hex__,
+            __hex__.shift_k(1),
+            __hex__.shift_i(1),
+            __hex__.shift_j(1)
+        ]
+        for neighbor in shifts:
+            pattern <<= 1
+            if self.in_range(neighbor):
+                if self.get_block(neighbor).get_state():
+                    pattern += 1
+            elif include_null:
                 pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_i(-1)):
-            if self.get_block(__hex__.shift_i(-1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_k(-1)):
-            if self.get_block(__hex__.shift_k(-1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__):
-            if self.get_block(__hex__).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_k(1)):
-            if self.get_block(__hex__.shift_k(1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_i(1)):
-            if self.get_block(__hex__.shift_i(1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
-        pattern <<= 1
-        if self.in_range(__hex__.shift_j(1)):
-            if self.get_block(__hex__.shift_j(1)).get_state():
-                pattern += 1
-        elif include_null:
-            pattern += 1
         return pattern
 
     def compute_entropy(self) -> float:
@@ -1191,14 +1166,18 @@ class HexEngine(HexGrid):
                    of block arrangements. Returns 0.0 for a uniform grid (all filled or all empty)
                    or if no valid patterns are counted.
         """
-        entropy = 0.0
+        pattern_counts = [0] * 128
         pattern_total = 0
-        pattern_counts = [0] * 128  # 2^7 because there are 128 possible patterns
+        radius = self.get_radius() - 1
+
         for block in self._blocks:
-            if block.__this__().shift_j(1).in_range(self.get_radius() - 1):
-                # If it is possible to check patterns without going out of bounds
+            center = block.__this__()
+            if center.shift_j(1).in_range(radius):
+                pattern = self._get_pattern(center, False)
+                pattern_counts[pattern] += 1
                 pattern_total += 1
-                pattern_counts[self._get_pattern(block.__this__(), False)] += 1
+
+        entropy = 0.0
         for count in pattern_counts:
             if count > 0:
                 p = count / pattern_total

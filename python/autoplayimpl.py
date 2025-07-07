@@ -21,7 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 """
-
+import time
 from typing import Optional, List
 from comm import CommandProcessor
 import hex
@@ -82,11 +82,13 @@ class MainProcessor(CommandProcessor):
                         piece = hex.Piece.piece_from_byte(int(arg), -1)
                         queue.append(piece)
                     # evaluate
+                    t = time.time()
                     options = []
                     for piece_option in range(len(queue)):
                         piece = queue[piece_option]
                         for coordinate in engine.check_positions(piece):
-                            options.append((piece_option, coordinate, engine.compute_weighted_index(coordinate, piece)))
+                            options.append((piece_option, coordinate, engine.compute_entropy_index(coordinate, piece)))
+                    print (time.time() - t)
                     # choose best option
                     best_placement = max(options, key=lambda item: item[2])
                     best_piece_option, best_position_option, best_score_result = best_placement
