@@ -314,13 +314,17 @@ public final class GameEssentials {
                 }
                 gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
                 pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
+                int time = (queueSize*queueSize + 1) * (queueSize - 1) * 24;
+                while (!gameEnds() && !Thread.currentThread().isInterrupted()) {
                     try {
                         gameCommandProcessor.query();
+                        Thread.sleep(time);
                     } catch (InterruptedException e) {
                         // Re-set the interrupt flag and break loop
                         Thread.currentThread().interrupt();
                     } catch (Exception e) {
                     }
+                }
                 frame.repaint();
             });
             autoplayThread.start();
@@ -365,7 +369,7 @@ public final class GameEssentials {
             Launcher.LauncherGUI.toGameOver();
         }
     }
-    private static boolean gameEnds(){
+    static boolean gameEnds(){
         // Helper to check
         HexEngine clonedEngine = engine().clone();
         clonedEngine.eliminate();
