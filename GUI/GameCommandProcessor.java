@@ -111,6 +111,8 @@ public class GameCommandProcessor implements CommandProcessor {
             // Move origin
             origin = origin.add(piece.getBlock(0).thisHex());
             GameEssentials.addMove(origin);
+            // Immediate query?
+            if (!Thread.interrupted()) query();
         } else throw new IllegalArgumentException("Illegal command for this GameCommandProcessor");
     }
 }
