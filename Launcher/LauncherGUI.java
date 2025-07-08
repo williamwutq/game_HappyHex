@@ -44,6 +44,8 @@ public class LauncherGUI {
     }
     public static String getGameHint(){
         String[] hints = new String[]{
+                "Try InfinityHex",
+                "Consider InfinityHex?",
                 "Try log in as Player",
                 "Try log in as God",
                 "Try log in as Devil",
