@@ -31,6 +31,11 @@ import io.*;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -217,35 +222,43 @@ public final class LaunchEssentials {
             return new ArrayList<hexio.HexLogger>();
         }
         java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateBinaryLoggers();
-        int radius = 5;
-        int queueSize = 3;
+        int r = 5;
+        int q = 3;
         if (GameMode.getChar(currentGameInfo.getGameMode()) == 'M'){
-            radius = 8; queueSize = 5;
+            r = 8; q = 5;
         } else if (GameMode.getChar(currentGameInfo.getGameMode()) == 'L'){
-            radius = 11; queueSize = 7;
+            r = 11; q = 7;
         }
-        // Search for incomplete games
-        if(!loggers.isEmpty()){
-            int i = 0;
-            while (i < loggers.size()) {
-                HexLogger generatedLogger = loggers.get(i);
-                boolean valid = true;
+        final int radius = r;
+        final int queueSize = q;
+        // Search for games
+        int threadCount = 256;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        List<Future<HexLogger>> futures = new ArrayList<>();
+
+        for (HexLogger logger : loggers) {
+            futures.add(executor.submit(() -> {
                 try {
-                    generatedLogger.read();
-                } catch (IOException e) {
-                    loggers.remove(i);
-                    valid = false;
-                }
-                if (valid) {
-                    if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == radius
-                            && generatedLogger.getQueue().length == queueSize
-                            && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()) {
-                        i++;
-                    } else loggers.remove(i);
-                }
-            }
+                    logger.read();
+                    if (!logger.isCompleted()
+                            && logger.getEngine().getRadius() == radius
+                            && logger.getQueue().length == queueSize
+                            && logger.getPlayerID() == currentGameInfo.getPlayerID()) {
+                        return logger;
+                    }
+                } catch (IOException ignored) {}
+                return null;
+            }));
         }
-        return loggers;
+        ArrayList<HexLogger> filtered = new ArrayList<>();
+        for (Future<HexLogger> f : futures) {
+            try {
+                HexLogger l = f.get();
+                if (l != null) filtered.add(l);
+            } catch (Exception ignored) {}
+        }
+        executor.shutdown();
+        return filtered;
     }
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
