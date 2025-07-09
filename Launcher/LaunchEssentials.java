@@ -32,10 +32,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
+import java.util.concurrent.*;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -199,23 +196,53 @@ public final class LaunchEssentials {
         return currentGameInfo.getPlayerID();
     }
     public static hexio.HexLogger smartCreateLogger(int size, int queueSize){
-        hexio.HexLogger logger = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
+        hexio.HexLogger result = new hexio.HexLogger(getCurrentPlayer(), getCurrentPlayerID()); // Default logger
         java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateBinaryLoggers();
-        // Search for incomplete games
-        if(restartGame && !loggers.isEmpty() && currentGameInfo.getPlayerID() != -1 && !currentGameInfo.getPlayer().equals("Guest")){
-            for (hexio.HexLogger generatedLogger : loggers){
+        // Search for a single matching game
+        int threadCount = 256;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        CompletionService<HexLogger> completionService = new ExecutorCompletionService<>(executor);
+        List<Future<HexLogger>> futures = new ArrayList<>();
+
+        for (HexLogger logger : loggers) {
+            futures.add(completionService.submit(() -> {
                 try {
-                    generatedLogger.read();
-                } catch (IOException e) {continue;}
-                if (!generatedLogger.isCompleted() && generatedLogger.getEngine().getRadius() == size
-                        && generatedLogger.getQueue().length == queueSize
-                        && generatedLogger.getPlayerID() == currentGameInfo.getPlayerID()){
-                    System.out.println(GameTime.generateSimpleTime() + " HexLogger: Unfinished game found at file " + generatedLogger.getDataFileName() + ".");
-                    logger = generatedLogger;
-                }
-            }
+                    logger.read();
+                    if (!logger.isCompleted()
+                            && logger.getEngine().getRadius() == size
+                            && logger.getQueue().length == queueSize
+                            && logger.getPlayerID() == currentGameInfo.getPlayerID()) {
+                        return logger;
+                    }
+                } catch (IOException ignored) {}
+                return null;
+            }));
         }
-        return logger;
+        try {
+            for (int i = 0; i < loggers.size(); i++) {
+                Future<HexLogger> f;
+                try{
+                    f = completionService.take();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                try {
+                    HexLogger l = f.get();
+                    if (l != null) {
+                        result = l;
+                        break;
+                    }
+                } catch (Exception ignored) {}
+            }
+        } finally {
+            // Cancel all remaining tasks and shutdown the threads
+            for (Future<HexLogger> f : futures) {
+                f.cancel(true);
+            }
+            executor.shutdownNow();
+        }
+        return result;
     }
     public static java.util.ArrayList<hexio.HexLogger> smartFindLoggers(){
         if (currentGameInfo.getPlayerID() == -1 || currentGameInfo.getPlayer().equals("Guest")){
