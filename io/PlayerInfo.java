@@ -29,6 +29,7 @@ import javax.json.*;
 /**
  * The {@code PlayerInfo} class represents persistent statistics about a player.
  * This class is immutable in part and serializable via the {@link JsonConvertible} interface.
+ * This class is completely thread safe and can be used across different threads.
  * <p>
  * It stores references to various key player information such as:
  * <ul>
@@ -53,7 +54,7 @@ import javax.json.*;
  * @see GameTime
  * @since 1.0
  * @author William Wu
- * @version 1.1
+ * @version 1.4
  */
 public final class PlayerInfo implements JsonConvertible{
     private Username player;
@@ -66,6 +67,7 @@ public final class PlayerInfo implements JsonConvertible{
     private int numberOfGames;
     private long playerID;
     private GameTime time;
+    private final Object lock;
 
     /**
      * Constructs a {@code PlayerInfo} object using numerical ID and {@link Username}.
@@ -90,6 +92,7 @@ public final class PlayerInfo implements JsonConvertible{
         this.totalScore = totalScore;
         this.numberOfGames = 0;
         this.time = new GameTime();
+        this.lock = new Object();
     }
     /**
      * Constructs a {@code PlayerInfo} object from string-formatted player ID and {@link GameTime}.
@@ -116,18 +119,27 @@ public final class PlayerInfo implements JsonConvertible{
         this.totalScore = totalScore;
         this.numberOfGames = 0;
         this.time = time;
+        this.lock = new Object();
     }
 
     /**
      * Gets the {@link Username} of the player.
      * @return the player’s {@code Username}
      */
-    public Username getPlayer() {return player;}
+    public Username getPlayer() {
+        synchronized (lock) {
+            return player;
+        }
+    }
     /**
      * Returns the player ID (long) matching the player.
      * @return the player’s ID
      */
-    public long getPlayerID(){return playerID;}
+    public long getPlayerID(){
+        synchronized (lock) {
+            return playerID;
+        }
+    }
 
     /**
      * Assigns a {@link Username} and corresponding player ID.
@@ -138,58 +150,116 @@ public final class PlayerInfo implements JsonConvertible{
      */
     public void setPlayer(Username player, long ID) {
         if(player == null || player.equals("") || player.equals("Guest") || ID == 0 || ID == -1){
-            this.player = Username.getUsername("Guest");
-            this.playerID = -1;
+            synchronized (lock) {
+                this.player = Username.getUsername("Guest");
+                this.playerID = -1;
+            }
         } else {
-            this.player = player;
-            this.playerID = ID;
+            synchronized (lock) {
+                this.player = player;
+                this.playerID = ID;
+            }
         }
     }
 
     /** @return the highest number of turns achieved by the player*/
-    public int getHighTurn() {return highTurn;}
+    public int getHighTurn() {
+        synchronized (lock) {
+            return highTurn;
+        }
+    }
     /** @return the highest score achieved by the player*/
-    public int getHighScore() {return highScore;}
+    public int getHighScore() {
+        synchronized (lock) {
+            return highScore;
+        }
+    }
     /** @return the number of turns in the most recent game of the player*/
-    public int getRecentTurn() {return recentTurn;}
+    public int getRecentTurn() {
+        synchronized (lock) {
+            return recentTurn;
+        }
+    }
     /** @return the final score in the most recent game of the player*/
-    public int getRecentScore() {return recentScore;}
+    public int getRecentScore() {
+        synchronized (lock) {
+            return recentScore;
+        }
+    }
     /** @return the average number of turns of the player*/
     public double getAvgTurn() {
-        if(numberOfGames == 0)return totalTurn;
-        return (double) totalTurn / numberOfGames;
+        synchronized (lock) {
+            if (numberOfGames == 0) return totalTurn;
+            return (double) totalTurn / numberOfGames;
+        }
     }
     /** @return the average score of the player*/
     public double getAvgScore() {
-        if(numberOfGames == 0)return totalScore;
-        return (double) totalScore / numberOfGames;
+        synchronized (lock) {
+            if (numberOfGames == 0) return totalScore;
+            return (double) totalScore / numberOfGames;
+        }
     }
     /** @return the number of games played by player*/
-    public int getNumberOfGames() {return numberOfGames;}
+    public int getNumberOfGames() {
+        synchronized (lock) {
+            return numberOfGames;
+        }
+    }
 
     /** @param turns set the highest number of turns */
-    public void setHighTurn(int turns) {this.highTurn = turns;}
+    public void setHighTurn(int turns) {
+        synchronized (lock){
+            this.highTurn = turns;
+        }
+    }
     /** @param score set the highest score */
-    public void setHighScore(int score) {this.highScore = score;}
+    public void setHighScore(int score) {
+        synchronized (lock) {
+            this.highScore = score;
+        }
+    }
     /** @param turns set the most recent game's turns */
-    public void setRecentTurn(int turns) {this.recentTurn = turns;}
+    public void setRecentTurn(int turns) {
+        synchronized (lock) {
+            this.recentTurn = turns;
+        }
+    }
     /** @param score set the most recent game's score */
-    public void setRecentScore(int score) {this.recentScore = score;}
+    public void setRecentScore(int score) {
+        synchronized (lock) {
+            this.recentScore = score;
+        }
+    }
     /** @param turns add the average game turns */
-    public void addTotalTurn(int turns) {this.totalTurn += turns;}
+    public void addTotalTurn(int turns) {
+        synchronized (lock) {
+            this.totalTurn += turns;
+        }
+    }
     /** @param score add the average game score */
-    public void addTotalScore(int score) {this.totalScore += score;}
+    public void addTotalScore(int score) {
+        synchronized (lock) {
+            this.totalScore += score;
+        }
+    }
     /** Increment the number of games */
-    public void incrementGameNumber() {this.numberOfGames++;}
+    public void incrementGameNumber() {
+        synchronized (lock) {
+            this.numberOfGames++;
+        }
+    }
     /** Erase all score date of this player */
     public void eraseStats(){
-        this.totalTurn = 0;
-        this.totalScore = 0;
-        this.highTurn = 0;
-        this.highScore = 0;
-        this.recentTurn = 0;
-        this.recentScore = 0;
-        this.numberOfGames = 0;
+        synchronized (lock) {
+            this.totalTurn = 0;
+            this.totalScore = 0;
+            this.highTurn = 0;
+            this.highScore = 0;
+            this.recentTurn = 0;
+            this.recentScore = 0;
+            this.numberOfGames = 0;
+        }
     }
 
     /**
@@ -198,16 +268,18 @@ public final class PlayerInfo implements JsonConvertible{
      * This method will automatically update the timestamp.
      */
     public void update(){
-        if(highTurn < recentTurn){
-            highTurn = recentTurn;
+        synchronized (lock) {
+            if (highTurn < recentTurn) {
+                highTurn = recentTurn;
+            }
+            if (highScore < recentScore) {
+                highScore = recentScore;
+            }
+            numberOfGames++;
+            totalTurn += recentTurn;
+            totalScore += recentScore;
+            this.time = new GameTime();
         }
-        if(highScore < recentScore){
-            highScore = recentScore;
-        }
-        numberOfGames ++;
-        totalTurn += recentTurn;
-        totalScore += recentScore;
-        this.time = new GameTime();
     }
 
     /**
@@ -218,16 +290,18 @@ public final class PlayerInfo implements JsonConvertible{
      */
     @Override
     public String toString() {
-        return "PlayerInfo[Player = " + player +
-                ", Highest Turn = " + highTurn +
-                ", Highest Score = " + highScore +
-                ", Recent Turn = " + recentTurn +
-                ", Recent Score = " + recentScore +
-                ", Total Turn = " + totalTurn +
-                ", Total Score = " + totalScore +
-                ", Number of Games = " + numberOfGames +
-                ", Player ID = " + playerID +
-                ", Time = " + time + "]";
+        synchronized (lock) {
+            return "PlayerInfo[Player = " + player +
+                    ", Highest Turn = " + highTurn +
+                    ", Highest Score = " + highScore +
+                    ", Recent Turn = " + recentTurn +
+                    ", Recent Score = " + recentScore +
+                    ", Total Turn = " + totalTurn +
+                    ", Total Score = " + totalScore +
+                    ", Number of Games = " + numberOfGames +
+                    ", Player ID = " + playerID +
+                    ", Time = " + time + "]";
+        }
     }
 
     /**
@@ -254,13 +328,15 @@ public final class PlayerInfo implements JsonConvertible{
     @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("Player", player.toString());
-        builder.add("PlayerID", Long.toHexString(playerID));
-        builder.add("Time", time.toJsonObject());
-        JsonObject scoreElement = Json.createObjectBuilder().add("Score", highScore).add("Turn", highTurn).build();
-        builder.add("Highest", scoreElement);
-        scoreElement = Json.createObjectBuilder().add("Score", recentScore).add("Turn", recentTurn).build();
-        builder.add("Recent", scoreElement);
+        synchronized (lock) {
+            builder.add("Player", player.toString());
+            builder.add("PlayerID", Long.toHexString(playerID));
+            builder.add("Time", time.toJsonObject());
+            JsonObject scoreElement = Json.createObjectBuilder().add("Score", highScore).add("Turn", highTurn).build();
+            builder.add("Highest", scoreElement);
+            scoreElement = Json.createObjectBuilder().add("Score", recentScore).add("Turn", recentTurn).build();
+            builder.add("Recent", scoreElement);
+        }
         return builder;
     }
 }
