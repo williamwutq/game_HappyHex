@@ -67,7 +67,7 @@ public final class PlayerInfo implements JsonConvertible{
     private int numberOfGames;
     private long playerID;
     private GameTime time;
-    private final Object lock;
+    private final Object lock = new Object();
 
     /**
      * Constructs a {@code PlayerInfo} object using numerical ID and {@link Username}.
@@ -92,7 +92,6 @@ public final class PlayerInfo implements JsonConvertible{
         this.totalScore = totalScore;
         this.numberOfGames = 0;
         this.time = new GameTime();
-        this.lock = new Object();
     }
     /**
      * Constructs a {@code PlayerInfo} object from string-formatted player ID and {@link GameTime}.
@@ -119,7 +118,6 @@ public final class PlayerInfo implements JsonConvertible{
         this.totalScore = totalScore;
         this.numberOfGames = 0;
         this.time = time;
-        this.lock = new Object();
     }
 
     /**

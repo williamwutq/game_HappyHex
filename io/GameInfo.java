@@ -64,7 +64,7 @@ public final class GameInfo implements JsonConvertible{
     private final long gameID;
     private GameMode gameMode;
     private final GameVersion gameVersion;
-    private final Object lock;
+    private final Object lock = new Object();
 
     /**
      * Create a new {@code GameInfo} with default player and a specified {@link GameMode}.
@@ -83,7 +83,6 @@ public final class GameInfo implements JsonConvertible{
         this.gameID = LaunchLogger.generateHash(0);
         this.gameMode = mode;
         this.gameVersion = version;
-        this.lock = new Object();
     }
     /**
      * Constructs a fully populated {@code GameInfo} object, typically used for deserialization.
@@ -106,7 +105,6 @@ public final class GameInfo implements JsonConvertible{
         this.gameID = Long.parseUnsignedLong(gameID, 16);
         this.gameMode = mode;
         this.gameVersion = version;
-        this.lock = new Object();
     }
 
     /**
