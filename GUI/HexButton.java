@@ -32,6 +32,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 public abstract class HexButton extends JButton implements ActionListener, MouseListener {
+    public static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double extended = 1.1;
     private static double size;
     private final int index;
@@ -68,7 +69,7 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
             this.setPreferredSize(minDimension);
             this.setBounds(new Rectangle(minDimension));
         } else {
-            int width = (int) Math.round(2 * size * GameEssentials.sinOf60);
+            int width = (int) Math.round(2 * size * sinOf60);
             int height = (int) Math.round(2 * size);
             Dimension dimension = new Dimension(width, height);
             this.setSize(dimension);
@@ -76,11 +77,11 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
             this.setMaximumSize(dimension);
             this.setPreferredSize(dimension);
             if (hover) {
-                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5 * GameEssentials.sinOf60) + (1 - extended) * size);
+                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5 * sinOf60) + (1 - extended) * size);
                 int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75) + (1 - extended) * size);
-                this.setBounds(x + fetchRawWidthExtension(), y + fetchRawHeightExtension(), (int) Math.round(extended * 2 * size * GameEssentials.sinOf60), (int) Math.round(extended * 2 * size));
+                this.setBounds(x + fetchRawWidthExtension(), y + fetchRawHeightExtension(), (int) Math.round(extended * 2 * size * sinOf60), (int) Math.round(extended * 2 * size));
             } else {
-                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5 * GameEssentials.sinOf60));
+                int x = (int) Math.round(size * 2 * (block.X() + fetchWidthExtension() * 0.5 * sinOf60));
                 int y = (int) Math.round(size * 2 * (block.Y() + fetchHeightExtension() * 0.75));
                 this.setBounds(x+ fetchRawWidthExtension(), y + fetchRawHeightExtension(), width, height);
             }
@@ -138,7 +139,6 @@ public abstract class HexButton extends JButton implements ActionListener, Mouse
      */
     public static void paintHexagon(Graphics g, Color color, double x, double y, double size, double fill) {
         // Basic Polygon
-        double sinOf60 = GameEssentials.sinOf60;
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
         for (int i = 0; i < 6; i++) {
