@@ -68,9 +68,6 @@ public final class GameEssentials implements GameGUIInterface {
     private static int hoveredOverIndex = -1;
     private static int clickedOnIndex = -1;
 
-    private static int turn = 0;
-    private static int score = 0;
-
     // Autoplay
     private static Thread autoplayThread;
 
@@ -232,8 +229,6 @@ public final class GameEssentials implements GameGUIInterface {
         if(easy) {
             game.PieceFactory.setEasy();
         }
-        score = 0;
-        turn = 0;
         selectedPieceIndex = -1;
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
@@ -244,9 +239,6 @@ public final class GameEssentials implements GameGUIInterface {
         // Logger initialize
         gameLogger = logger;
         if(logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize){
-            // Copy logger info to game
-            score = logger.getScore();
-            turn = logger.getTurn();
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
@@ -275,8 +267,8 @@ public final class GameEssentials implements GameGUIInterface {
         turnLabel.setTitle("TURN");
         scoreLabel.setTitle("SCORE");
         playerLabel.setTitle("PLAYER");
-        turnLabel.setInfo(turn + "");
-        scoreLabel.setInfo(score + "");
+        turnLabel.setInfo(getTurn() + "");
+        scoreLabel.setInfo(getScore() + "");
         playerLabel.setInfo(player);
         turnLabel.setBounds(0, 0, 100, 100);
         scoreLabel.setBounds(300, 0, 100, 100);
@@ -350,19 +342,17 @@ public final class GameEssentials implements GameGUIInterface {
         return true;
     }
     public static void resetGame(){
-        score = 0;
-        turn = 0;
         selectedPieceIndex = -1;
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
-        turnLabel.setInfo(turn + "");
-        scoreLabel.setInfo(score + "");
         gameLogger = new HexLogger(Launcher.LaunchEssentials.getCurrentPlayer(), Launcher.LaunchEssentials.getCurrentPlayerID());
         engine.reset();
         queue.reset();
         gameLogger.setEngine(engine);
         gameLogger.setQueue(queue.getPieces());
+        turnLabel.setInfo(getTurn() + "");
+        scoreLabel.setInfo(getScore() + "");
         if (autoplayThread != null) autoplayThread.interrupt();
         window.repaint();
     }
@@ -388,7 +378,7 @@ public final class GameEssentials implements GameGUIInterface {
         }}).start();
         if (LaunchEssentials.getCurrentPlayerID() == -1 || complete){
             // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
-            LaunchEssentials.log(turn, score);
+            LaunchEssentials.log(getTurn(), getScore());
         } else {
             System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
         }
@@ -396,18 +386,14 @@ public final class GameEssentials implements GameGUIInterface {
 
     // Scoring
     public static int getTurn(){
-        return turn;
+        return gameLogger.getTurn();
     }
     public static int getScore(){
-        return score;
+        return gameLogger.getScore();
     }
-    public static void incrementTurn(){
-        turn ++;
-        turnLabel.setInfo(turn + "");
-    }
-    public static void incrementScore(int addedScore){
-        score += addedScore;
-        scoreLabel.setInfo(score + "");
+    public static void updateDisplayedInfo(){
+        turnLabel.setInfo(getTurn() + "");
+        scoreLabel.setInfo(getScore() + "");
     }
 
     // Setters
@@ -467,9 +453,8 @@ public final class GameEssentials implements GameGUIInterface {
         position = position.subtract(piece.getBlock(blockIndex));
         // Check this position, if good then add
         if (engine().checkAdd(position, piece)) {
-            incrementTurn();
-            incrementScore(piece.length());
             gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
+            updateDisplayedInfo();
             engine().add(position, queue().fetch(pieceIndex));
             // Generate animation
             for (int i = 0; i < piece.length(); i ++){
@@ -496,8 +481,6 @@ public final class GameEssentials implements GameGUIInterface {
             addAnimation(createDisappearEffect(block));
             addAnimation(createCenterEffect(new hex.Block(block)));
         }
-        // Add score
-        incrementScore(5 * eliminated.length);
         // Check end after eliminate
         checkEnd();
         window().repaint();
