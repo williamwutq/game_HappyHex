@@ -96,7 +96,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * ... // Some other code
  *
  * // Make sure to shutdown autoplay when finished
- * processor.close();
+ * processor.genericClose();
  * }</pre>
  *
  * @version 1.4

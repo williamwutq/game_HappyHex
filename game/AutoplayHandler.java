@@ -4,10 +4,10 @@ import python.PythonCommandProcessor;
 
 import java.io.IOException;
 
-public class AutoplayHandler implements Runnable{
+public class AutoplayHandler implements Runnable, AutoCloseable{
     private PythonCommandProcessor pythonProcessor;
     private final GameCommandProcessor gameProcessor;
-    private static long hardCloseDelay = 600000;
+    private static final long hardCloseDelay = 600000;
     private long lastCloseTime;
     public AutoplayHandler(GameGUIInterface gameGUI){
         lastCloseTime = System.currentTimeMillis();
@@ -23,14 +23,17 @@ public class AutoplayHandler implements Runnable{
         gameProcessor.setCallBackProcessor(pythonProcessor);
         pythonProcessor.setCallBackProcessor(gameProcessor);
     }
-    public void run(){
+    public void run() {
         if (pythonProcessor == null) setupPython();
         try {
             gameProcessor.run();
             gameProcessor.query();
         } catch (InterruptedException e) {
-            close();
+            genericClose();
         }
+    }
+    public void close(){
+        hardClose();
     }
     public void hardClose() {
         if (pythonProcessor != null) {
@@ -41,18 +44,19 @@ public class AutoplayHandler implements Runnable{
             gameProcessor.close();
             gameProcessor.setCallBackProcessor(null);
         }
+        lastCloseTime = System.currentTimeMillis();
     }
     public void softClose() {
         if (gameProcessor != null) {
             gameProcessor.close();
         }
+        lastCloseTime = System.currentTimeMillis();
     }
-    public void close(){
+    public void genericClose(){
         if (System.currentTimeMillis() - lastCloseTime < hardCloseDelay){
             hardClose();
         } else {
             softClose();
         }
-        lastCloseTime = System.currentTimeMillis();
     }
 }

@@ -248,7 +248,7 @@ public final class GameEssentials implements GameGUIInterface {
         autoplayHandler.run();
     }
     public static void interruptAutoplay(){
-        autoplayHandler.close();
+        autoplayHandler.genericClose();
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
@@ -283,7 +283,7 @@ public final class GameEssentials implements GameGUIInterface {
             } else {
                 System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game quits without change.");
             }
-            autoplayHandler.close();
+            autoplayHandler.genericClose();
             GameEssentials.resetGame();
         }
         Launcher.LauncherGUI.returnHome();
@@ -292,7 +292,7 @@ public final class GameEssentials implements GameGUIInterface {
         // If the game should end, log and reset
         if(gameEnds()){
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
-            autoplayHandler.close();
+            autoplayHandler.genericClose();
             logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();
