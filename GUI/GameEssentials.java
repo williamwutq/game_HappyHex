@@ -245,7 +245,7 @@ public final class GameEssentials implements GameGUIInterface {
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
     // Initializing
-    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player, HexLogger logger, boolean autoPlay){
+    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player, HexLogger logger){
         System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
         if(easy) {
             game.PieceFactory.setEasy();
@@ -303,33 +303,7 @@ public final class GameEssentials implements GameGUIInterface {
         setDelay(delay);
         calculateButtonSize();
         calculateLabelSize();
-        // Start autoplay
-        if (autoPlay) {
-            autoplayThread = new Thread(() -> {
-                GameCommandProcessor gameCommandProcessor = new GameCommandProcessor();
-                PythonCommandProcessor pythonCommandProcessor;
-                try {
-                    pythonCommandProcessor = new PythonCommandProcessor("python/comm.py");
-                } catch (IOException e) {
-                    return; // exit the thread if initialization fails
-                }
-                gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
-                pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
-                int time = (queueSize*queueSize + 1) * (queueSize - 1) * 24;
-                while (!gameEnds() && !Thread.currentThread().isInterrupted()) {
-                    try {
-                        gameCommandProcessor.query();
-                        Thread.sleep(time);
-                    } catch (InterruptedException e) {
-                        // Re-set the interrupt flag and break loop
-                        Thread.currentThread().interrupt();
-                    } catch (Exception e) {
-                    }
-                }
-                frame.repaint();
-            });
-            autoplayThread.start();
-        } else autoplayThread = null;
+        autoplayThread = null;
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
