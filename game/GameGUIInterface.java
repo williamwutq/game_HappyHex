@@ -24,14 +24,15 @@
 
 package game;
 
-import hex.Hex;
 import hex.HexEngine;
 import hex.Piece;
 
 /**
  * The {@code GameGUIInterface} defines the contract for a graphical user interface (GUI)
  * that visualizes the state of a game. It allows the game to update and retrieve
- * key visual components such as the game engine state and action queue.
+ * key visual components such as the game engine state and action queue. It also provides
+ * ways for controllers to add moves to the GUI, which is preferred over adding moves to
+ * the {@code HexEngine} of the GUI directly.
  *
  * @see HexEngine
  * @see Piece
