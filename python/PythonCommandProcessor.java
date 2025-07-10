@@ -37,17 +37,20 @@ import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A command processor that communicates with a Python subprocess.
- *
- * <p>This class launches a Python process using the provided script path and enables two-way
+ * <p>
+ * This class launches a Python process using the provided script path and enables two-way
  * communication with it via standard input and output streams. Commands and arguments are
  * written to the Python process's input stream, and any response from the output stream is
- * interpreted as a new command to be handled by the callback processor.</p>
- *
- * <p>The processor listens asynchronously for output from the Python subprocess. Each line of
+ * interpreted as a new command to be handled by the callback processor.
+ * <p>
+ * The processor listens asynchronously for output from the Python subprocess. Each line of
  * output is treated as a command string and passed to the callback processor for handling.
  * If the callback throws an {@link IllegalArgumentException}, it is ignored. If it throws
  * an {@link InterruptedException}, the Python process is terminated and the callback processor
- * is interrupted via interruption by sending the {@code "interrupt"} command.</p>
+ * is interrupted via interruption by sending the {@code "interrupt"} command.
+ * <p>
+ * The processor is closable via the {@link AutoCloseable} interface. When closing, it shuts down
+ * the python process and its callback processor.
  *
  * <p>Requirements enforced by this implementation:
  * <ul>
@@ -56,9 +59,9 @@ import java.util.concurrent.RejectedExecutionException;
  *   <li>The Python process is terminated if the callback throws {@link InterruptedException} or
  *   if the process ends naturally.</li>
  * </ul></p>
- * @version 1.3.3
+ * @version 1.4
  * @author William Wu
- * @since 1.3.3
+ * @since 1.4
  */
 public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
     private final Process process;
