@@ -26,6 +26,7 @@ package GUI;
 
 import GUI.animation.*;
 import Launcher.LaunchEssentials;
+import game.GameGUIInterface;
 import hex.Hex;
 import hex.HexEngine;
 import game.Queue;
@@ -43,7 +44,7 @@ import java.io.IOException;
  * <p>
  * This class is final and cannot be extended.
  */
-public final class GameEssentials {
+public final class GameEssentials implements GameGUIInterface {
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The delay to a typical action of the game, in ms*/
@@ -555,4 +556,21 @@ public final class GameEssentials {
     public static int getSelectedBlockIndex(){return selectedBlockIndex;}
     public static int getHoveredOverIndex() {return hoveredOverIndex;}
     public static int getClickedOnIndex() {return clickedOnIndex;}
+
+    @Override
+    public void setEngine(HexEngine newEngine) {
+        engine = newEngine;
+    }
+    @Override
+    public void setQueue(Piece[] pieces) {
+        queue = Queue.fromPieces(pieces);
+    }
+    @Override
+    public HexEngine getEngine() {
+        return engine;
+    }
+    @Override
+    public Piece[] getQueue() {
+        return queue.getPieces();
+    }
 }
