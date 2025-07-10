@@ -60,7 +60,6 @@ import java.util.concurrent.Executors;
  * @since 1.3.3
  */
 public class PythonCommandProcessor implements CommandProcessor {
-    private int time;
     private final Process process;
     private final BufferedWriter writer;
     private final BufferedReader reader;
@@ -190,7 +189,12 @@ public class PythonCommandProcessor implements CommandProcessor {
      */
     public void close() {
         executor.shutdownNow();
+        try {
+            writer.close();
+        } catch (IOException ignored) {}
+        try{
+            reader.close();
+        } catch (IOException ignored) {}
         process.destroy();
     }
 }
-
