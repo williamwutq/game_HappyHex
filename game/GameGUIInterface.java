@@ -24,6 +24,7 @@
 
 package game;
 
+import hex.Hex;
 import hex.HexEngine;
 import hex.Piece;
 
@@ -59,4 +60,9 @@ public interface GameGUIInterface {
      * @return an array of {@link Piece} objects representing the displayed piece queue
      */
     Piece[] getQueue();
+    /**
+     * Perform a move specified by the specific indexes, and return true if the move succeed, false otherwise.
+     * @return whether the move is successful
+     */
+    boolean move(int originIndex, int pieceIndex);
 }

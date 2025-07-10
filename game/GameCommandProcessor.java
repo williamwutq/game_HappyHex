@@ -22,17 +22,18 @@
   SOFTWARE.
  */
 
-package GUI;
+package game;
 
 import comm.CommandProcessor;
-import hex.Hex;
 import hex.HexEngine;
 import hex.Piece;
 
 public class GameCommandProcessor implements CommandProcessor {
     private CommandProcessor callBackProcessor;
-    public GameCommandProcessor(){
+    GameGUIInterface gameGUI;
+    public GameCommandProcessor(GameGUIInterface gameGUI){
         callBackProcessor = null;
+        this.gameGUI = gameGUI;
     }
     @Override
     public CommandProcessor getCallBackProcessor(){
@@ -46,8 +47,8 @@ public class GameCommandProcessor implements CommandProcessor {
         callBackProcessor = processor;
     }
     public void query() throws InterruptedException {
-        HexEngine engine = GameEssentials.engine();
-        Piece[] queue = GameEssentials.queue().getPieces();
+        HexEngine engine = gameGUI.getEngine();
+        Piece[] queue = gameGUI.getQueue();
 
         if (callBackProcessor == null) {
             throw new IllegalStateException("Call back processor is not properly initialized");
@@ -101,16 +102,7 @@ public class GameCommandProcessor implements CommandProcessor {
                 throw new IllegalArgumentException("Command move is invalid because piece index is not unsigned integer");
             }
             // Move
-            Hex origin = Hex.hex(i, k); Piece piece;
-            try {
-                piece = GameEssentials.queue().get(index);
-                GameEssentials.setDualIndexesWithoutRepaint(index, 0);
-            } catch (IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("Command move is invalid because piece index out of bounds");
-            }
-            // Move origin
-            origin = origin.add(piece.getBlock(0).thisHex());
-            GameEssentials.addMove(origin);
+            gameGUI.move(gameGUI.getEngine().getBlockIndex(i, k), index);
         } else throw new IllegalArgumentException("Illegal command for this GameCommandProcessor");
     }
 }
