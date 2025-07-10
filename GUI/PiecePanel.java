@@ -43,11 +43,13 @@ public class PiecePanel extends JPanel{
         }
     }
     public void paint(java.awt.Graphics g) {
-        int width = (int) Math.round(5 * HexButton.getActiveSize() * HexButton.sinOf60);
-        int height = (int) Math.round(5 * HexButton.getActiveSize());
-        this.setPreferredSize(new Dimension(width, height));
         g.setColor(this.getBackground());
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
         super.paintChildren(g);
+    }
+    public void doLayout(){
+        int width = (int) Math.round(5 * HexButton.getActiveSize() * HexButton.sinOf60);
+        int height = (int) Math.round(5 * HexButton.getActiveSize());
+        this.setPreferredSize(new Dimension(width, height));
     }
 }

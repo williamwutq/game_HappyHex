@@ -33,7 +33,6 @@ import game.Queue;
 import hex.Piece;
 import hexio.HexLogger;
 import io.GameTime;
-import python.PythonCommandProcessor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,11 +56,8 @@ public final class GameEssentials implements GameGUIInterface {
     private static JFrame window;
     /** The game logger used for data recording. */
     private static HexLogger gameLogger;
-    // Info panels and quit button
-    private static GameInfoPanel turnLabel;
-    private static GameInfoPanel scoreLabel;
-    private static GameInfoPanel playerLabel;
-    private static GameQuitButton quitButton;
+    private static PiecePanel piecePanel;
+    private static GamePanel gamePanel;
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
@@ -180,35 +176,6 @@ public final class GameEssentials implements GameGUIInterface {
         double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60);
         HexButton.setSize(minSize);
     }
-    public static void calculateLabelSize() {
-        int height = window().getHeight();
-        int width = window().getWidth();
-        int gamePanelExtension = getGamePanelWidthExtension();
-
-        double minSize = Math.min(height - 33, width - 5);
-        int labelWidth = (int) Math.round(minSize / 6.0);
-        int labelHeight = (int) Math.round(minSize / 12.0);
-        Dimension dimension = new Dimension(labelWidth, labelHeight);
-        SimpleButton.setSize((int)Math.round(labelHeight*0.6));
-
-        int margin = 3;
-        int piecePanelSize = (int) Math.round(5 * HexButton.getActiveSize());
-        int bottomOffset = labelHeight + 28 + margin;
-
-        int right = width - gamePanelExtension - labelWidth - margin;
-        int bottom = height - piecePanelSize - bottomOffset;
-
-        turnLabel.setPreferredSize(dimension);
-        scoreLabel.setPreferredSize(dimension);
-        playerLabel.setPreferredSize(dimension);
-        quitButton.setPreferredSize(dimension);
-        quitButton.resetSize();
-
-        turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
-        scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
-        playerLabel.setBounds(new Rectangle(new Point(right, bottom), dimension));
-        quitButton.setBounds(new Rectangle(new Point(margin + gamePanelExtension, bottom), dimension));
-    }
     public static int getPiecePanelWidthExtension(){
         int half = window.getWidth()/2;
         int length = queue.length() * 3;
@@ -259,23 +226,13 @@ public final class GameEssentials implements GameGUIInterface {
             gameLogger.setScore(0);
             gameLogger.setTurn(0);
         }
-        // Construct labels
-        turnLabel = new GameInfoPanel();
-        scoreLabel = new GameInfoPanel();
-        playerLabel = new GameInfoPanel();
-        quitButton = new GameQuitButton();
-        turnLabel.setTitle("TURN");
-        scoreLabel.setTitle("SCORE");
-        playerLabel.setTitle("PLAYER");
-        turnLabel.setInfo(getTurn() + "");
-        scoreLabel.setInfo(getScore() + "");
-        playerLabel.setInfo(player);
-        turnLabel.setBounds(0, 0, 100, 100);
-        scoreLabel.setBounds(300, 0, 100, 100);
-        playerLabel.setBounds(300, 300, 100, 100);
+        // Construct GUI
+        HexButton.setSize(1);
+        piecePanel = new PiecePanel();
+        gamePanel = new GamePanel(engine.length(), getTurn(), getScore(), player);
         // Calculations
-        calculateButtonSize();
-        calculateLabelSize();
+        piecePanel.doLayout();
+        gamePanel.doLayout();
         autoplayThread = null;
     }
     public static Animation createCenterEffect(hex.Block block){
@@ -295,15 +252,10 @@ public final class GameEssentials implements GameGUIInterface {
         }
     }
     public static JPanel fetchGamePanel(){
-        JPanel panel = new GamePanel();
-        panel.add(turnLabel);
-        panel.add(scoreLabel);
-        panel.add(playerLabel);
-        panel.add(quitButton);
-        return panel;
+        return gamePanel;
     }
     public static JPanel fetchPiecePanel(){
-        return new PiecePanel();
+        return piecePanel;
     }
 
     // End checking
@@ -351,8 +303,6 @@ public final class GameEssentials implements GameGUIInterface {
         queue.reset();
         gameLogger.setEngine(engine);
         gameLogger.setQueue(queue.getPieces());
-        turnLabel.setInfo(getTurn() + "");
-        scoreLabel.setInfo(getScore() + "");
         if (autoplayThread != null) autoplayThread.interrupt();
         window.repaint();
     }
@@ -390,10 +340,6 @@ public final class GameEssentials implements GameGUIInterface {
     }
     public static int getScore(){
         return gameLogger.getScore();
-    }
-    public static void updateDisplayedInfo(){
-        turnLabel.setInfo(getTurn() + "");
-        scoreLabel.setInfo(getScore() + "");
     }
 
     // Setters
@@ -454,7 +400,7 @@ public final class GameEssentials implements GameGUIInterface {
         // Check this position, if good then add
         if (engine().checkAdd(position, piece)) {
             gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
-            updateDisplayedInfo();
+            gamePanel.updateDisplayedInfo(getTurn(), getScore());
             engine().add(position, queue().fetch(pieceIndex));
             // Generate animation
             for (int i = 0; i < piece.length(); i ++){
