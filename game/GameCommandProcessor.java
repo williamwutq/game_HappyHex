@@ -96,14 +96,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * ... // Some other code
  *
  * // Make sure to shutdown autoplay when finished
- * processor.genericClose();
+ * processor.close();
  * }</pre>
  *
  * @version 1.4
  * @author William Wu
  * @since 1.4
  */
-public class GameCommandProcessor implements CommandProcessor {
+public class GameCommandProcessor implements CommandProcessor, Runnable, AutoCloseable {
     private CommandProcessor callBackProcessor;
     private final GameGUIInterface gameGUI;
     private ScheduledExecutorService scheduler;
