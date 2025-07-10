@@ -165,7 +165,7 @@ public class LauncherGUI {
                     GameEssentials.resetGame();
                 }
                 // Close
-                GameEssentials.interruptAutoplay();
+                GameEssentials.terminateAutoplay();
                 System.out.println(io.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
                 System.exit(0);
