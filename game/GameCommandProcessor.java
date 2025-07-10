@@ -36,15 +36,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GameCommandProcessor implements CommandProcessor {
     private CommandProcessor callBackProcessor;
     private final GameGUIInterface gameGUI;
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService scheduler;
     private boolean isQueryCompleted = true;
     private final AtomicBoolean isAutoplayRunning = new AtomicBoolean(false);
     private final Object callbackProcessorLock = new Object();
     private final Object queryLock = new Object();
     private long lastQueryTime = 0;
     private static final long queryDelay = 250; // Delay between queries in milliseconds
+    private static final long checkDelay = 10; // Delay to check statues again when last query did not complete
 
     public GameCommandProcessor(GameGUIInterface gameGUI){
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         callBackProcessor = null;
         this.gameGUI = gameGUI;
     }
@@ -69,8 +71,14 @@ public class GameCommandProcessor implements CommandProcessor {
         }
         synchronized (queryLock) {
             if (!isQueryCompleted || System.currentTimeMillis() - lastQueryTime < queryDelay) {
-                // Do not query if previous query is still processing or delay has not passed.
-                return;
+                // Schedule a new query if previous query is still processing or delay has not passed.
+                scheduler.schedule(() -> {
+                    try {
+                        query();
+                    } catch (InterruptedException e) {
+                        close();
+                    }
+                }, checkDelay, TimeUnit.MILLISECONDS);
             } else {
                 // Start a new query
                 isQueryCompleted = false;
@@ -93,6 +101,7 @@ public class GameCommandProcessor implements CommandProcessor {
     }
 
     public void run(){
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         isAutoplayRunning.set(true);
     }
     public void close() {
@@ -170,7 +179,7 @@ public class GameCommandProcessor implements CommandProcessor {
                 } catch (InterruptedException e) {
                     close();
                 }
-            }, 0, TimeUnit.MILLISECONDS);
+            }, queryDelay, TimeUnit.MILLISECONDS);
         }
     }
 }
