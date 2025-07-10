@@ -64,9 +64,6 @@ public final class GameEssentials implements GameGUIInterface {
     private static int hoveredOverIndex = -1;
     private static int clickedOnIndex = -1;
 
-    // Autoplay
-    private static Thread autoplayThread;
-
     // Special Features
     private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
     private static special.SpecialFeature fontProcessor = special.FeatureFactory.createFeature(Font.class.getName());
@@ -245,7 +242,6 @@ public final class GameEssentials implements GameGUIInterface {
         // Calculations
         piecePanel.doLayout();
         gamePanel.doLayout();
-        autoplayThread = null;
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
@@ -287,7 +283,6 @@ public final class GameEssentials implements GameGUIInterface {
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
-            if (autoplayThread != null) autoplayThread.interrupt();
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             logGame();
             resetGame();
@@ -315,12 +310,7 @@ public final class GameEssentials implements GameGUIInterface {
         queue.reset();
         gameLogger.setEngine(engine);
         gameLogger.setQueue(queue.getPieces());
-        if (autoplayThread != null) autoplayThread.interrupt();
         window.repaint();
-    }
-
-    public static void interruptAutoplay(){
-        if (autoplayThread != null) autoplayThread.interrupt();
     }
 
     // Logging at the end
