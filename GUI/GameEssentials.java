@@ -26,6 +26,7 @@ package GUI;
 
 import GUI.animation.*;
 import Launcher.LaunchEssentials;
+import game.AutoplayHandler;
 import game.GameGUIInterface;
 import hex.Hex;
 import hex.HexEngine;
@@ -58,6 +59,8 @@ public final class GameEssentials implements GameGUIInterface {
     private static HexLogger gameLogger;
     private static PiecePanel piecePanel;
     private static GamePanel gamePanel;
+
+    private static AutoplayHandler autoplayHandler = new AutoplayHandler(new GameEssentials());
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
@@ -242,6 +245,10 @@ public final class GameEssentials implements GameGUIInterface {
         // Calculations
         piecePanel.doLayout();
         gamePanel.doLayout();
+        autoplayHandler.run();
+    }
+    public static void interruptAutoplay(){
+        autoplayHandler.close();
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
@@ -276,6 +283,7 @@ public final class GameEssentials implements GameGUIInterface {
             } else {
                 System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game quits without change.");
             }
+            autoplayHandler.close();
             GameEssentials.resetGame();
         }
         Launcher.LauncherGUI.returnHome();
@@ -284,6 +292,7 @@ public final class GameEssentials implements GameGUIInterface {
         // If the game should end, log and reset
         if(gameEnds()){
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
+            autoplayHandler.close();
             logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();
@@ -471,7 +480,7 @@ public final class GameEssentials implements GameGUIInterface {
         }
         // Check this position, if good then add
         if (engine().checkAdd(position, piece)) {
-            gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
+            gameLogger.addMove(position, pieceIndex, queue.getPieces());
             gamePanel.updateDisplayedInfo(getTurn(), getScore());
             engine().add(position, queue().fetch(pieceIndex));
             // Generate animation
