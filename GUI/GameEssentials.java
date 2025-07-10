@@ -101,7 +101,8 @@ public final class GameEssentials implements GameGUIInterface {
     public static Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7), "GameQuitFontColor");
 
     /**
-     * Generates a random {@link Color} from a predefined set of 12 distinct colors.
+     * Generates a random {@link Color} from a predefined set of 12 distinct colors by index.
+     * @param index the index of the color to choose from, -1 and -2 represent default colors.
      * @return a randomly selected {@code SolidColor} object.
      */
     public static Color generateColor(int index) {
@@ -111,42 +112,43 @@ public final class GameEssentials implements GameGUIInterface {
             return getDefaultColor();
         } else return pieceColors[index];
     }
-    public static Color getIndexedPieceColor(int index){
-        if(index < 12 && index >= 0){
-            return pieceColors[index];
-        } else return null;
-    }
-    public static Color getDefaultColor(){
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        for (Color color : pieceColors){
-            r += color.getRed();
-            g += color.getGreen();
-            b += color.getBlue();
-        }
+    /**
+     * Generates the default color by interpolating the background and the default block color.
+     * @return the default color resulting from interpolation.
+     */
+    private static Color getDefaultColor(){
         return interpolate(gameBackgroundColor, gameBlockDefaultColor, 2);
     }
-    @Deprecated
-    public static Color whitenColor(Color origin){
-        return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
-    }
-    @Deprecated
-    public static Color darkenColor(Color origin){
-        return new Color((origin.getRed())/2, (origin.getGreen())/2, (origin.getBlue())/2);
-    }
+    /**
+     * Dim a color, namely lower the alpha value of that color by 80%.
+     * @param origin the original color.
+     * @return the dimmed color.
+     */
     public static Color dimColor(Color origin){
         return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * 0.8));
     }
-    public static Color processColor(Color origin){
-        return (Color) colorProcessor.process(origin);
-    }
+    /**
+     * Process a color with special color processor providing hints to the processor.
+     * @param origin the original color.
+     * @return the processed color.
+     */
     public static Color processColor(Color origin, String hint){
         return (Color) colorProcessor.process(origin, hint);
     }
+    /**
+     * Interpolating a color base with a color target with a given degree. Degree will result in color closer to the base.
+     * @param base the base color.
+     * @param target the target color
+     * @param degree the interpolation constant used by the operation, higher value result in color closer to base.
+     * @return the interpolation of the colors as defined by the degree.
+     */
     public static Color interpolate(Color base, Color target, int degree){
         return new Color((base.getRed()*degree + target.getRed())/(1 + degree),(base.getGreen()*degree + target.getGreen())/(1 + degree),(base.getBlue()*degree + target.getBlue())/(1 + degree));
     }
+    /**
+     * Change the special color processor to a given processor and update all static colors.
+     * @param newProcessor the new color processor to be used.
+     */
     public static void changeColorProcessor(special.SpecialFeature newProcessor){
         colorProcessor = newProcessor;
         pieceColors = (Color[]) colorProcessor.process(getRawPieceColors());
@@ -158,13 +160,23 @@ public final class GameEssentials implements GameGUIInterface {
         gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
     }
+    /**
+     * Process a font with special font processor providing hints to the processor.
+     * @param origin the original font.
+     * @return the processed font.
+     */
     public static String processFont(String origin, String hint){
         return (String) fontProcessor.process(origin, hint);
     }
+    /**
+     * Change the special font processor to a given processor and update all static fonts.
+     * @param newProcessor the new font processor to be used.
+     */
     public static void changeFontProcessor(special.SpecialFeature newProcessor){
         fontProcessor = newProcessor;
         gameDisplayFont = processFont("Courier", "GameDisplayFont");
     }
+
     // Resizing
     public static void calculateButtonSize(){
         if(engine == null || window == null){

@@ -83,7 +83,7 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
             gameNameLabels[i].setVerticalAlignment(SwingConstants.CENTER);
             gameNameLabels[i].setText(gameNameString.substring(i, i + 1));
             gameNameLabels[i].setForeground(GameEssentials.interpolate(
-                    GameEssentials.getIndexedPieceColor((gameNameLabelIndexShift + i * 5) % 12),
+                    GameEssentials.generateColor((gameNameLabelIndexShift + i * 5) % 12),
                     LaunchEssentials.launchTitlePanelBackgroundColor, 4));
             panel.add(gameNameLabels[i]);
         }
@@ -134,7 +134,7 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
         gameNameLabelPanel.setBackground(LaunchEssentials.launchTitlePanelBackgroundColor);
         for (int i = 0; i < 12; i++) {
             gameNameLabels[i].setForeground(GameEssentials.interpolate(
-                    GameEssentials.getIndexedPieceColor((gameNameLabelIndexShift + i * 5) % 12),
+                    GameEssentials.generateColor((gameNameLabelIndexShift + i * 5) % 12),
                     LaunchEssentials.launchTitlePanelBackgroundColor, 4));
         }
         launchAuthorLabelA.setForeground(LaunchEssentials.launchAuthorFontColor);
