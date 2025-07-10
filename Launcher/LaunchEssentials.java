@@ -40,7 +40,7 @@ import java.util.concurrent.*;
  */
 public final class LaunchEssentials {
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(1, 3, 4);
+    public static final GameVersion currentGameVersion = new GameVersion(1, 4, 0);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
