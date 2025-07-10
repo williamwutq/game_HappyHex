@@ -28,34 +28,87 @@ import comm.CommandProcessor;
 import hex.HexEngine;
 import hex.Piece;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class GameCommandProcessor implements CommandProcessor {
     private CommandProcessor callBackProcessor;
-    GameGUIInterface gameGUI;
-    public GameCommandProcessor(GameGUIInterface gameGUI){
+    private final GameGUIInterface gameGUI;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private boolean isQueryCompleted = true;
+    private boolean isAutoplayRunning = false;
+    private final Object callbackProcessorLock = new Object();
+    private final Object queryLock = new Object();
+    private final Object autoplayLock;
+    private long lastQueryTime = 0;
+    private static final long queryDelay = 250; // Delay between queries in milliseconds
+
+    public GameCommandProcessor(GameGUIInterface gameGUI, Object autoplayLock){
         callBackProcessor = null;
         this.gameGUI = gameGUI;
+        this.autoplayLock = autoplayLock;
     }
     @Override
     public CommandProcessor getCallBackProcessor(){
-        return callBackProcessor;
+        synchronized (callbackProcessorLock){
+            return callBackProcessor;
+        }
     }
     @Override
     public void setCallBackProcessor(CommandProcessor processor) throws IllegalArgumentException, UnsupportedOperationException {
         if (this == processor){
             throw new IllegalArgumentException("Cannot add instance processor itself as callback processor");
+        } else synchronized (callbackProcessorLock) {
+            callBackProcessor = processor;
         }
-        callBackProcessor = processor;
     }
     public void query() throws InterruptedException {
-        HexEngine engine = gameGUI.getEngine();
-        Piece[] queue = gameGUI.getQueue();
-
-        if (callBackProcessor == null) {
-            throw new IllegalStateException("Call back processor is not properly initialized");
-        } else {
-            callBackProcessor.execute("move " + getEngineString(engine) + " " + getQueueString(queue));
+        synchronized (autoplayLock) {
+            if (!isAutoplayRunning) {
+                // Do not query if autoplay is closed.
+                return;
+            }
+        }
+        synchronized (queryLock) {
+            if (!isQueryCompleted || System.currentTimeMillis() - lastQueryTime < queryDelay) {
+                // Do not query if previous query is still processing or delay has not passed.
+                return;
+            } else {
+                // Start a new query
+                isQueryCompleted = false;
+                lastQueryTime = System.currentTimeMillis();
+            }
+        }
+        String queryString;
+        synchronized (gameGUI){
+            HexEngine engine = gameGUI.getEngine();
+            Piece[] queue = gameGUI.getQueue();
+            queryString = "move " + getEngineString(engine) + " " + getQueueString(queue);
+        }
+        synchronized (callbackProcessorLock){
+            if (callBackProcessor == null) {
+                throw new IllegalStateException("Callback processor is not properly initialized");
+            } else {
+                callBackProcessor.execute(queryString);
+            }
         }
     }
+
+    public void run(){
+        synchronized (autoplayLock){
+            isAutoplayRunning = true;
+        }
+    }
+    public void close() {
+        synchronized (autoplayLock) {
+            if (isAutoplayRunning) {
+                isAutoplayRunning = false;
+                scheduler.shutdownNow();
+            }
+        }
+    }
+
     public static String getEngineString(HexEngine engine) {
         if (engine == null || engine.length() == 0){
             return "";
@@ -83,7 +136,12 @@ public class GameCommandProcessor implements CommandProcessor {
     }
     @Override
     public void execute(String command, String[] args) throws IllegalArgumentException, InterruptedException {
-        if (command.equals("move") && args.length == 3){
+        synchronized (autoplayLock) {
+            if (!isAutoplayRunning) {
+                return; // Ignore commands if autoplay is closed
+            }
+        }
+        if (command.equals("move") && args.length == 3) {
             // Parse
             int i, k, index;
             try {
@@ -101,8 +159,30 @@ public class GameCommandProcessor implements CommandProcessor {
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Command move is invalid because piece index is not unsigned integer");
             }
-            // Move
-            gameGUI.move(gameGUI.getEngine().getBlockIndex(i, k), index);
-        } else throw new IllegalArgumentException("Illegal command for this GameCommandProcessor");
+            // Move only if autoplay is running
+            synchronized (gameGUI){
+                gameGUI.move(gameGUI.getEngine().getBlockIndex(i, k), index);
+            }
+        } else if (command.equals("interrupt") || command.equals("kill")) {
+            close();
+        } else {
+            throw new IllegalArgumentException("Illegal command for this GameCommandProcessor");
+        }
+
+        // Mark query as completed and schedule next query
+        synchronized (queryLock){
+            isQueryCompleted = true;
+        }
+        synchronized (autoplayLock){
+            if (isAutoplayRunning) {
+                scheduler.schedule(() -> {
+                    try {
+                        query();
+                    } catch (InterruptedException e) {
+                        close();
+                    }
+                }, 0, TimeUnit.MILLISECONDS);
+            }
+        }
     }
 }
