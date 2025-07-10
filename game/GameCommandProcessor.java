@@ -31,23 +31,22 @@ import hex.Piece;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameCommandProcessor implements CommandProcessor {
     private CommandProcessor callBackProcessor;
     private final GameGUIInterface gameGUI;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private boolean isQueryCompleted = true;
-    private boolean isAutoplayRunning = false;
+    private final AtomicBoolean isAutoplayRunning = new AtomicBoolean(false);
     private final Object callbackProcessorLock = new Object();
     private final Object queryLock = new Object();
-    private final Object autoplayLock;
     private long lastQueryTime = 0;
     private static final long queryDelay = 250; // Delay between queries in milliseconds
 
-    public GameCommandProcessor(GameGUIInterface gameGUI, Object autoplayLock){
+    public GameCommandProcessor(GameGUIInterface gameGUI){
         callBackProcessor = null;
         this.gameGUI = gameGUI;
-        this.autoplayLock = autoplayLock;
     }
     @Override
     public CommandProcessor getCallBackProcessor(){
@@ -64,11 +63,9 @@ public class GameCommandProcessor implements CommandProcessor {
         }
     }
     public void query() throws InterruptedException {
-        synchronized (autoplayLock) {
-            if (!isAutoplayRunning) {
-                // Do not query if autoplay is closed.
-                return;
-            }
+        if (!isAutoplayRunning.get()) {
+            // Do not query if autoplay is closed.
+            return;
         }
         synchronized (queryLock) {
             if (!isQueryCompleted || System.currentTimeMillis() - lastQueryTime < queryDelay) {
@@ -96,16 +93,11 @@ public class GameCommandProcessor implements CommandProcessor {
     }
 
     public void run(){
-        synchronized (autoplayLock){
-            isAutoplayRunning = true;
-        }
+        isAutoplayRunning.set(true);
     }
     public void close() {
-        synchronized (autoplayLock) {
-            if (isAutoplayRunning) {
-                isAutoplayRunning = false;
-                scheduler.shutdownNow();
-            }
+        if (isAutoplayRunning.getAndSet(false)) {
+            scheduler.shutdownNow();
         }
     }
 
@@ -136,10 +128,8 @@ public class GameCommandProcessor implements CommandProcessor {
     }
     @Override
     public void execute(String command, String[] args) throws IllegalArgumentException, InterruptedException {
-        synchronized (autoplayLock) {
-            if (!isAutoplayRunning) {
-                return; // Ignore commands if autoplay is closed
-            }
+        if (!isAutoplayRunning.get()) {
+            return; // Ignore commands if autoplay is closed
         }
         if (command.equals("move") && args.length == 3) {
             // Parse
@@ -173,16 +163,14 @@ public class GameCommandProcessor implements CommandProcessor {
         synchronized (queryLock){
             isQueryCompleted = true;
         }
-        synchronized (autoplayLock){
-            if (isAutoplayRunning) {
-                scheduler.schedule(() -> {
-                    try {
-                        query();
-                    } catch (InterruptedException e) {
-                        close();
-                    }
-                }, 0, TimeUnit.MILLISECONDS);
-            }
+        if (isAutoplayRunning.get()) {
+            scheduler.schedule(() -> {
+                try {
+                    query();
+                } catch (InterruptedException e) {
+                    close();
+                }
+            }, 0, TimeUnit.MILLISECONDS);
         }
     }
 }
