@@ -48,7 +48,7 @@ public final class GameEssentials implements GameGUIInterface {
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The delay to a typical action of the game, in ms*/
-    private static int actionDelay = 80;
+    private static final int actionDelay = 250;
     /** The main game engine object. */
     private static HexEngine engine;
     /** The main game queue of pieces, which contain a number of {@link hex.Piece}. */
@@ -107,24 +107,6 @@ public final class GameEssentials implements GameGUIInterface {
     public static Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24), "GameDisplayFontColor");
     public static Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7), "GameQuitFontColor");
 
-    /**
-     * Sets the typical action delay of the game in ms, must be an integer between 10 and 100000.
-     *
-     * @param delay the new delay of a typical action in the game; must be between 10 (inclusive) and 100000 (inclusive).
-     */
-    public static void setDelay(int delay) {
-        if (delay <= 100000 && delay >= 10) {
-            actionDelay = delay;
-        }
-    }
-    /**
-     * Get the typical action delay of the game in ms
-     *
-     * @return the delay of a typical action in the game.
-     */
-    public static int getDelay() {
-        return actionDelay;
-    }
     /**
      * Generates a random {@link Color} from a predefined set of 12 distinct colors.
      * @return a randomly selected {@code SolidColor} object.
@@ -245,7 +227,7 @@ public final class GameEssentials implements GameGUIInterface {
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
     // Initializing
-    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player, HexLogger logger){
+    public static void initialize(int size, int queueSize, boolean easy, JFrame frame, String player, HexLogger logger){
         System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
         if(easy) {
             game.PieceFactory.setEasy();
@@ -300,7 +282,6 @@ public final class GameEssentials implements GameGUIInterface {
         scoreLabel.setBounds(300, 0, 100, 100);
         playerLabel.setBounds(300, 300, 100, 100);
         // Calculations
-        setDelay(delay);
         calculateButtonSize();
         calculateLabelSize();
         autoplayThread = null;
@@ -501,7 +482,7 @@ public final class GameEssentials implements GameGUIInterface {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
-            Timer gameTimer = new Timer(getDelay(), null);
+            Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
             gameTimer.start();
