@@ -60,7 +60,7 @@ import java.util.concurrent.RejectedExecutionException;
  * @author William Wu
  * @since 1.3.3
  */
-public class PythonCommandProcessor implements CommandProcessor {
+public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
     private final Process process;
     private final BufferedWriter writer;
     private final BufferedReader reader;
