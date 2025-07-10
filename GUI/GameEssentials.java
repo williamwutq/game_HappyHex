@@ -459,4 +459,37 @@ public final class GameEssentials implements GameGUIInterface {
     public Piece[] getQueue() {
         return queue.getPieces();
     }
+    @Override
+    public boolean move(int originIndex, int pieceIndex) {
+        // Get piece
+        Piece piece; Hex position;
+        try {
+            piece = queue().get(pieceIndex);
+            position = engine().getBlock(originIndex);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
+        // Check this position, if good then add
+        if (engine().checkAdd(position, piece)) {
+            gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
+            gamePanel.updateDisplayedInfo(getTurn(), getScore());
+            engine().add(position, queue().fetch(pieceIndex));
+            // Generate animation
+            for (int i = 0; i < piece.length(); i ++){
+                addAnimation(createCenterEffect(piece.getBlock(i).add(position)));
+            }
+        }
+        // Reset index
+        setSelectedPieceIndex(-1);
+        setClickedOnIndex(-1);
+        // Paint and eliminate
+        window().repaint();
+        if (engine().checkEliminate()) {
+            Timer gameTimer = new Timer(actionDelay, null);
+            gameTimer.setRepeats(false);
+            gameTimer.addActionListener(e -> GameEssentials.eliminate());
+            gameTimer.start();
+        } else checkEnd();
+        return true;
+    }
 }
