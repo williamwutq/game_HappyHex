@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A command processor that communicates with a Python subprocess.
@@ -97,14 +98,18 @@ public class PythonCommandProcessor implements CommandProcessor {
             while ((line = reader.readLine()) != null) {
                 final String received = line.trim();
                 if (processor != null && !received.isEmpty()) {
-                    executor.submit(() -> {
-                        try {
-                            processor.execute(received);
-                        } catch (IllegalArgumentException ignored) {
-                        } catch (InterruptedException e) {
-                            processorInterrupted(processor);
-                        }
-                    });
+                    try {
+                        executor.submit(() -> {
+                            try {
+                                processor.execute(received);
+                            } catch (IllegalArgumentException ignored) {
+                            } catch (InterruptedException e) {
+                                processorInterrupted(processor);
+                            }
+                        });
+                    } catch (RejectedExecutionException ignored) {
+                        processorInterrupted(processor);
+                    }
                 }
             }
         } catch (IOException e) {
