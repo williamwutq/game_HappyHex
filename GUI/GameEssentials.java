@@ -245,6 +245,8 @@ public final class GameEssentials implements GameGUIInterface {
         // Calculations
         piecePanel.doLayout();
         gamePanel.doLayout();
+    }
+    public static void startAutoplay(){
         autoplayHandler.run();
     }
     public static void interruptAutoplay(){
