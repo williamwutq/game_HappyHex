@@ -35,16 +35,22 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AutoplayInteractive {
     private static final double sinOf60 = Math.sqrt(3) / 2;
+    private static final double radiusMultiplier = 0.94;
     private final Color quitNormalColor = LaunchEssentials.launchQuitButtonBackgroundColor;
     private final Color quitHoverColor = new Color(207, 129, 11);
     private final Color autoOnNormalColor = new Color(21, 102, 207);
     private final Color autoOnHoverColor = new Color(21, 207, 164);
     private final Color autoOffNormalColor = new Color(62, 152, 2);
     private final Color autoOffHoverColor = new Color(34, 232, 143);
+    private final Color autoAnimationStartColor = new Color(200, 49, 214);
+    private final Color autoAnimationEndColor = new Color(56, 216, 64);
+    private final Color backgroundNormalColor = GameEssentials.gameBackgroundColor;
+    private final Color backgroundHoverColor = GameEssentials.gameBlockDefaultColor;
     private final Color borderColor = Color.BLACK;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final Runnable autoplayRun;
@@ -71,12 +77,148 @@ public class AutoplayInteractive {
         // -------------------------------------- !TO BE IMPLEMENTED! --------------------------------------
         // Some code to quit this thing
     }
-    private class AutoplayControl extends JPanel{
-        private CircularButton quitButton, autoOnButton, autoOffButton;
+    private class AutoplayControl extends JButton{
+        // States: 1 - two buttons include quit
+        //         2 - animation transition to auto on
+        //         3 - animation transition to auto off
+        //         4 - one button with speed adjust to SLOW
+        //         5 - one button with speed adjust to FAST
+        private RoundRectangle2D.Double cachedOutline;
+        private int cachedOutlineWidth, cachedOutlineHeight, state;
+        private double cachedDiameter, cachedX, cachedY;
+        private DynamicColor dynamicBackground;
+        private final CircularButton quitButton, autoOnButton, autoOffButton;
+        private final Object stateLock;
         private AutoplayControl(){
-            quitButton = new QuitButton();
-            autoOnButton = new AutoOnButton();
-            autoOffButton = new AutoOffButton();
+            this.setAlignmentX(Component.CENTER_ALIGNMENT);
+            this.setAlignmentY(Component.CENTER_ALIGNMENT);
+            this.quitButton = new QuitButton();
+            this.autoOnButton = new AutoOnButton();
+            this.autoOffButton = new AutoOffButton();
+            this.stateLock = new Object();
+            this.cachedOutline = null;
+            this.cachedOutlineWidth = -1;
+            this.cachedOutlineHeight = -1;
+            this.cachedDiameter = -1;
+            this.dynamicBackground = null;
+            this.state = 0; nextState();
+        }
+
+        private void nextState(){
+            synchronized (stateLock) {
+                if (state == 1) {
+                    state = 2;
+                } else if (state == 2) {
+                    state = 4;
+                } else if (state == 3 || state == 0) {
+                    state = 1;
+                    this.add(quitButton);
+                    this.add(Box.createHorizontalGlue());
+                    this.add(autoOnButton);
+                    this.revalidate();
+                } else if (state == 4 || state == 5) {
+                    state = 3;
+                }
+            }
+        }
+        private int getState(){
+            synchronized (stateLock) {
+                return state;
+            }
+        }
+
+        public final void paint(java.awt.Graphics g) {
+            int stroke = Math.min(getWidth() / 72, getHeight() / 24);
+            if (stroke < 1) stroke = 1;
+            RoundRectangle2D.Double circle = getCachedCircle();
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setStroke(new BasicStroke(stroke));
+            g2.setColor(borderColor);
+            g2.draw(circle);
+            g2.setColor(Color.MAGENTA);
+            g2.fill(circle);
+            g2.dispose();
+            paintChildren(g);
+        }
+
+        /** {@inheritDoc} It will do nothing. */
+        public final void mouseClicked(MouseEvent e) {}
+        /** {@inheritDoc} It will do nothing. */
+        public final void mousePressed(MouseEvent e) {}
+        /** {@inheritDoc} It will do nothing. */
+        public final void mouseReleased(MouseEvent e) {}
+
+        /**
+         * Retrieves the cached outline corresponding to the current dimensions of the button.
+         * <p>
+         * If the cached circle is null or the dimensions have changed since the last computation,
+         * a new shape is generated using the current width and height of the button.
+         * The shape is centered within the component and its size is determined by the minimum
+         * radius that fits within the width and height constraints.
+         *
+         * @return a {@link Path2D.Double} representing the outline for the current size
+         */
+        private RoundRectangle2D.Double getCachedCircle() {
+            int w = getWidth();
+            int h = getHeight();
+            if (cachedOutline == null || w != cachedOutlineWidth || h != cachedOutlineHeight) {
+                cachedDiameter = Math.min(w / 3, h);
+                cachedX = (w - cachedDiameter * 3) * 0.5;
+                cachedY = (h - cachedDiameter) * 0.5;
+                double diameter = cachedDiameter * radiusMultiplier;
+                double iw = diameter + cachedDiameter * 2;
+                double x = (w - iw) * 0.5;
+                double y = (h - diameter) * 0.5;
+                cachedOutline = new RoundRectangle2D.Double(x, y, iw, diameter, diameter, diameter);
+                cachedOutlineWidth = w;
+                cachedOutlineHeight = h;
+            }
+            return cachedOutline;
+        }
+        /**
+         * Determines whether a given point is within the circular boundary of the button.
+         * <p>
+         * This is used to provide accurate hit detection that matches the visual circular shape,
+         * rather than the default rectangular bounds.
+         *
+         * @param x the x-coordinate of the point to test
+         * @param y the y-coordinate of the point to test
+         * @return {@code true} if the point lies within the cached shape, {@code false} otherwise
+         * @see JButton#contains
+         */
+        public final boolean contains(int x, int y) {
+            return getCachedCircle().contains(x, y);
+        }
+        /**
+         * Sets the bounds of the component and invalidates the cached shape if size has changed.
+         * <p>
+         * If the new width or height differs from the current dimensions, the cached path is cleared
+         * so it can be regenerated with the new size.
+         *
+         * @param x      the new x-coordinate of the component
+         * @param y      the new y-coordinate of the component
+         * @param width  the new width of the component
+         * @param height the new height of the component
+         * @see JComponent#setBounds
+         */
+        public void setBounds(int x, int y, int width, int height) {
+            if (width != getWidth() || height != getHeight()) {
+                cachedOutline = null;
+            }
+            super.setBounds(x, y, width, height);
+        }
+
+        public void doLayout(){
+            super.doLayout();
+            int s = getState();
+            int d = (int) cachedDiameter;
+            int x = (int) cachedX;
+            int y = (int) cachedY;
+            if (s == 1){
+                quitButton.setBounds(x, y, d, d);
+                autoOnButton.setBounds(x + d * 2, y, d, d);
+            }
         }
     }
     /**
@@ -448,7 +590,7 @@ public class AutoplayInteractive {
      * defined by the {@link Path2D.Double} class, and quadratic {@link Path2D.Double#quadTo Bézier curves}
      * are applied as round corners for smooth graphics.
      * <p>
-     * The class also provides caching mechanisms to avoid recalculating the {@link #getCachedCircle()} circle}
+     * The class also provides caching mechanisms to avoid recalculating the {@link #getCachedCircle() circle}
      * and {@link #getCachedCustomPath custom path} unless the component size changes.
      * <p>
      * Subclasses can override {@link #createCustomPath(int, int, double)} to render their own content
@@ -524,7 +666,7 @@ public class AutoplayInteractive {
             int w = getWidth();
             int h = getHeight();
             if (cachedCircle == null || w != cachedCircleWidth || h != cachedCircleHeight) {
-                double diameter = Math.min(w, h);
+                double diameter = Math.min(w, h) * radiusMultiplier;
                 double topLeftX = (w - diameter) / 2.0;
                 double topLeftY = (h - diameter) / 2.0;
                 cachedCircle = new Path2D.Double(new Ellipse2D.Double(topLeftX, topLeftY, diameter, diameter));
@@ -548,7 +690,7 @@ public class AutoplayInteractive {
             int w = getWidth();
             int h = getHeight();
             if (cachedCustomPath == null || w != cachedCustomPathWidth || h != cachedCustomPathHeight) {
-                double minRadius = Math.min(w, h) / 2.0;
+                double minRadius = Math.min(w, h) * 0.5 * radiusMultiplier;
                 cachedCustomPath = createCustomPath(w / 2, h / 2, minRadius);
                 cachedCustomPathWidth = w;
                 cachedCustomPathHeight = h;
@@ -662,7 +804,7 @@ public class AutoplayInteractive {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.setSize(new Dimension(400, 400));
         mainFrame.setMinimumSize(new Dimension(400, 400));
-        mainFrame.add(interactive.new AutoplayControl().autoOffButton);
+        mainFrame.add(interactive.new AutoplayControl());
         mainFrame.setVisible(true);
     }
 }
