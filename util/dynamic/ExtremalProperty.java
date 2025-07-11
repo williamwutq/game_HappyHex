@@ -134,7 +134,7 @@ public interface ExtremalProperty<T> extends DynamicProperty<T> {
     default void start() {
         if (isRunning()) stop();
         if (atMiddle()) {
-            reverseDirection();
+            setDirection(!direction());
         }
         run(); // hook to real start logic
     }

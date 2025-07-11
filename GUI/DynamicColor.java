@@ -54,7 +54,6 @@ public class DynamicColor implements ExtremalProperty<Color>, Runnable {
     public DynamicColor(Color defaultColor, Color extremeColor) {
         this(defaultColor, extremeColor, null);
     }
-
     /**
      * Starts the animation from the current position in the specified direction.
      * If already running, this call has no effect.
@@ -67,7 +66,7 @@ public class DynamicColor implements ExtremalProperty<Color>, Runnable {
         running.set(true);
         synchronized (lock) {
             animationThread = new Thread(() -> {
-                while (running.get()) {
+                while (running.get() && !animationThread.isInterrupted()) {
                     long currentTime = System.nanoTime();
                     double elapsedMillis = (currentTime - startTime) / 1000000.0;
                     double rawProgress = elapsedMillis / getDuration();
@@ -75,7 +74,7 @@ public class DynamicColor implements ExtremalProperty<Color>, Runnable {
                     if (newPosition >= 1.0 || newPosition <= 0.0) {
                         newPosition = Math.max(0.0, Math.min(1.0, newPosition)); // Clamp to [0,1]
                         applyPosition(newPosition);
-                        stop();
+                        running.set(false);
                         reverseDirection();
                         break;
                     }
@@ -87,10 +86,10 @@ public class DynamicColor implements ExtremalProperty<Color>, Runnable {
                         Thread.sleep(frameDelay);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        stop();
                         break;
                     }
                 }
+                running.set(false);
             });
             animationThread.start();
         }
@@ -104,6 +103,11 @@ public class DynamicColor implements ExtremalProperty<Color>, Runnable {
         synchronized (lock) {
             if (animationThread != null) {
                 animationThread.interrupt();
+                try {
+                    animationThread.join(); // Wait for thread to terminate
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
                 animationThread = null;
             }
         }
