@@ -89,6 +89,56 @@ public class AutoplayInteractive {
     public JComponent fetchControl(){
         return control;
     }
+    /**
+     * A custom {@link javax.swing.JButton} that provides interactive controls for managing autoplay functionality.
+     * <p>
+     * The {@code AutoplayControl} class extends {@link javax.swing.JButton} and implements {@link java.awt.event.MouseListener}
+     * and {@link java.awt.event.ActionListener} to handle user interactions for controlling an autoplay feature.
+     * It features a state machine to manage different visual and functional states, including buttons and labels for
+     * starting, stopping, and adjusting the speed of autoplay, as well as quitting the associated game or animation.
+     * The button is rendered as a rounded rectangle with dynamic color animations provided by {@link DynamicColor}.
+     * <p>
+     * The state machine supports the following states:
+     * <ul>
+     *   <li><b>State 1</b>: Displays two buttons ({@code quitButton} and {@code autoOnButton}) for quitting the game
+     *       or starting autoplay.</li>
+     *   <li><b>State 2</b>: Transitional state showing an "AUTO" label during the animation to autoplay on.</li>
+     *   <li><b>State 3</b>: Transitional state showing an "AUTO" label during the animation to autoplay off.</li>
+     *   <li><b>State 4</b>: Displays one button ({@code autoOffButton}) and a "slow" label, indicating slow autoplay speed.</li>
+     *   <li><b>State 5</b>: Displays one button ({@code autoOffButton}) and a "fast" label, indicating fast autoplay speed.</li>
+     * </ul>
+     * <p>
+     * The class manages child components ({@code quitButton}, {@code autoOnButton}, {@code autoOffButton}, {@code autoLabel},
+     * {@code slowLabel}, and {@code fastLabel}) and dynamically adds or removes them based on the current state.
+     * Color animations are handled by a {@link DynamicColor} instance ({@code dynamicBackground}), which transitions
+     * between normal and hover colors or animation-specific colors, triggering repaints via {@link #checkAndPaint()} or
+     * {@link #repaint()}. The layout is customized in {@link #doLayout()} to position children based on cached dimensions.
+     * <p>
+     * Thread safety is ensured through a {@code stateLock} object, synchronizing access to the {@code state} and
+     * {@code dynamicBackground} fields. All Swing-related operations (e.g., painting, layout, component addition/removal)
+     * occur on the Event Dispatch Thread (EDT), while {@link DynamicColor} animations run in a background thread, with
+     * updates safely scheduled on the EDT.
+     * <p>
+     * Resource management is handled via {@link #removeNotify()}, which stops the {@code dynamicBackground} animation,
+     * and through the child buttons' own {@code removeNotify()} methods, which stop their respective {@link DynamicColor}
+     * animations. The {@link #quitAutoplayImmediately()} method provides an explicit way to reset the state and stop
+     * animations before dereferencing, complementing automatic cleanup when the component is removed from its container.
+     * <p>
+     * External control is supported via {@link #quitAutoplay()} to transition to state 1 (autoplay off) and
+     * {@link #quitAutoplayImmediately()} to immediately reset the state and clean up resources.
+     * Mouse interactions trigger hover animations in states 1, 4, and 5, and action events toggle between slow and fast
+     * autoplay speeds in states 4 and 5.
+     * <p>
+     * The button's appearance is optimized with cached shapes ({@link #getCachedCircle()}) to improve rendering performance,
+     * and hit detection is customized via {@link #contains(int, int)} to match the rounded rectangular shape.
+     *
+     * @author William Wu
+     * @version 1.4
+     * @since 1.4
+     * @see DynamicColor
+     * @see CircularButton
+     * @see AutoplayInteractive
+     */
     private class AutoplayControl extends JButton implements MouseListener, ActionListener{
         // States: 1 - two buttons include quit
         //         2 - animation transition to auto on
