@@ -72,23 +72,97 @@ public class AutoplayInteractive {
             quitButton = new QuitButton() {};
         }
     }
+    /**
+     * A custom {@link CircularButton} that represents a quit button for the AutoplayInteractive component.
+     * <p>
+     * The {@code QuitButton} extends {@link CircularButton} to provide a specialized button with a custom
+     * arrow-shaped path, resembling a "quit" or "exit" symbol, and animated color transitions between a
+     * normal and hover state. It uses a {@link DynamicColor} to smoothly transition between two colors
+     * (normal and hover) when the mouse enters or exits the button, triggering a repaint to reflect the
+     * updated color. Clicking the button invokes the {@link AutoplayInteractive#quitGame()} method to
+     * exit the game.
+     * <p>
+     * The button's shape is a circular boundary (inherited from {@link CircularButton}) with a custom
+     * inner path defined as a stylized arrow, scaled to 75% of the button's radius with a fixed width
+     * for the arrow lines. The color of the arrow is dynamically updated using the {@link DynamicColor}
+     * instance, which animates between the normal color ({@code quitNormalColor}) and hover color
+     * ({@code quitHoverColor}) using a sigmoid interpolation curve.
+     * <p>
+     * This class overrides key methods from {@link CircularButton} to implement:
+     * <ul>
+     *   <li>Custom arrow-shaped path rendering via {@link #createCustomPath(int, int, double)}.</li>
+     *   <li>Dynamic color retrieval via {@link #getColor()} using the {@link DynamicColor} instance.</li>
+     *   <li>Mouse hover interactions via {@link #mouseEntered(MouseEvent)} and {@link #mouseExited(MouseEvent)}
+     *       to start or restart the color animation.</li>
+     *   <li>Action handling via {@link #actionPerformed(ActionEvent)} to trigger game exit.</li>
+     * </ul>
+     * <p>
+     * The button is designed to be thread-safe, as the {@link DynamicColor} handles its animations in a
+     * background thread and ensures synchronized access to shared state. The {@code repaint()} method is
+     * called via the {@link DynamicColor}'s GUI updater to reflect color changes in the Swing Event Dispatch
+     * Thread (EDT).
+     *
+     * @author William Wu
+     * @version 1.4
+     * @since 1.4
+     * @see CircularButton
+     * @see DynamicColor
+     * @see AutoplayInteractive#quitGame()
+     */
     private class QuitButton extends CircularButton{
         private final DynamicColor internalColor;
+        /**
+         * Constructs a {@code QuitButton} with a {@link DynamicColor} for animating between
+         * {@code quitNormalColor} and {@code quitHoverColor}.
+         * <p>
+         * The button is initialized with a {@link DynamicColor} that transitions between the normal
+         * and hover colors, triggering a repaint on each animation frame to update the button's
+         * appearance.
+         */
         private QuitButton(){
             internalColor = new DynamicColor(quitNormalColor, quitHoverColor, this::repaint);
         }
+        /**
+         * Handles the button click by invoking {@link AutoplayInteractive#quitGame()}.
+         *
+         * @param e the {@link ActionEvent} triggered by clicking the button
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             quitGame();
         }
+        /**
+         * Starts the color animation when the mouse enters the button's area, restarting the
+         * transition from the current state to the hover color.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse entry
+         */
         @Override
         public void mouseEntered(MouseEvent e) {
             internalColor.restart();
         }
+        /**
+         * Starts the color animation when the mouse exits the button's area, transitioning
+         * back to the normal color.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse exit
+         */
         @Override
         public void mouseExited(MouseEvent e) {
             internalColor.start();
         }
+        /**
+         * Creates a custom arrow-shaped path for the quit button.
+         * <p>
+         * The path is a stylized arrow, scaled to 75% of the button's radius, with a fixed
+         * line width proportional to the radius. The arrow is drawn as a closed path with
+         * six points, forming a shape that suggests exiting or closing.
+         *
+         * @param cx the x-coordinate of the button's center
+         * @param cy the y-coordinate of the button's center
+         * @param radius the radius of the button
+         * @return a {@link Path2D.Double} representing the arrow-shaped path
+         */
         @Override
         protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
             radius *= 0.75;
@@ -103,13 +177,17 @@ public class AutoplayInteractive {
             path.closePath();
             return path;
         }
+        /**
+         * Retrieves the current color of the button from the {@link DynamicColor}.
+         * <p>
+         * The color is dynamically interpolated between {@code quitNormalColor} and
+         * {@code quitHoverColor} based on the current animation position.
+         *
+         * @return the current {@link Color} of the button
+         */
         @Override
         protected Color getColor() {
             return internalColor.get();
-        }
-        @Override
-        public void repaint() {
-            super.repaint();
         }
     }
     /**
