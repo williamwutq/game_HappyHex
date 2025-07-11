@@ -570,9 +570,9 @@ public class AutoplayInteractive {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (stateLock) {
-                if (this.dynamicBackground != null) dynamicBackground.stop();
                 if (state == 4) {
                     this.state = 5;
+                    if (this.dynamicBackground != null) dynamicBackground.stop();
                     this.dynamicBackground = new DynamicColor(autoFastNormalColor, autoFastHoverColor, this::repaint);
                     this.dynamicBackground.setDuration(1200);
                     this.removeAll();
@@ -581,6 +581,7 @@ public class AutoplayInteractive {
                     this.revalidate();
                 } else if (state == 5) {
                     this.state = 4;
+                    if (this.dynamicBackground != null) dynamicBackground.stop();
                     this.dynamicBackground = new DynamicColor(autoSlowNormalColor, autoSlowHoverColor, this::repaint);
                     this.dynamicBackground.setDuration(1200);
                     this.removeAll();
