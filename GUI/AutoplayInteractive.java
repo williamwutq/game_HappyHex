@@ -161,7 +161,7 @@ public class AutoplayInteractive {
      * @see AutoplayInteractive.AutoplayControl#nextState()
      */
     private void startAuto(){
-        if (isRunning.getAndSet(true)){
+        if (!isRunning.getAndSet(true)){
             if (autoplayRun != null){
                 autoplayRun.run();
             }
