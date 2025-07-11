@@ -95,7 +95,7 @@ import java.util.ArrayList;
  * Generally, moves that reduce entropy should be awarded and moves that increase entropy significantly should be punished.
  * @since 1.0
  * @author William Wu
- * @version 1.3.4
+ * @version 1.4
  */
 public class HexEngine implements HexGrid{
     private static final double logBaseEOf2 = Math.log(2);
@@ -245,6 +245,24 @@ public class HexEngine implements HexGrid{
         return null;
     }
     /**
+     * Retrieves a {@link Block} at the given hex coordinate.
+     * This performs a {@link #search binary search} for efficient lookup.
+     *
+     * @param hex the hex coordinate
+     * @return the {@code Block} if found, or null otherwise
+     * @see #getBlock(int)
+     * @see #setBlock(int, int, Block)
+     */
+    public Block getBlock(Hex hex){
+        if(hex.inRange(radius)){
+            int index = search(hex.getLineI(), hex.getLineK(), 0, length()-1);
+            if (index >= 0) {
+                return getBlock(index); // private binary search
+            }
+        }
+        return null;
+    }
+    /**
      * Retrieves the {@link Block} at the specified array index.
      * @param index the block array index
      * @return the {@code Block} at the given index
@@ -320,6 +338,25 @@ public class HexEngine implements HexGrid{
                 }
             }
         }
+    }
+    /**
+     * Return the index of a block at (i, k).
+     * @param i I coordinate
+     * @param k K coordinate
+     * @return index of the block in the array, or -1 if not found
+     * @since 1.4
+     */
+    public int getBlockIndex(int i, int k){
+        return search(i, k, 0, length()-1);
+    }
+    /**
+     * Return the index of a block at the specific Hex coordinate.
+     * @param hex the hex coordinate
+     * @return index of the block in the array, or -1 if not found
+     * @since 1.4
+     */
+    public int getBlockIndex(Hex hex){
+        return search(hex.getLineI(), hex.getLineK(), 0, length()-1);
     }
     /**
      * Performs a binary search to locate a block at (i, k).

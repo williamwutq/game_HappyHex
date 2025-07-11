@@ -29,6 +29,7 @@ import javax.json.*;
 /**
  * Represents game session information such as player identity, score, turn, mode, and versioning.
  * This class is immutable in part and serializable via the {@link JsonConvertible} interface.
+ * This class is completely thread safe and can be used across different threads.
  * <p>
  * {@code GameInfo} objects can either be {@link #GameInfo(GameMode, GameVersion) created with default values}
  * as if it was an unspecified guest player, or via the fully populated
@@ -52,7 +53,7 @@ import javax.json.*;
  * @see JsonObjectBuilder
  * @since 1.0
  * @author William Wu
- * @version 1.1
+ * @version 1.4
  */
 public final class GameInfo implements JsonConvertible{
     private Username player;
@@ -63,6 +64,7 @@ public final class GameInfo implements JsonConvertible{
     private final long gameID;
     private GameMode gameMode;
     private final GameVersion gameVersion;
+    private final Object lock = new Object();
 
     /**
      * Create a new {@code GameInfo} with default player and a specified {@link GameMode}.
@@ -109,23 +111,39 @@ public final class GameInfo implements JsonConvertible{
      * Gets the {@link Username} of the current player.
      * @return the player’s {@code Username}
      */
-    public Username getPlayer() {return player;}
+    public Username getPlayer() {
+        synchronized (lock){
+            return player;
+        }
+    }
     /**
      * Returns the player ID (long) matching the player.
      * @return the player’s ID
      */
-    public long getPlayerID(){return playerID;}
+    public long getPlayerID(){
+        synchronized (lock) {
+            return playerID;
+        }
+    }
     /**
      * Returns the game session ID (long).
      * @return the game session ID
      */
-    public long getGameID(){return gameID;}
+    public long getGameID(){
+        synchronized (lock) {
+            return gameID;
+        }
+    }
     /**
      * Gets the {@link GameMode} currently in use.
      * @return the active game mode
      * @see GameMode
      */
-    public GameMode getGameMode(){return gameMode;}
+    public GameMode getGameMode(){
+        synchronized (lock) {
+            return gameMode;
+        }
+    }
 
     /**
      * Assigns a {@link Username} and corresponding player ID.
@@ -136,11 +154,15 @@ public final class GameInfo implements JsonConvertible{
      */
     public void setPlayer(Username player, long ID) {
         if(player == null || player.equals("") || player.equals("Guest") || ID == 0 || ID == -1){
-            this.player = Username.getUsername("Guest");
-            this.playerID = -1;
+            synchronized (lock) {
+                this.player = Username.getUsername("Guest");
+                this.playerID = -1;
+            }
         } else {
-            this.player = player;
-            this.playerID = ID;
+            synchronized (lock) {
+                this.player = player;
+                this.playerID = ID;
+            }
         }
     }
     /**
@@ -149,30 +171,48 @@ public final class GameInfo implements JsonConvertible{
      * @see GameMode
      */
     public void setGameMode(GameMode gameMode){
-        this.gameMode = gameMode;
+        synchronized (lock) {
+            this.gameMode = gameMode;
+        }
     }
 
     /**
      * Returns the current total turn number.
      * @return the total turn number
      */
-    public int getTurn() {return turn;}
+    public int getTurn() {
+        synchronized (lock) {
+            return turn;
+        }
+    }
     /**
      * Returns the player’s total score.
      * @return the total score
      */
-    public int getScore() {return score;}
+    public int getScore() {
+        synchronized (lock) {
+            return score;
+        }
+    }
 
     /**
      * Set the turns played in this game. This will unconditionally accept the new number of turns.
      * @param turns the new score
      */
-    public void setTurn(int turns) {this.turn = turns;}
+    public void setTurn(int turns) {
+        synchronized (lock){
+            this.turn = turns;
+        }
+    }
     /**
      * Set the player’s score. This will unconditionally accept the new score.
      * @param score the new score
      */
-    public void setScore(int score) {this.score = score;}
+    public void setScore(int score) {
+        synchronized (lock) {
+            this.score = score;
+        }
+    }
 
     /**
      * Returns a human-readable String representation of this game.
@@ -182,7 +222,8 @@ public final class GameInfo implements JsonConvertible{
      */
     @Override
     public String toString() {
-        return "GameInfo[Player = " + player +
+        synchronized (lock){
+            return "GameInfo[Player = " + player +
                 ", Player ID = " + playerID +
                 ", Turn = " + turn +
                 ", Score = " + score +
@@ -190,6 +231,7 @@ public final class GameInfo implements JsonConvertible{
                 ", Game Mode = " + gameMode.toString() +
                 ", Game Version = " + gameVersion.toString() +
                 ", Time = " + time + "]";
+        }
     }
 
     /**
@@ -218,15 +260,17 @@ public final class GameInfo implements JsonConvertible{
     @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("Player", player.toString());
-        builder.add("PlayerID", Long.toHexString(playerID));
-        builder.add("GameID", Long.toHexString(gameID));
-        builder.add("EasyMode", GameMode.isEasy(gameMode));
-        builder.add("Preset", GameMode.getChar(gameMode) + "");
-        builder.add("Version", gameVersion.toJsonObject());
-        builder.add("Time", time.toJsonObject());
-        JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();
-        builder.add("Result", scoreElement);
+        synchronized (lock) {
+            builder.add("Player", player.toString());
+            builder.add("PlayerID", Long.toHexString(playerID));
+            builder.add("GameID", Long.toHexString(gameID));
+            builder.add("EasyMode", GameMode.isEasy(gameMode));
+            builder.add("Preset", GameMode.getChar(gameMode) + "");
+            builder.add("Version", gameVersion.toJsonObject());
+            builder.add("Time", time.toJsonObject());
+            JsonObject scoreElement = Json.createObjectBuilder().add("Score", score).add("Turn", turn).build();
+            builder.add("Result", scoreElement);
+        }
         return builder;
     }
 }

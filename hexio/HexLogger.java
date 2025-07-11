@@ -479,7 +479,7 @@ public class HexLogger {
         try {
             piece = queue[index];
             currentEngine.add(origin, piece);
-            eliminated = currentEngine.numEliminate();
+            eliminated = currentEngine.eliminate().length;
             score += piece.length();
             success = true;
         } catch (IndexOutOfBoundsException | IllegalArgumentException e){}

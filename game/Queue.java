@@ -44,7 +44,7 @@ import hex.Piece;
  * internal {@link #generate()} method.
  * @since 0.6
  * @author William Wu
- * @version 1.3
+ * @version 1.4
  */
 public class Queue{
     /** Internal fixed-size array of Piece elements. */
@@ -97,6 +97,22 @@ public class Queue{
         for (int i = 0; i < size; i ++){
             pieces[i] = generate();
         }
+    }
+    /**
+     * Constructs a new {@code Queue} with given array of pieces.
+     * @param pieceArr an array of {@link Piece} to be converted into a {@link Queue}
+     * @since 1.4
+     */
+    private Queue(Piece[] pieceArr){
+        pieces = pieceArr;
+    }
+    /**
+     * Create a new {@code Queue} with given array of pieces.
+     * @param pieces an array of {@link Piece} to be converted into a {@link Queue}
+     * @since 1.4
+     */
+    public static Queue fromPieces(Piece[] pieces){
+        return new Queue(pieces);
     }
     /**
      * Regenerates all {@code Piece} objects in the queue. This resets the queue without changing its size.

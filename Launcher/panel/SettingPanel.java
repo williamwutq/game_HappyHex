@@ -34,15 +34,11 @@ import java.awt.*;
 public class SettingPanel extends UniversalPanel {
     private JLabel launchSettingTitleLabel;
     private JLabel launchSettingEasyModeLabel;
-    private JLabel launchSettingRestartGameLabel;
-    private JLabel launchSettingUseAutoplayLabel;
     private JLabel launchSettingGameSizeLabel;
     private JLabel launchSettingGameSmallLabel;
     private JLabel launchSettingGameMediumLabel;
     private JLabel launchSettingGameLargeLabel;
     private SlidingButton launchSettingEasyModeButton;
-    private SlidingButton launchSettingRestartGameButton;
-    private SlidingButton launchSettingUseAutoplayButton;
     private SlidingButton launchSettingGameSmallButton;
     private SlidingButton launchSettingGameMediumButton;
     private SlidingButton launchSettingGameLargeButton;
@@ -89,62 +85,6 @@ public class SettingPanel extends UniversalPanel {
         launchSettingEasyModePanel.add(launchSettingEasyModeLabel);
         launchSettingEasyModePanel.add(launchSettingEasyModeButton);
         launchSettingEasyModePanel.add(Box.createHorizontalGlue());
-
-        launchSettingRestartGameLabel = new JLabel(" Auto Restart | ");
-        launchSettingRestartGameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
-        launchSettingRestartGameLabel.setForeground(LaunchEssentials.launchVersionFontColor);
-        launchSettingRestartGameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        launchSettingRestartGameLabel.setVerticalAlignment(SwingConstants.CENTER);
-        launchSettingRestartGameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingRestartGameButton = new SlidingButton(){
-            @Override
-            protected void turnedOn() {
-                super.turnedOn();
-                LaunchEssentials.setRestartGame(true);
-            }
-            @Override
-            protected void turnedOff(){
-                super.turnedOff();
-                LaunchEssentials.setRestartGame(false);
-            }
-        };
-        launchSettingRestartGameButton.setState(LaunchEssentials.isRestartGame());
-
-        JPanel launchSettingRestartGamePanel = new JPanel();
-        launchSettingRestartGamePanel.setBackground(this.getBackground());
-        launchSettingRestartGamePanel.setLayout(new BoxLayout(launchSettingRestartGamePanel, BoxLayout.X_AXIS));
-        launchSettingRestartGamePanel.add(Box.createHorizontalGlue());
-        launchSettingRestartGamePanel.add(launchSettingRestartGameLabel);
-        launchSettingRestartGamePanel.add(launchSettingRestartGameButton);
-        launchSettingRestartGamePanel.add(Box.createHorizontalGlue());
-
-        launchSettingUseAutoplayLabel = new JLabel(" Use Autoplay | ");
-        launchSettingUseAutoplayLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
-        launchSettingUseAutoplayLabel.setForeground(LaunchEssentials.launchVersionFontColor);
-        launchSettingUseAutoplayLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        launchSettingUseAutoplayLabel.setVerticalAlignment(SwingConstants.CENTER);
-        launchSettingUseAutoplayLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        launchSettingUseAutoplayButton = new SlidingButton(){
-            @Override
-            protected void turnedOn() {
-                super.turnedOn();
-                LaunchEssentials.setUseAutoplay(true);
-            }
-            @Override
-            protected void turnedOff(){
-                super.turnedOff();
-                LaunchEssentials.setUseAutoplay(false);
-            }
-        };
-        launchSettingUseAutoplayButton.setState(LaunchEssentials.isUseAutoplay());
-
-        JPanel launchSettingUseAutoplayPanel = new JPanel();
-        launchSettingUseAutoplayPanel.setBackground(this.getBackground());
-        launchSettingUseAutoplayPanel.setLayout(new BoxLayout(launchSettingUseAutoplayPanel, BoxLayout.X_AXIS));
-        launchSettingUseAutoplayPanel.add(Box.createHorizontalGlue());
-        launchSettingUseAutoplayPanel.add(launchSettingUseAutoplayLabel);
-        launchSettingUseAutoplayPanel.add(launchSettingUseAutoplayButton);
-        launchSettingUseAutoplayPanel.add(Box.createHorizontalGlue());
 
         launchSettingGameSizeLabel = new JLabel("- Game Size -");
         launchSettingGameSizeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
@@ -245,7 +185,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargePanel.add(Box.createHorizontalGlue());
 
         return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(),
-                launchSettingEasyModePanel, launchSettingRestartGamePanel, launchSettingUseAutoplayPanel,
+                launchSettingEasyModePanel,
                 launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel,
                 new QuitButton(), (JComponent) Box.createVerticalGlue()};
     }
@@ -266,8 +206,6 @@ public class SettingPanel extends UniversalPanel {
         launchSettingTitleLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/200.0)*2, 0, (int)Math.round(referenceGameNameSize/200.0), 0));
         Font labelFont = new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/24.0));
         launchSettingEasyModeLabel.setFont(labelFont);
-        launchSettingRestartGameLabel.setFont(labelFont);
-        launchSettingUseAutoplayLabel.setFont(labelFont);
         launchSettingGameSizeLabel.setFont(labelFont);
         launchSettingGameSmallLabel.setFont(labelFont);
         launchSettingGameMediumLabel.setFont(labelFont);
@@ -276,8 +214,6 @@ public class SettingPanel extends UniversalPanel {
 
         Dimension buttonSize = new Dimension((int)Math.round(referenceStartButtonSize/4), (int)Math.round(referenceStartButtonSize/12));
         launchSettingEasyModeButton.mandateSize(buttonSize);
-        launchSettingRestartGameButton.mandateSize(buttonSize);
-        launchSettingUseAutoplayButton.mandateSize(buttonSize);
         launchSettingGameSmallButton.mandateSize(buttonSize);
         launchSettingGameMediumButton.mandateSize(buttonSize);
         launchSettingGameLargeButton.mandateSize(buttonSize);

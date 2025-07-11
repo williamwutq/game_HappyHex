@@ -170,7 +170,7 @@ public class GameOverPanel extends JPanel implements ComponentListener {
             gameNameLabels[i].setVerticalAlignment(SwingConstants.CENTER);
             gameNameLabels[i].setText(gameNameString.substring(i, i + 1));
             gameNameLabels[i].setForeground(GUI.GameEssentials.interpolate(
-                    GUI.GameEssentials.getIndexedPieceColor((gameNameLabelIndexShift + i * 5) % 12),
+                    GUI.GameEssentials.generateColor((gameNameLabelIndexShift + i * 5) % 12),
                     panel.getBackground(), 4));
             panel.add(gameNameLabels[i]);
         }

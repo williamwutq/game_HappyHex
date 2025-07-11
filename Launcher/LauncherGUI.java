@@ -44,6 +44,8 @@ public class LauncherGUI {
     }
     public static String getGameHint(){
         String[] hints = new String[]{
+                "Try InfinityHex",
+                "Consider InfinityHex?",
                 "Try log in as Player",
                 "Try log in as God",
                 "Try log in as Devil",
@@ -163,7 +165,7 @@ public class LauncherGUI {
                     GameEssentials.resetGame();
                 }
                 // Close
-                GameEssentials.interruptAutoplay();
+                GameEssentials.terminateAutoplay();
                 System.out.println(io.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
                 System.exit(0);

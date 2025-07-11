@@ -33,20 +33,24 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A command processor that communicates with a Python subprocess.
- *
- * <p>This class launches a Python process using the provided script path and enables two-way
+ * <p>
+ * This class launches a Python process using the provided script path and enables two-way
  * communication with it via standard input and output streams. Commands and arguments are
  * written to the Python process's input stream, and any response from the output stream is
- * interpreted as a new command to be handled by the callback processor.</p>
- *
- * <p>The processor listens asynchronously for output from the Python subprocess. Each line of
+ * interpreted as a new command to be handled by the callback processor.
+ * <p>
+ * The processor listens asynchronously for output from the Python subprocess. Each line of
  * output is treated as a command string and passed to the callback processor for handling.
  * If the callback throws an {@link IllegalArgumentException}, it is ignored. If it throws
  * an {@link InterruptedException}, the Python process is terminated and the callback processor
- * is interrupted via interruption by sending the {@code "interrupt"} command.</p>
+ * is interrupted via interruption by sending the {@code "interrupt"} command.
+ * <p>
+ * The processor is closable via the {@link AutoCloseable} interface. When closing, it shuts down
+ * the python process and its callback processor.
  *
  * <p>Requirements enforced by this implementation:
  * <ul>
@@ -55,12 +59,11 @@ import java.util.concurrent.Executors;
  *   <li>The Python process is terminated if the callback throws {@link InterruptedException} or
  *   if the process ends naturally.</li>
  * </ul></p>
- * @version 1.3.3
+ * @version 1.4
  * @author William Wu
- * @since 1.3.3
+ * @since 1.4
  */
-public class PythonCommandProcessor implements CommandProcessor {
-    private int time;
+public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
     private final Process process;
     private final BufferedWriter writer;
     private final BufferedReader reader;
@@ -98,14 +101,18 @@ public class PythonCommandProcessor implements CommandProcessor {
             while ((line = reader.readLine()) != null) {
                 final String received = line.trim();
                 if (processor != null && !received.isEmpty()) {
-                    executor.submit(() -> {
-                        try {
-                            processor.execute(received);
-                        } catch (IllegalArgumentException ignored) {
-                        } catch (InterruptedException e) {
-                            processorInterrupted(processor);
-                        }
-                    });
+                    try {
+                        executor.submit(() -> {
+                            try {
+                                processor.execute(received);
+                            } catch (IllegalArgumentException ignored) {
+                            } catch (InterruptedException e) {
+                                processorInterrupted(processor);
+                            }
+                        });
+                    } catch (RejectedExecutionException ignored) {
+                        processorInterrupted(processor);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -190,7 +197,12 @@ public class PythonCommandProcessor implements CommandProcessor {
      */
     public void close() {
         executor.shutdownNow();
+        try {
+            writer.close();
+        } catch (IOException ignored) {}
+        try{
+            reader.close();
+        } catch (IOException ignored) {}
         process.destroy();
     }
 }
-

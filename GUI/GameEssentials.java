@@ -26,13 +26,14 @@ package GUI;
 
 import GUI.animation.*;
 import Launcher.LaunchEssentials;
+import game.AutoplayHandler;
+import game.GameGUIInterface;
 import hex.Hex;
 import hex.HexEngine;
 import game.Queue;
 import hex.Piece;
 import hexio.HexLogger;
 import io.GameTime;
-import python.PythonCommandProcessor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,11 +44,11 @@ import java.io.IOException;
  * <p>
  * This class is final and cannot be extended.
  */
-public final class GameEssentials {
+public final class GameEssentials implements GameGUIInterface {
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The delay to a typical action of the game, in ms*/
-    private static int actionDelay = 80;
+    private static final int actionDelay = 250;
     /** The main game engine object. */
     private static HexEngine engine;
     /** The main game queue of pieces, which contain a number of {@link hex.Piece}. */
@@ -56,22 +57,15 @@ public final class GameEssentials {
     private static JFrame window;
     /** The game logger used for data recording. */
     private static HexLogger gameLogger;
-    // Info panels and quit button
-    private static GameInfoPanel turnLabel;
-    private static GameInfoPanel scoreLabel;
-    private static GameInfoPanel playerLabel;
-    private static GameQuitButton quitButton;
+    private static PiecePanel piecePanel;
+    private static GamePanel gamePanel;
+
+    private static AutoplayHandler autoplayHandler = new AutoplayHandler(new GameEssentials());
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
     private static int clickedOnIndex = -1;
-
-    private static int turn = 0;
-    private static int score = 0;
-
-    // Autoplay
-    private static Thread autoplayThread;
 
     // Special Features
     private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
@@ -107,25 +101,8 @@ public final class GameEssentials {
     public static Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7), "GameQuitFontColor");
 
     /**
-     * Sets the typical action delay of the game in ms, must be an integer between 10 and 100000.
-     *
-     * @param delay the new delay of a typical action in the game; must be between 10 (inclusive) and 100000 (inclusive).
-     */
-    public static void setDelay(int delay) {
-        if (delay <= 100000 && delay >= 10) {
-            actionDelay = delay;
-        }
-    }
-    /**
-     * Get the typical action delay of the game in ms
-     *
-     * @return the delay of a typical action in the game.
-     */
-    public static int getDelay() {
-        return actionDelay;
-    }
-    /**
-     * Generates a random {@link Color} from a predefined set of 12 distinct colors.
+     * Generates a random {@link Color} from a predefined set of 12 distinct colors by index.
+     * @param index the index of the color to choose from, -1 and -2 represent default colors.
      * @return a randomly selected {@code SolidColor} object.
      */
     public static Color generateColor(int index) {
@@ -135,42 +112,43 @@ public final class GameEssentials {
             return getDefaultColor();
         } else return pieceColors[index];
     }
-    public static Color getIndexedPieceColor(int index){
-        if(index < 12 && index >= 0){
-            return pieceColors[index];
-        } else return null;
-    }
-    public static Color getDefaultColor(){
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        for (Color color : pieceColors){
-            r += color.getRed();
-            g += color.getGreen();
-            b += color.getBlue();
-        }
+    /**
+     * Generates the default color by interpolating the background and the default block color.
+     * @return the default color resulting from interpolation.
+     */
+    private static Color getDefaultColor(){
         return interpolate(gameBackgroundColor, gameBlockDefaultColor, 2);
     }
-    @Deprecated
-    public static Color whitenColor(Color origin){
-        return new Color((origin.getRed() + 255)/2, (origin.getGreen() + 255)/2, (origin.getBlue() + 255)/2);
-    }
-    @Deprecated
-    public static Color darkenColor(Color origin){
-        return new Color((origin.getRed())/2, (origin.getGreen())/2, (origin.getBlue())/2);
-    }
+    /**
+     * Dim a color, namely lower the alpha value of that color by 80%.
+     * @param origin the original color.
+     * @return the dimmed color.
+     */
     public static Color dimColor(Color origin){
         return new Color(origin.getRed(), origin.getGreen(), origin.getBlue(), (int)Math.round(origin.getAlpha() * 0.8));
     }
-    public static Color processColor(Color origin){
-        return (Color) colorProcessor.process(origin);
-    }
+    /**
+     * Process a color with special color processor providing hints to the processor.
+     * @param origin the original color.
+     * @return the processed color.
+     */
     public static Color processColor(Color origin, String hint){
         return (Color) colorProcessor.process(origin, hint);
     }
+    /**
+     * Interpolating a color base with a color target with a given degree. Degree will result in color closer to the base.
+     * @param base the base color.
+     * @param target the target color
+     * @param degree the interpolation constant used by the operation, higher value result in color closer to base.
+     * @return the interpolation of the colors as defined by the degree.
+     */
     public static Color interpolate(Color base, Color target, int degree){
         return new Color((base.getRed()*degree + target.getRed())/(1 + degree),(base.getGreen()*degree + target.getGreen())/(1 + degree),(base.getBlue()*degree + target.getBlue())/(1 + degree));
     }
+    /**
+     * Change the special color processor to a given processor and update all static colors.
+     * @param newProcessor the new color processor to be used.
+     */
     public static void changeColorProcessor(special.SpecialFeature newProcessor){
         colorProcessor = newProcessor;
         pieceColors = (Color[]) colorProcessor.process(getRawPieceColors());
@@ -182,13 +160,23 @@ public final class GameEssentials {
         gameDisplayFontColor = processColor(new Color(5, 34, 24), "GameDisplayFontColor");
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
     }
+    /**
+     * Process a font with special font processor providing hints to the processor.
+     * @param origin the original font.
+     * @return the processed font.
+     */
     public static String processFont(String origin, String hint){
         return (String) fontProcessor.process(origin, hint);
     }
+    /**
+     * Change the special font processor to a given processor and update all static fonts.
+     * @param newProcessor the new font processor to be used.
+     */
     public static void changeFontProcessor(special.SpecialFeature newProcessor){
         fontProcessor = newProcessor;
         gameDisplayFont = processFont("Courier", "GameDisplayFont");
     }
+
     // Resizing
     public static void calculateButtonSize(){
         if(engine == null || window == null){
@@ -199,35 +187,6 @@ public final class GameEssentials {
         double verticalCount = engine().getRadius() * 3 + 4;
         double minSize = Math.min((window().getHeight()-33) / verticalCount, (window().getWidth()-5) / horizontalCount / GameEssentials.sinOf60);
         HexButton.setSize(minSize);
-    }
-    public static void calculateLabelSize() {
-        int height = window().getHeight();
-        int width = window().getWidth();
-        int gamePanelExtension = getGamePanelWidthExtension();
-
-        double minSize = Math.min(height - 33, width - 5);
-        int labelWidth = (int) Math.round(minSize / 6.0);
-        int labelHeight = (int) Math.round(minSize / 12.0);
-        Dimension dimension = new Dimension(labelWidth, labelHeight);
-        SimpleButton.setSize((int)Math.round(labelHeight*0.6));
-
-        int margin = 3;
-        int piecePanelSize = (int) Math.round(5 * HexButton.getActiveSize());
-        int bottomOffset = labelHeight + 28 + margin;
-
-        int right = width - gamePanelExtension - labelWidth - margin;
-        int bottom = height - piecePanelSize - bottomOffset;
-
-        turnLabel.setPreferredSize(dimension);
-        scoreLabel.setPreferredSize(dimension);
-        playerLabel.setPreferredSize(dimension);
-        quitButton.setPreferredSize(dimension);
-        quitButton.resetSize();
-
-        turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
-        scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
-        playerLabel.setBounds(new Rectangle(new Point(right, bottom), dimension));
-        quitButton.setBounds(new Rectangle(new Point(margin + gamePanelExtension, bottom), dimension));
     }
     public static int getPiecePanelWidthExtension(){
         int half = window.getWidth()/2;
@@ -244,13 +203,11 @@ public final class GameEssentials {
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
     // Initializing
-    public static void initialize(int size, int queueSize, int delay, boolean easy, JFrame frame, String player, HexLogger logger, boolean autoPlay){
+    public static void initialize(int size, int queueSize, boolean easy, JFrame frame, String player, HexLogger logger){
         System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
         if(easy) {
             game.PieceFactory.setEasy();
         }
-        score = 0;
-        turn = 0;
         selectedPieceIndex = -1;
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
@@ -261,9 +218,6 @@ public final class GameEssentials {
         // Logger initialize
         gameLogger = logger;
         if(logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize){
-            // Copy logger info to game
-            score = logger.getScore();
-            turn = logger.getTurn();
             for (hex.Block block : logger.getEngine().blocks()){
                 if (block != null && block.getState()) {
                     hex.Block cloned = block.clone();
@@ -284,51 +238,22 @@ public final class GameEssentials {
             gameLogger.setScore(0);
             gameLogger.setTurn(0);
         }
-        // Construct labels
-        turnLabel = new GameInfoPanel();
-        scoreLabel = new GameInfoPanel();
-        playerLabel = new GameInfoPanel();
-        quitButton = new GameQuitButton();
-        turnLabel.setTitle("TURN");
-        scoreLabel.setTitle("SCORE");
-        playerLabel.setTitle("PLAYER");
-        turnLabel.setInfo(turn + "");
-        scoreLabel.setInfo(score + "");
-        playerLabel.setInfo(player);
-        turnLabel.setBounds(0, 0, 100, 100);
-        scoreLabel.setBounds(300, 0, 100, 100);
-        playerLabel.setBounds(300, 300, 100, 100);
+        // Construct GUI
+        HexButton.setSize(1);
+        piecePanel = new PiecePanel();
+        gamePanel = new GamePanel(engine.length(), getTurn(), getScore(), player);
         // Calculations
-        setDelay(delay);
-        calculateButtonSize();
-        calculateLabelSize();
-        // Start autoplay
-        if (autoPlay) {
-            autoplayThread = new Thread(() -> {
-                GameCommandProcessor gameCommandProcessor = new GameCommandProcessor();
-                PythonCommandProcessor pythonCommandProcessor;
-                try {
-                    pythonCommandProcessor = new PythonCommandProcessor("python/comm.py");
-                } catch (IOException e) {
-                    return; // exit the thread if initialization fails
-                }
-                gameCommandProcessor.setCallBackProcessor(pythonCommandProcessor);
-                pythonCommandProcessor.setCallBackProcessor(gameCommandProcessor);
-                int time = (queueSize*queueSize + 1) * (queueSize - 1) * 24;
-                while (!gameEnds() && !Thread.currentThread().isInterrupted()) {
-                    try {
-                        gameCommandProcessor.query();
-                        Thread.sleep(time);
-                    } catch (InterruptedException e) {
-                        // Re-set the interrupt flag and break loop
-                        Thread.currentThread().interrupt();
-                    } catch (Exception e) {
-                    }
-                }
-                frame.repaint();
-            });
-            autoplayThread.start();
-        } else autoplayThread = null;
+        piecePanel.doLayout();
+        gamePanel.doLayout();
+    }
+    public static void startAutoplay(){
+        autoplayHandler.run();
+    }
+    public static void interruptAutoplay(){
+        autoplayHandler.genericClose();
+    }
+    public static void terminateAutoplay(){
+        autoplayHandler.hardClose();
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
@@ -347,23 +272,32 @@ public final class GameEssentials {
         }
     }
     public static JPanel fetchGamePanel(){
-        JPanel panel = new GamePanel();
-        panel.add(turnLabel);
-        panel.add(scoreLabel);
-        panel.add(playerLabel);
-        panel.add(quitButton);
-        return panel;
+        return gamePanel;
     }
     public static JPanel fetchPiecePanel(){
-        return new PiecePanel();
+        return piecePanel;
     }
 
     // End checking
+    public static void quitGame(){
+        if(Launcher.LaunchEssentials.isGameStarted()) {
+            // Log if it has score and reset
+            if (GameEssentials.getTurn() != 0) {
+                System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
+                GameEssentials.logGame();
+            } else {
+                System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game quits without change.");
+            }
+            autoplayHandler.genericClose();
+            GameEssentials.resetGame();
+        }
+        Launcher.LauncherGUI.returnHome();
+    }
     public static void checkEnd(){
         // If the game should end, log and reset
         if(gameEnds()){
-            if (autoplayThread != null) autoplayThread.interrupt();
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
+            autoplayHandler.genericClose();
             logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();
@@ -381,25 +315,16 @@ public final class GameEssentials {
         return true;
     }
     public static void resetGame(){
-        score = 0;
-        turn = 0;
         selectedPieceIndex = -1;
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
-        turnLabel.setInfo(turn + "");
-        scoreLabel.setInfo(score + "");
         gameLogger = new HexLogger(Launcher.LaunchEssentials.getCurrentPlayer(), Launcher.LaunchEssentials.getCurrentPlayerID());
         engine.reset();
         queue.reset();
         gameLogger.setEngine(engine);
         gameLogger.setQueue(queue.getPieces());
-        if (autoplayThread != null) autoplayThread.interrupt();
         window.repaint();
-    }
-
-    public static void interruptAutoplay(){
-        if (autoplayThread != null) autoplayThread.interrupt();
     }
 
     // Logging at the end
@@ -419,7 +344,7 @@ public final class GameEssentials {
         }}).start();
         if (LaunchEssentials.getCurrentPlayerID() == -1 || complete){
             // Log if the game is complete or the player did not log in, in which the game cannot be restarted.
-            LaunchEssentials.log(turn, score);
+            LaunchEssentials.log(getTurn(), getScore());
         } else {
             System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: JSON data not logged in logs.json because player has not completed the game.");
         }
@@ -427,18 +352,10 @@ public final class GameEssentials {
 
     // Scoring
     public static int getTurn(){
-        return turn;
+        return gameLogger.getTurn();
     }
     public static int getScore(){
-        return score;
-    }
-    public static void incrementTurn(){
-        turn ++;
-        turnLabel.setInfo(turn + "");
-    }
-    public static void incrementScore(int addedScore){
-        score += addedScore;
-        scoreLabel.setInfo(score + "");
+        return gameLogger.getScore();
     }
 
     // Setters
@@ -498,9 +415,8 @@ public final class GameEssentials {
         position = position.subtract(piece.getBlock(blockIndex));
         // Check this position, if good then add
         if (engine().checkAdd(position, piece)) {
-            incrementTurn();
-            incrementScore(piece.length());
             gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
+            gamePanel.updateDisplayedInfo(getTurn(), getScore());
             engine().add(position, queue().fetch(pieceIndex));
             // Generate animation
             for (int i = 0; i < piece.length(); i ++){
@@ -513,7 +429,7 @@ public final class GameEssentials {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
-            Timer gameTimer = new Timer(getDelay(), null);
+            Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
             gameTimer.start();
@@ -527,8 +443,6 @@ public final class GameEssentials {
             addAnimation(createDisappearEffect(block));
             addAnimation(createCenterEffect(new hex.Block(block)));
         }
-        // Add score
-        incrementScore(5 * eliminated.length);
         // Check end after eliminate
         checkEnd();
         window().repaint();
@@ -542,4 +456,54 @@ public final class GameEssentials {
     public static int getSelectedBlockIndex(){return selectedBlockIndex;}
     public static int getHoveredOverIndex() {return hoveredOverIndex;}
     public static int getClickedOnIndex() {return clickedOnIndex;}
+
+    @Override
+    public void setEngine(HexEngine newEngine) {
+        engine = newEngine;
+    }
+    @Override
+    public void setQueue(Piece[] pieces) {
+        queue = Queue.fromPieces(pieces);
+    }
+    @Override
+    public HexEngine getEngine() {
+        return engine;
+    }
+    @Override
+    public Piece[] getQueue() {
+        return queue.getPieces();
+    }
+    @Override
+    public boolean move(int originIndex, int pieceIndex) {
+        // Get piece
+        Piece piece; Hex position;
+        try {
+            piece = queue().get(pieceIndex);
+            position = engine().getBlock(originIndex);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
+        // Check this position, if good then add
+        if (engine().checkAdd(position, piece)) {
+            gameLogger.addMove(position, pieceIndex, queue.getPieces());
+            gamePanel.updateDisplayedInfo(getTurn(), getScore());
+            engine().add(position, queue().fetch(pieceIndex));
+            // Generate animation
+            for (int i = 0; i < piece.length(); i ++){
+                addAnimation(createCenterEffect(piece.getBlock(i).add(position)));
+            }
+        }
+        // Reset index
+        setSelectedPieceIndex(-1);
+        setClickedOnIndex(-1);
+        // Paint and eliminate
+        window().repaint();
+        if (engine().checkEliminate()) {
+            Timer gameTimer = new Timer(actionDelay, null);
+            gameTimer.setRepeats(false);
+            gameTimer.addActionListener(e -> GameEssentials.eliminate());
+            gameTimer.start();
+        } else checkEnd();
+        return true;
+    }
 }
