@@ -38,7 +38,8 @@ import java.awt.geom.Path2D;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AutoplayInteractive {
-    private final Color quitColor = LaunchEssentials.launchQuitButtonBackgroundColor;
+    private final Color quitNormalColor = LaunchEssentials.launchQuitButtonBackgroundColor;
+    private final Color quitHoverColor = new Color(207, 129, 11);
     private final Color borderColor = Color.BLACK;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final Runnable autoplayRun;
@@ -68,34 +69,47 @@ public class AutoplayInteractive {
     private class AutoplayControl extends JPanel{
         private CircularButton quitButton, autoButton;
         private AutoplayControl(){
-            quitButton = new CircularButton() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    quitGame();
-                }
-                @Override
-                public void mouseEntered(MouseEvent e) {}
-                @Override
-                public void mouseExited(MouseEvent e) {}
-                @Override
-                protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
-                    radius *= 0.75;
-                    double width = radius / 4;
-                    Path2D.Double path = new Path2D.Double();
-                    path.moveTo(cx + width, cy + radius);
-                    path.lineTo(cx - width * 2, cy);
-                    path.lineTo(cx + width, cy - radius);
-                    path.lineTo(cx - width, cy - radius);
-                    path.lineTo(cx - width * 4, cy);
-                    path.lineTo(cx - width, cy + radius);
-                    path.closePath();
-                    return path;
-                }
-                @Override
-                protected Color getColor() {
-                    return quitColor;
-                }
-            };
+            quitButton = new QuitButton() {};
+        }
+    }
+    private class QuitButton extends CircularButton{
+        private final DynamicColor internalColor;
+        private QuitButton(){
+            internalColor = new DynamicColor(quitNormalColor, quitHoverColor, this::repaint);
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            quitGame();
+        }
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            internalColor.restart();
+        }
+        @Override
+        public void mouseExited(MouseEvent e) {
+            internalColor.start();
+        }
+        @Override
+        protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
+            radius *= 0.75;
+            double width = radius / 4;
+            Path2D.Double path = new Path2D.Double();
+            path.moveTo(cx + width, cy + radius);
+            path.lineTo(cx - width * 2, cy);
+            path.lineTo(cx + width, cy - radius);
+            path.lineTo(cx - width, cy - radius);
+            path.lineTo(cx - width * 4, cy);
+            path.lineTo(cx - width, cy + radius);
+            path.closePath();
+            return path;
+        }
+        @Override
+        protected Color getColor() {
+            return internalColor.get();
+        }
+        @Override
+        public void repaint() {
+            super.repaint();
         }
     }
     /**
