@@ -89,7 +89,7 @@ public class AutoplayInteractive {
     public JComponent fetchControl(){
         return control;
     }
-    private class AutoplayControl extends JButton implements MouseListener{
+    private class AutoplayControl extends JButton implements MouseListener, ActionListener{
         // States: 1 - two buttons include quit
         //         2 - animation transition to auto on
         //         3 - animation transition to auto off
@@ -99,13 +99,14 @@ public class AutoplayInteractive {
         private int cachedOutlineWidth, cachedOutlineHeight, state;
         private double cachedDiameter, cachedX, cachedY;
         private DynamicColor dynamicBackground;
-        private final JLabel autoLabel;
+        private final JLabel autoLabel, slowLabel, fastLabel;
         private final CircularButton quitButton, autoOnButton, autoOffButton;
         private final Object stateLock;
         private AutoplayControl(){
             this.setAlignmentX(Component.CENTER_ALIGNMENT);
             this.setAlignmentY(Component.CENTER_ALIGNMENT);
             this.addMouseListener(this);
+            this.addActionListener(this);
             this.quitButton = new QuitButton();
             this.autoOnButton = new AutoOnButton();
             this.autoOffButton = new AutoOffButton();
@@ -113,6 +114,14 @@ public class AutoplayInteractive {
             this.autoLabel.setVerticalAlignment(SwingConstants.CENTER);
             this.autoLabel.setHorizontalAlignment(SwingConstants.CENTER);
             this.autoLabel.setFont(new Font(autoFont, Font.BOLD, 1));
+            this.slowLabel = new JLabel("slow");
+            this.slowLabel.setVerticalAlignment(SwingConstants.CENTER);
+            this.slowLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            this.slowLabel.setFont(new Font(autoFont, Font.PLAIN, 1));
+            this.fastLabel = new JLabel("fast");
+            this.fastLabel.setVerticalAlignment(SwingConstants.CENTER);
+            this.fastLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            this.fastLabel.setFont(new Font(autoFont, Font.PLAIN, 1));
             this.stateLock = new Object();
             this.cachedOutline = null;
             this.cachedOutlineWidth = -1;
@@ -121,9 +130,9 @@ public class AutoplayInteractive {
             this.dynamicBackground = null;
             this.state = 0; nextState();
         }
-
         private void nextState(){
             synchronized (stateLock) {
+                if (this.dynamicBackground != null) dynamicBackground.stop();
                 if (state == 1) {
                     state = 2;
                     this.dynamicBackground = new DynamicColor(autoAnimationStartColor, autoAnimationEndColor, this::checkAndPaint);
@@ -134,9 +143,11 @@ public class AutoplayInteractive {
                     this.revalidate();
                 } else if (state == 2) {
                     state = 4;
-                    this.dynamicBackground = new DynamicColor(autoSlowNormalColor, autoSlowNormalColor, this::repaint);
+                    this.dynamicBackground = new DynamicColor(autoSlowNormalColor, autoSlowHoverColor, this::repaint);
                     this.dynamicBackground.setDuration(1200);
                     this.removeAll();
+                    this.add(slowLabel);
+                    this.add(autoOffButton);
                     this.revalidate();
                 } else if (state == 3 || state == 0) {
                     state = 1;
@@ -148,6 +159,12 @@ public class AutoplayInteractive {
                     this.revalidate();
                 } else if (state == 4 || state == 5) {
                     state = 3;
+                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::checkAndPaint);
+                    this.dynamicBackground.setDuration(500);
+                    this.dynamicBackground.start();
+                    this.removeAll();
+                    this.add(autoLabel);
+                    this.revalidate();
                 }
             }
         }
@@ -165,7 +182,7 @@ public class AutoplayInteractive {
             DynamicColor dc = getDynamicBackground();
             if (dc != null) {
                 return dc.get();
-            } else return Color.MAGENTA;
+            } else return borderColor;
         }
         private void checkAndPaint() {
             DynamicColor dc = getDynamicBackground();
@@ -204,7 +221,8 @@ public class AutoplayInteractive {
          */
         @Override
         public void mouseEntered(MouseEvent e) {
-            if (getState() == 1 || getState() == 4 || getState() == 5) {
+            int state = getState();
+            if (state == 1 || state == 4 || state == 5) {
                 getDynamicBackground().restart();
             }
         }
@@ -216,11 +234,39 @@ public class AutoplayInteractive {
          */
         @Override
         public void mouseExited(MouseEvent e) {
-            if (getState() == 1 || getState() == 4 || getState() == 5) {
+            int state = getState();
+            if (state == 1 || state == 4 || state == 5) {
                 getDynamicBackground().start();
             }
         }
-
+        /**
+         * Handles the button click by invoking toggling speed of autoplay.
+         *
+         * @param e the {@link ActionEvent} triggered by clicking the button
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            synchronized (stateLock) {
+                if (this.dynamicBackground != null) dynamicBackground.stop();
+                if (state == 4) {
+                    this.state = 5;
+                    this.dynamicBackground = new DynamicColor(autoFastNormalColor, autoFastHoverColor, this::repaint);
+                    this.dynamicBackground.setDuration(1200);
+                    this.removeAll();
+                    this.add(fastLabel);
+                    this.add(autoOffButton);
+                    this.revalidate();
+                } else if (state == 5) {
+                    this.state = 4;
+                    this.dynamicBackground = new DynamicColor(autoSlowNormalColor, autoSlowHoverColor, this::repaint);
+                    this.dynamicBackground.setDuration(1200);
+                    this.removeAll();
+                    this.add(slowLabel);
+                    this.add(autoOffButton);
+                    this.revalidate();
+                }
+            }
+        }
         /**
          * Retrieves the cached outline corresponding to the current dimensions of the button.
          * <p>
@@ -283,6 +329,7 @@ public class AutoplayInteractive {
 
         public void doLayout(){
             super.doLayout();
+            getCachedCircle();
             int s = getState();
             int d = (int) cachedDiameter;
             int x = (int) cachedX;
@@ -292,7 +339,15 @@ public class AutoplayInteractive {
                 autoOnButton.setBounds(x + d * 2, y, d, d);
             } else if (s == 2 || s == 3){
                 autoLabel.setBounds(x, y, d * 3, d);
-                this.autoLabel.setFont(new Font(autoFont, Font.BOLD, d / 2));
+                autoLabel.setFont(new Font(autoFont, Font.BOLD, d / 2));
+            } else if (s == 4){
+                autoOffButton.setBounds(x, y, d, d);
+                slowLabel.setBounds(x + d, y, d * 2, d);
+                slowLabel.setFont(new Font(autoFont, Font.BOLD, d / 2));
+            } else if (s == 5){
+                autoOffButton.setBounds(x + d * 2, y, d, d);
+                fastLabel.setBounds(x, y, d * 2, d);
+                fastLabel.setFont(new Font(autoFont, Font.BOLD, d / 2));
             }
         }
     }
