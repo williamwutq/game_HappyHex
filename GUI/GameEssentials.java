@@ -249,11 +249,16 @@ public final class GameEssentials implements GameGUIInterface {
     public static void startAutoplay(){
         autoplayHandler.run();
     }
+    public static void interruptAutoplayExternal(){
+        autoplayHandler.genericClose();
+        gamePanel.quitAuto();
+    }
     public static void interruptAutoplay(){
         autoplayHandler.genericClose();
     }
     public static void terminateAutoplay(){
         autoplayHandler.hardClose();
+        gamePanel.quitAutoImmediately();
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];

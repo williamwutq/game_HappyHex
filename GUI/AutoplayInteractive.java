@@ -199,6 +199,16 @@ public class AutoplayInteractive {
         control.quitAutoplay();
     }
     /**
+     * Quit autoplay immediately by an external source. This will result in the control being modified.
+     * <p>
+     * This method calls the {@link AutoplayControl#quitAutoplayImmediately()} method.
+     *
+     * @see AutoplayControl#quitAutoplay()
+     */
+    public void quitAutoImmediately(){
+        control.quitAutoplayImmediately();
+    }
+    /**
      * Quits the game and immediately resets the autoplay control.
      * <p>
      * This method invokes {@link AutoplayInteractive.AutoplayControl#quitAutoplayImmediately()} to reset
@@ -355,6 +365,7 @@ public class AutoplayInteractive {
                     this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::checkAndPaint);
                     this.dynamicBackground.setDuration(500);
                     this.dynamicBackground.applyPosition(1 - position);
+                    this.dynamicBackground.reverseDirection();
                     this.dynamicBackground.start();
                     this.removeAll();
                     this.add(autoLabel);

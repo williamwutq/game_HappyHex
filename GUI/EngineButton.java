@@ -72,7 +72,7 @@ public class EngineButton extends HexButton {
     }
     protected void clicked(){
         GameEssentials.setClickedOnIndex(getIndex());
-        GameEssentials.interruptAutoplay();
+        GameEssentials.interruptAutoplayExternal();
         if(GameEssentials.getSelectedBlockIndex() != -1) {
             GameEssentials.addMove(fetchBlock().thisHex());
         }

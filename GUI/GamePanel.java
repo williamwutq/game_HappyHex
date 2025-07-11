@@ -106,7 +106,13 @@ public class GamePanel extends JPanel {
         scoreLabel.setInfo(score + "");
     }
     public void removeNotify(){
-        autoplayInteractive.quitAuto();
+        autoplayInteractive.quitAutoImmediately();
         super.removeNotify();
+    }
+    public void quitAutoImmediately(){
+        autoplayInteractive.quitAutoImmediately();
+    }
+    public void quitAuto(){
+        autoplayInteractive.quitAuto();
     }
 }
