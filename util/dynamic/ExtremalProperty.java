@@ -91,9 +91,9 @@ public interface ExtremalProperty<T> extends DynamicProperty<T> {
     /**
      * Returns the total duration required to go from one end to the other.
      *
-     * @return the run duration in seconds or ticks
+     * @return the run duration in milliseconds or ticks
      */
-    double getDuration();
+    int getDuration();
     /**
      * Sets the total duration for a full transition between extremes.
      * <p>
@@ -102,7 +102,7 @@ public interface ExtremalProperty<T> extends DynamicProperty<T> {
      * @param duration the new duration value (must be positive)
      * @throws IllegalArgumentException if duration is not positive
      */
-    default void setDuration(double duration) {
+    default void setDuration(int duration) {
         if (duration <= 0) {
             throw new IllegalArgumentException("Duration must be positive.");
         }
@@ -113,11 +113,11 @@ public interface ExtremalProperty<T> extends DynamicProperty<T> {
     }
     /**
      * Internal hook to update the internal duration.
-     * Called by {@link #setDuration(double)}.
+     * Called by {@link #setDuration(int)}.
      *
      * @param duration the validated duration value
      */
-    void applyDuration(double duration);
+    void applyDuration(int duration);
     /**
      * Resets the property to its default extreme and set direction to positive.
      * <p>

@@ -83,11 +83,11 @@ public interface CircularProperty<T> extends DynamicProperty<T> {
      */
     double getDefaultPhase();
     /**
-     * Gets the current period (duration of a full cycle), in seconds or ticks, depending on implementation.
+     * Gets the current period (duration of a full cycle), in milliseconds or ticks, depending on implementation.
      *
      * @return the period of the cycle
      */
-    double getPeriod();
+    int getPeriod();
     /**
      * Sets the period (duration of a full cycle) of the property.
      * <p>
@@ -102,7 +102,7 @@ public interface CircularProperty<T> extends DynamicProperty<T> {
      * @param period the new period (must be positive)
      * @throws IllegalArgumentException if the period is not positive
      */
-    default void setPeriod(double period) {
+    default void setPeriod(int period) {
         if (period <= 0) {
             throw new IllegalArgumentException("Period must be positive.");
         }
@@ -113,11 +113,11 @@ public interface CircularProperty<T> extends DynamicProperty<T> {
     }
     /**
      * Internal hook to actually change the period value.
-     * This is called by {@link #setPeriod(double)} after stopping the property.
+     * This is called by {@link #setPeriod(int)} after stopping the property.
      *
      * @param period the new period value (guaranteed to be > 0)
      */
-    void applyPeriod(double period);
+    void applyPeriod(int period);
     /**
      * Advances the phase manually by a certain delta.
      * <p>
