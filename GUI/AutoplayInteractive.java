@@ -38,6 +38,65 @@ import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A Swing-based interactive component for controlling autoplay functionality in a game or animation.
+ * <p>
+ * The {@code AutoplayInteractive} class provides a user interface for starting, stopping, and adjusting
+ * the speed of an autoplay feature, as well as quitting the associated game or animation. It encapsulates
+ * a state machine managed by the inner class {@link AutoplayInteractive.AutoplayControl}, which is a custom
+ * {@link javax.swing.JButton} that renders a rounded rectangular button with dynamic color animations and
+ * child components (buttons and labels) to reflect different states.
+ * <p>
+ * <b>Implementation Details:</b>
+ * <ul>
+ *   <li>The interactive component is implemented via the {@link AutoplayInteractive.AutoplayControl} inner
+ *       class, which manages a state machine with five states: two-button mode (quit and start autoplay),
+ *       autoplay-on transition, autoplay-off transition, slow autoplay, and fast autoplay.</li>
+ *   <li>Child buttons ({@link AutoplayInteractive.QuitButton}, {@link AutoplayInteractive.AutoOnButton},
+ *       {@link AutoplayInteractive.AutoOffButton}) extend the abstract {@link AutoplayInteractive.CircularButton}
+ *       class, providing circular buttons with custom shapes (e.g., arrow for quit, triangle for start) and
+ *       animated color transitions using {@link DynamicColor}.</li>
+ *   <li>The class uses three {@link java.lang.Runnable} callbacks provided at construction:
+ *       {@code autoplayRun} to start the autoplay process, {@code autoplayClose} to stop it, and
+ *       {@code quitGame} to exit the game. These are invoked by internal methods
+ *       ({@link #startAuto()}, {@link #stopAuto()}, {@link #quitGame()}) triggered by user interactions.</li>
+ *   <li>Thread safety is ensured through an {@link java.util.concurrent.atomic.AtomicBoolean} ({@code isRunning})
+ *       for tracking autoplay state and synchronization within {@link AutoplayInteractive.AutoplayControl} for
+ *       managing its state and animations. All Swing operations occur on the Event Dispatch Thread (EDT).</li>
+ *   <li>Resources (e.g., {@link DynamicColor} animations) are cleaned up via {@code removeNotify()} in
+ *       {@link AutoplayInteractive.AutoplayControl} and its child buttons, with an additional
+ *       {@link AutoplayInteractive.AutoplayControl#quitAutoplayImmediately()} method for immediate cleanup.</li>
+ * </ul>
+ * <p>
+ * <b>Retrieving the Interactive Component:</b>
+ * The interactive component is retrieved via the {@link #fetchControl()} method, which returns the
+ * {@link AutoplayInteractive.AutoplayControl} instance as a {@link javax.swing.JComponent}. This component
+ * can be added to a Swing container (e.g., a {@link javax.swing.JPanel}) to integrate the autoplay controls
+ * into a larger UI. The component dynamically updates its appearance based on user interactions (mouse hovers,
+ * clicks) and state transitions, providing visual feedback through animations and label/button changes.
+ * <p>
+ * <b>Usage Example:</b>
+ * <pre>{@code
+ * AutoplayInteractive autoplay = new AutoplayInteractive(
+ *     () -> System.out.println("Autoplay started"),
+ *     () -> System.out.println("Autoplay stopped"),
+ *     () -> System.out.println("Game quit")
+ * );
+ * JPanel panel = new JPanel();
+ * panel.add(autoplay.fetchControl());
+ * }</pre>
+ * <p>
+ * This class is designed to be flexible, allowing external systems to define the behavior of autoplay and
+ * game quitting through callbacks, while providing a visually engaging and thread-safe UI component.
+ *
+ * @author William Wu
+ * @version 1.4
+ * @since 1.4
+ * @see AutoplayInteractive.AutoplayControl
+ * @see AutoplayInteractive.CircularButton
+ * @see DynamicColor
+ * @see javax.swing.JComponent
+ */
 public class AutoplayInteractive {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double radiusMultiplier = 0.94;
@@ -58,14 +117,49 @@ public class AutoplayInteractive {
     private final Color borderColor = Color.BLACK;
     private final String autoFont = LaunchEssentials.launchSettingsSlidingButtonFont;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
-    private final Runnable autoplayRun;
-    private final Runnable autoplayClose;
+    private final Runnable autoplayRun, autoplayClose, quitGame;
     private final AutoplayControl control;
-    public AutoplayInteractive(Runnable autoplayRun, Runnable autoplayClose){
+
+    /**
+     * Constructs an {@code AutoplayInteractive} instance with callbacks for controlling autoplay and game termination.
+     * <p>
+     * This constructor initializes the {@code AutoplayInteractive} with three {@link java.lang.Runnable} callbacks:
+     * {@code autoplayRun} to start the autoplay process, {@code autoplayClose} to stop it, and {@code quitGame}
+     * to exit the associated game or animation. It creates an instance of {@link AutoplayInteractive.AutoplayControl}
+     * to serve as the interactive UI component, which manages the state machine and user interactions. The
+     * {@code isRunning} flag is initialized to {@code false}, indicating that autoplay is not active at construction.
+     * The provided callbacks are stored for use in {@link #startAuto()}, {@link #stopAuto()}, and {@link #quitGame()}.
+     * <p>
+     * The constructed instance is ready to be integrated into a Swing UI via {@link #fetchControl()}, which returns
+     * the {@link AutoplayInteractive.AutoplayControl} component.
+     *
+     * @param autoplayRun   the {@link java.lang.Runnable} to execute when starting autoplay, may be null
+     * @param autoplayClose the {@link java.lang.Runnable} to execute when stopping autoplay, may be null
+     * @param quitGame      the {@link java.lang.Runnable} to execute when quitting the game, may be null
+     * @see AutoplayInteractive.AutoplayControl
+     * @see #fetchControl()
+     * @see #startAuto()
+     * @see #stopAuto()
+     * @see #quitGame()
+     */
+    public AutoplayInteractive(Runnable autoplayRun, Runnable autoplayClose, Runnable quitGame){
         this.autoplayRun = autoplayRun;
         this.autoplayClose = autoplayClose;
+        this.quitGame = quitGame;
         this.control = new AutoplayControl();
     }
+    /**
+     * Starts the autoplay process and advances the control's state.
+     * <p>
+     * This method sets the {@code isRunning} flag to {@code true} using an atomic operation to prevent
+     * concurrent starts. If the autoplay is not already running, it invokes the {@code autoplayRun}
+     * callback (if provided) to initiate the external autoplay process. It then triggers a state transition
+     * in the {@link AutoplayInteractive.AutoplayControl} via {@link AutoplayInteractive.AutoplayControl#nextState()}.
+     * This method is called internally by {@link AutoplayInteractive.AutoOnButton} when clicked.
+     *
+     * @see AutoplayInteractive.AutoOnButton
+     * @see AutoplayInteractive.AutoplayControl#nextState()
+     */
     private void startAuto(){
         if (isRunning.getAndSet(true)){
             if (autoplayRun != null){
@@ -74,6 +168,18 @@ public class AutoplayInteractive {
         }
         control.nextState();
     }
+    /**
+     * Stops the autoplay process and advances the control's state.
+     * <p>
+     * This method sets the {@code isRunning} flag to {@code false} using an atomic operation to prevent
+     * concurrent stops. If the autoplay is currently running, it invokes the {@code autoplayClose}
+     * callback (if provided) to terminate the external autoplay process. It then triggers a state transition
+     * in the {@link AutoplayInteractive.AutoplayControl} via {@link AutoplayInteractive.AutoplayControl#nextState()}.
+     * This method is called internally by {@link AutoplayInteractive.AutoOffButton} when clicked.
+     *
+     * @see AutoplayInteractive.AutoOffButton
+     * @see AutoplayInteractive.AutoplayControl#nextState()
+     */
     private void stopAuto(){
         if (isRunning.getAndSet(false)){
             if (autoplayClose != null){
@@ -82,10 +188,32 @@ public class AutoplayInteractive {
         }
         control.nextState();
     }
+    /**
+     * Quits the game and immediately resets the autoplay control.
+     * <p>
+     * This method invokes {@link AutoplayInteractive.AutoplayControl#quitAutoplayImmediately()} to reset
+     * the control's state and stop its animations, then runs the {@code quitGame} callback to perform
+     * the external game termination logic. It is called internally by {@link AutoplayInteractive.QuitButton}
+     * when clicked, ensuring the autoplay control is cleaned up before the game exits.
+     *
+     * @see AutoplayInteractive.QuitButton
+     * @see AutoplayInteractive.AutoplayControl#quitAutoplayImmediately()
+     */
     private void quitGame(){
-        // -------------------------------------- !TO BE IMPLEMENTED! --------------------------------------
-        // Some code to quit this thing
+        control.quitAutoplayImmediately();
+        quitGame.run();
     }
+    /**
+     * Retrieves the interactive autoplay control component.
+     * <p>
+     * This method returns the {@link AutoplayInteractive.AutoplayControl} instance as a
+     * {@link javax.swing.JComponent}, which can be added to a Swing container to integrate the autoplay
+     * controls into a user interface. The returned component manages its own state, animations, and
+     * user interactions (e.g., mouse hovers, clicks) to control the autoplay feature.
+     *
+     * @return the {@link AutoplayInteractive.AutoplayControl} instance as a {@link javax.swing.JComponent}
+     * @see AutoplayInteractive.AutoplayControl
+     */
     public JComponent fetchControl(){
         return control;
     }
@@ -1180,16 +1308,5 @@ public class AutoplayInteractive {
         protected Color getColor(){
             return borderColor;
         }
-    }
-    public static void main(String[] args){
-        AutoplayInteractive interactive = new AutoplayInteractive(null, null);
-        JFrame mainFrame = new JFrame("HappyHex AutoplayInteractive Test");
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setLayout(new BorderLayout());
-        mainFrame.setBackground(Color.WHITE);
-        mainFrame.setSize(new Dimension(400, 400));
-        mainFrame.setMinimumSize(new Dimension(400, 400));
-        mainFrame.add(interactive.fetchControl());
-        mainFrame.setVisible(true);
     }
 }
