@@ -102,6 +102,18 @@ public class AutoplayInteractive {
         private final JLabel autoLabel, slowLabel, fastLabel;
         private final CircularButton quitButton, autoOnButton, autoOffButton;
         private final Object stateLock;
+        /**
+         * Constructs a new {@code AutoplayControl} instance.
+         * <p>
+         * Initializes the autoplay control as a centered {@link javax.swing.JButton} with mouse and action
+         * listeners. Sets up child components ({@code quitButton}, {@code autoOnButton}, {@code autoOffButton},
+         * and labels) and initializes the state machine by transitioning to the initial state. All cached
+         * fields are set to default values, and a synchronization lock is created for thread-safe state
+         * management.
+         *
+         * @see #nextState()
+         * @see javax.swing.JButton
+         */
         private AutoplayControl(){
             this.setAlignmentX(Component.CENTER_ALIGNMENT);
             this.setAlignmentY(Component.CENTER_ALIGNMENT);
@@ -130,6 +142,76 @@ public class AutoplayInteractive {
             this.dynamicBackground = null;
             this.state = 0; nextState();
         }
+        /**
+         * Quit autoplay by an external source. This will transition the state machine to state 1 eventually.
+         * <p>
+         * This method updates the {@code state} field and configures the component's appearance
+         * (e.g., adding/removing child components, updating {@code dynamicBackground}) based on the
+         * new state. If the current state is with autoplay on, the transitional state is used; if the current state
+         * is already in autoplay off or is transitioning to autoplay off, nothing will be executed; if the current
+         * state is transitioning to autoplay on, transition will be reversed.
+         *
+         * @see #getState()
+         * @see DynamicColor#start()
+         * @see javax.swing.JComponent#revalidate()
+         */
+        public void quitAutoplay(){
+            synchronized (stateLock) {
+                if (state == 2) {
+                    state = 4;
+                    double position = 0.0;
+                    if (this.dynamicBackground != null){
+                        dynamicBackground.stop();
+                        position = dynamicBackground.position();
+                    }
+                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::checkAndPaint);
+                    this.dynamicBackground.setDuration(500);
+                    this.dynamicBackground.applyPosition(1 - position);
+                    this.dynamicBackground.start();
+                    this.removeAll();
+                    this.add(autoLabel);
+                    this.revalidate();
+                } else if (state == 4 || state == 5) {
+                    state = 3;
+                    if (this.dynamicBackground != null) dynamicBackground.stop();
+                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::checkAndPaint);
+                    this.dynamicBackground.setDuration(500);
+                    this.dynamicBackground.start();
+                    this.removeAll();
+                    this.add(autoLabel);
+                    this.revalidate();
+                }
+            }
+        }
+        /**
+         * Quit autoplay immediately by an external source and dispose of all resources.
+         * <p>
+         * This method will set the state back to 0 and dispose of all buttons. Usually, this is called before
+         * the {@link AutoplayControl} is dereferenced to ensure proper closing of resources. However, if this
+         * component is removed from container, resources should be automatically closed.
+         *
+         * @see #removeNotify()
+         * @see DynamicColor#start()
+         */
+        public void quitAutoplayImmediately(){
+            synchronized (stateLock) {
+                state = 0;
+                if (this.dynamicBackground != null) dynamicBackground.stop();
+                this.removeAll();
+            }
+        }
+        /**
+         * Transitions the autoplay control to the next state in its state machine.
+         * <p>
+         * This method updates the {@code state} field and configures the component's appearance
+         * (e.g., adding/removing child components, updating {@code dynamicBackground}) based on the
+         * new state. It stops any existing animation before starting a new one and ensures thread-safe
+         * access to shared state using synchronization. The component is revalidated after changes.
+         *
+         * @see #getState()
+         * @see DynamicColor#start()
+         * @see javax.swing.JComponent#revalidate()
+         */
         private void nextState(){
             synchronized (stateLock) {
                 if (this.dynamicBackground != null) dynamicBackground.stop();
@@ -168,22 +250,64 @@ public class AutoplayInteractive {
                 }
             }
         }
+        /**
+         * Retrieves the current state of the autoplay control.
+         * <p>
+         * This method provides thread-safe access to the {@code state} field, which represents the current
+         * state in the autoplay control's state machine (e.g., 1 for two-button state, 2 for auto-on
+         * animation, etc.). The state is accessed within a synchronized block to ensure consistency.
+         *
+         * @return the current state as an integer
+         * @see #nextState()
+         */
         private int getState(){
             synchronized (stateLock) {
                 return state;
             }
         }
+        /**
+         * Retrieves the current dynamic background color animation.
+         * <p>
+         * This method provides thread-safe access to the {@code dynamicBackground} field, which manages
+         * the color animation for the button's background. It returns the current {@code DynamicColor}
+         * instance or null if no animation is active, synchronized to prevent concurrent modification.
+         *
+         * @return the current {@link DynamicColor} instance, or null if none is set
+         * @see DynamicColor
+         */
         private DynamicColor getDynamicBackground(){
             synchronized (stateLock) {
                 return this.dynamicBackground;
             }
         }
+        /**
+         * Retrieves the current background color from the dynamic animation.
+         * <p>
+         * This method returns the interpolated color from {@code dynamicBackground} if it exists, or falls
+         * back to the default {@code borderColor} if no animation is active. The color is used for filling
+         * the button's background during painting.
+         *
+         * @return the current {@link java.awt.Color} for the button's background
+         * @see DynamicColor#get()
+         */
         private Color getColor(){
             DynamicColor dc = getDynamicBackground();
             if (dc != null) {
                 return dc.get();
             } else return borderColor;
         }
+        /**
+         * Checks if the background color animation is complete and triggers the next state if so, then repaints.
+         * <p>
+         * This method is invoked by the {@code dynamicBackground} animation to check if it has reached completion
+         * (position 1.0). If complete, it calls {@link #nextState()} to transition to the next state in the
+         * autoplay control's state machine. Regardless of completion, it triggers a repaint to update the
+         * component's appearance with the current animation color. This is used in transitional states.
+         *
+         * @see DynamicColor#position()
+         * @see #nextState()
+         * @see #repaint()
+         */
         private void checkAndPaint() {
             DynamicColor dc = getDynamicBackground();
             if (dc != null && dc.position() == 1.0) {
@@ -191,7 +315,18 @@ public class AutoplayInteractive {
             }
             repaint();
         }
-
+        /**
+         * Renders the visual appearance of the autoplay control button.
+         * <p>
+         * This method draws a rounded rectangular outline with a specified stroke width and fills it with
+         * the current color obtained from {@link #getColor()}. Antialiasing is enabled for smooth rendering.
+         * Child components are painted after the background to ensure proper layering.
+         *
+         * @param g the {@link java.awt.Graphics} context used for painting
+         * @see #getCachedCircle()
+         * @see #getColor()
+         * @see javax.swing.JComponent#paint(java.awt.Graphics)
+         */
         public final void paint(java.awt.Graphics g) {
             int stroke = Math.min(getWidth() / 72, getHeight() / 24);
             if (stroke < 1) stroke = 1;
@@ -326,9 +461,18 @@ public class AutoplayInteractive {
             }
             super.setBounds(x, y, width, height);
         }
-
+        /**
+         * Lays out the child components based on the current state and cached dimensions.
+         * <p>
+         * This method positions the child components (e.g., buttons and labels) according to the current
+         * state of the autoplay control. It uses cached dimensions from {@link #getCachedCircle()} to
+         * calculate appropriate bounds for each child, ensuring proper alignment and sizing. Fonts for
+         * labels are also updated dynamically based on the cached diameter.
+         *
+         * @see #getCachedCircle()
+         * @see javax.swing.JComponent#doLayout()
+         */
         public void doLayout(){
-            super.doLayout();
             getCachedCircle();
             int s = getState();
             int d = (int) cachedDiameter;
