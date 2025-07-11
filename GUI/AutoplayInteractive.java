@@ -350,6 +350,25 @@ public class AutoplayInteractive {
                 fastLabel.setFont(new Font(autoFont, Font.BOLD, d / 2));
             }
         }
+        /**
+         * Terminates the background color animation when the component is removed from its container.
+         * This method stops the {@code dynamicBackground} animation by calling its {@code stop()} method,
+         * ensuring that the associated animation thread is safely terminated. This prevents resource leaks
+         * when the component is no longer part of the UI hierarchy. The operation is synchronized to ensure
+         * thread-safe access to the {@code dynamicBackground} field.
+         *
+         * @see DynamicColor#stop()
+         * @see javax.swing.JComponent#removeNotify()
+         */
+        @Override
+        public void removeNotify() {
+            super.removeNotify();
+            synchronized (stateLock) {
+                if (dynamicBackground != null) {
+                    dynamicBackground.stop();
+                }
+            }
+        }
     }
     /**
      * A custom {@link CircularButton} that represents a stop button for the autoplay.
@@ -476,6 +495,20 @@ public class AutoplayInteractive {
         protected Color getColor() {
             return internalColor.get();
         }
+        /**
+         * Terminates the button's color animation when the button is removed from its container.
+         * This method stops the {@code internalColor} animation by calling its {@code stop()} method,
+         * ensuring that the associated animation thread is safely terminated. This prevents resource leaks
+         * when the button is no longer part of the UI hierarchy.
+         *
+         * @see DynamicColor#stop()
+         * @see javax.swing.JComponent#removeNotify()
+         */
+        @Override
+        public void removeNotify() {
+            super.removeNotify();
+            internalColor.stop();
+        }
     }
     /**
      * A custom {@link CircularButton} that represents a start button for the autoplay.
@@ -591,6 +624,20 @@ public class AutoplayInteractive {
         @Override
         protected Color getColor() {
             return internalColor.get();
+        }
+        /**
+         * Terminates the button's color animation when the button is removed from its container.
+         * This method stops the {@code internalColor} animation by calling its {@code stop()} method,
+         * ensuring that the associated animation thread is safely terminated. This prevents resource leaks
+         * when the button is no longer part of the UI hierarchy.
+         *
+         * @see DynamicColor#stop()
+         * @see javax.swing.JComponent#removeNotify()
+         */
+        @Override
+        public void removeNotify() {
+            super.removeNotify();
+            internalColor.stop();
         }
     }
     /**
@@ -709,6 +756,20 @@ public class AutoplayInteractive {
         @Override
         protected Color getColor() {
             return internalColor.get();
+        }
+        /**
+         * Terminates the button's color animation when the button is removed from its container.
+         * This method stops the {@code internalColor} animation by calling its {@code stop()} method,
+         * ensuring that the associated animation thread is safely terminated. This prevents resource leaks
+         * when the button is no longer part of the UI hierarchy.
+         *
+         * @see DynamicColor#stop()
+         * @see javax.swing.JComponent#removeNotify()
+         */
+        @Override
+        public void removeNotify() {
+            super.removeNotify();
+            internalColor.stop();
         }
     }
     /**
