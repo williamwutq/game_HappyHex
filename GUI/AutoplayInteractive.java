@@ -38,8 +38,13 @@ import java.awt.geom.Path2D;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AutoplayInteractive {
+    private static final double sinOf60 = Math.sqrt(3) / 2;
     private final Color quitNormalColor = LaunchEssentials.launchQuitButtonBackgroundColor;
     private final Color quitHoverColor = new Color(207, 129, 11);
+    private final Color autoOnNormalColor = new Color(21, 102, 207);
+    private final Color autoOnHoverColor = new Color(21, 207, 164);
+    private final Color autoOffNormalColor = new Color(62, 152, 2);
+    private final Color autoOffHoverColor = new Color(34, 232, 143);
     private final Color borderColor = Color.BLACK;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final Runnable autoplayRun;
@@ -67,9 +72,253 @@ public class AutoplayInteractive {
         // Some code to quit this thing
     }
     private class AutoplayControl extends JPanel{
-        private CircularButton quitButton, autoButton;
+        private CircularButton quitButton, autoOnButton, autoOffButton;
         private AutoplayControl(){
-            quitButton = new QuitButton() {};
+            quitButton = new QuitButton();
+            autoOnButton = new AutoOnButton();
+            autoOffButton = new AutoOffButton();
+        }
+    }
+    /**
+     * A custom {@link CircularButton} that represents a stop button for the autoplay.
+     * <p>
+     * The {@code AutoOffButton} extends {@link CircularButton} to provide a specialized button with a custom
+     * rectangular path, resembling a "pause" symbol, and animated color transitions between a
+     * normal and hover state. It uses a {@link DynamicColor} to smoothly transition between two colors
+     * (normal and hover) when the mouse enters or exits the button, triggering a repaint to reflect the
+     * updated color. Clicking the button invokes the {@link AutoplayInteractive#stopAuto()} method to
+     * stop the autoplay.
+     * <p>
+     * The button's shape is a circular boundary (inherited from {@link CircularButton}) with a custom inner
+     * path defined as a square, scaled to half of the button's radius with a fixed width for the side
+     * length of the square. The color of the rectangle is dynamically updated using the {@link DynamicColor}
+     * instance, which animates between the normal color ({@code autoOffNormalColor}) and hover color
+     * ({@code autoOffHoverColor}) using a sigmoid interpolation curve.
+     * <p>
+     * This class overrides key methods from {@link CircularButton} to implement:
+     * <ul>
+     *   <li>Custom rectangular path rendering via {@link #createCustomPath(int, int, double)}.</li>
+     *   <li>Dynamic color retrieval via {@link #getColor()} using the {@link DynamicColor} instance.</li>
+     *   <li>Mouse hover interactions via {@link #mouseEntered(MouseEvent)} and {@link #mouseExited(MouseEvent)}
+     *       to start or restart the color animation.</li>
+     *   <li>Action handling via {@link #actionPerformed(ActionEvent)} to stop autoplay.</li>
+     * </ul>
+     * <p>
+     * The button is designed to be thread-safe, as the {@link DynamicColor} handles its animations in a
+     * background thread and ensures synchronized access to shared state. The {@code repaint()} method is
+     * called via the {@link DynamicColor}'s GUI updater to reflect color changes in the Swing Event Dispatch
+     * Thread (EDT).
+     *
+     * @author William Wu
+     * @version 1.4
+     * @since 1.4
+     * @see CircularButton
+     * @see DynamicColor
+     * @see AutoplayInteractive#stopAuto()
+     */
+    private class AutoOffButton extends CircularButton{
+        private final DynamicColor internalColor;
+        /**
+         * Constructs a {@code AutoOffButton} with a {@link DynamicColor} for animating between
+         * {@code autoOnNormalColor} and {@code autoOnHoverColor}.
+         * <p>
+         * The button is initialized with a {@link DynamicColor} that transitions between the normal
+         * and hover colors, triggering a repaint on each animation frame to update the button's
+         * appearance.
+         */
+        private AutoOffButton(){
+            internalColor = new DynamicColor(autoOffNormalColor, autoOffHoverColor, this::repaint);
+            internalColor.setDuration(400);
+        }
+        /**
+         * Handles the button click by invoking {@link AutoplayInteractive#stopAuto()}.
+         *
+         * @param e the {@link ActionEvent} triggered by clicking the button
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            stopAuto();
+        }
+        /**
+         * Starts the color animation when the mouse enters the button's area, restarting the
+         * transition from the current state to the hover color.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse entry
+         */
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            internalColor.restart();
+        }
+        /**
+         * Starts the color animation when the mouse exits the button's area, transitioning
+         * back to the normal color.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse exit
+         */
+        @Override
+        public void mouseExited(MouseEvent e) {
+            internalColor.start();
+        }
+        /**
+         * Creates a custom rectangular path for the autoplay on button.
+         * <p>
+         * The path consists of two identical rectangles forming a square of radius that is
+         * half of the radius of the circle. These rectangles are drawn as a closed path with
+         * six points, forming a shape that suggests pausing or stopping.
+         *
+         * @param cx the x-coordinate of the button's center
+         * @param cy the y-coordinate of the button's center
+         * @param radius the radius of the button
+         * @return a {@link Path2D.Double} representing the special path
+         */
+        @Override
+        protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
+            radius *= 0.5;
+            Path2D.Double path = new Path2D.Double();
+            final double y1 = cy + radius;
+            final double y2 = cy - radius;
+            final double x1 = cx + radius;
+            final double x2 = cx + radius * 0.2;
+            final double x3 = cx - radius * 0.2;
+            final double x4 = cx - radius;
+            path.moveTo(x1, y1);
+            path.lineTo(x2, y1);
+            path.lineTo(x2, y2);
+            path.lineTo(x1, y2);
+            path.closePath();
+            path.moveTo(x3, y1);
+            path.lineTo(x4, y1);
+            path.lineTo(x4, y2);
+            path.lineTo(x3, y2);
+            return path;
+        }
+        /**
+         * Retrieves the current color of the button from the {@link DynamicColor}.
+         * <p>
+         * The color is dynamically interpolated between {@code autoOffNormalColor} and
+         * {@code autoOffHoverColor} based on the current animation position.
+         *
+         * @return the current {@link Color} of the button
+         */
+        @Override
+        protected Color getColor() {
+            return internalColor.get();
+        }
+    }
+    /**
+     * A custom {@link CircularButton} that represents a start button for the autoplay.
+     * <p>
+     * The {@code AutoOnButton} extends {@link CircularButton} to provide a specialized button with a custom
+     * triangular path, resembling a "start" symbol, and animated color transitions between a
+     * normal and hover state. It uses a {@link DynamicColor} to smoothly transition between two colors
+     * (normal and hover) when the mouse enters or exits the button, triggering a repaint to reflect the
+     * updated color. Clicking the button invokes the {@link AutoplayInteractive#startAuto()} method to
+     * start the autoplay.
+     * <p>
+     * The button's shape is a circular boundary (inherited from {@link CircularButton}) with a custom inner
+     * path defined as an equilateral triangle, scaled to 68% of the button's radius with a fixed width
+     * for the arrow lines. The color of the triangle is dynamically updated using the {@link DynamicColor}
+     * instance, which animates between the normal color ({@code autoOnNormalColor}) and hover color
+     * ({@code autoOnHoverColor}) using a sigmoid interpolation curve.
+     * <p>
+     * This class overrides key methods from {@link CircularButton} to implement:
+     * <ul>
+     *   <li>Custom triangular path rendering via {@link #createCustomPath(int, int, double)}.</li>
+     *   <li>Dynamic color retrieval via {@link #getColor()} using the {@link DynamicColor} instance.</li>
+     *   <li>Mouse hover interactions via {@link #mouseEntered(MouseEvent)} and {@link #mouseExited(MouseEvent)}
+     *       to start or restart the color animation.</li>
+     *   <li>Action handling via {@link #actionPerformed(ActionEvent)} to trigger autoplay.</li>
+     * </ul>
+     * <p>
+     * The button is designed to be thread-safe, as the {@link DynamicColor} handles its animations in a
+     * background thread and ensures synchronized access to shared state. The {@code repaint()} method is
+     * called via the {@link DynamicColor}'s GUI updater to reflect color changes in the Swing Event Dispatch
+     * Thread (EDT).
+     *
+     * @author William Wu
+     * @version 1.4
+     * @since 1.4
+     * @see CircularButton
+     * @see DynamicColor
+     * @see AutoplayInteractive#startAuto()
+     */
+    private class AutoOnButton extends CircularButton{
+        private final DynamicColor internalColor;
+        /**
+         * Constructs a {@code AutoOnButton} with a {@link DynamicColor} for animating between
+         * {@code autoOnNormalColor} and {@code autoOnHoverColor}.
+         * <p>
+         * The button is initialized with a {@link DynamicColor} that transitions between the normal
+         * and hover colors, triggering a repaint on each animation frame to update the button's
+         * appearance.
+         */
+        private AutoOnButton(){
+            internalColor = new DynamicColor(autoOnNormalColor, autoOnHoverColor, this::repaint);
+            internalColor.setDuration(400);
+        }
+        /**
+         * Handles the button click by invoking {@link AutoplayInteractive#startAuto()}.
+         *
+         * @param e the {@link ActionEvent} triggered by clicking the button
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            startAuto();
+        }
+        /**
+         * Starts the color animation when the mouse enters the button's area, restarting the
+         * transition from the current state to the hover color.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse entry
+         */
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            internalColor.restart();
+        }
+        /**
+         * Starts the color animation when the mouse exits the button's area, transitioning
+         * back to the normal color.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse exit
+         */
+        @Override
+        public void mouseExited(MouseEvent e) {
+            internalColor.start();
+        }
+        /**
+         * Creates a custom triangle-shaped path for the autoplay on button.
+         * <p>
+         * The path is a stylized triangle, scaled to 75% of the button's radius, with a fixed
+         * line width proportional to the radius. The triangle is drawn as a closed path with
+         * six points, forming a shape that suggests starting.
+         *
+         * @param cx the x-coordinate of the button's center
+         * @param cy the y-coordinate of the button's center
+         * @param radius the radius of the button
+         * @return a {@link Path2D.Double} representing the triangular path
+         */
+        @Override
+        protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
+            radius *= 0.68;
+            Path2D.Double path = new Path2D.Double();
+            final double x = cx - radius * (sinOf60 * 2 - 1 / sinOf60);
+            path.moveTo(x, cy + radius);
+            path.lineTo(x, cy - radius);
+            path.lineTo(cx + radius / sinOf60, cy);
+            path.closePath();
+            return path;
+        }
+        /**
+         * Retrieves the current color of the button from the {@link DynamicColor}.
+         * <p>
+         * The color is dynamically interpolated between {@code autoOnNormalColor} and
+         * {@code autoOnHoverColor} based on the current animation position.
+         *
+         * @return the current {@link Color} of the button
+         */
+        @Override
+        protected Color getColor() {
+            return internalColor.get();
         }
     }
     /**
@@ -413,7 +662,7 @@ public class AutoplayInteractive {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.setSize(new Dimension(400, 400));
         mainFrame.setMinimumSize(new Dimension(400, 400));
-        mainFrame.add(interactive.new AutoplayControl().quitButton);
+        mainFrame.add(interactive.new AutoplayControl().autoOffButton);
         mainFrame.setVisible(true);
     }
 }
