@@ -47,17 +47,24 @@ public class AutoplayInteractive {
     private final Color autoOnHoverColor = new Color(21, 207, 164);
     private final Color autoOffNormalColor = new Color(62, 152, 2);
     private final Color autoOffHoverColor = new Color(34, 232, 143);
+    private final Color autoSlowNormalColor = new Color(81, 24, 179);
+    private final Color autoSlowHoverColor = new Color(105, 47, 205);
+    private final Color autoFastNormalColor = new Color(225, 23, 62);
+    private final Color autoFastHoverColor = new Color(236, 80, 109);
     private final Color autoAnimationStartColor = new Color(200, 49, 214);
     private final Color autoAnimationEndColor = new Color(56, 216, 64);
-    private final Color backgroundNormalColor = GameEssentials.gameBackgroundColor;
-    private final Color backgroundHoverColor = GameEssentials.gameBlockDefaultColor;
+    private final Color backgroundNormalColor = new Color(69, 172, 145);
+    private final Color backgroundHoverColor = new Color(4, 62, 47);
     private final Color borderColor = Color.BLACK;
+    private final String autoFont = LaunchEssentials.launchSettingsSlidingButtonFont;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final Runnable autoplayRun;
     private final Runnable autoplayClose;
+    private final AutoplayControl control;
     public AutoplayInteractive(Runnable autoplayRun, Runnable autoplayClose){
         this.autoplayRun = autoplayRun;
         this.autoplayClose = autoplayClose;
+        this.control = new AutoplayControl();
     }
     private void startAuto(){
         if (isRunning.getAndSet(true)){
@@ -65,6 +72,7 @@ public class AutoplayInteractive {
                 autoplayRun.run();
             }
         }
+        control.nextState();
     }
     private void stopAuto(){
         if (isRunning.getAndSet(false)){
@@ -72,12 +80,16 @@ public class AutoplayInteractive {
                 autoplayClose.run();
             }
         }
+        control.nextState();
     }
     private void quitGame(){
         // -------------------------------------- !TO BE IMPLEMENTED! --------------------------------------
         // Some code to quit this thing
     }
-    private class AutoplayControl extends JButton{
+    public JComponent fetchControl(){
+        return control;
+    }
+    private class AutoplayControl extends JButton implements MouseListener{
         // States: 1 - two buttons include quit
         //         2 - animation transition to auto on
         //         3 - animation transition to auto off
@@ -87,14 +99,20 @@ public class AutoplayInteractive {
         private int cachedOutlineWidth, cachedOutlineHeight, state;
         private double cachedDiameter, cachedX, cachedY;
         private DynamicColor dynamicBackground;
+        private final JLabel autoLabel;
         private final CircularButton quitButton, autoOnButton, autoOffButton;
         private final Object stateLock;
         private AutoplayControl(){
             this.setAlignmentX(Component.CENTER_ALIGNMENT);
             this.setAlignmentY(Component.CENTER_ALIGNMENT);
+            this.addMouseListener(this);
             this.quitButton = new QuitButton();
             this.autoOnButton = new AutoOnButton();
             this.autoOffButton = new AutoOffButton();
+            this.autoLabel = new JLabel("AUTO");
+            this.autoLabel.setVerticalAlignment(SwingConstants.CENTER);
+            this.autoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            this.autoLabel.setFont(new Font(autoFont, Font.BOLD, 1));
             this.stateLock = new Object();
             this.cachedOutline = null;
             this.cachedOutlineWidth = -1;
@@ -108,12 +126,24 @@ public class AutoplayInteractive {
             synchronized (stateLock) {
                 if (state == 1) {
                     state = 2;
+                    this.dynamicBackground = new DynamicColor(autoAnimationStartColor, autoAnimationEndColor, this::checkAndPaint);
+                    this.dynamicBackground.setDuration(500);
+                    this.dynamicBackground.start();
+                    this.removeAll();
+                    this.add(autoLabel);
+                    this.revalidate();
                 } else if (state == 2) {
                     state = 4;
+                    this.dynamicBackground = new DynamicColor(autoSlowNormalColor, autoSlowNormalColor, this::repaint);
+                    this.dynamicBackground.setDuration(1200);
+                    this.removeAll();
+                    this.revalidate();
                 } else if (state == 3 || state == 0) {
                     state = 1;
+                    this.dynamicBackground = new DynamicColor(backgroundNormalColor, backgroundHoverColor, this::repaint);
+                    this.dynamicBackground.setDuration(1200);
+                    this.removeAll();
                     this.add(quitButton);
-                    this.add(Box.createHorizontalGlue());
                     this.add(autoOnButton);
                     this.revalidate();
                 } else if (state == 4 || state == 5) {
@@ -126,6 +156,24 @@ public class AutoplayInteractive {
                 return state;
             }
         }
+        private DynamicColor getDynamicBackground(){
+            synchronized (stateLock) {
+                return this.dynamicBackground;
+            }
+        }
+        private Color getColor(){
+            DynamicColor dc = getDynamicBackground();
+            if (dc != null) {
+                return dc.get();
+            } else return Color.MAGENTA;
+        }
+        private void checkAndPaint() {
+            DynamicColor dc = getDynamicBackground();
+            if (dc != null && dc.position() == 1.0) {
+                nextState();
+            }
+            repaint();
+        }
 
         public final void paint(java.awt.Graphics g) {
             int stroke = Math.min(getWidth() / 72, getHeight() / 24);
@@ -136,7 +184,7 @@ public class AutoplayInteractive {
             g2.setStroke(new BasicStroke(stroke));
             g2.setColor(borderColor);
             g2.draw(circle);
-            g2.setColor(Color.MAGENTA);
+            g2.setColor(getColor());
             g2.fill(circle);
             g2.dispose();
             paintChildren(g);
@@ -148,6 +196,30 @@ public class AutoplayInteractive {
         public final void mousePressed(MouseEvent e) {}
         /** {@inheritDoc} It will do nothing. */
         public final void mouseReleased(MouseEvent e) {}
+        /**
+         * Starts the color animation when the mouse enters the panel's area, restarting the
+         * transition from the current state to the hover color. This is only active when other animations are not playing.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse entry
+         */
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            if (getState() == 1 || getState() == 4 || getState() == 5) {
+                getDynamicBackground().restart();
+            }
+        }
+        /**
+         * Starts the color animation when the mouse exits the panel's area, transitioning
+         * back to the normal color. This is only active when other animations are not playing.
+         *
+         * @param e the {@link MouseEvent} triggered by mouse exit
+         */
+        @Override
+        public void mouseExited(MouseEvent e) {
+            if (getState() == 1 || getState() == 4 || getState() == 5) {
+                getDynamicBackground().start();
+            }
+        }
 
         /**
          * Retrieves the cached outline corresponding to the current dimensions of the button.
@@ -218,6 +290,9 @@ public class AutoplayInteractive {
             if (s == 1){
                 quitButton.setBounds(x, y, d, d);
                 autoOnButton.setBounds(x + d * 2, y, d, d);
+            } else if (s == 2 || s == 3){
+                autoLabel.setBounds(x, y, d * 3, d);
+                this.autoLabel.setFont(new Font(autoFont, Font.BOLD, d / 2));
             }
         }
     }
@@ -804,7 +879,7 @@ public class AutoplayInteractive {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.setSize(new Dimension(400, 400));
         mainFrame.setMinimumSize(new Dimension(400, 400));
-        mainFrame.add(interactive.new AutoplayControl());
+        mainFrame.add(interactive.fetchControl());
         mainFrame.setVisible(true);
     }
 }
