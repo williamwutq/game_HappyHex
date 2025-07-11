@@ -189,6 +189,16 @@ public class AutoplayInteractive {
         control.nextState();
     }
     /**
+     * Quit autoplay by an external source. This will result in the control being modified.
+     * <p>
+     * This method calls the {@link AutoplayControl#quitAutoplay()} method.
+     *
+     * @see AutoplayControl#quitAutoplay()
+     */
+    public void quitAuto(){
+        control.quitAutoplay();
+    }
+    /**
      * Quits the game and immediately resets the autoplay control.
      * <p>
      * This method invokes {@link AutoplayInteractive.AutoplayControl#quitAutoplayImmediately()} to reset
