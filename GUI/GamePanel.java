@@ -73,8 +73,10 @@ public class GamePanel extends JPanel {
 
         double minSize = Math.min(height - 33, width - 5);
         int labelWidth = (int) Math.round(minSize / 6.0);
+        int quitWidth = (int) Math.round(minSize / 8.0);
         int labelHeight = (int) Math.round(minSize / 12.0);
         Dimension dimension = new Dimension(labelWidth, labelHeight);
+        Dimension quitDimension = new Dimension(quitWidth, labelHeight);
         SimpleButton.setSize((int)Math.round(labelHeight*0.6));
 
         int margin = 3;
@@ -93,7 +95,7 @@ public class GamePanel extends JPanel {
         turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
         scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
         playerLabel.setBounds(new Rectangle(new Point(right, bottom), dimension));
-        quitButton.setBounds(new Rectangle(new Point(margin + gamePanelExtension, bottom), dimension));
+        quitButton.setBounds(new Rectangle(new Point(right + labelWidth - quitWidth, bottom - labelHeight), quitDimension));
     }
     public void updateDisplayedInfo(int turn, int score){
         turnLabel.setInfo(turn + "");
