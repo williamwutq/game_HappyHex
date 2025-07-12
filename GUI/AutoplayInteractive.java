@@ -368,7 +368,7 @@ public class AutoplayInteractive {
                     this.dynamicBackground.applyPosition(1 - position);
                     this.dynamicBackground.reverseDirection();
                     this.dynamicBackground.start();
-                    scheduleStateTransition((int) (500 * (1 - position)));
+                    scheduleStateTransition((int) (500 * position));
                     this.removeAll();
                     this.add(autoLabel);
                     this.revalidate();
@@ -515,6 +515,7 @@ public class AutoplayInteractive {
             }
             stateTransitionTimer = new Timer(duration, e -> {
                 SwingUtilities.invokeLater(this::nextState);
+                repaint();
                 stateTransitionTimer.stop();
             });
             stateTransitionTimer.setRepeats(false);
