@@ -58,6 +58,8 @@ public class DynamicColor implements ExtremalProperty<Color>, Runnable {
 
     /**
      * Constructs a new {@code DynamicColor} with the given colors and GUI update callback.
+     * The GUI update must be non-blocking and thread-safe, and must not create recursive calls to this
+     * {@link DynamicColor}, as that may create unexpected issues.
      *
      * @param defaultColor the color to start from; defaults to {@link Color#BLACK} if null
      * @param extremeColor the color to transition to; defaults to {@link Color#WHITE} if null
