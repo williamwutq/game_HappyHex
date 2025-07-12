@@ -262,6 +262,18 @@ public final class GameEssentials implements GameGUIInterface {
         autoplayHandler.hardClose();
         gamePanel.quitAutoImmediately();
     }
+    public static Void setFastAutoplay(){
+        if (!autoplayHandler.changeDelay(250)){
+            throw new IllegalStateException("Autoplay setting could not be performed");
+        }
+        return null;
+    }
+    public static Void setSlowAutoplay(){
+        if (!autoplayHandler.changeDelay(1200)){
+            throw new IllegalStateException("Autoplay setting could not be performed");
+        }
+        return null;
+    }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
         animation.start();

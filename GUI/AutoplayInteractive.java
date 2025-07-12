@@ -120,7 +120,7 @@ public class AutoplayInteractive {
     private final String autoFont = LaunchEssentials.launchSettingsSlidingButtonFont;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final Runnable autoplayRun, autoplayClose, quitGame;
-    private final Callable<Boolean> autoplaySlow, autoplayFast;
+    private final Callable<Void> autoplaySlow, autoplayFast;
     private final AutoplayControl control;
 
     /**
@@ -147,7 +147,7 @@ public class AutoplayInteractive {
      * @see #stopAuto()
      * @see #quitGame()
      */
-    public AutoplayInteractive(Runnable autoplayRun, Runnable autoplayClose, Callable<Boolean> autoplaySlow, Callable<Boolean> autoplayFast, Runnable quitGame){
+    public AutoplayInteractive(Runnable autoplayRun, Runnable autoplayClose, Callable<Void> autoplaySlow, Callable<Void> autoplayFast, Runnable quitGame){
         this.autoplayRun = autoplayRun;
         this.autoplayClose = autoplayClose;
         this.quitGame = quitGame;
