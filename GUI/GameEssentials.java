@@ -260,7 +260,7 @@ public final class GameEssentials implements GameGUIInterface {
     }
     public static void terminateAutoplay(){
         autoplayHandler.hardClose();
-        gamePanel.quitAutoImmediately();
+        if (gamePanel!= null) gamePanel.quitAutoImmediately();
     }
     public static Void setFastAutoplay(){
         if (!autoplayHandler.changeDelay(250)){
