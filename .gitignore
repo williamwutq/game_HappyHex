@@ -10,3 +10,5 @@ templogs.json
 *.game.json
 **/*.hpyhex.json
 **/*.game.json
+*.class
+**/*.class
