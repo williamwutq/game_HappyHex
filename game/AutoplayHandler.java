@@ -167,4 +167,16 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
             softClose();
         }
     }
+    /**
+     * Change the query delay of the game processor and return whether the change has been performed.
+     *
+     * @param millis the new query delay in milliseconds
+     * @return whether the change is successful
+     * @see GameCommandProcessor#changeQueryDelay
+     */
+    public boolean changeDelay(int millis){
+        if (gameProcessor != null) {
+            return gameProcessor.changeQueryDelay(millis);
+        } else return false;
+    }
 }
