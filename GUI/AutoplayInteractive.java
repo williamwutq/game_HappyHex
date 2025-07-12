@@ -259,7 +259,7 @@ public class AutoplayInteractive {
      * The class manages child components ({@code quitButton}, {@code autoOnButton}, {@code autoOffButton}, {@code autoLabel},
      * {@code slowLabel}, and {@code fastLabel}) and dynamically adds or removes them based on the current state.
      * Color animations are handled by a {@link DynamicColor} instance ({@code dynamicBackground}), which transitions
-     * between normal and hover colors or animation-specific colors, triggering repaints via {@link #checkAndPaint()} or
+     * between normal and hover colors or animation-specific colors, triggering repaints via {@link #repaint()}.
      * {@link #repaint()}. The layout is customized in {@link #doLayout()} to position children based on cached dimensions.
      * <p>
      * Thread safety is ensured through a {@code stateLock} object, synchronizing access to the {@code state} and
@@ -300,6 +300,7 @@ public class AutoplayInteractive {
         private final JLabel autoLabel, slowLabel, fastLabel;
         private final CircularButton quitButton, autoOnButton, autoOffButton;
         private final Object stateLock;
+        private Timer stateTransitionTimer;
         /**
          * Constructs a new {@code AutoplayControl} instance.
          * <p>
@@ -362,20 +363,22 @@ public class AutoplayInteractive {
                         dynamicBackground.stop();
                         position = dynamicBackground.position();
                     }
-                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::checkAndPaint);
+                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::repaint);
                     this.dynamicBackground.setDuration(500);
                     this.dynamicBackground.applyPosition(1 - position);
                     this.dynamicBackground.reverseDirection();
                     this.dynamicBackground.start();
+                    scheduleStateTransition(500);
                     this.removeAll();
                     this.add(autoLabel);
                     this.revalidate();
                 } else if (state == 4 || state == 5) {
                     state = 3;
                     if (this.dynamicBackground != null) dynamicBackground.stop();
-                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::checkAndPaint);
+                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::repaint);
                     this.dynamicBackground.setDuration(500);
                     this.dynamicBackground.start();
+                    scheduleStateTransition(500);
                     this.removeAll();
                     this.add(autoLabel);
                     this.revalidate();
@@ -396,6 +399,9 @@ public class AutoplayInteractive {
             synchronized (stateLock) {
                 state = 0;
                 if (this.dynamicBackground != null) dynamicBackground.stop();
+                if (stateTransitionTimer != null && stateTransitionTimer.isRunning()) {
+                    stateTransitionTimer.stop();
+                }
                 this.removeAll();
             }
         }
@@ -416,9 +422,10 @@ public class AutoplayInteractive {
                 if (this.dynamicBackground != null) dynamicBackground.stop();
                 if (state == 1) {
                     state = 2;
-                    this.dynamicBackground = new DynamicColor(autoAnimationStartColor, autoAnimationEndColor, this::checkAndPaint);
+                    this.dynamicBackground = new DynamicColor(autoAnimationStartColor, autoAnimationEndColor, this::repaint);
                     this.dynamicBackground.setDuration(500);
                     this.dynamicBackground.start();
+                    scheduleStateTransition(500);
                     this.removeAll();
                     this.add(autoLabel);
                     this.revalidate();
@@ -440,9 +447,10 @@ public class AutoplayInteractive {
                     this.revalidate();
                 } else if (state == 4 || state == 5) {
                     state = 3;
-                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::checkAndPaint);
+                    this.dynamicBackground = new DynamicColor(autoAnimationEndColor, autoAnimationStartColor, this::repaint);
                     this.dynamicBackground.setDuration(500);
                     this.dynamicBackground.start();
+                    scheduleStateTransition(500);
                     this.removeAll();
                     this.add(autoLabel);
                     this.revalidate();
@@ -496,23 +504,21 @@ public class AutoplayInteractive {
             } else return borderColor;
         }
         /**
-         * Checks if the background color animation is complete and triggers the next state if so, then repaints.
-         * <p>
-         * This method is invoked by the {@code dynamicBackground} animation to check if it has reached completion
-         * (position 1.0). If complete, it calls {@link #nextState()} to transition to the next state in the
-         * autoplay control's state machine. Regardless of completion, it triggers a repaint to update the
-         * component's appearance with the current animation color. This is used in transitional states.
-         *
-         * @see DynamicColor#position()
-         * @see #nextState()
-         * @see #repaint()
+         * Starts a timer to handle state transitions after animation completion.
+         * This ensures state transitions happen on the EDT rather than from animation threads.
+         * 
+         * @param duration the duration in milliseconds before triggering the state transition
          */
-        private void checkAndPaint() {
-            DynamicColor dc = getDynamicBackground();
-            if (dc != null && dc.position() == 1.0) {
-                nextState();
+        private void scheduleStateTransition(int duration) {
+            if (stateTransitionTimer != null && stateTransitionTimer.isRunning()) {
+                stateTransitionTimer.stop();
             }
-            repaint();
+            stateTransitionTimer = new Timer(duration, e -> {
+                SwingUtilities.invokeLater(this::nextState);
+                stateTransitionTimer.stop();
+            });
+            stateTransitionTimer.setRepeats(false);
+            stateTransitionTimer.start();
         }
         /**
          * Renders the visual appearance of the autoplay control button.
@@ -710,6 +716,9 @@ public class AutoplayInteractive {
             synchronized (stateLock) {
                 if (dynamicBackground != null) {
                     dynamicBackground.stop();
+                }
+                if (stateTransitionTimer != null && stateTransitionTimer.isRunning()) {
+                    stateTransitionTimer.stop();
                 }
             }
         }
