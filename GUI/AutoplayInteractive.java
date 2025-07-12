@@ -36,6 +36,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -119,6 +120,7 @@ public class AutoplayInteractive {
     private final String autoFont = LaunchEssentials.launchSettingsSlidingButtonFont;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final Runnable autoplayRun, autoplayClose, quitGame;
+    private final Callable<Boolean> autoplaySlow, autoplayFast;
     private final AutoplayControl control;
 
     /**
@@ -136,6 +138,8 @@ public class AutoplayInteractive {
      *
      * @param autoplayRun   the {@link java.lang.Runnable} to execute when starting autoplay, may be null
      * @param autoplayClose the {@link java.lang.Runnable} to execute when stopping autoplay, may be null
+     * @param autoplaySlow  the {@link java.util.concurrent.Callable} to execute when slowing down autoplay, may be null
+     * @param autoplayFast  the {@link java.util.concurrent.Callable} to execute when speeding up autoplay, may be null
      * @param quitGame      the {@link java.lang.Runnable} to execute when quitting the game, may be null
      * @see AutoplayInteractive.AutoplayControl
      * @see #fetchControl()
@@ -143,10 +147,12 @@ public class AutoplayInteractive {
      * @see #stopAuto()
      * @see #quitGame()
      */
-    public AutoplayInteractive(Runnable autoplayRun, Runnable autoplayClose, Runnable quitGame){
+    public AutoplayInteractive(Runnable autoplayRun, Runnable autoplayClose, Callable<Boolean> autoplaySlow, Callable<Boolean> autoplayFast, Runnable quitGame){
         this.autoplayRun = autoplayRun;
         this.autoplayClose = autoplayClose;
         this.quitGame = quitGame;
+        this.autoplaySlow = autoplaySlow;
+        this.autoplayFast = autoplayFast;
         this.control = new AutoplayControl();
     }
     /**
@@ -165,6 +171,11 @@ public class AutoplayInteractive {
         if (!isRunning.getAndSet(true)){
             if (autoplayRun != null){
                 autoplayRun.run();
+            }
+            if (autoplaySlow != null){
+                try {
+                    autoplaySlow.call();
+                } catch (Exception ignored) {}
             }
         }
         control.nextState();
@@ -593,6 +604,13 @@ public class AutoplayInteractive {
         public void actionPerformed(ActionEvent e) {
             synchronized (stateLock) {
                 if (state == 4) {
+                    if (autoplayFast != null){
+                        try {
+                            autoplayFast.call();
+                        } catch (Exception unused) {
+                            return; // Do not transition state when call fails
+                        }
+                    } else return; // Do not transition state when fast does not exist
                     this.state = 5;
                     if (this.dynamicBackground != null) dynamicBackground.stop();
                     this.dynamicBackground = new DynamicColor(autoFastNormalColor, autoFastHoverColor, this::repaint);
@@ -602,6 +620,13 @@ public class AutoplayInteractive {
                     this.add(autoOffButton);
                     this.revalidate();
                 } else if (state == 5) {
+                    if (autoplaySlow != null){
+                        try {
+                            autoplaySlow.call();
+                        } catch (Exception unused) {
+                            return; // Do not transition state when all fails
+                        }
+                    }
                     this.state = 4;
                     if (this.dynamicBackground != null) dynamicBackground.stop();
                     this.dynamicBackground = new DynamicColor(autoSlowNormalColor, autoSlowHoverColor, this::repaint);

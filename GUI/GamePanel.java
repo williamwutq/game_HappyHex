@@ -46,7 +46,7 @@ public class GamePanel extends JPanel {
         scoreLabel = new GameInfoPanel();
         playerLabel = new GameInfoPanel();
         quitButton = new GameQuitButton();
-        autoplayInteractive = new AutoplayInteractive(GameEssentials::startAutoplay, GameEssentials::interruptAutoplay, GameEssentials::quitGame);
+        autoplayInteractive = new AutoplayInteractive(GameEssentials::startAutoplay, GameEssentials::interruptAutoplay, null, null, GameEssentials::quitGame);
         turnLabel.setTitle("TURN");
         scoreLabel.setTitle("SCORE");
         playerLabel.setTitle("PLAYER");
