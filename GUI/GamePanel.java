@@ -32,6 +32,7 @@ public class GamePanel extends JPanel {
     private static GameInfoPanel scoreLabel;
     private static GameInfoPanel playerLabel;
     private static GameQuitButton quitButton;
+    private static AutoplayInteractive autoplayInteractive;
     public GamePanel(int engineLength, int turn, int score, String player) {
         super();
         this.setBackground(GameEssentials.gameBackgroundColor);
@@ -45,6 +46,7 @@ public class GamePanel extends JPanel {
         scoreLabel = new GameInfoPanel();
         playerLabel = new GameInfoPanel();
         quitButton = new GameQuitButton();
+        autoplayInteractive = new AutoplayInteractive(GameEssentials::startAutoplay, GameEssentials::interruptAutoplay, GameEssentials::setSlowAutoplay, GameEssentials::setFastAutoplay, GameEssentials::quitGame);
         turnLabel.setTitle("TURN");
         scoreLabel.setTitle("SCORE");
         playerLabel.setTitle("PLAYER");
@@ -58,6 +60,7 @@ public class GamePanel extends JPanel {
         this.add(scoreLabel);
         this.add(playerLabel);
         this.add(quitButton);
+        this.add(autoplayInteractive.fetchControl());
     }
     public void paint(java.awt.Graphics g) {
         // print component and children
@@ -73,8 +76,10 @@ public class GamePanel extends JPanel {
 
         double minSize = Math.min(height - 33, width - 5);
         int labelWidth = (int) Math.round(minSize / 6.0);
+        int quitWidth = (int) Math.round(minSize / 8.0);
         int labelHeight = (int) Math.round(minSize / 12.0);
         Dimension dimension = new Dimension(labelWidth, labelHeight);
+        Dimension quitDimension = new Dimension(quitWidth, labelHeight);
         SimpleButton.setSize((int)Math.round(labelHeight*0.6));
 
         int margin = 3;
@@ -93,10 +98,21 @@ public class GamePanel extends JPanel {
         turnLabel.setBounds(new Rectangle(new Point(margin + gamePanelExtension, margin), dimension));
         scoreLabel.setBounds(new Rectangle(new Point(right, margin), dimension));
         playerLabel.setBounds(new Rectangle(new Point(right, bottom), dimension));
-        quitButton.setBounds(new Rectangle(new Point(margin + gamePanelExtension, bottom), dimension));
+        quitButton.setBounds(new Rectangle(new Point(right + labelWidth - quitWidth, bottom - labelHeight), quitDimension));
+        autoplayInteractive.fetchControl().setBounds(new Rectangle(new Point(margin + gamePanelExtension, bottom), dimension));
     }
     public void updateDisplayedInfo(int turn, int score){
         turnLabel.setInfo(turn + "");
         scoreLabel.setInfo(score + "");
+    }
+    public void removeNotify(){
+        autoplayInteractive.quitAutoImmediately();
+        super.removeNotify();
+    }
+    public void quitAutoImmediately(){
+        autoplayInteractive.quitAutoImmediately();
+    }
+    public void quitAuto(){
+        autoplayInteractive.quitAuto();
     }
 }

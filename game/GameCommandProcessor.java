@@ -112,7 +112,7 @@ public class GameCommandProcessor implements CommandProcessor, Runnable, AutoClo
     private final Object callbackProcessorLock = new Object();
     private final Object queryLock = new Object();
     private long lastQueryTime = 0;
-    private static final long queryDelay = 250; // Delay between queries in milliseconds
+    private static long queryDelay = 250; // Delay between queries in milliseconds
     private static final long checkDelay = 10; // Delay to check statues again when last query did not complete
 
     /**
@@ -223,6 +223,21 @@ public class GameCommandProcessor implements CommandProcessor, Runnable, AutoClo
         if (isAutoplayRunning.getAndSet(false)) {
             scheduler.shutdownNow();
         }
+    }
+    /**
+     * Change the query delay to a new value and return whether the change has been performed.
+     *
+     * @param millis the new query delay in milliseconds, must exceed double the amount of the internal checking delay
+     * @return whether the change is successful, {@code true} if after the operation the internal queryDelay
+     *         is equal to set value, {@code false} if the operation is not successful.
+     */
+    public boolean changeQueryDelay(int millis){
+        if (millis > checkDelay * 2) {
+            synchronized (queryLock) {
+                queryDelay = millis;
+            }
+            return true;
+        } else return false;
     }
 
     /**

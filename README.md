@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for autoplay and [ML](#develop--machine-learning))  
-<b>Last edited:</b> 07/07/2025  
-<b>Latest release:</b> [1.3.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.4)
+<b>Last edited:</b> 12/07/2025  
+<b>Latest release:</b> [1.4.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.0)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -19,7 +19,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 > [!NOTE]
 > The project may contain bugs:  
 > - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).  
-> - The most recent release have ***zero*** detected bugs.  
+> - The most recent release have ***one*** detected bug: 
+>   - Autoplay GUI not updated when python processor unexpectedly close #79. Fix not planned.
 
 ---
 
@@ -27,7 +28,7 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 This is just a cute project of mine. From early on after learning java in high school and helped the teacher taught its graphics library `javax.swing` I
 felt compelled to actually program a functional game. Combined with my earlier ideas of designing a hexagonal grid coordinate system, the rough picture of
 what would be future `HappyHex` formed in my mind. In my spare time, I gradually developed this project through following my [timeline](#Future-Timeline)
-and added increasingly attractive features. From version 0.4 to 1.3, it has grown from just a game page with buggy information display that had to be
+and added increasingly attractive features. From version 0.4 to 1.4, it has grown from just a game page with buggy information display that had to be
 launched through terminal commands and contained no color indication to a comprehensive and enjoyable game that features settings, themes, and animation.
 Game logging and viewing, and even resume game functionalities are slowly build up in [Pull Requests](https://github.com/williamwutq/game_HappyHex/pulls).
 It has become that one project which I could not stop thinking about. Step by step improvements will be made in different aspects and merged together for
@@ -217,30 +218,7 @@ The page contains the following elements:
   
   This switch controls whether to enables "Easy Mode," which modifies [piece generation](#Piece-Generation) to make the game significantly easier.  
   
-  Easy mode is compatible with all special game modes in the [Easter Eggs](#Easter-Eggs).  
-
-- <b>Restart Games Settings</b>  
-  
-  Turned `OFF` by default. Turning the switch `ON` enables functionality to restart unfinished games, while turning it `OFF` disables it.  
-
-  This setting only applies to the [Start Button](#Main-Page) in the main page. If you want to restart a specific game or start a new game, you may always
-  access the [Resume Page](#Resume-Page).  
-  
-  This switch controls whether to restart an unfinished game when it is possible to do so. When disabled, ever game will be new no matter how many previously
-  unfinished games the player have. When enabled, the game will try to find a previously unfinished game of the player in this particular setting, and if it
-  cannot find such games, it will start a new game.
-  
-  Disabling restart game will not in any ways affect the data logging of games, in `logs.json`, `.hyphex.json`, and binary `.hyphex` data files.
-
-- <b>Use Autoplay Settings</b>
-
-  Turned `OFF` by default. Turning the switch `ON` enables Autoplay, while turning it `OFF` disables Autoplay.
-
-  This switch controls whether to use Autoplay, which starts a python script to place pieces for the player at relatively optimal positions determined by multiple factors.
-
-  Autoplay can be enabled in all piece generation and game mode settings.
-
-- <b>Game Board Size Setting</b>  
+  Easy mode is compatible with all special game modes in the [Easter Eggs](#Easter-Eggs).
 
 > [!NOTE]  
 > Since first [Official Release](https://github.com/williamwutq/game_HappyHex/releases/v1.0.0) (v1.0.0), unspecified game mode creation is no longer supported.  
@@ -352,12 +330,8 @@ The game page includes components such as:
 - **Piece Queue**: A set of randomly generated pieces with predefined shapes and colors. The difficulty level affects piece generation.  
 - **Game Information**: The current game turn and game score are displayed on the two top corners.  
 - **Player Information**: The current player name is displayed in the down right corner.  
-- **Quit Button**: Clicking on the quit button will enable you to quit the game. Current progress will be logged into `log.json` if a game has started.  
-
-If autoplay is turned on in settings, the game will call a python script in the background and initiate autoplay sequence, which will place a piece at
-relatively optimal position every 1 second. Manually placing pieces is also available during autoplay, but that will interrupt the autoplay. IF the quit
-button is clicked during autoplay or the python script stopped running, the autoplay may end. To restart the autoplay, quit the current game and resume
-it in the resume panel.  
+- **Conventional Quit Button**: Clicking on the quit button will enable you to quit the game. Current progress will be logged into `log.json` if a game has started.
+- **"Dynamic Island"**: This GUI component mainly controls autoplay. It can also be used to quit the game. See [Autoplay](#autoplay-and-dynamic-island) for more.
 
 ### Theme, Color and Font
 This describes the default themes of the game, including coloring and fonts of texts. For special themes, see the [Special Themes](#Special-Themes)
@@ -490,7 +464,7 @@ to understand why the game behaves the way it does. [Easter Eggs](#Easter-Eggs) 
 #### Game Start
 - If the player is logged in, the game will start with the current player information. Otherwise, it will enter guest mode with player being "Guest".
 - The game will start with the current difficult setting and size setting, both of which can be adjusted in settings page.
-- If the player is logged in and an unfinished game of the same size is detected to exist, the unfinished game will resume. The color of the board and queue
+- If the player is directed from the [Resume Page](#resume-page), the unfinished game will resume. The color of the board and queue
   of the unfinished game will be the exact same according to the current theme.
 - If no valid unfinished game is detected, a new empty game will start with empty game board and randomized game queue according to
   [piece generation](#Piece-Generation) logic.
@@ -540,6 +514,20 @@ generate the single-block piece but may generate the full 7-block piece.
   to the current theme, because colors will be stored in color indexes since version 1.3.0. If you have are playing a safe on a version before that,
   colors maybe gray or random, depending on the implementation.
 - The player may quit the game by quit the application.
+#### Autoplay and "Dynamic Island"
+- The "Dynamic Island" component, which is in the lower left corner of the game page, is mainly used to control autoplay. When autoplay is turned off
+  or when the game has just started, the component contain two buttons. One button is a quit button, and it functions the same as the convention quit
+  button just above the player's username, and clicking it will result in quitting and saving the game. The other button is autoplay start button, and
+  clicking it will result in starting the autoplay in SLOW mode, following a brief animated transition. During the transition, the autoplay backend is
+  initializing.  
+- When exit the transition animation, the autoplay may toggle between SLOW and FAST mode by clicking on the component. It is also possible to click on
+  a small button inside the component, and clicking on that button will result in shutdown of autoplay, following a brief animated transition. During 
+  the transition, the autoplay backend is shutting down.
+- Manually placing blocks or clicking on the board will also shutdown autoplay, in which the "Dynamic Island" will respond with the shutdown animation.
+- In case the autoplay backend close unexpectedly due to process communication issues or interruption, the "Dynamic Island" will not reflect such closure,
+  but the user can try to turn the autoplay on and off.
+- All components in the "Dynamic Island" can detect hover. When hovering over they may change color in an animated way, expect for when a current animation
+  is playing.
 
 ### Easter Eggs  
 #### Prohibited Usernames  
@@ -735,13 +723,9 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.3.4](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.4)
-- Version 1.4
-  - Graphics improvements
-  - Autoplay logic improvements
-  - Remove autoplay activation from settings
-  - Add pause and run autoplay buttons to the game graphics
-  - Add rare chance shinning font ("HappyHex" font animated by `animation` class switching between the colors of the rainbow)
+- Latest Release: [1.4.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.0)
+- Version 1.4.1
+  - Add rare chance shinning font ("HappyHex" font animated by `Animation` or `DynamicProperty<T>` class switching between the colors of the rainbow)
   - Add Christmas super special (Christmas colors, gift blocks, decals)
 - Version 1.5
   - Potentially add 3 way selection button
@@ -844,4 +828,11 @@ package `comm`
 None  
 **Function**:  
 To establish an interface to execute commands and enable callbacks between controllers and runners. This facilitates thus
-the communication between different processes by streamlining the command execution service.  
+the communication between different processes by streamlining the command execution service.
+
+### Utility
+package `util`  
+**Dependencies**:  
+None  
+**Function**:  
+A bunch of utilities used by the game, mostly generated by artificial intelligence and modified by me.  

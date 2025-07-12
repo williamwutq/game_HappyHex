@@ -99,6 +99,8 @@ public final class GameEssentials implements GameGUIInterface {
     public static Color gamePieceSelectedColor = GameEssentials.processColor(new Color(168, 213, 201), "GamePieceSelectedColor");
     public static Color gameDisplayFontColor = GameEssentials.processColor(new Color(5, 34, 24), "GameDisplayFontColor");
     public static Color gameQuitFontColor = GameEssentials.processColor(new Color(136, 7, 7), "GameQuitFontColor");
+    public static Color gameDynamicIslandTransitionStartColor = GameEssentials.processColor(new Color(200, 49, 214), "GameDynamicStartBackgroundColor");
+    public static Color gameDynamicIslandTransitionEndColor = GameEssentials.processColor(new Color(56, 216, 64), "GameDynamicEndBackgroundColor");
 
     /**
      * Generates a random {@link Color} from a predefined set of 12 distinct colors by index.
@@ -249,11 +251,28 @@ public final class GameEssentials implements GameGUIInterface {
     public static void startAutoplay(){
         autoplayHandler.run();
     }
+    public static void interruptAutoplayExternal(){
+        autoplayHandler.genericClose();
+        gamePanel.quitAuto();
+    }
     public static void interruptAutoplay(){
         autoplayHandler.genericClose();
     }
     public static void terminateAutoplay(){
         autoplayHandler.hardClose();
+        if (gamePanel!= null) gamePanel.quitAutoImmediately();
+    }
+    public static Void setFastAutoplay(){
+        if (!autoplayHandler.changeDelay(250)){
+            throw new IllegalStateException("Autoplay setting could not be performed");
+        }
+        return null;
+    }
+    public static Void setSlowAutoplay(){
+        if (!autoplayHandler.changeDelay(1200)){
+            throw new IllegalStateException("Autoplay setting could not be performed");
+        }
+        return null;
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
