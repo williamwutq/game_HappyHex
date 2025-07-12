@@ -368,7 +368,7 @@ public class AutoplayInteractive {
                     this.dynamicBackground.applyPosition(1 - position);
                     this.dynamicBackground.reverseDirection();
                     this.dynamicBackground.start();
-                    scheduleStateTransition(500);
+                    scheduleStateTransition((int) (500 * (1 - position)));
                     this.removeAll();
                     this.add(autoLabel);
                     this.revalidate();
