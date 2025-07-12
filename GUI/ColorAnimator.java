@@ -1,0 +1,151 @@
+/*
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ */
+
+/* Authors of mods should put their license and below. */
+
+/* Authors of mods should put their license and above. */
+
+package GUI;
+
+import java.awt.Color;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class ColorAnimator {
+    private final AtomicBoolean isRunning;
+    private final Object phaseLock;
+    private final Object colorLock;
+    private Color[] colors;
+    private final int period;
+    private double phase;
+    private final double defaultPhase;
+    private final Runnable guiUpdater;
+    private Thread animationThread;
+
+    public ColorAnimator(Color[] colors, int period, Runnable guiUpdater) {
+        if (colors == null || colors.length < 2) {
+            throw new IllegalArgumentException("At least two colors are required.");
+        }
+        if (period <= 0) {
+            throw new IllegalArgumentException("Period must be positive.");
+        }
+        this.isRunning = new AtomicBoolean(false);
+        this.phaseLock = new Object();
+        this.colorLock = new Object();
+        this.colors = Arrays.copyOf(colors, colors.length);
+        this.period = period;
+        this.phase = 0.0;
+        this.defaultPhase = 0.0;
+        this.guiUpdater = guiUpdater;
+    }
+    public void start() {
+        if (isRunning.compareAndSet(false, true)) {
+            animationThread = new Thread(this::animate);
+            animationThread.setDaemon(true);
+            animationThread.start();
+        }
+    }
+    public void stop() {
+        isRunning.set(false);
+        if (animationThread != null) {
+            animationThread.interrupt();
+            try {
+                animationThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            animationThread = null;
+        }
+    }
+    public void reset() {
+        synchronized (phaseLock){
+            phase = defaultPhase;
+        }
+        if (guiUpdater != null) {
+            guiUpdater.run();
+        }
+    }
+    public Color get() {
+        return get(0.0);
+    }
+    public Color get(double phaseShift) {
+        double f;
+        synchronized (phaseLock){
+            f = (phase + phaseShift + 1.0) % 1.0;
+        }
+        return interpolateColor(f);
+    }
+    public void setColors(Color[] colors) {
+        if (colors == null || colors.length < 2) {
+            throw new IllegalArgumentException("At least two colors are required.");
+        }
+        synchronized (colorLock){
+            this.colors = Arrays.copyOf(colors, colors.length);
+        }
+        if (guiUpdater != null) {
+            guiUpdater.run();
+        }
+    }
+    private void animate() {
+        long lastUpdate = System.currentTimeMillis();
+        while (isRunning.get()) {
+            long currentTime = System.currentTimeMillis();
+            long elapsed = currentTime - lastUpdate;
+            lastUpdate = currentTime;
+            synchronized (phaseLock){
+                double delta = (double) elapsed / period;
+                phase = (phase + delta + 1.0) % 1.0;
+            }
+            if (guiUpdater != null) {
+                guiUpdater.run();
+            }
+            try {
+                Thread.sleep(16); // ~60 FPS
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+    private Color interpolateColor(double phase) {
+        int numColors;
+        synchronized (colorLock) {
+            numColors = colors.length;
+        }
+        double scaledPhase = phase * numColors;
+        int index1 = (int) scaledPhase;
+        int index2 = (index1 + 1) % numColors;
+        double fraction = scaledPhase - index1;
+        Color c1, c2;
+        synchronized (colorLock) {
+            c1 = colors[index1];
+            c2 = colors[index2];
+        }
+        int r = (int) (c1.getRed() + (c2.getRed() - c1.getRed()) * fraction);
+        int g = (int) (c1.getGreen() + (c2.getGreen() - c1.getGreen()) * fraction);
+        int b = (int) (c1.getBlue() + (c2.getBlue() - c1.getBlue()) * fraction);
+        int a = (int) (c1.getAlpha() + (c2.getAlpha() - c1.getAlpha()) * fraction);
+        return new Color(r, g, b, a);
+    }
+}
