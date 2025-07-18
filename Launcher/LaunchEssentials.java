@@ -32,7 +32,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.Collections;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -174,11 +174,11 @@ public final class LaunchEssentials {
     public static long getCurrentPlayerID(){
         return currentGameInfo.getPlayerID();
     }
-    public static java.util.ArrayList<hexio.HexLogger> smartFindLoggers(){
+    public static List<HexLogger> smartFindLoggers(){
         if (currentGameInfo.getPlayerID() == -1 || currentGameInfo.getPlayer().equals("Guest")){
-            return new ArrayList<hexio.HexLogger>();
+            return new ArrayList<HexLogger>();
         }
-        java.util.ArrayList<hexio.HexLogger> loggers = hexio.HexLogger.generateBinaryLoggers();
+        ArrayList<HexLogger> loggers = HexLogger.generateBinaryLoggers();
         int r = 5;
         int q = 3;
         if (GameMode.getChar(currentGameInfo.getGameMode()) == 'M'){
@@ -188,33 +188,17 @@ public final class LaunchEssentials {
         }
         final int radius = r;
         final int queueSize = q;
+        final long playerID = currentGameInfo.getPlayerID();
         // Search for games
-        int threadCount = 256;
-        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-        List<Future<HexLogger>> futures = new ArrayList<>();
-
-        for (HexLogger logger : loggers) {
-            futures.add(executor.submit(() -> {
-                try {
-                    logger.read();
-                    if (!logger.isCompleted()
-                            && logger.getEngine().getRadius() == radius
-                            && logger.getQueue().length == queueSize
-                            && logger.getPlayerID() == currentGameInfo.getPlayerID()) {
-                        return logger;
-                    }
-                } catch (IOException ignored) {}
-                return null;
-            }));
-        }
-        ArrayList<HexLogger> filtered = new ArrayList<>();
-        for (Future<HexLogger> f : futures) {
-            try {
-                HexLogger l = f.get();
-                if (l != null) filtered.add(l);
-            } catch (Exception ignored) {}
-        }
-        executor.shutdown();
+        List<HexLogger> filtered = Collections.synchronizedList(new ArrayList<>());
+        loggers.parallelStream().forEach(logger -> {
+                    try {
+                        logger.readAndCheck(null, false, null, null,
+                                            playerID, null, radius,  queueSize);
+                        filtered.add(logger);
+                    } catch (IOException ignored) {}
+                }
+        );
         return filtered;
     }
     public static void initialize(){
