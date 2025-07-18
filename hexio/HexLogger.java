@@ -869,7 +869,7 @@ public class HexLogger {
             reader.advance(4);
         }
         int startingDataPointerPosition = reader.pointer();
-        HexDataReader clonedReader = HexDataFactory.cloneReader(reader);;
+        HexDataReader clonedReader = HexDataFactory.cloneReader(reader);
         HexEngine engineData;
         Piece[] queueData;
         ArrayList<Hex> moveOriginsData = new ArrayList<Hex>(turnData);
