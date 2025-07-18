@@ -31,13 +31,14 @@ package GUI;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ColorAnimator {
     private final AtomicBoolean isRunning;
     private final Object phaseLock;
     private final Object colorLock;
     private Color[] colors;
-    private final int period;
+    private final AtomicInteger period;
     private double phase;
     private final double defaultPhase;
     private final Runnable guiUpdater;
@@ -54,10 +55,16 @@ public class ColorAnimator {
         this.phaseLock = new Object();
         this.colorLock = new Object();
         this.colors = Arrays.copyOf(colors, colors.length);
-        this.period = period;
+        this.period = new AtomicInteger(period);
         this.phase = 0.0;
         this.defaultPhase = 0.0;
         this.guiUpdater = guiUpdater;
+    }
+    public int getPeriod() {
+        return period.get();
+    }
+    public void applyPeriod(int period) {
+        this.period.set(period);
     }
     public void start() {
         if (isRunning.compareAndSet(false, true)) {
@@ -113,8 +120,8 @@ public class ColorAnimator {
             long currentTime = System.currentTimeMillis();
             long elapsed = currentTime - lastUpdate;
             lastUpdate = currentTime;
+            double delta = (double) elapsed / period.get();
             synchronized (phaseLock){
-                double delta = (double) elapsed / period;
                 phase = (phase + delta + 1.0) % 1.0;
             }
             if (guiUpdater != null) {
