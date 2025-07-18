@@ -31,7 +31,7 @@ import hexio.HexLogger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class GamesPanel extends JPanel {
     double size;
@@ -42,7 +42,7 @@ public class GamesPanel extends JPanel {
         this.setBackground(LaunchEssentials.launchBackgroundColor);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         size = 1;
-        ArrayList<HexLogger> loggers = LaunchEssentials.smartFindLoggers();
+        List<HexLogger> loggers = LaunchEssentials.smartFindLoggers();
         for (HexLogger logger : loggers) {
             this.add(new ListGame(logger));
         }
