@@ -714,7 +714,8 @@ public class HexLogger {
      * @see #write()
      */
     public void write(String format) throws IOException {
-        if (format.equals("hex.binary")) {
+        if (format.equals("hex.binary") || format.equals("hex.coloredbinary")) {
+            boolean colored = format.equals("hex.coloredbinary");
             HexDataWriter writer = HexDataFactory.createWriter(getDataFileName(), "hpyhex");
             long obfScore = obfuscate(interleaveIntegers(score * score, ID ^ turn));
             long obfTurn = obfuscate(interleaveIntegers(turn * turn, ID ^ score));
@@ -731,12 +732,16 @@ public class HexLogger {
             writer.add(turn);
             writer.add(score);
             writer.add(completed);
+            if (colored) {
+                writer.add(playerID);
+                writer.add(formatStringToLength(player, 24));
+            }
             writer.addDivider(2);
-            writer.addHex(HexDataConverter.convertBooleanEngine(currentEngine));
+            writer.addHex(colored ? HexDataConverter.convertColoredEngine(currentEngine) : HexDataConverter.convertBooleanEngine(currentEngine));
             writer.addDivider(1);
             writer.add((short)currentQueue.length);
             for (Piece piece : currentQueue){
-                writer.addHex(HexDataConverter.convertBooleanPiece(piece));
+                writer.addHex(colored ? HexDataConverter.convertColoredPiece(piece) : HexDataConverter.convertBooleanPiece(piece));
             }
             writer.addDivider(1);
             int totalMoves = moveOrigins.size();
@@ -744,52 +749,14 @@ public class HexLogger {
                 writer.addHex(HexDataConverter.convertHex(moveOrigins.get(i)));
                 writer.add((byte)(int)(movePieces.get(i)));
                 for (Piece piece : moveQueues.get(i)) {
-                    writer.addHex(HexDataConverter.convertBooleanPiece(piece));
-                }
-            }
-            writer.addDivider(2);
-            writer.add((short) (obfuscate(ID) << 5));
-            HexDataFactory.write(writer);
-        } else if (format.equals("hex.coloredbinary")) {
-            HexDataWriter writer = HexDataFactory.createWriter(getDataFileName(), "hpyhex");
-            long obfScore = obfuscate(interleaveIntegers(score * score, ID ^ turn));
-            long obfTurn = obfuscate(interleaveIntegers(turn * turn, ID ^ score));
-            long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
-            writer.addHex("4B874B1E5A0F5A0F" + "5A964B874B5A5A87");
-            writer.add(obfuscate(ID * 43L ^ obfCombined ^ obfTurn) ^ obfScore);
-            writer.addHex("4A41564148584C47");
-            writer.add((byte)HexIOInfo.major);
-            writer.add((byte)HexIOInfo.minor);
-            writer.add((byte)HexIOInfo.patch);
-            writer.addDivider(1);
-            writer.add(ID);
-            writer.addHex("214845582D42494E");
-            writer.add(turn);
-            writer.add(score);
-            writer.add(completed);
-            writer.add(playerID);
-            writer.add(formatStringToLength(player, 24));
-            writer.addDivider(2);
-            writer.addHex(HexDataConverter.convertColoredEngine(currentEngine));
-            writer.addDivider(1);
-            writer.add((short)currentQueue.length);
-            for (Piece piece : currentQueue){
-                writer.addHex(HexDataConverter.convertColoredPiece(piece));
-            }
-            writer.addDivider(1);
-            int totalMoves = moveOrigins.size();
-            for (int i = 0; i < totalMoves; i ++) {
-                writer.addHex(HexDataConverter.convertHex(moveOrigins.get(i)));
-                writer.add((byte)(int)(movePieces.get(i)));
-                for (Piece piece : moveQueues.get(i)) {
-                    writer.addHex(HexDataConverter.convertColoredPiece(piece));
+                    writer.addHex(colored ? HexDataConverter.convertColoredPiece(piece) : HexDataConverter.convertBooleanPiece(piece));
                 }
             }
             writer.addDivider(2);
             writer.add((short) (obfuscate(ID) << 5));
             HexDataFactory.write(writer);
         } else {
-
+            throw new IOException("Unsupported format used for writing");
         }
     }
 
