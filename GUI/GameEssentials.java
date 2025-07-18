@@ -115,7 +115,16 @@ public final class GameEssentials implements GameGUIInterface {
             return gameBlockDefaultColor;
         } else if (index == -2 || index >= pieceColors.length){
             return getDefaultColor();
+        } else if (colorAnimator != null){
+            return colorAnimator.get((double)index / pieceColors.length);
         } else return pieceColors[index];
+    }
+    /**
+     * Return whether the block colors are animated using colorAnimator.
+     * @return whether the block colors are animated
+     */
+    public static boolean isColorAnimated(){
+        return colorAnimator != null;
     }
     /**
      * Generates the default color by interpolating the background and the default block color.
@@ -208,13 +217,14 @@ public final class GameEssentials implements GameGUIInterface {
         int half = (int)Math.round((window.getHeight() - 33.0)/2);
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
+    public static void setAnimator(Runnable guiUpdater){
+        colorAnimator = new ColorAnimator(pieceColors, 1800, guiUpdater);
+        colorAnimator.start();
+    }
     // Initializing
     public static void initialize(int size, int queueSize, boolean easy, JFrame frame, String player, HexLogger logger){
         System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
-        if (colorAnimator == null) {
-            colorAnimator = new ColorAnimator(pieceColors, 1000, window::repaint);
-            colorAnimator.start();
-        } else {
+        if (colorAnimator != null) {
             colorAnimator.setColors(pieceColors);
         }
         if(easy) {

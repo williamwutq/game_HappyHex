@@ -155,10 +155,12 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
     }
 
     public void paint(Graphics g) {
-        for (int i = 0; i < 12; i++) {
-            gameNameLabels[i].setForeground(GameEssentials.interpolate(
-                    GameEssentials.generateColor((gameNameLabelIndexShift + i * 5) % 12),
-                    LaunchEssentials.launchTitlePanelBackgroundColor, 4));
+        if (GameEssentials.isColorAnimated()) {
+            for (int i = 0; i < 12; i++) {
+                gameNameLabels[i].setForeground(GameEssentials.interpolate(
+                        GameEssentials.generateColor((gameNameLabelIndexShift + i * 5) % 12),
+                        LaunchEssentials.launchTitlePanelBackgroundColor, 4));
+            }
         }
         super.paint(g);
     }

@@ -204,6 +204,7 @@ public final class LaunchEssentials {
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;
+        if (Math.random() > 0.9) GameEssentials.setAnimator(LauncherGUI.getMainFrame()::repaint); // By chance
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }
     public static void setEasyMode(){
