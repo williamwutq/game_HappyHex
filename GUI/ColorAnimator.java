@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ColorAnimator implements CircularProperty<Color>{
     private final AtomicBoolean isRunning;
+    private final AtomicBoolean isForward;
     private final Object phaseLock;
     private final Object colorLock;
     private Color[] colors;
@@ -54,6 +55,7 @@ public class ColorAnimator implements CircularProperty<Color>{
             throw new IllegalArgumentException("Period must be positive.");
         }
         this.isRunning = new AtomicBoolean(false);
+        this.isForward = new AtomicBoolean(true);
         this.phaseLock = new Object();
         this.colorLock = new Object();
         this.colors = Arrays.copyOf(colors, colors.length);
@@ -65,12 +67,11 @@ public class ColorAnimator implements CircularProperty<Color>{
 
     @Override
     public boolean direction() {
-        return false;
+        return isForward.get();
     }
-
     @Override
     public void setDirection(boolean forward) {
-
+        isForward.set(forward);
     }
     @Override
     public double phase() {
@@ -140,12 +141,10 @@ public class ColorAnimator implements CircularProperty<Color>{
     public Color get() {
         return get(0.0);
     }
-
     @Override
     public boolean isRunning() {
-        return false;
+        return isRunning.get();
     }
-
     public Color get(double phaseShift) {
         double f;
         synchronized (phaseLock){
@@ -171,6 +170,9 @@ public class ColorAnimator implements CircularProperty<Color>{
             long elapsed = currentTime - lastUpdate;
             lastUpdate = currentTime;
             double delta = (double) elapsed / period.get();
+            if (!isForward.get()){
+                delta = -delta;
+            }
             synchronized (phaseLock){
                 phase = (phase + delta + 1.0) % 1.0;
             }
@@ -178,7 +180,7 @@ public class ColorAnimator implements CircularProperty<Color>{
                 guiUpdater.run();
             }
             try {
-                Thread.sleep(16); // ~60 FPS
+                Thread.sleep(6);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
