@@ -218,7 +218,7 @@ public final class GameEssentials implements GameGUIInterface {
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
     public static void setAnimator(Runnable guiUpdater){
-        colorAnimator = new ColorAnimator(pieceColors, 1800, guiUpdater);
+        colorAnimator = new ColorAnimator(pieceColors, 16000, guiUpdater);
         colorAnimator.start();
     }
     // Initializing
