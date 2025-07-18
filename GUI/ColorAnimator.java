@@ -35,6 +35,19 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * A {@code ColorAnimator} is a circular dynamic property that animates a transition between multiple {@link Color} values over time.
+ * <p>
+ * It evolves its state based on a defined period and phase, looping through a list of colors in a continuous manner.
+ * It supports direction reversal, customizable default phase, and manual control over lifecycle events such as start, stop, and reset.
+ * <p>
+ * This class is thread-safe and uses a background thread to update the animation. Color interpolation is linear and alpha-aware.
+ * GUI updates can be triggered on each animation frame via a user-supplied {@link Runnable}.
+ *
+ * @author William Wu
+ * @version 1.4.1
+ * @since 1.4.1
+ */
 public class ColorAnimator implements CircularProperty<Color>{
     private final AtomicBoolean isRunning;
     private final AtomicBoolean isForward;
@@ -47,6 +60,14 @@ public class ColorAnimator implements CircularProperty<Color>{
     private final Runnable guiUpdater;
     private Thread animationThread;
 
+    /**
+     * Constructs a {@code ColorAnimator} with a given color sequence, animation period, and GUI update callback.
+     *
+     * @param colors     an array of {@link Color} objects to interpolate between; must contain at least two colors
+     * @param period     the duration (in milliseconds) of a full cycle through all colors; must be positive
+     * @param guiUpdater a {@link Runnable} to be invoked whenever the color is updated, typically for UI repainting
+     * @throws IllegalArgumentException if the colors array is null or has fewer than two entries, or if period is non-positive
+     */
     public ColorAnimator(Color[] colors, int period, Runnable guiUpdater) {
         if (colors == null || colors.length < 2) {
             throw new IllegalArgumentException("At least two colors are required.");
@@ -65,20 +86,27 @@ public class ColorAnimator implements CircularProperty<Color>{
         this.guiUpdater = guiUpdater;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean direction() {
         return isForward.get();
     }
+    /** {@inheritDoc} */
     @Override
     public void setDirection(boolean forward) {
         isForward.set(forward);
     }
+    /** {@inheritDoc} */
     @Override
     public double phase() {
         synchronized (phaseLock) {
             return phase;
         }
     }
+    /**
+     * {@inheritDoc}
+     * @throws IllegalArgumentException if the phase is not within the range [0.0, 1.0)
+     */
     @Override
     public void applyDefaultPhase(double phase) {
         if (phase < 0 || phase >= 1) throw new IllegalArgumentException("Phase must be between 0 and 1");
@@ -86,20 +114,32 @@ public class ColorAnimator implements CircularProperty<Color>{
             this.defaultPhase = phase;
         }
     }
+    /** {@inheritDoc} */
     @Override
     public double getDefaultPhase() {
         synchronized (phaseLock){
             return defaultPhase;
         }
     }
+    /** {@inheritDoc} */
     @Override
     public int getPeriod() {
         return period.get();
     }
+    /**
+     * {@inheritDoc}
+     * This method is the internal hook to actually change the stored period.
+     * It assumes validation has already been performed.
+     */
     @Override
     public void applyPeriod(int period) {
         this.period.set(period);
     }
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalArgumentException if the phase is not within the range [0.0, 1.0)
+     */
     @Override
     public void applyPhase(double phase) throws IllegalArgumentException {
         if (phase < 0 || phase >= 1) throw new IllegalArgumentException("Phase must be between 0 and 1");
@@ -107,6 +147,11 @@ public class ColorAnimator implements CircularProperty<Color>{
             this.phase = phase;
         }
     }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Starts the animation in a background thread, updating phase and invoking the GUI updater periodically.
+     */
     @Override
     public void start() {
         if (isRunning.compareAndSet(false, true)) {
@@ -115,6 +160,11 @@ public class ColorAnimator implements CircularProperty<Color>{
             animationThread.start();
         }
     }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Stops the animation thread if running and waits for its termination.
+     */
     @Override
     public void stop() {
         isRunning.set(false);
@@ -128,6 +178,11 @@ public class ColorAnimator implements CircularProperty<Color>{
             animationThread = null;
         }
     }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Resets the current phase to the {@link #getDefaultPhase() default phase} and triggers the GUI update task, if provided.
+     */
     @Override
     public void reset() {
         synchronized (phaseLock){
@@ -137,14 +192,29 @@ public class ColorAnimator implements CircularProperty<Color>{
             guiUpdater.run();
         }
     }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns the current interpolated {@link Color} based on the internal phase value.
+     * @return the current interpolated {@link Color} at this moment
+     */
     @Override
     public Color get() {
         return get(0.0);
     }
+    /** {@inheritDoc} */
     @Override
     public boolean isRunning() {
         return isRunning.get();
     }
+    /**
+     * Returns the current interpolated {@link Color} with a phase shift applied.
+     * <p>
+     * This allows sampling a color at a position offset from the current animation phase.
+     *
+     * @param phaseShift a value in the range [-1.0, 1.0] representing phase offset; values are normalized
+     * @return the interpolated color at the shifted phase
+     */
     public Color get(double phaseShift) {
         double f;
         synchronized (phaseLock){
@@ -152,6 +222,15 @@ public class ColorAnimator implements CircularProperty<Color>{
         }
         return interpolateColor(f);
     }
+    /**
+     * Updates the color sequence used by the animator.
+     * <p>
+     * This change takes effect immediately and resets interpolation accordingly.
+     * Triggers GUI update if a GUI updater was provided.
+     *
+     * @param colors the new array of colors; must contain at least two colors
+     * @throws IllegalArgumentException if {@code colors} is {@code null} or has fewer than two elements
+     */
     public void setColors(Color[] colors) {
         if (colors == null || colors.length < 2) {
             throw new IllegalArgumentException("At least two colors are required.");
@@ -163,6 +242,12 @@ public class ColorAnimator implements CircularProperty<Color>{
             guiUpdater.run();
         }
     }
+    /**
+     * Internal animation loop executed in a background thread while the animator is running.
+     * <p>
+     * It updates the phase based on elapsed time and direction, and invokes the GUI update task.
+     * This method sleeps briefly between frames to limit CPU usage.
+     */
     private void animate() {
         long lastUpdate = System.currentTimeMillis();
         while (isRunning.get()) {
@@ -187,6 +272,15 @@ public class ColorAnimator implements CircularProperty<Color>{
             }
         }
     }
+    /**
+     * Computes the interpolated {@link Color} for a given normalized phase value.
+     * <p>
+     * Performs linear interpolation between two adjacent colors in the color array, wrapping cyclically.
+     * Includes alpha channel interpolation.
+     *
+     * @param phase the normalized phase value in [0.0, 1.0)
+     * @return the interpolated color
+     */
     private Color interpolateColor(double phase) {
         final Color[] localColors;
         synchronized (colorLock) {
