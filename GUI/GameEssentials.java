@@ -102,6 +102,9 @@ public final class GameEssentials implements GameGUIInterface {
     public static Color gameDynamicIslandTransitionStartColor = GameEssentials.processColor(new Color(200, 49, 214), "GameDynamicStartBackgroundColor");
     public static Color gameDynamicIslandTransitionEndColor = GameEssentials.processColor(new Color(56, 216, 64), "GameDynamicEndBackgroundColor");
 
+    /** The global color animator rarely used. */
+    private static ColorAnimator colorAnimator;
+
     /**
      * Generates a random {@link Color} from a predefined set of 12 distinct colors by index.
      * @param index the index of the color to choose from, -1 and -2 represent default colors.
@@ -177,6 +180,7 @@ public final class GameEssentials implements GameGUIInterface {
     public static void changeFontProcessor(special.SpecialFeature newProcessor){
         fontProcessor = newProcessor;
         gameDisplayFont = processFont("Courier", "GameDisplayFont");
+        if (colorAnimator != null) colorAnimator.setColors(pieceColors);
     }
 
     // Resizing
@@ -207,6 +211,12 @@ public final class GameEssentials implements GameGUIInterface {
     // Initializing
     public static void initialize(int size, int queueSize, boolean easy, JFrame frame, String player, HexLogger logger){
         System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
+        if (colorAnimator == null) {
+            colorAnimator = new ColorAnimator(pieceColors, 1000, window::repaint);
+            colorAnimator.start();
+        } else {
+            colorAnimator.setColors(pieceColors);
+        }
         if(easy) {
             game.PieceFactory.setEasy();
         }
@@ -247,6 +257,9 @@ public final class GameEssentials implements GameGUIInterface {
         // Calculations
         piecePanel.doLayout();
         gamePanel.doLayout();
+    }
+    public static void closeAnimator(){
+        if (colorAnimator != null) colorAnimator.stop();
     }
     public static void startAutoplay(){
         autoplayHandler.run();

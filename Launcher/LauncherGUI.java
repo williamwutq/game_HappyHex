@@ -166,6 +166,7 @@ public class LauncherGUI {
                 }
                 // Close
                 GameEssentials.terminateAutoplay();
+                GameEssentials.closeAnimator();
                 System.out.println(io.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
                 System.exit(0);
