@@ -28,19 +28,21 @@
 
 package GUI;
 
+import util.dynamic.CircularProperty;
+
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ColorAnimator {
+public class ColorAnimator implements CircularProperty<Color>{
     private final AtomicBoolean isRunning;
     private final Object phaseLock;
     private final Object colorLock;
     private Color[] colors;
     private final AtomicInteger period;
     private double phase;
-    private final double defaultPhase;
+    private double defaultPhase;
     private final Runnable guiUpdater;
     private Thread animationThread;
 
@@ -60,12 +62,51 @@ public class ColorAnimator {
         this.defaultPhase = 0.0;
         this.guiUpdater = guiUpdater;
     }
+
+    @Override
+    public boolean direction() {
+        return false;
+    }
+
+    @Override
+    public void setDirection(boolean forward) {
+
+    }
+    @Override
+    public double phase() {
+        synchronized (phaseLock) {
+            return phase;
+        }
+    }
+    @Override
+    public void applyDefaultPhase(double phase) {
+        if (phase < 0 || phase >= 1) throw new IllegalArgumentException("Phase must be between 0 and 1");
+        synchronized (phaseLock) {
+            this.defaultPhase = phase;
+        }
+    }
+    @Override
+    public double getDefaultPhase() {
+        synchronized (phaseLock){
+            return defaultPhase;
+        }
+    }
+    @Override
     public int getPeriod() {
         return period.get();
     }
+    @Override
     public void applyPeriod(int period) {
         this.period.set(period);
     }
+    @Override
+    public void applyPhase(double phase) throws IllegalArgumentException {
+        if (phase < 0 || phase >= 1) throw new IllegalArgumentException("Phase must be between 0 and 1");
+        synchronized (phaseLock) {
+            this.phase = phase;
+        }
+    }
+    @Override
     public void start() {
         if (isRunning.compareAndSet(false, true)) {
             animationThread = new Thread(this::animate);
@@ -73,6 +114,7 @@ public class ColorAnimator {
             animationThread.start();
         }
     }
+    @Override
     public void stop() {
         isRunning.set(false);
         if (animationThread != null) {
@@ -85,6 +127,7 @@ public class ColorAnimator {
             animationThread = null;
         }
     }
+    @Override
     public void reset() {
         synchronized (phaseLock){
             phase = defaultPhase;
@@ -93,9 +136,16 @@ public class ColorAnimator {
             guiUpdater.run();
         }
     }
+    @Override
     public Color get() {
         return get(0.0);
     }
+
+    @Override
+    public boolean isRunning() {
+        return false;
+    }
+
     public Color get(double phaseShift) {
         double f;
         synchronized (phaseLock){
