@@ -809,6 +809,9 @@ public class HexLogger {
                              Long playerIDRequired, String playerNameRequired,
                              Integer engineRadiusRequired, Integer queueSizeRequired)
             throws IOException {
+        if (formatRequired != null && !formatRequired.equals("hex.binary") && !formatRequired.equals("hex.coloredbinary")) {
+            throw new IOException("Unsupported format used for reading");
+        }
         HexDataReader reader = HexDataFactory.read(getDataFileName(), "hpyhex");
         // Format check
         if (!reader.next(32).equals("4B874B1E5A0F5A0F5A964B874B5A5A87")) {
@@ -874,6 +877,9 @@ public class HexLogger {
         ArrayList<Integer> movePiecesData = new ArrayList<Integer>(turnData);
         // Attempt uncolored
         try {
+            if (formatRequired != null && !formatRequired.equals("hex.binary")){
+                throw new IOException("Format binary is skipped in reading attempt");
+            }
             clonedReader.advance(startingDataPointerPosition);
             // Read engine
             try {
@@ -931,6 +937,9 @@ public class HexLogger {
                 throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
             }
         } catch (Exception exceptionReadingUncolored) {
+            if (formatRequired != null && !formatRequired.equals("hex.coloredbinary")){
+                throw new IOException("Format coloredbinary is skipped in reading attempt");
+            }
             // If fails, also attempt colored
             clonedReader = HexDataFactory.cloneReader(reader);
             clonedReader.advance(startingDataPointerPosition);
