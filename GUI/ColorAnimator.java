@@ -188,19 +188,17 @@ public class ColorAnimator implements CircularProperty<Color>{
         }
     }
     private Color interpolateColor(double phase) {
-        int numColors;
+        final Color[] localColors;
         synchronized (colorLock) {
-            numColors = colors.length;
+            localColors = Arrays.copyOf(colors, colors.length);
         }
+        int numColors = localColors.length;
         double scaledPhase = phase * numColors;
         int index1 = (int) scaledPhase;
         int index2 = (index1 + 1) % numColors;
         double fraction = scaledPhase - index1;
-        Color c1, c2;
-        synchronized (colorLock) {
-            c1 = colors[index1];
-            c2 = colors[index2];
-        }
+        Color c1 = localColors[index1];
+        Color c2 = localColors[index2];
         int r = (int) (c1.getRed() + (c2.getRed() - c1.getRed()) * fraction);
         int g = (int) (c1.getGreen() + (c2.getGreen() - c1.getGreen()) * fraction);
         int b = (int) (c1.getBlue() + (c2.getBlue() - c1.getBlue()) * fraction);
