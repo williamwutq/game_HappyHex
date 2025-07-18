@@ -71,13 +71,14 @@ public interface CircularProperty<T> extends DynamicProperty<T> {
      */
     double phase();
     /**
-     * Resets the property to its default or initial phase.
+     * Set the default phase of the circular property that will be used when {@link #reset()} is called.
      * <p>
-     * Does not alter whether the property is running.
+     * @param phase the default phase as a normalized double
+     * @throws IllegalArgumentException if the phase is not in the correct range
      */
-    void setDefaultPhase();
+    void applyDefaultPhase(double phase);
     /**
-     * Returns the default phase value that will be used when {@link #reset()} or {@link #setDefaultPhase()} is called.
+     * Returns the default phase value that will be used when {@link #reset()} is called.
      *
      * @return the default phase as a normalized double
      */

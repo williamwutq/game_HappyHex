@@ -46,6 +46,7 @@ public final class LaunchEssentials {
 
     // Random
     private static final java.util.Random randomGenerator = new java.util.Random();
+    private static final double animationChance = 0.1;
 
     // Game info
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
@@ -204,6 +205,7 @@ public final class LaunchEssentials {
     public static void initialize(){
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;
+        if (Math.random() <= animationChance) GameEssentials.setAnimator(LauncherGUI.getMainFrame()::repaint); // By chance
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }
     public static void setEasyMode(){

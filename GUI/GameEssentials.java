@@ -102,6 +102,9 @@ public final class GameEssentials implements GameGUIInterface {
     public static Color gameDynamicIslandTransitionStartColor = GameEssentials.processColor(new Color(200, 49, 214), "GameDynamicStartBackgroundColor");
     public static Color gameDynamicIslandTransitionEndColor = GameEssentials.processColor(new Color(56, 216, 64), "GameDynamicEndBackgroundColor");
 
+    /** The global color animator rarely used. */
+    private static ColorAnimator colorAnimator;
+
     /**
      * Generates a random {@link Color} from a predefined set of 12 distinct colors by index.
      * @param index the index of the color to choose from, -1 and -2 represent default colors.
@@ -112,7 +115,16 @@ public final class GameEssentials implements GameGUIInterface {
             return gameBlockDefaultColor;
         } else if (index == -2 || index >= pieceColors.length){
             return getDefaultColor();
+        } else if (colorAnimator != null){
+            return colorAnimator.get((double)index / pieceColors.length);
         } else return pieceColors[index];
+    }
+    /**
+     * Return whether the block colors are animated using colorAnimator.
+     * @return whether the block colors are animated
+     */
+    public static boolean isColorAnimated(){
+        return colorAnimator != null;
     }
     /**
      * Generates the default color by interpolating the background and the default block color.
@@ -177,6 +189,7 @@ public final class GameEssentials implements GameGUIInterface {
     public static void changeFontProcessor(special.SpecialFeature newProcessor){
         fontProcessor = newProcessor;
         gameDisplayFont = processFont("Courier", "GameDisplayFont");
+        if (colorAnimator != null) colorAnimator.setColors(pieceColors);
     }
 
     // Resizing
@@ -204,9 +217,16 @@ public final class GameEssentials implements GameGUIInterface {
         int half = (int)Math.round((window.getHeight() - 33.0)/2);
         return half - (int)Math.round((engine.getRadius() * 1.5 + 2) * HexButton.getActiveSize());
     }
+    public static void setAnimator(Runnable guiUpdater){
+        colorAnimator = new ColorAnimator(pieceColors, 16000, guiUpdater);
+        colorAnimator.start();
+    }
     // Initializing
     public static void initialize(int size, int queueSize, boolean easy, JFrame frame, String player, HexLogger logger){
         System.out.println(GameTime.generateSimpleTime() + " GameEssentials: Game starts.");
+        if (colorAnimator != null) {
+            colorAnimator.setColors(pieceColors);
+        }
         if(easy) {
             game.PieceFactory.setEasy();
         }
@@ -247,6 +267,9 @@ public final class GameEssentials implements GameGUIInterface {
         // Calculations
         piecePanel.doLayout();
         gamePanel.doLayout();
+    }
+    public static void closeAnimator(){
+        if (colorAnimator != null) colorAnimator.stop();
     }
     public static void startAutoplay(){
         autoplayHandler.run();

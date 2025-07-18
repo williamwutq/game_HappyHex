@@ -49,7 +49,7 @@ public class FeatureFactory {
                 } else {
                     return new special.Independence.AmericanWhiteTheme();
                 }
-            } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11) || randomChance1) {
+            } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 11)) {
                 return new special.Styles.Grayscale();
             } else if (hint.equals("Dark") || hint.equals("4")) {
                 return new special.Styles.DarkTheme();
