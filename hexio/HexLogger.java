@@ -986,4 +986,236 @@ public class HexLogger {
         playerID = playerIDData;
         player = playerNameData;
     }
+    /**
+     * Reads a log file and parses it into memory, checking values against provided parameters as soon as they are read.
+     * Supports both "hex.binary" and "hex.coloredbinary" formats. Populates {@code engine}, {@code queue}, {@code moves},
+     * and other game data from binary data. Terminates early by throwing IOException if any required parameter does not
+     * match or if the format does not match the required format.
+     * <p>
+     * For writing binary data, use {@link #write(String)}.
+     *
+     * @param formatRequired           The required file format ("hex.binary" or "hex.coloredbinary"). If non-null, parsing fails if the format does not match.
+     * @param completionStatusRequired The required completion status. If non-null, parsing fails if the status does not match.
+     * @param turnRequired             The required turn count. If non-null, parsing fails if the turn count does not match.
+     * @param scoreRequired            The required score. If non-null, parsing fails if the score does not match.
+     * @param playerIDRequired         The required player ID. If non-null, parsing fails if the player ID does not match.
+     * @param playerNameRequired       The required player name. If non-null, parsing fails if the player name does not match.
+     * @param engineRadiusRequired     The required engine radius. If non-null, parsing fails if the radius does not match.
+     * @param queueSizeRequired        The required queue size. If non-null, parsing fails if the queue size does not match.
+     * @throws IOException If reading or parsing fails, data is corrupted, or any required parameter does not match.
+     * @since 1.4
+     */
+    public void readAndCheck(String formatRequired, Boolean completionStatusRequired,
+                             Integer turnRequired, Integer scoreRequired,
+                             Long playerIDRequired, String playerNameRequired,
+                             Integer engineRadiusRequired, Integer queueSizeRequired)
+            throws IOException {
+        HexDataReader reader = HexDataFactory.read(getDataFileName(), "hpyhex");
+        // Format check
+        if (!reader.next(32).equals("4B874B1E5A0F5A0F5A964B874B5A5A87")) {
+            throw new IOException("Fail to read binary data because file header is corrupted");
+        }
+        long code = reader.nextLong();
+        reader.advance(24); // Skip generator and version
+        int id = reader.nextInt();
+        if (!reader.next(16).equals("214845582D42494E")) {
+            throw new IOException("Fail to read binary data because file data start header is corrupted");
+        }
+        int turnData = reader.nextInt();
+        if (turnRequired != null && turnRequired != turnData){
+            throw new IOException("Turn count does not match required value: expected " + turnRequired + ", found " + turnData);
+        }
+        int scoreData = reader.nextInt();
+        if (scoreRequired != null && scoreRequired != scoreData){
+            throw new IOException("Score does not match required value: expected " + scoreRequired + ", found " + scoreData);
+        }
+        boolean completeBooleanData = reader.nextBoolean();
+        if (completionStatusRequired != null && completionStatusRequired != completeBooleanData) {
+            throw new IOException("Completion status does not match required value: expected " + completionStatusRequired + ", found " + completeBooleanData);
+        }
+        // try encoding
+        long obfScore = obfuscate(interleaveIntegers(scoreData * scoreData, id ^ turnData));
+        long obfTurn = obfuscate(interleaveIntegers(turnData * turnData, id ^ scoreData));
+        long obfCombined = ((obfTurn << 32) | (obfScore & 0xFFFFFFFFL));
+        obfCombined = obfuscate(id * 43L ^ obfCombined ^ obfTurn) ^ obfScore;
+        if (obfCombined != code){
+            throw new IOException("Fail to read binary data because file data encoding is corrupted or version is not supported");
+        }
+        long playerIDData;
+        String playerNameData;
+        if (!reader.get(reader.pointer(), 4).equals("FFFF")) {
+            // If is colored binary including player info
+            playerIDData = reader.nextLong();
+            if (playerIDRequired != null && playerIDRequired != playerIDData) {
+                throw new IOException("Player ID does not match required value: expected " + playerIDRequired + ", found " + playerIDData);
+            }
+            playerNameData = reader.nextString(24).trim();
+            if (playerNameRequired != null && !playerNameRequired.equals(playerNameData)) {
+                throw new IOException("Player name does not match required value: expected " + playerNameRequired + ", found " + playerNameData);
+            }
+            if (!reader.next(4).equals("FFFF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+        } else {
+            if (playerIDRequired != null) {
+                throw new IOException("Player ID does not match required value: expected " + playerIDRequired + ", not found");
+            } else if (playerNameRequired != null) {
+                throw new IOException("Player name does not match required value: expected " + playerNameRequired + ", not found");
+            }
+            playerIDData = this.playerID;
+            playerNameData = this.player;
+            reader.advance(4);
+        }
+        int startingDataPointerPosition = reader.pointer();
+        HexDataReader clonedReader = HexDataFactory.cloneReader(reader);;
+        HexEngine engineData;
+        Piece[] queueData;
+        ArrayList<Hex> moveOriginsData = new ArrayList<Hex>(turnData);
+        ArrayList<Piece[]> moveQueuesData = new ArrayList<Piece[]>(turnData);
+        ArrayList<Integer> movePiecesData = new ArrayList<Integer>(turnData);
+        // Attempt uncolored
+        try {
+            clonedReader.advance(startingDataPointerPosition);
+            // Read engine
+            try {
+                int radius = clonedReader.getShort(clonedReader.pointer());
+                if (engineRadiusRequired != null && engineRadiusRequired != radius) {
+                    throw new IOException("Engine radius does not match required value: expected " + engineRadiusRequired + ", found " + radius);
+                }
+                int l = (3 * (radius) * (radius - 1)) / 4 + 5;
+                engineData = HexDataConverter.convertEngine(clonedReader.next(l));
+            } catch (IOException e) {
+                throw new IOException("Fail to read engine data in binary data because " + e.getMessage());
+            }
+            if (!clonedReader.next(2).equals("FF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+            // Read queue
+            try {
+                int length = clonedReader.nextShort();
+                if (queueSizeRequired != null && queueSizeRequired != length) {
+                    throw new IOException("Queue size does not match required value: expected " + queueSizeRequired + ", found " + length);
+                }
+                queueData = new Piece[length];
+                for (int i = 0; i < length; i++) {
+                    queueData[i] = HexDataConverter.convertPiece(clonedReader.next(2));
+                }
+            } catch (IOException e) {
+                throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
+            }
+            if (!clonedReader.next(2).equals("FF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+            // Read moves
+            for (int i = 0; i < turnData; i++) {
+                try {
+                    moveOriginsData.add(HexDataConverter.convertHex(clonedReader.next(8)));
+                } catch (IOException e) {
+                    throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
+                }
+                int index = clonedReader.nextByte();
+                if (index < 0 || index >= queueData.length) {
+                    throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
+                } else movePiecesData.add(index);
+                Piece[] moveQueueData;
+                try {
+                    moveQueueData = new Piece[queueData.length];
+                    for (int j = 0; j < queueData.length; j++) {
+                        moveQueueData[j] = HexDataConverter.convertPiece(clonedReader.next(2));
+                    }
+                } catch (IOException e) {
+                    throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                }
+                moveQueuesData.add(moveQueueData.clone());
+            }
+            if (!clonedReader.next(4).equals("FFFF")) {
+                throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+            }
+        } catch (Exception exceptionReadingUncolored) {
+            // If fails, also attempt colored
+            clonedReader = HexDataFactory.cloneReader(reader);
+            clonedReader.advance(startingDataPointerPosition);
+            moveOriginsData = new ArrayList<Hex>(turnData);
+            moveQueuesData = new ArrayList<Piece[]>(turnData);
+            movePiecesData = new ArrayList<Integer>(turnData);
+            try {
+                // Read engine
+                try {
+                    int radius = clonedReader.getShort(clonedReader.pointer());
+                    if (engineRadiusRequired != null && engineRadiusRequired != radius) {
+                        throw new IOException("Engine radius does not match required value: expected " + engineRadiusRequired + ", found " + radius);
+                    }
+                    int c = 3 * (radius) * (radius - 1);
+                    int l = c + c / 4 + 6;
+                    engineData = HexDataConverter.convertEngine(clonedReader.next(l));
+                } catch (IOException e) {
+                    throw new IOException("Fail to read engine data in binary data because " + e.getMessage());
+                }
+                if (!clonedReader.next(2).equals("FF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+                // Read queue
+                try {
+                    int length = clonedReader.nextShort();
+                    if (queueSizeRequired != null && queueSizeRequired != length) {
+                        throw new IOException("Queue size does not match required value: expected " + queueSizeRequired + ", found " + length);
+                    }
+                    queueData = new Piece[length];
+                    for (int i = 0; i < length; i++) {
+                        queueData[i] = HexDataConverter.convertPiece(clonedReader.next(3));
+                    }
+                } catch (IOException e) {
+                    throw new IOException("Fail to read queue data in binary data because " + e.getMessage());
+                }
+                if (!clonedReader.next(2).equals("FF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+                // Read moves
+                for (int i = 0; i < turnData; i++) {
+                    try {
+                        moveOriginsData.add(HexDataConverter.convertHex(clonedReader.next(8)));
+                    } catch (IOException e) {
+                        throw new IOException("Fail to read coordinate data in move data in binary data at index " + i);
+                    }
+                    int index = clonedReader.nextByte();
+                    if (index < 0 || index >= queueData.length) {
+                        throw new IOException("Fail to read piece index data in move data in binary data at index " + i);
+                    } else movePiecesData.add(index);
+                    Piece[] moveQueueData;
+                    try {
+                        moveQueueData = new Piece[queueData.length];
+                        for (int j = 0; j < queueData.length; j++) {
+                            moveQueueData[j] = HexDataConverter.convertPiece(clonedReader.next(3));
+                        }
+                    } catch (IOException e) {
+                        throw new IOException("Fail to read piece queue data in move data in binary data at index " + i + " because " + e.getMessage());
+                    }
+                    moveQueuesData.add(moveQueueData.clone());
+                }
+                if (!clonedReader.next(4).equals("FFFF")) {
+                    throw new IOException("Fail to read binary data because file data divider cannot be found at the correct position");
+                }
+            } catch (Exception exceptionReadingColored) {
+                throw new IOException("Fail to read binary data in both uncolored and colored format because in uncolored format, "
+                        + exceptionReadingUncolored.getMessage() + "; in colored format, " + exceptionReadingColored.getMessage());
+            }
+        } finally {
+            reader.advance(clonedReader.pointer() - startingDataPointerPosition);
+        }
+        // Final check
+        if ((short) (obfuscate(id) << 5) != reader.nextShort()){
+            throw new IOException("Fail to read binary data because file data encoding is corrupted or version is not supported");
+        }
+        // Record data to this object
+        moveOrigins = moveOriginsData;
+        moveQueues = moveQueuesData;
+        movePieces = movePiecesData;
+        currentQueue = queueData.clone();
+        currentEngine = engineData;
+        completed = completeBooleanData;
+        turn = turnData;
+        score = scoreData;
+        playerID = playerIDData;
+        player = playerNameData;
+    }
 }
