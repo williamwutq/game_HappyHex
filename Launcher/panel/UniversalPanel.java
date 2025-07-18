@@ -154,6 +154,15 @@ public abstract class UniversalPanel extends JPanel implements ComponentListener
         launchCopyrightLabel.setFont(new Font(LaunchEssentials.launchAuthorFont, Font.PLAIN, (int) Math.round(referenceLaunchAuthorSize / 40.0)));
     }
 
+    public void paint(Graphics g) {
+        for (int i = 0; i < 12; i++) {
+            gameNameLabels[i].setForeground(GameEssentials.interpolate(
+                    GameEssentials.generateColor((gameNameLabelIndexShift + i * 5) % 12),
+                    LaunchEssentials.launchTitlePanelBackgroundColor, 4));
+        }
+        super.paint(g);
+    }
+
     public double getReferenceHeight() {
         return this.getSize().getHeight();
     }
