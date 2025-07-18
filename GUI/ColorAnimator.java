@@ -59,6 +59,7 @@ public class ColorAnimator implements CircularProperty<Color>{
     private double defaultPhase;
     private final Runnable guiUpdater;
     private Thread animationThread;
+    private static final long frameDelay = 6;
 
     /**
      * Constructs a {@code ColorAnimator} with a given color sequence, animation period, and GUI update callback.
@@ -265,7 +266,7 @@ public class ColorAnimator implements CircularProperty<Color>{
                 guiUpdater.run();
             }
             try {
-                Thread.sleep(6);
+                Thread.sleep(frameDelay);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
