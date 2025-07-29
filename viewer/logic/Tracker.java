@@ -126,7 +126,11 @@ public class Tracker {
         // Populate
         scores[0] = 0;
         engines[0] = new HexEngine(logger.getEngine().getRadius());
-        queues[length - 1] = logger.getQueue();
+        Piece[] lastQueue = logger.getQueue();
+        for (Piece value : lastQueue) {
+            value.setColor(-2);
+        }
+        queues[length - 1] = lastQueue;
         Piece[][] loggerQueues = logger.getMoveQueues();
         int[] loggerIndexes = logger.getMovePieceIndexes();
         for (int turn = 0; turn < length - 1; turn ++){
