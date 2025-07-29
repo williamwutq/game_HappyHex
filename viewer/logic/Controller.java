@@ -43,7 +43,7 @@ import java.io.IOException;
  * as loading a file and constructing a new {@link Tracker}.
  *
  * @author William Wu
- * @version 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
  * @since 1.0 (HappyHex 1.3)
  * @see Tracker
  * @see HexLogger
@@ -296,15 +296,9 @@ public class Controller{
             HexLogger logger = new HexLogger(filePath);
             boolean loaded = false;
             try {
-                logger.readBinary();
+                logger.read();
                 loaded = true;
             } catch (IOException ignored) {}
-            if (!loaded) {
-                try {
-                    logger.read();
-                    loaded = true;
-                } catch (IOException ignored) {}
-            }
 
             if (loaded) {
                 try {
