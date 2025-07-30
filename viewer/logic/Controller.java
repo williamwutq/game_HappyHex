@@ -32,8 +32,9 @@ import java.io.IOException;
  * The {@code Controller} class provides control logic for a game viewer interface.
  * It handles user actions such as advance, retreat, run, stop, and set pointer, and
  * mediates between a {@link Tracker} (which holds the state history of a game),
- * a {@link GameGUIInterface} (which displays the game state to the user), and a
- * {@link InfoGUIInterface} (which displays the score and turn information).
+ * a {@link GameGUIInterface} (which displays the game state to the user), a
+ * {@link InfoGUIInterface} (which displays the score and turn information), and a
+ * {@link ActionGUIInterface} (which handles game animation actions).
  * <p>
  * The controller supports threaded execution of the game (via {@code run()}) with
  * adjustable playback speed, and is designed to be thread-safe and interruptible.
@@ -50,13 +51,16 @@ import java.io.IOException;
  * @see GameGUIInterface
  * @see FileGUIInterface
  * @see InfoGUIInterface
+ * @see ActionGUIInterface
  * @see Thread
  */
 public class Controller{
+    private final Object trackerLock = new Object();
     private Tracker tracker;
     private GameGUIInterface gameGui;
     private FileGUIInterface fileGui;
     private InfoGUIInterface infoGui;
+    private ActionGUIInterface actionGui;
     private int speed = 200;
     private Thread runnerThread;
     private final Object lock = new Object();
@@ -71,35 +75,46 @@ public class Controller{
      * If already running, this method does nothing.
      */
     public void run() {
-        if (tracker != null) synchronized (lock) {
-            if (runningForward) return; // Already running
-            runningForward = true;
-            runningBackward = false;
-            runnerThread = new Thread(() -> {
-                try {
-                    while (true) {
-                        synchronized (lock) {
-                            if (!runningForward) break;
-                        }
-                        boolean advanced;
-                        synchronized (tracker) {
-                            advanced = tracker.advancePointer();
-                            if (advanced) updateGUI();
-                        }
-                        if (!advanced) {
-                            stop(); // Reached end
-                            break;
-                        }
+        if (tracker != null) {
+            synchronized (lock) {
+                if (runningForward) return; // Already running
+                runningForward = true;
+                runningBackward = false;
+                runnerThread = new Thread(() -> {
+                    try {
+                        while (true) {
+                            synchronized (lock) {
+                                if (!runningForward) break;
+                            }
+                            boolean advanced;
+                            synchronized (trackerLock) {
+                                advanced = tracker.advancePointer();
+                                if (advanced) {
+                                    updateGUI();
+                                } else if (actionGui != null) {
+                                    actionGui.onRunStop();
+                                }
+                            }
+                            if (!advanced) {
+                                stop(); // Reached end
+                                break;
+                            }
 
-                        Thread.sleep(getSpeedSafe());
+                            Thread.sleep(getSpeedSafe());
+                        }
+                    } catch (InterruptedException e) {
+                        // Thread interrupted by stop or another action
+                        Thread.currentThread().interrupt(); // restore interrupt status
                     }
-                } catch (InterruptedException e) {
-                    // Thread interrupted by stop or another action
-                    Thread.currentThread().interrupt(); // restore interrupt status
+                });
+                runnerThread.setDaemon(true);
+                runnerThread.start();
+            }
+            synchronized (trackerLock) {
+                if (actionGui != null) {
+                    actionGui.onRunStart();
                 }
-            });
-            runnerThread.setDaemon(true);
-            runnerThread.start();
+            }
         }
     }
     /**
@@ -110,35 +125,46 @@ public class Controller{
      * If already running, this method does nothing.
      */
     public void back() {
-        if (tracker != null) synchronized (lock) {
-            if (runningBackward) return; // Already running
-            runningForward = false;
-            runningBackward = true;
-            runnerThread = new Thread(() -> {
-                try {
-                    while (true) {
-                        synchronized (lock) {
-                            if (!runningBackward) break;
-                        }
-                        boolean advanced;
-                        synchronized (tracker) {
-                            advanced = tracker.decrementPointer();
-                            if (advanced) updateGUI();
-                        }
-                        if (!advanced) {
-                            stop(); // Reached end
-                            break;
-                        }
+        if (tracker != null) {
+            synchronized (lock) {
+                if (runningBackward) return; // Already running
+                runningForward = false;
+                runningBackward = true;
+                runnerThread = new Thread(() -> {
+                    try {
+                        while (true) {
+                            synchronized (lock) {
+                                if (!runningBackward) break;
+                            }
+                            boolean advanced;
+                            synchronized (trackerLock) {
+                                advanced = tracker.decrementPointer();
+                                if (advanced) {
+                                    updateGUI();
+                                } else if (actionGui != null) {
+                                    actionGui.onRunStop();
+                                }
+                            }
+                            if (!advanced) {
+                                stop(); // Reached end
+                                break;
+                            }
 
-                        Thread.sleep(getSpeedSafe());
+                            Thread.sleep(getSpeedSafe());
+                        }
+                    } catch (InterruptedException e) {
+                        // Thread interrupted by stop or another action
+                        Thread.currentThread().interrupt(); // restore interrupt status
                     }
-                } catch (InterruptedException e) {
-                    // Thread interrupted by stop or another action
-                    Thread.currentThread().interrupt(); // restore interrupt status
+                });
+                runnerThread.setDaemon(true);
+                runnerThread.start();
+            }
+            synchronized (trackerLock) {
+                if (actionGui != null) {
+                    actionGui.onRunStart();
                 }
-            });
-            runnerThread.setDaemon(true);
-            runnerThread.start();
+            }
         }
     }
     /**
@@ -167,9 +193,12 @@ public class Controller{
      */
     public void advance() {
         stop();
-        if (tracker != null) synchronized (tracker) {
+        if (tracker != null) synchronized (trackerLock) {
             if (tracker.advancePointer()) {
                 updateGUI();
+                if (actionGui != null) {
+                    actionGui.onIncrement();
+                }
             }
         }
     }
@@ -182,9 +211,12 @@ public class Controller{
      */
     public void retreat() {
         stop();
-        if (tracker != null) synchronized (tracker) {
+        if (tracker != null) synchronized (trackerLock) {
             if (tracker.decrementPointer()) {
                 updateGUI();
+                if (actionGui != null) {
+                    actionGui.onDecrement();
+                }
             }
         }
     }
@@ -199,11 +231,11 @@ public class Controller{
      */
     public void setPointer(int index) {
         stop();
-        if (tracker != null) synchronized (tracker) {
+        if (tracker != null) synchronized (trackerLock) {
             try {
                 tracker.setPointer(index);
                 updateGUI();
-            } catch (IndexOutOfBoundsException e) {}
+            } catch (IndexOutOfBoundsException ignored) {}
         }
     }
 
@@ -235,6 +267,15 @@ public class Controller{
         fileGui.setNameChangeListener(this::onFileChosen);
     }
     /**
+     * Binds an {@link ActionGUIInterface} to the controller.
+     * The action GUI will receive updates for game actions such as run, stop, increment, and decrement.
+     *
+     * @param actionGui the {@link ActionGUIInterface} to bind
+     */
+    public void bindActionGUI(ActionGUIInterface actionGui) {
+        this.actionGui = actionGui;
+    }
+    /**
      * Updates the GUI display for game state and game information if tracker exists.
      * <p>
      * The method invokes {@link GameGUIInterface#setEngine} and
@@ -264,6 +305,11 @@ public class Controller{
         if (milliseconds > 0) {
             synchronized (lock) {
                 this.speed = milliseconds;
+            }
+            synchronized (trackerLock) {
+                if (actionGui != null) {
+                    actionGui.onSpeedChanged(milliseconds);
+                }
             }
         }
     }
