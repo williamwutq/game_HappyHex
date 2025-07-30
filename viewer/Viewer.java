@@ -99,6 +99,7 @@ public final class Viewer {
      * If a valid file name is provided, it notifies the controller to open that file.
      *
      * @param args the command line arguments
+     * @since 1.1 (HappyHex 1.4)
      */
     private static void parseArgs(String[] args) {
         if (args == null || args.length == 0) return;

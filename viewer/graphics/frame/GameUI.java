@@ -62,7 +62,7 @@ import java.awt.geom.Path2D;
  * </ul>
  *
  * @author William Wu
- * @version 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
  * @since 1.0 (HappyHex 1.3)
  * @see #GameUI
  * @see Controller
@@ -308,6 +308,7 @@ public final class GameUI extends JComponent implements ActionGUIInterface {
     /**
      * {@inheritDoc}
      * This implementation stops the forward and backward buttons from being active.
+     * @since 1.1 (HappyHex 1.4)
      */
     @Override
     public void onIncrement() {
@@ -316,20 +317,30 @@ public final class GameUI extends JComponent implements ActionGUIInterface {
     /**
      * {@inheritDoc}
      * This implementation stops the forward and backward buttons from being active.
+     * @since 1.1 (HappyHex 1.4)
      */
     @Override
     public void onDecrement() {
         stopButtons();
     }
-    /** {@inheritDoc} This implementation does nothing because slider already knows speed changes. */
+    /**
+     * {@inheritDoc}
+     * This implementation does nothing because slider already knows speed changes.
+     * @since 1.1 (HappyHex 1.4)
+     */
     @Override
     public void onSpeedChanged(int delay) {}
-    /** {@inheritDoc} This implementation does nothing because buttons already know run start. */
+    /**
+     * {@inheritDoc}
+     * This implementation does nothing because buttons already know run start.
+     * @since 1.1 (HappyHex 1.4)
+     */
     @Override
     public void onRunStart() {}
     /**
      * {@inheritDoc}
      * This implementation stops the forward and backward buttons from being active.
+     * @since 1.1 (HappyHex 1.4)
      */
     @Override
     public void onRunStop() {
@@ -337,6 +348,7 @@ public final class GameUI extends JComponent implements ActionGUIInterface {
     }
     /**
      * Stops the forward and backward buttons from being active and updates their appearance.
+     * @since 1.1 (HappyHex 1.4)
      */
     private void stopButtons() {
         if (!forward) {

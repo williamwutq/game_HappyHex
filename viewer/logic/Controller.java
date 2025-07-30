@@ -270,6 +270,7 @@ public class Controller{
      * Binds an {@link ActionGUIInterface} to the controller.
      * The action GUI will receive updates for game actions such as run, stop, increment, and decrement.
      *
+     * @since 1.1 (HappyHex 1.4)
      * @param actionGui the {@link ActionGUIInterface} to bind
      */
     public void bindActionGUI(ActionGUIInterface actionGui) {

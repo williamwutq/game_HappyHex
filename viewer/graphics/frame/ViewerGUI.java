@@ -79,6 +79,7 @@ public final class ViewerGUI extends JComponent {
     /**
      * Constructs a new {@code ViewerGUI} with a specified {@link Controller}.
      * Initializes the game UI and input field, binding the input field to the controller.
+     * @since 1.1 (HappyHex 1.4)
      */
     public ViewerGUI(Controller controller){
         this.gameUI = new GameUI(controller);
