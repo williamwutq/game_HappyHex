@@ -28,6 +28,7 @@ import hex.HexEngine;
 import hex.Piece;
 import viewer.graphics.interactive.HexButton;
 import viewer.graphics.interactive.SpeedSlider;
+import viewer.logic.ActionGUIInterface;
 import viewer.logic.Controller;
 
 import javax.swing.JComponent;
@@ -71,7 +72,7 @@ import java.awt.geom.Path2D;
  * @see SpeedSlider
  * @see JComponent
  */
-public final class GameUI extends JComponent {
+public final class GameUI extends JComponent implements ActionGUIInterface {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double root2 = Math.sqrt(2);
     private final HexButton forwardButton, backwardButton, advanceButton, retreatButton;
@@ -124,6 +125,7 @@ public final class GameUI extends JComponent {
         this.infoPanel = new InfoPanel();
         controller.bindGameGUI(gamePanel);
         controller.bindInfoGUI(infoPanel);
+        controller.bindActionGUI(this);
 
         forwardButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
@@ -187,16 +189,6 @@ public final class GameUI extends JComponent {
         };
         advanceButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                if (!forward){
-                    forward = true;
-                    forwardButton.updateCachedCustomPath();
-                    forwardButton.repaint();
-                }
-                if (!backward){
-                    backward = true;
-                    backwardButton.updateCachedCustomPath();
-                    backwardButton.repaint();
-                }
                 controller.advance();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
@@ -215,16 +207,6 @@ public final class GameUI extends JComponent {
         };
         retreatButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                if (!forward){
-                    forward = true;
-                    forwardButton.updateCachedCustomPath();
-                    forwardButton.repaint();
-                }
-                if (!backward){
-                    backward = true;
-                    backwardButton.updateCachedCustomPath();
-                    backwardButton.repaint();
-                }
                 controller.retreat();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
@@ -321,5 +303,51 @@ public final class GameUI extends JComponent {
         advanceButton.paint(g.create(advanceButton.getX(), advanceButton.getY(), advanceButton.getWidth(), advanceButton.getHeight()));
         retreatButton.paint(g.create(retreatButton.getX(), retreatButton.getY(), retreatButton.getWidth(), retreatButton.getHeight()));
         slider.paint(g.create(slider.getX(), slider.getY(), slider.getWidth(), slider.getHeight()));
+    }
+
+    /**
+     * {@inheritDoc}
+     * This implementation stops the forward and backward buttons from being active.
+     */
+    @Override
+    public void onIncrement() {
+        stopButtons();
+    }
+    /**
+     * {@inheritDoc}
+     * This implementation stops the forward and backward buttons from being active.
+     */
+    @Override
+    public void onDecrement() {
+        stopButtons();
+    }
+    /** {@inheritDoc} This implementation does nothing because slider already knows speed changes. */
+    @Override
+    public void onSpeedChanged(int delay) {}
+    /** {@inheritDoc} This implementation does nothing because buttons already know run start. */
+    @Override
+    public void onRunStart() {}
+    /**
+     * {@inheritDoc}
+     * This implementation stops the forward and backward buttons from being active.
+     */
+    @Override
+    public void onRunStop() {
+        stopButtons();
+    }
+    /**
+     * Stops the forward and backward buttons from being active and updates their appearance.
+     */
+    private void stopButtons() {
+        if (!forward) {
+            forward = true;
+            forwardButton.updateCachedCustomPath();
+            forwardButton.repaint();
+        }
+        if (!backward) {
+            backward = true;
+            backwardButton.updateCachedCustomPath();
+            backwardButton.repaint();
+        }
     }
 }
