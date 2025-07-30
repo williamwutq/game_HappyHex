@@ -47,12 +47,12 @@ import java.awt.geom.Path2D;
  * <p>
  * The segments are centered around the top corner, with no padding around the display.
  *
- * @version 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
  * @author William Wu
  * @since 1.0 (HappyHex 1.3)
  * @see JComponent
  */
-final class SevenSegment extends JComponent {
+public final class SevenSegment extends JComponent {
     private static final boolean[][] data = {
             {true, true, true, false, true, true, true},
             {false, false, true, false, false, true, false},
@@ -175,6 +175,25 @@ final class SevenSegment extends JComponent {
      */
     public double getCharSize(){
         return size;
+    }
+    /**
+     * Returns an array of characters supported by this seven-segment display.
+     * <p>
+     * The supported characters include digits (0-9), uppercase letters (A-Z),
+     * lowercase letters (a-z), and a selection of special characters.
+     *
+     * @since 1.1 (HappyHex 1.4)
+     * @return an array of supported characters.
+     */
+    public static char[] getSupportedCharacters() {
+        return new char[]{
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F',
+                'a', 'b', 'c', 'd', 'e', 'f',
+                ' ', '-', '.', ',', ':', ';', '=', '<', '>', '^',
+                '*', '\'', '`', '"', '/', '|', '\\',
+                '[', ']', '{', '}', '(', ')'
+        };
     }
     /**
      * Maps a character to its segment states.
