@@ -25,6 +25,7 @@
 package viewer;
 
 import viewer.graphics.frame.ViewerGUI;
+import viewer.logic.Controller;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -44,11 +45,23 @@ import java.util.Objects;
  * @author William Wu
  */
 public final class Viewer {
+    private static Controller controller;
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     * This class is not meant to be instantiated, as it only contains static methods.
+     */
     private Viewer() {
         // Prevent instantiation
     }
+    /**
+     * The main method to launch the HappyHex Game Viewer.
+     * It initializes the controller, sets up the main frame, and adds the GUI component.
+     * It also fetches the icon image for the application and parses command line arguments.
+     *
+     * @param args command line arguments, which can specify a file to open
+     */
     public static void main(String[] args){
-        parseArgs(args);
+        controller = new Controller();
         JFrame frame = new JFrame();
         Dimension min = new Dimension(240, 300);
         Dimension start = new Dimension(400, 500);
@@ -63,9 +76,16 @@ public final class Viewer {
         frame.setPreferredSize(start);
         frame.setMinimumSize(min);
         frame.setBackground(Color.WHITE);
-        frame.add(new ViewerGUI());
+        frame.add(new ViewerGUI(controller));
+        parseArgs(args);
         frame.setVisible(true);
     }
+    /**
+     * Fetches the icon image for the viewer from the resources.
+     * If the image is not found, returns null.
+     *
+     * @return the icon image, or null if not found
+     */
     private static Image fetchIconImage(){
         try {
             ImageIcon icon = new ImageIcon(Objects.requireNonNull(Viewer.class.getResource("Viewer.png")));
@@ -74,7 +94,26 @@ public final class Viewer {
             return null;
         }
     }
+    /**
+     * Parses command line arguments to determine the file to be opened.
+     * If a valid file name is provided, it notifies the controller to open that file.
+     *
+     * @param args the command line arguments
+     */
     private static void parseArgs(String[] args) {
-        // To be implemented
+        if (args == null || args.length == 0) return;
+        String filename;
+        if (args.length == 1) {
+            filename = args[0].trim();
+        } else if (args.length == 2 && (
+            args[0].equals("-file") || args[0].equals("-f") || args[0].equals("-o"))) {
+            filename = args[1].trim();
+        } else {
+            return;
+        }
+        if (filename.endsWith(".hpyhex")) {
+            filename = filename.substring(0, filename.length() - 7);
+        }
+        controller.onFileChosen(filename);
     }
 }
