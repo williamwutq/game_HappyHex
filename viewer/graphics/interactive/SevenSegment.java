@@ -177,6 +177,17 @@ public final class SevenSegment extends JComponent {
         return size;
     }
     /**
+     * Checks if the given character is valid for display.
+     *
+     * @since 1.1 (HappyHex 1.4)
+     * @param c character to check.
+     * @return true if the character is valid, false otherwise.
+     */
+    public static boolean isValidCharacter(char c){
+        return ('0' <= c && c <= '9') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') ||
+                c == ' ' || "-~,._;:=^*'\"`<>/|\\[](){}".indexOf(c) != -1;
+    }
+    /**
      * Returns an array of special characters supported by this seven-segment display.
      *
      * @since 1.1 (HappyHex 1.4)
@@ -200,7 +211,7 @@ public final class SevenSegment extends JComponent {
             boolean[] result = new boolean[7];
             result[3] = true;
             return result;
-        } else if (c == ',' || c == '.' || c == '_'){
+        } else if (c == ',' || c == '.' || c == '_' || c == 7){
             boolean[] result = new boolean[7];
             result[6] = true;
             return result;

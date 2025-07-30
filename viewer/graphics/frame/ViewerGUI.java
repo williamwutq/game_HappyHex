@@ -46,7 +46,7 @@ import java.awt.event.ActionListener;
  * <p>
  * During initialization:
  * <ul>
- *   <li>A {@link Controller} is created to mediate between file input, game state updates, and user interaction.</li>
+ *   <li>A {@link Controller} is created or passed in to mediate between file input, game state updates, and user interaction.</li>
  *   <li>The {@link GameUI} is bound to this controller for interaction and state visualization.</li>
  *   <li>The {@link EnterField} is initialized with a buffer length and registered as a file interface with the controller.</li>
  * </ul>
@@ -70,6 +70,19 @@ public final class ViewerGUI extends JComponent {
      */
     public ViewerGUI(){
         Controller controller = new Controller();
+        this.gameUI = new GameUI(controller);
+        this.enterField = new EnterField(16);
+        controller.bindFileGUI(enterField);
+        this.setBackground(Color.WHITE);
+        this.add(enterField);
+        this.add(gameUI);
+    }
+    /**
+     * Constructs a new {@code ViewerGUI} with a specified {@link Controller}.
+     * Initializes the game UI and input field, binding the input field to the controller.
+     * @since 1.1 (HappyHex 1.4)
+     */
+    public ViewerGUI(Controller controller){
         this.gameUI = new GameUI(controller);
         this.enterField = new EnterField(16);
         controller.bindFileGUI(enterField);
