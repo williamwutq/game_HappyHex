@@ -290,7 +290,7 @@ public class Controller{
         }
 
         // Manipulate name
-        String filePath = "data/" + filename + ".hpyhex";
+        String filePath = filename + ".hpyhex";
 
         new Thread(() -> {
             HexLogger logger = new HexLogger(filePath);

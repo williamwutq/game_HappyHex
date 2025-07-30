@@ -182,6 +182,9 @@ public final class EnterField extends JComponent implements FileGUIInterface{
      */
     public void setFilename(String filename) {
         this.indicator.clear();
+        if (filename.startsWith("data/")) {
+            filename = filename.substring(5); // Remove "data/" prefix
+        }
         for (int i = 0; i < filename.length(); i ++){
             indicator.addChar(filename.charAt(i));
         }
@@ -190,10 +193,10 @@ public final class EnterField extends JComponent implements FileGUIInterface{
     /**
      * {@inheritDoc}
      * This method delegate to the {@link NameIndicator#getString()} method to get current file name
-     * in the input.
+     * in the input as if the input name exist in the data directory.
      */
     public String getFilename() {
-        return indicator.getString();
+        return "data/" + indicator.getString();
     }
 
     /**{@inheritDoc}*/
