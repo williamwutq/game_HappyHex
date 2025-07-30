@@ -169,7 +169,7 @@ public final class NameIndicator extends JButton {
      *         {@code false} if the display is full or character is invalid.
      */
     public boolean addChar(char c){
-        if (!locked && (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))){
+        if (!locked){
             if (cursor == sevenSegments.length-1 && pointer < sevenSegments.length) {
                 hidden = c;
                 pointer ++;
