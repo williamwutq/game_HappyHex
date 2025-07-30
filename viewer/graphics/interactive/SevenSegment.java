@@ -47,7 +47,7 @@ import java.awt.geom.Path2D;
  * <p>
  * The segments are centered around the top corner, with no padding around the display.
  *
- * @version 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
  * @author William Wu
  * @since 1.0 (HappyHex 1.3)
  * @see JComponent
@@ -175,6 +175,16 @@ final class SevenSegment extends JComponent {
      */
     public double getCharSize(){
         return size;
+    }
+    /**
+     * Checks if the given character is valid for display.
+     *
+     * @param c character to check.
+     * @return true if the character is valid, false otherwise.
+     */
+    public static boolean isValidCharacter(char c){
+        return ('0' <= c && c <= '9') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') ||
+                "-~,._;:=^*'\"`<>/|\\[](){}".indexOf(c) != -1;
     }
     /**
      * Maps a character to its segment states.
