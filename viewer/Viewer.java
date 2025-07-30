@@ -38,9 +38,17 @@ import java.util.Objects;
  * Main file of Game Viewer, which is used as a tool to view past games by reading and showing game files.
  * <p>
  * Run {@link #main} to launch the game viewer.
+ *
+ * @since 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
+ * @author William Wu
  */
 public final class Viewer {
+    private Viewer() {
+        // Prevent instantiation
+    }
     public static void main(String[] args){
+        parseArgs(args);
         JFrame frame = new JFrame();
         Dimension min = new Dimension(240, 300);
         Dimension start = new Dimension(400, 500);
@@ -50,7 +58,7 @@ public final class Viewer {
             frame.setIconImage(fetchIconImage());
         }
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle("HappyHex Game Viewer Version 1.0");
+        frame.setTitle("HappyHex Game Viewer Version 1.1");
         frame.setSize(start);
         frame.setPreferredSize(start);
         frame.setMinimumSize(min);
@@ -65,5 +73,8 @@ public final class Viewer {
         } catch (NullPointerException e) {
             return null;
         }
+    }
+    private static void parseArgs(String[] args) {
+        // To be implemented
     }
 }
