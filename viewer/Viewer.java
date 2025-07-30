@@ -24,6 +24,7 @@
 
 package viewer;
 
+import viewer.graphics.frame.KeyboardHelper;
 import viewer.graphics.frame.ViewerGUI;
 import viewer.logic.Controller;
 
@@ -76,8 +77,10 @@ public final class Viewer {
         frame.setPreferredSize(start);
         frame.setMinimumSize(min);
         frame.setBackground(Color.WHITE);
-        frame.add(new ViewerGUI(controller));
+        ViewerGUI gui = new ViewerGUI(controller);
         parseArgs(args);
+        KeyboardHelper.attachListener(frame, gui.getKeyboardListener());
+        frame.add(gui);
         frame.setVisible(true);
     }
     /**
