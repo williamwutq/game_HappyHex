@@ -32,7 +32,6 @@ import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 
 /**
  * A user input component combining a {@link Keyboard} and a {@link NameIndicator}.
@@ -116,9 +115,9 @@ public final class EnterField extends JComponent implements FileGUIInterface{
             indicator.removeChar();
         } else if (key.equals("CLR")) {
             indicator.clear();
-        } else if (key.equals("-")) {
+        } else if (key.equals("-") || key.equals("DOWN")) {
             indicator.removeEnd();
-        } else if (key.equals("+")) {
+        } else if (key.equals("+") || key.equals("UP")) {
             indicator.addChar(indicator.getChar());
         } else if (key.equals("END")) {
             boolean possible = indicator.incrementCursor();
@@ -130,15 +129,23 @@ public final class EnterField extends JComponent implements FileGUIInterface{
             while(possible){
                 possible = indicator.decrementCursor();
             }
-        } else if (key.equals(">")) {
+        } else if (key.equals(">") || key.equals("RIGHT")) {
             indicator.incrementCursor();
-        } else if (key.equals("<")) {
+        } else if (key.equals("<") || key.equals("LEFT")) {
             indicator.decrementCursor();
         } else if (key.equals("ENT")) {
             if (indicator.lock()){
                 if (listener != null) listener.onFileChosen(getFilename());
             }
-        } else {
+        } else if (key.equals("ESC")) {
+            if (indicator.lock()){
+                hideKeyboard();
+            } else {
+                indicator.clear();
+            }
+        } else if (key.startsWith("Literal") && key.length() >= 8){
+            indicator.addChar(key.charAt(7));
+        } else if (!key.isEmpty()){
             indicator.addChar(key.charAt(0));
         }
         this.repaint();
@@ -161,6 +168,17 @@ public final class EnterField extends JComponent implements FileGUIInterface{
         keyboardShown = !keyboardShown;
         this.revalidate();
         this.repaint();
+    }
+    /**
+     * Hides the keyboard if it is currently shown.
+     */
+    private void hideKeyboard() {
+        if (keyboardShown) {
+            this.remove(keyboard);
+            keyboardShown = false;
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**

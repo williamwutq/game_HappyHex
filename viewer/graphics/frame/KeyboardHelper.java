@@ -84,7 +84,11 @@ public class KeyboardHelper {
         bindSpecialKey(frame, inputMap, actionMap, listener, "CLEAR", "CLR");
         // Bind special keys for SevenSegment
         for (char character : SevenSegment.getSupportedSpecialCharacters()){
-            bindSpecialKey(frame, inputMap, actionMap, listener, character, String.valueOf(character));
+            if (character == '-' || character == '+' || character == '<' || character == '>') {
+                bindSpecialKey(frame, inputMap, actionMap, listener, character, "Literal" + character);
+            } else {
+                bindSpecialKey(frame, inputMap, actionMap, listener, character, String.valueOf(character));
+            }
         }
         // ESC key
         bindSpecialKey(frame, inputMap, actionMap, listener, "ESCAPE", "ESC");
