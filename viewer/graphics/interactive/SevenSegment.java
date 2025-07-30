@@ -185,7 +185,7 @@ public final class SevenSegment extends JComponent {
      */
     public static boolean isValidCharacter(char c){
         return ('0' <= c && c <= '9') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') ||
-                c == ' ' || "-~,._;:=^*'\"`<>/|\\[](){}".indexOf(c) != -1;
+                c == ' ' || "-+~,._;:=^*'\"`<>/|\\[](){}".indexOf(c) != -1;
     }
     /**
      * Returns an array of special characters supported by this seven-segment display.
@@ -195,7 +195,7 @@ public final class SevenSegment extends JComponent {
      */
     public static char[] getSupportedSpecialCharacters() {
         return new char[]{
-                ' ', '-', '~', '.', ',', ':', ';', '=', '<', '>', '^',
+                ' ', '+', '-', '~', '.', ',', ':', ';', '=', '<', '>', '^',
                 '*', '\'', '`', '"', '/', '|', '\\',
                 '[', ']', '{', '}', '(', ')'
         };
@@ -207,7 +207,7 @@ public final class SevenSegment extends JComponent {
      * @return boolean array representing which segments to light.
      */
     private static boolean[] getStates(char c){
-        if (c == '-' || c == '~'){
+        if (c == '-' || c == '~' || c == '+'){
             boolean[] result = new boolean[7];
             result[3] = true;
             return result;
