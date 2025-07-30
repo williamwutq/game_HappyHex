@@ -177,19 +177,13 @@ public final class SevenSegment extends JComponent {
         return size;
     }
     /**
-     * Returns an array of characters supported by this seven-segment display.
-     * <p>
-     * The supported characters include digits (0-9), uppercase letters (A-Z),
-     * lowercase letters (a-z), and a selection of special characters.
+     * Returns an array of special characters supported by this seven-segment display.
      *
      * @since 1.1 (HappyHex 1.4)
      * @return an array of supported characters.
      */
-    public static char[] getSupportedCharacters() {
+    public static char[] getSupportedSpecialCharacters() {
         return new char[]{
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'A', 'B', 'C', 'D', 'E', 'F',
-                'a', 'b', 'c', 'd', 'e', 'f',
                 ' ', '-', '~', '.', ',', ':', ';', '=', '<', '>', '^',
                 '*', '\'', '`', '"', '/', '|', '\\',
                 '[', ']', '{', '}', '(', ')'

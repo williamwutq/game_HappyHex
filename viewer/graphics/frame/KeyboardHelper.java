@@ -83,7 +83,7 @@ public class KeyboardHelper {
         bindSpecialKey(frame, inputMap, actionMap, listener, "HOME", "STT");
         bindSpecialKey(frame, inputMap, actionMap, listener, "CLEAR", "CLR");
         // Bind special keys for SevenSegment
-        for (char character : SevenSegment.getSupportedCharacters()){
+        for (char character : SevenSegment.getSupportedSpecialCharacters()){
             bindSpecialKey(frame, inputMap, actionMap, listener, character, String.valueOf(character));
         }
         // ESC key
