@@ -197,7 +197,7 @@ final class SevenSegment extends JComponent {
             boolean[] result = new boolean[7];
             result[3] = true;
             return result;
-        } else if (c == ',' || c == '.' || c == '_'){
+        } else if (c == ',' || c == '.' || c == '_' || c == 7){
             boolean[] result = new boolean[7];
             result[6] = true;
             return result;
