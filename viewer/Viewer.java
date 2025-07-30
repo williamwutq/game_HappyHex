@@ -24,6 +24,7 @@
 
 package viewer;
 
+import viewer.graphics.frame.KeyboardHelper;
 import viewer.graphics.frame.ViewerGUI;
 
 import javax.swing.ImageIcon;
@@ -55,7 +56,9 @@ public final class Viewer {
         frame.setPreferredSize(start);
         frame.setMinimumSize(min);
         frame.setBackground(Color.WHITE);
-        frame.add(new ViewerGUI());
+        ViewerGUI gui = new ViewerGUI();
+        frame.add(gui);
+        KeyboardHelper.attachListener(frame, gui.getKeyboardListener());
         frame.setVisible(true);
     }
     private static Image fetchIconImage(){

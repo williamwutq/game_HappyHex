@@ -31,6 +31,8 @@ import viewer.logic.FileGUIInterface;
 import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 /**
  * A user input component combining a {@link Keyboard} and a {@link NameIndicator}.
@@ -87,6 +89,20 @@ public final class EnterField extends JComponent implements FileGUIInterface{
         add(keyboard);
     }
 
+    /**
+     * Returns an {@link ActionListener} that can be used to handle key press events
+     * from the embedded {@link Keyboard}.
+     *
+     * @return an ActionListener that handles key presses
+     */
+    public ActionListener exportListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onKeyPress(e);
+            }
+        };
+    }
     /**
      * Handles key press events from the embedded {@link Keyboard}.
      *
