@@ -77,7 +77,7 @@ import java.util.Objects;
  * Index-based methods validate bounds and throw {@link IndexOutOfBoundsException} if accessed improperly.
  *
  * @author William Wu
- * @version 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
  * @since 1.0 (HappyHex 1.3)
  * @see HexEngine
  * @see HexLogger
