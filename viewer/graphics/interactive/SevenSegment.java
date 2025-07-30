@@ -184,7 +184,7 @@ final class SevenSegment extends JComponent {
      */
     public static boolean isValidCharacter(char c){
         return ('0' <= c && c <= '9') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') ||
-                "-~,._;:=^*'\"`<>/|\\[](){}".indexOf(c) != -1;
+                c == ' ' || "-~,._;:=^*'\"`<>/|\\[](){}".indexOf(c) != -1;
     }
     /**
      * Maps a character to its segment states.
