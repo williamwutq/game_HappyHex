@@ -25,6 +25,7 @@
 package viewer;
 
 import viewer.graphics.frame.ViewerGUI;
+import viewer.graphics.frame.DropInFileAdaptor;
 import viewer.logic.Controller;
 
 import javax.swing.ImageIcon;
@@ -33,6 +34,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Taskbar;
+import java.awt.HeadlessException;
+import java.awt.dnd.DropTarget;
 import java.util.Objects;
 
 /**
@@ -78,6 +81,7 @@ public final class Viewer {
         frame.setBackground(Color.WHITE);
         frame.add(new ViewerGUI(controller));
         parseArgs(args);
+        initDropTarget(frame);
         frame.setVisible(true);
     }
     /**
@@ -115,5 +119,19 @@ public final class Viewer {
             filename = filename.substring(0, filename.length() - 7);
         }
         controller.onFileChosen(filename);
+    }
+    /**
+     * Initializes the drop target for the main frame to allow file dropping.
+     * If the environment does not support file dropping, it catches the exception and ignores it.
+     *
+     * @param frame the main frame of the viewer
+     */
+    private static void initDropTarget(JFrame frame){
+        try {
+            DropTarget dropTarget = new DropTarget(frame, new DropInFileAdaptor(controller));
+            frame.setDropTarget(dropTarget);
+        } catch (HeadlessException ignored) {
+            // If the environment does not support file dropping, GameViewers disable this feature.
+        }
     }
 }
