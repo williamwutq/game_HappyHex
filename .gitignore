@@ -12,3 +12,4 @@ templogs.json
 **/*.game.json
 *.class
 **/*.class
+/custom-jre/

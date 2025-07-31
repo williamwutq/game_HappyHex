@@ -1,0 +1,263 @@
+/*
+  MIT License
+
+  Copyright (c) 2025 William Wu
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+ */
+
+package viewer.GameViewer.app.Contents.app.graphics.frame;
+
+import viewer.graphics.interactive.Keyboard;
+import viewer.graphics.interactive.NameIndicator;
+import viewer.logic.FileGUIInterface;
+
+import javax.swing.JComponent;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+/**
+ * A user input component combining a {@link Keyboard} and a {@link NameIndicator}.
+ * This component allows numerical and alphabetical input, displays the current state
+ * of the input buffer, and provides editing functionality.
+ * <p>
+ * The input contains a cursor represented by "-", and its position can be adjusted with keys.
+ * The display can be clicked upon, which will toggle the keyboard. Toggle the keyboard off
+ * will automatically confirm the input if a full input is made and not confirmed.
+ *
+ * <p>The following buttons below serve the described functions:</p>
+ * <ul>
+ *   <li>0–9, A–F: Appends the corresponding character</li>
+ *   <li>>: Move cursor to the right</li>
+ *   <li><: Move cursor to the left</li>
+ *   <li>END: Move cursor to the end of the buffer</li>
+ *   <li>STT: Move cursor to the start of the buffer</li>
+ *   <li>+: Repeats the cursor position character</li>
+ *   <li>-: Removes the last character</li>
+ *   <li>DEL: Deletes the cursor position character</li>
+ *   <li>CLR: Clears the entire buffer</li>
+ *   <li>ENT: Enter the current buffer, if full, keep it</li>
+ * </ul>
+ *
+ * @author William Wu
+ * @version 1.0 (HappyHex 1.3)
+ * @since 1.0 (HappyHex 1.3)
+ * @see Keyboard
+ * @see NameIndicator
+ */
+public final class EnterField extends JComponent implements FileGUIInterface{
+    private final NameIndicator indicator;
+    private final Keyboard keyboard;
+    private boolean keyboardShown;
+    private NameChangeListener listener;
+
+    /**
+     * Constructs a new {@code EnterField} with a specified input length.
+     *
+     * @param length the maximum number of characters accepted
+     */
+    public EnterField(int length) {
+        this.setLayout(null);
+        this.setDoubleBuffered(true);
+        this.setBackground(Color.DARK_GRAY);
+
+        this.indicator = new NameIndicator(length);
+        this.indicator.addActionListener(this::onIndicatorClick);
+        this.keyboardShown = true;
+        this.keyboard = new Keyboard(this::onKeyPress);
+        this.listener = null;
+
+        add(indicator);
+        add(keyboard);
+    }
+
+    /**
+     * Returns an {@link ActionListener} that can be used to handle key press events
+     * from the embedded {@link Keyboard}.
+     *
+     * @return an ActionListener that handles key presses
+     */
+    public ActionListener exportListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onKeyPress(e);
+            }
+        };
+    }
+    /**
+     * Handles key press events from the embedded {@link Keyboard}.
+     *
+     * @param e the action event representing a key press
+     */
+    private void onKeyPress(ActionEvent e) {
+        if (!keyboardShown) return;
+        String cmd = e.getActionCommand();
+        if (!cmd.startsWith("press ")) return;
+        String key = cmd.substring(6);
+        if (key.equals("DEL")) {
+            indicator.removeChar();
+        } else if (key.equals("CLR")) {
+            indicator.clear();
+        } else if (key.equals("-") || key.equals("DOWN")) {
+            indicator.removeEnd();
+        } else if (key.equals("+") || key.equals("UP")) {
+            indicator.addChar(indicator.getChar());
+        } else if (key.equals("END")) {
+            boolean possible = indicator.incrementCursor();
+            while(possible){
+                possible = indicator.incrementCursor();
+            }
+        } else if (key.equals("STT")) {
+            boolean possible = indicator.decrementCursor();
+            while(possible){
+                possible = indicator.decrementCursor();
+            }
+        } else if (key.equals(">") || key.equals("RIGHT")) {
+            indicator.incrementCursor();
+        } else if (key.equals("<") || key.equals("LEFT")) {
+            indicator.decrementCursor();
+        } else if (key.equals("ENT")) {
+            if (indicator.lock()){
+                if (listener != null) listener.onFileChosen(getFilename());
+            }
+        } else if (key.equals("ESC")) {
+            if (indicator.lock()){
+                hideKeyboard();
+            } else {
+                indicator.clear();
+            }
+        } else if (key.startsWith("Literal") && key.length() >= 8){
+            indicator.addChar(key.charAt(7));
+        } else if (!key.isEmpty()){
+            indicator.addChar(key.charAt(0));
+        }
+        this.repaint();
+    }
+    /**
+     * Handles button events from the embedded {@link NameIndicator}.
+     * Clicking on the indicator toggle whether the keyboard will be shown.
+     *
+     * @param e the action event representing a key press
+     */
+    private void onIndicatorClick(ActionEvent e) {
+        if (keyboardShown) {
+            this.remove(keyboard);
+        } else {
+            this.add(keyboard);
+        }
+        keyboardShown = !keyboardShown;
+        this.revalidate();
+        this.repaint();
+    }
+    /**
+     * Hides the keyboard if it is currently shown.
+     */
+    private void hideKeyboard() {
+        if (keyboardShown) {
+            this.remove(keyboard);
+            keyboardShown = false;
+            this.revalidate();
+            this.repaint();
+        }
+    }
+
+    /**
+     * Sets the layout of the subcomponents.
+     * If the {@link Keyboard} is shown, the {@link NameIndicator} is placed above the {@code Keyboard}.
+     * Otherwise, the {@code NameIndicator} will be made to full size.
+     */
+    public void doLayout() {
+        int h = getHeight();
+        int w = getWidth();
+
+        if (keyboardShown) {
+            int indicatorHeight = h * 2 / 15;
+            int keyboardHeight = h - indicatorHeight;
+
+            indicator.setBounds(0, 0, w, indicatorHeight);
+            keyboard.setBounds(0, indicatorHeight, w, keyboardHeight);
+        } else {
+            indicator.setBounds(0, 0, w, h);
+        }
+    }
+
+    /**
+     * Whether the keyboard is shown in this component.
+     * @return true of the keyboard is currently shown, false otherwise.
+     */
+    public boolean isKeyboardShown(){
+        return keyboardShown;
+    }
+
+    /**
+     * {@inheritDoc}
+     * This method delegate to the {@link NameIndicator#addChar(char)} method to add characters
+     * in the input filename using a for loop. Invalid and extra characters are represented with space.
+     * <p>
+     * The filename is processed to remove any leading or trailing whitespace,
+     * remove the file extension (anything after the last dot), and remove the directory path
+     * (anything before the last slash). If the resulting filename exceeds the length of the indicator,
+     * it is truncated and suffixed with "...".
+     * <p>
+     * The filename is then added to the {@link NameIndicator} character by character. If the indicator
+     * cannot display the character, it will be represented as a space.
+     */
+    public void setFilename(String filename) {
+        this.indicator.clear();
+        // Remove whitespace from the start and end of the filename
+        filename = filename.trim();
+        // Remove suffix by removing anything after the last .
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex != -1) {
+            filename = filename.substring(0, dotIndex);
+        }
+        // Remove directory path by removing everything before the last /
+        int slashIndex = filename.lastIndexOf('/');
+        if (slashIndex != -1) {
+            filename = filename.substring(slashIndex + 1);
+        }
+        // Check the length of the filename against the indicator's length
+        if (filename.length() > indicator.length()) {
+            // If the filename is too long, use "..." to indicate truncation
+            filename = filename.substring(0, indicator.length() - 3) + "...";
+        }
+        for (int i = 0; i < filename.length(); i ++){
+            indicator.addChar(filename.charAt(i));
+        }
+        if (indicator.lock()) {
+            indicator.repaint();
+        }
+    }
+    /**
+     * {@inheritDoc}
+     * This method delegate to the {@link NameIndicator#getString()} method to get current file name
+     * in the input as if the input name exist in the data directory.
+     */
+    public String getFilename() {
+        return "data/" + indicator.getString();
+    }
+
+    /**{@inheritDoc}*/
+    public void setNameChangeListener(NameChangeListener listener) {
+        this.listener = listener;
+    }
+}
+

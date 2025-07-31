@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<jpackage-state version="22.0.2" platform="macOS">
+  <app-version>1.0</app-version>
+  <main-launcher>GameViewer</main-launcher>
+  <main-class>viewer.Viewer</main-class>
+  <signed>false</signed>
+  <app-store>false</app-store></jpackage-state>
