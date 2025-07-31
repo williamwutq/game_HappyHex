@@ -52,6 +52,7 @@ import java.awt.RenderingHints;
 public final class NameIndicator extends JButton {
     private static final Color charColor = new Color(85, 85, 85);
     private static final char cursorChar = 7; // ASCII bell character, used to represent the cursor. This is displayed as _ in the segments.
+    private static final char nullChar = 0; // ASCII null character, used to represent empty segments.
     private final SevenSegment[] sevenSegments;
     private int pointer;
     private int cursor;
@@ -70,7 +71,7 @@ public final class NameIndicator extends JButton {
         locked = false;
         pointer = 0;
         cursor = 0;
-        hidden = ' ';
+        hidden = nullChar;
         sevenSegments = new SevenSegment[length];
         for (int i = 0; i < length; i ++){
             sevenSegments[i] = new SevenSegment();
@@ -89,10 +90,10 @@ public final class NameIndicator extends JButton {
         locked = false;
         pointer = 0;
         cursor = 0;
-        hidden = ' ';
+        hidden = nullChar;
         sevenSegments[0].setCharacter(cursorChar);
         for (int i = 1; i < sevenSegments.length; i++) {
-            sevenSegments[i].setCharacter(' ');
+            sevenSegments[i].setCharacter(nullChar);
         }
         return true;
     }
@@ -107,16 +108,16 @@ public final class NameIndicator extends JButton {
             if (pointer < sevenSegments.length) sevenSegments[pointer].setCharacter(' ');
             if (pointer == cursor) {
                 cursor--;
-                hidden = ' ';
+                hidden = nullChar;
                 pointer --;
                 sevenSegments[pointer].setCharacter(cursorChar);
             } else if (pointer == 1) {
-                hidden = ' ';
+                hidden = nullChar;
                 pointer --;
                 sevenSegments[pointer].setCharacter(cursorChar);
             } else {
                 pointer--;
-                sevenSegments[pointer].setCharacter(' ');
+                sevenSegments[pointer].setCharacter(nullChar);
                 if(pointer == cursor) sevenSegments[pointer].setCharacter(cursorChar);
             }
             return true;
@@ -136,16 +137,16 @@ public final class NameIndicator extends JButton {
                 for (int i = cursor; i < pointer; i++) {
                     sevenSegments[i - 1].setCharacter(sevenSegments[i].getCharacter());
                 }
-                if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
+                if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(nullChar);
                 pointer--;
                 cursor--;
                 sevenSegments[cursor].setCharacter(cursorChar);
                 return true;
             } else if (cursor > 0 && cursor == pointer) {
-                sevenSegments[cursor].setCharacter(' ');
+                sevenSegments[cursor].setCharacter(nullChar);
                 pointer--;
                 cursor--;
-                hidden = ' ';
+                hidden = nullChar;
                 sevenSegments[cursor].setCharacter(cursorChar);
                 return true;
             } else if (cursor == 0 && pointer > 0) {
@@ -153,7 +154,7 @@ public final class NameIndicator extends JButton {
                 for (int i = cursor + 1; i < pointer; i++) {
                     sevenSegments[i - 1].setCharacter(sevenSegments[i].getCharacter());
                 }
-                if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
+                if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(nullChar);
                 pointer--;
                 sevenSegments[cursor].setCharacter(cursorChar);
                 return true;
@@ -227,18 +228,15 @@ public final class NameIndicator extends JButton {
     /**
      * Lock this {@code NameIndicator}. If it is currently locked, it will be locked again.
      *
-     * @return {@code true} if the indicator is filled and locked,
-     *         {@code false} if the cursor cannot be locked because it is not fill.
+     * @return {@code true} always.
      */
     public boolean lock(){
-        if (pointer == sevenSegments.length){
-            if (!locked) {
-                sevenSegments[cursor].setCharacter(hidden);
-                hidden = ' ';
-                locked = true;
-            }
-            return true;
-        } else return false;
+        if (!locked) {
+            sevenSegments[cursor].setCharacter(hidden);
+            hidden = nullChar;
+            locked = true;
+        }
+        return true;
     }
     /**
      * Returns the current length of the entered string.
@@ -269,7 +267,7 @@ public final class NameIndicator extends JButton {
                 sb.append(hidden);
             } else sb.append(sevenSegment.getCharacter());
         }
-        return sb.toString();
+        return sb.toString().trim();
     }
 
     /**
