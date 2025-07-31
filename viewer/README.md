@@ -1,9 +1,10 @@
 # HappyHex Game Viewer
 
-**Latest Version:** 1.0  
-**Latest release:** [HappyHex 1.3.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.3.1)  
-**Last edited:** 27/05/2025  
+**Latest Version:** 1.1  
+**Latest release:** [GameViewer 1.1](https://github.com/williamwutq/game_HappyHex/releases/tag/viewer-1.1)  
+**Last edited:** 30/07/2025  
 **Backward compatible with HappyHex Game Version:** 1.3.0  
+**Forward compatible with HappyHex Game Version:** < 2.1.0  
 **License:** [MIT](LICENSE)  
 **Author** William Wu  
 **Language** Java  
@@ -53,11 +54,12 @@ Remember, game viewer mainly serves as a developer tool, not a game product or f
 
 - Lightweight and minimal dependencies.
 - Displays gameplay from binary `.hpyhex` logs.
+- Supports drop in file from anywhere, if the operating system allows it.
 - No reliance on fonts, themes, or any system-specific graphics.
 - Simple grayscale UI using only Java standard GUI libraries.
 - Interactive slider for speed control.
 - Button-based step control (forward/backward).
-- On-screen keyboard for input.
+- On-screen hex keyboard and system keyboard for input.
 - Score and turn indicators included.
 - Fully self-contained in a single JAR.
 - Eye like icon for the program.
@@ -80,11 +82,13 @@ No additional libraries or themes are needed. There are **No** Easter Eggs, hidd
    or double-click `GameViewer.jar`.
 
 2. **Enter Game Log Filename**:
+    - This only accepts files from the `data/` folder.
     - Upon launching the viewer application, a calculator-like keyboard and display interface should show up.
-    - Use the on-screen keyboard to input a **16-digit hexadecimal** filename (no extension).
+    - Use the on-screen keyboard to input a filename (no extension). By default, the filename is a **16-digit hexadecimal** number.
     - Use the `0`-`F` keys to enter hexadecimal characters, `<`, `>`, `STT`, `END` keys to move cursor.
+    - Use your system keyboard to enter any character, if you prefer.
     - Use the `DEL` and `-` keys to delete characters, and the `+` key to duplicate character at cursor position.
-    - Press `ENT` (Enter) when all characters are filled.
+    - Press `ENT` (Enter) when the full name is entered.
     - If the file exists in the `data/` folder, it will be loaded.
     - Depending on the version, if binary file does not exist, it may try to load json file if exists.
 
@@ -96,14 +100,13 @@ No additional libraries or themes are needed. There are **No** Easter Eggs, hidd
     - The **score and turn** will be shown at the top center, between the filename and the game board.
 
 4. **Refresh Game**:
-   - Games are not automatically refreshed.
-   - Games maybe updated during your viewing experience, so you may need to refresh the game. Click the filename field.
-   - This will display the keyboard. Do nothing to the keyboard. Do NOT press `CLR` (Clear).
-   - Click on the filename field again. This will refresh the game.
+   - Games are automatically refreshed from drop in.
+   - Games are only refreshed when the `ENT` key is pressed.
 
 5. **Load Another Game**:
     - Click the filename again to re-activate the keyboard.
     - Press `CLR` (Clear), enter a new filename, and press `ENT`.
+    - Or drop in a file anywhere in the application window to load a new game.
 
 ## Packages
 

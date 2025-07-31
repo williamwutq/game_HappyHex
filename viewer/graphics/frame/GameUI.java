@@ -28,6 +28,7 @@ import hex.HexEngine;
 import hex.Piece;
 import viewer.graphics.interactive.HexButton;
 import viewer.graphics.interactive.SpeedSlider;
+import viewer.logic.ActionGUIInterface;
 import viewer.logic.Controller;
 
 import javax.swing.JComponent;
@@ -61,7 +62,7 @@ import java.awt.geom.Path2D;
  * </ul>
  *
  * @author William Wu
- * @version 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
  * @since 1.0 (HappyHex 1.3)
  * @see #GameUI
  * @see Controller
@@ -71,12 +72,11 @@ import java.awt.geom.Path2D;
  * @see SpeedSlider
  * @see JComponent
  */
-public final class GameUI extends JComponent {
+public final class GameUI extends JComponent implements ActionGUIInterface {
     private static final double sinOf60 = Math.sqrt(3) / 2;
     private static final double root2 = Math.sqrt(2);
     private final HexButton forwardButton, backwardButton, advanceButton, retreatButton;
     private final GamePanel gamePanel;
-    private final Controller controller;
     private final SpeedSlider slider;
     private final InfoPanel infoPanel;
     private boolean forward, backward;
@@ -118,12 +118,12 @@ public final class GameUI extends JComponent {
     public GameUI(Controller controller){
         this.forward = true;
         this.backward = true;
-        this.controller = controller;
         this.slider = new SpeedSlider();
         this.gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
         this.infoPanel = new InfoPanel();
         controller.bindGameGUI(gamePanel);
         controller.bindInfoGUI(infoPanel);
+        controller.bindActionGUI(this);
 
         forwardButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
@@ -187,16 +187,6 @@ public final class GameUI extends JComponent {
         };
         advanceButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                if (!forward){
-                    forward = true;
-                    forwardButton.updateCachedCustomPath();
-                    forwardButton.repaint();
-                }
-                if (!backward){
-                    backward = true;
-                    backwardButton.updateCachedCustomPath();
-                    backwardButton.repaint();
-                }
                 controller.advance();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
@@ -215,16 +205,6 @@ public final class GameUI extends JComponent {
         };
         retreatButton = new HexButton(){
             public void actionPerformed(ActionEvent e) {
-                if (!forward){
-                    forward = true;
-                    forwardButton.updateCachedCustomPath();
-                    forwardButton.repaint();
-                }
-                if (!backward){
-                    backward = true;
-                    backwardButton.updateCachedCustomPath();
-                    backwardButton.repaint();
-                }
                 controller.retreat();
             }
             protected Path2D.Double createCustomPath(int cx, int cy, double radius) {
@@ -321,5 +301,63 @@ public final class GameUI extends JComponent {
         advanceButton.paint(g.create(advanceButton.getX(), advanceButton.getY(), advanceButton.getWidth(), advanceButton.getHeight()));
         retreatButton.paint(g.create(retreatButton.getX(), retreatButton.getY(), retreatButton.getWidth(), retreatButton.getHeight()));
         slider.paint(g.create(slider.getX(), slider.getY(), slider.getWidth(), slider.getHeight()));
+    }
+
+    /**
+     * {@inheritDoc}
+     * This implementation stops the forward and backward buttons from being active.
+     * @since 1.1 (HappyHex 1.4)
+     */
+    @Override
+    public void onIncrement() {
+        stopButtons();
+    }
+    /**
+     * {@inheritDoc}
+     * This implementation stops the forward and backward buttons from being active.
+     * @since 1.1 (HappyHex 1.4)
+     */
+    @Override
+    public void onDecrement() {
+        stopButtons();
+    }
+    /**
+     * {@inheritDoc}
+     * This implementation does nothing because slider already knows speed changes.
+     * @since 1.1 (HappyHex 1.4)
+     */
+    @Override
+    public void onSpeedChanged(int delay) {}
+    /**
+     * {@inheritDoc}
+     * This implementation does nothing because buttons already know run start.
+     * @since 1.1 (HappyHex 1.4)
+     */
+    @Override
+    public void onRunStart() {}
+    /**
+     * {@inheritDoc}
+     * This implementation stops the forward and backward buttons from being active.
+     * @since 1.1 (HappyHex 1.4)
+     */
+    @Override
+    public void onRunStop() {
+        stopButtons();
+    }
+    /**
+     * Stops the forward and backward buttons from being active and updates their appearance.
+     * @since 1.1 (HappyHex 1.4)
+     */
+    private void stopButtons() {
+        if (!forward) {
+            forward = true;
+            forwardButton.updateCachedCustomPath();
+            forwardButton.repaint();
+        }
+        if (!backward) {
+            backward = true;
+            backwardButton.updateCachedCustomPath();
+            backwardButton.repaint();
+        }
     }
 }
