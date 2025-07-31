@@ -332,10 +332,6 @@ public class Controller{
      * @param filename the selected filename
      */
     public void onFileChosen(String filename) {
-        if (fileGui != null) {
-            fileGui.setFilename(filename);
-        }
-
         // Manipulate name
         String filePath = filename + ".hpyhex";
 
@@ -348,6 +344,9 @@ public class Controller{
             } catch (IOException ignored) {}
 
             if (loaded) {
+                if (fileGui != null) {
+                    fileGui.setFilename(filename);
+                }
                 try {
                     Tracker newTracker = new Tracker(logger); // create tracker takes time
                     synchronized (lock) {
