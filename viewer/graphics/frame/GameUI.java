@@ -77,7 +77,6 @@ public final class GameUI extends JComponent implements ActionGUIInterface {
     private static final double root2 = Math.sqrt(2);
     private final HexButton forwardButton, backwardButton, advanceButton, retreatButton;
     private final GamePanel gamePanel;
-    private final Controller controller;
     private final SpeedSlider slider;
     private final InfoPanel infoPanel;
     private boolean forward, backward;
@@ -119,7 +118,6 @@ public final class GameUI extends JComponent implements ActionGUIInterface {
     public GameUI(Controller controller){
         this.forward = true;
         this.backward = true;
-        this.controller = controller;
         this.slider = new SpeedSlider();
         this.gamePanel = new GamePanel(new HexEngine(5), new Piece[]{});
         this.infoPanel = new InfoPanel();
