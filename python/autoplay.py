@@ -28,6 +28,43 @@ import hex
 
 __all__ = ['MainProcessor']
 
+# import algo
+try:
+    from autoplayimpl import algorithm as alg
+except ImportError:
+    try:
+        from hpyhex.ml.tensorflow.autoplayimpl import algorithm as alg
+    except ImportError:
+        try:
+            from hpyhex.ml.torch.autoplayimpl import algorithm as alg
+        except ImportError:
+            try:
+                from hpyhex.ml.tbase.autoplayimpl import algorithm as alg
+            except ImportError:
+                try:
+                    from nrminimax_autoplayimpl import algorithm as alg
+                except ImportError:
+                    print("not imported")
+                    import random
+                    def alg(engine: hex.HexEngine, queue: List[hex.Piece]) -> tuple[int, hex.Hex]:
+                        """
+                        A random algorithm that returns the first piece and position.
+                        """
+                        if not queue:
+                            raise ValueError("Queue is empty")
+                        else:
+                            options = []
+                            seen_pieces = {}
+                            for piece_index, piece in enumerate(queue):
+                                key = piece.to_byte()
+                                if key in seen_pieces: continue
+                                seen_pieces[key] = piece_index
+                                for coord in engine.check_positions(piece):
+                                    options.append((piece_index, coord))
+                            if not options:
+                                raise ValueError("No valid options found")
+                            return random.choice(options)
+
 def str_to_bools(s: str) -> list[bool]:
     true_set = {'X', '1', 'T'}
     false_set = {'O', '0', 'F'}
@@ -82,19 +119,7 @@ class MainProcessor(CommandProcessor):
                         piece = hex.Piece.piece_from_byte(int(arg), -1)
                         queue.append(piece)
                     # evaluate
-                    options = []
-                    w_current_entropy = engine.compute_entropy() - 0.21
-                    seen_pieces = {}
-                    for piece_index, piece in enumerate(queue):
-                        key = piece.to_byte()
-                        if key in seen_pieces: continue
-                        seen_pieces[key] = piece_index
-                        for coord in engine.check_positions(piece):
-                            score = engine.compute_weighted_index(coord, piece, w_current_entropy)
-                            options.append((piece_index, coord, score))
-                    # choose best option
-                    best_placement = max(options, key=lambda item: item[2])
-                    best_piece_option, best_position_option, best_score_result = best_placement
+                    best_piece_option, best_position_option = alg(engine, queue)
                     # callback
                     self._callback.execute(f'move {best_position_option.get_line_i()} {best_position_option.get_line_k()} {best_piece_option}')
                 else: raise ValueError('Missing arguments for move')

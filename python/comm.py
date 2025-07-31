@@ -306,11 +306,8 @@ except ImportError:
     try:
         from autoplayimpl import MainProcessor
     except ImportError:
-        try:
-            from execute import MainProcessor
-        except ImportError:
-            class MainProcessor(NullProcessor):
-                pass
+        class MainProcessor(NullProcessor):
+            pass
 
 
 if __name__ == "__main__":
