@@ -43,7 +43,7 @@ import java.awt.RenderingHints;
  * resembling digital readouts or LED displays.
  *
  * @author William Wu
- * @version 1.0 (HappyHex 1.3)
+ * @version 1.1 (HappyHex 1.4)
  * @since 1.0 (HappyHex 1.3)
  * @see SevenSegment
  * @see JComponent
@@ -51,6 +51,7 @@ import java.awt.RenderingHints;
  */
 public final class NameIndicator extends JButton {
     private static final Color charColor = new Color(85, 85, 85);
+    private static final char cursorChar = 7; // ASCII bell character, used to represent the cursor. This is displayed as _ in the segments.
     private final SevenSegment[] sevenSegments;
     private int pointer;
     private int cursor;
@@ -75,7 +76,7 @@ public final class NameIndicator extends JButton {
             sevenSegments[i] = new SevenSegment();
             this.add(sevenSegments[i]);
         }
-        sevenSegments[0].setCharacter('_');
+        sevenSegments[0].setCharacter(cursorChar);
     }
     /**
      * Clears the current string, resetting all segments.
@@ -89,7 +90,7 @@ public final class NameIndicator extends JButton {
         pointer = 0;
         cursor = 0;
         hidden = ' ';
-        sevenSegments[0].setCharacter('_');
+        sevenSegments[0].setCharacter(cursorChar);
         for (int i = 1; i < sevenSegments.length; i++) {
             sevenSegments[i].setCharacter(' ');
         }
@@ -108,15 +109,15 @@ public final class NameIndicator extends JButton {
                 cursor--;
                 hidden = ' ';
                 pointer --;
-                sevenSegments[pointer].setCharacter('_');
+                sevenSegments[pointer].setCharacter(cursorChar);
             } else if (pointer == 1) {
                 hidden = ' ';
                 pointer --;
-                sevenSegments[pointer].setCharacter('_');
+                sevenSegments[pointer].setCharacter(cursorChar);
             } else {
                 pointer--;
                 sevenSegments[pointer].setCharacter(' ');
-                if(pointer == cursor) sevenSegments[pointer].setCharacter('_');
+                if(pointer == cursor) sevenSegments[pointer].setCharacter(cursorChar);
             }
             return true;
         } else return false;
@@ -138,14 +139,14 @@ public final class NameIndicator extends JButton {
                 if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
                 pointer--;
                 cursor--;
-                sevenSegments[cursor].setCharacter('_');
+                sevenSegments[cursor].setCharacter(cursorChar);
                 return true;
             } else if (cursor > 0 && cursor == pointer) {
                 sevenSegments[cursor].setCharacter(' ');
                 pointer--;
                 cursor--;
                 hidden = ' ';
-                sevenSegments[cursor].setCharacter('_');
+                sevenSegments[cursor].setCharacter(cursorChar);
                 return true;
             } else if (cursor == 0 && pointer > 0) {
                 hidden = sevenSegments[cursor + 1].getCharacter();
@@ -154,7 +155,7 @@ public final class NameIndicator extends JButton {
                 }
                 if (pointer - 1 < sevenSegments.length) sevenSegments[pointer - 1].setCharacter(' ');
                 pointer--;
-                sevenSegments[cursor].setCharacter('_');
+                sevenSegments[cursor].setCharacter(cursorChar);
                 return true;
             }
         } return false;
@@ -168,7 +169,7 @@ public final class NameIndicator extends JButton {
      *         {@code false} if the display is full or character is invalid.
      */
     public boolean addChar(char c){
-        if (!locked && (('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'))){
+        if (!locked){
             if (cursor == sevenSegments.length-1 && pointer < sevenSegments.length) {
                 hidden = c;
                 pointer ++;
@@ -179,7 +180,7 @@ public final class NameIndicator extends JButton {
                 sevenSegments[cursor].setCharacter(c);
                 cursor++;
                 pointer++;
-                if (cursor < sevenSegments.length) sevenSegments[cursor].setCharacter('_');
+                if (cursor < sevenSegments.length) sevenSegments[cursor].setCharacter(cursorChar);
                 return true;
             }
         } return false;
@@ -204,7 +205,7 @@ public final class NameIndicator extends JButton {
             sevenSegments[cursor].setCharacter(hidden);
             cursor ++;
             hidden = sevenSegments[cursor].getCharacter();
-            sevenSegments[cursor].setCharacter('_');
+            sevenSegments[cursor].setCharacter(cursorChar);
             return true;
         } else return false;
     }
@@ -219,7 +220,7 @@ public final class NameIndicator extends JButton {
             sevenSegments[cursor].setCharacter(hidden);
             cursor --;
             hidden = sevenSegments[cursor].getCharacter();
-            sevenSegments[cursor].setCharacter('_');
+            sevenSegments[cursor].setCharacter(cursorChar);
             return true;
         } else return false;
     }
@@ -264,7 +265,7 @@ public final class NameIndicator extends JButton {
     public String getString(){
         StringBuilder sb = new StringBuilder(sevenSegments.length);
         for (SevenSegment sevenSegment : sevenSegments) {
-            if (sevenSegment.getCharacter() == '_'){
+            if (sevenSegment.getCharacter() == cursorChar){
                 sb.append(hidden);
             } else sb.append(sevenSegment.getCharacter());
         }

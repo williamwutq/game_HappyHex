@@ -24,6 +24,7 @@
 
 package viewer;
 
+import viewer.graphics.frame.KeyboardHelper;
 import viewer.graphics.frame.ViewerGUI;
 import viewer.graphics.frame.DropInFileAdaptor;
 import viewer.logic.Controller;
@@ -79,9 +80,11 @@ public final class Viewer {
         frame.setPreferredSize(start);
         frame.setMinimumSize(min);
         frame.setBackground(Color.WHITE);
-        frame.add(new ViewerGUI(controller));
+        ViewerGUI gui = new ViewerGUI(controller);
         parseArgs(args);
         initDropTarget(frame);
+        KeyboardHelper.attachListener(frame, gui.getKeyboardListener());
+        frame.add(gui);
         frame.setVisible(true);
     }
     /**
@@ -103,6 +106,7 @@ public final class Viewer {
      * If a valid file name is provided, it notifies the controller to open that file.
      *
      * @param args the command line arguments
+     * @since 1.1 (HappyHex 1.4)
      */
     private static void parseArgs(String[] args) {
         if (args == null || args.length == 0) return;

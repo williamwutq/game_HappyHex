@@ -31,6 +31,7 @@ import viewer.logic.FileGUIInterface;
 import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * A user input component combining a {@link Keyboard} and a {@link NameIndicator}.
@@ -88,6 +89,20 @@ public final class EnterField extends JComponent implements FileGUIInterface{
     }
 
     /**
+     * Returns an {@link ActionListener} that can be used to handle key press events
+     * from the embedded {@link Keyboard}.
+     *
+     * @return an ActionListener that handles key presses
+     */
+    public ActionListener exportListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onKeyPress(e);
+            }
+        };
+    }
+    /**
      * Handles key press events from the embedded {@link Keyboard}.
      *
      * @param e the action event representing a key press
@@ -100,9 +115,9 @@ public final class EnterField extends JComponent implements FileGUIInterface{
             indicator.removeChar();
         } else if (key.equals("CLR")) {
             indicator.clear();
-        } else if (key.equals("-")) {
+        } else if (key.equals("-") || key.equals("DOWN")) {
             indicator.removeEnd();
-        } else if (key.equals("+")) {
+        } else if (key.equals("+") || key.equals("UP")) {
             indicator.addChar(indicator.getChar());
         } else if (key.equals("END")) {
             boolean possible = indicator.incrementCursor();
@@ -114,15 +129,23 @@ public final class EnterField extends JComponent implements FileGUIInterface{
             while(possible){
                 possible = indicator.decrementCursor();
             }
-        } else if (key.equals(">")) {
+        } else if (key.equals(">") || key.equals("RIGHT")) {
             indicator.incrementCursor();
-        } else if (key.equals("<")) {
+        } else if (key.equals("<") || key.equals("LEFT")) {
             indicator.decrementCursor();
         } else if (key.equals("ENT")) {
             if (indicator.lock()){
                 if (listener != null) listener.onFileChosen(getFilename());
             }
-        } else {
+        } else if (key.equals("ESC")) {
+            if (indicator.lock()){
+                hideKeyboard();
+            } else {
+                indicator.clear();
+            }
+        } else if (key.startsWith("Literal") && key.length() >= 8){
+            indicator.addChar(key.charAt(7));
+        } else if (!key.isEmpty()){
             indicator.addChar(key.charAt(0));
         }
         this.repaint();
@@ -145,6 +168,17 @@ public final class EnterField extends JComponent implements FileGUIInterface{
         keyboardShown = !keyboardShown;
         this.revalidate();
         this.repaint();
+    }
+    /**
+     * Hides the keyboard if it is currently shown.
+     */
+    private void hideKeyboard() {
+        if (keyboardShown) {
+            this.remove(keyboard);
+            keyboardShown = false;
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**
@@ -178,12 +212,34 @@ public final class EnterField extends JComponent implements FileGUIInterface{
     /**
      * {@inheritDoc}
      * This method delegate to the {@link NameIndicator#addChar(char)} method to add characters
-     * in the input filename using a for loop. Invalid and extra characters are skipped.
+     * in the input filename using a for loop. Invalid and extra characters are represented with space.
+     * <p>
+     * The filename is processed to remove any leading or trailing whitespace,
+     * remove the file extension (anything after the last dot), and remove the directory path
+     * (anything before the last slash). If the resulting filename exceeds the length of the indicator,
+     * it is truncated and suffixed with "...".
+     * <p>
+     * The filename is then added to the {@link NameIndicator} character by character. If the indicator
+     * cannot display the character, it will be represented as a space.
      */
     public void setFilename(String filename) {
         this.indicator.clear();
-        if (filename.startsWith("data/")) {
-            filename = filename.substring(5); // Remove "data/" prefix
+        // Remove whitespace from the start and end of the filename
+        filename = filename.trim();
+        // Remove suffix by removing anything after the last .
+        int dotIndex = filename.lastIndexOf('.');
+        if (dotIndex != -1) {
+            filename = filename.substring(0, dotIndex);
+        }
+        // Remove directory path by removing everything before the last /
+        int slashIndex = filename.lastIndexOf('/');
+        if (slashIndex != -1) {
+            filename = filename.substring(slashIndex + 1);
+        }
+        // Check the length of the filename against the indicator's length
+        if (filename.length() > indicator.length()) {
+            // If the filename is too long, use "..." to indicate truncation
+            filename = filename.substring(0, indicator.length() - 3) + "...";
         }
         for (int i = 0; i < filename.length(); i ++){
             indicator.addChar(filename.charAt(i));

@@ -29,6 +29,7 @@ import viewer.logic.Controller;
 import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.ActionListener;
 
 /**
  * The {@code ViewerGUI} class is the top-level container for the HappyHex game viewer interface.
@@ -79,6 +80,7 @@ public final class ViewerGUI extends JComponent {
     /**
      * Constructs a new {@code ViewerGUI} with a specified {@link Controller}.
      * Initializes the game UI and input field, binding the input field to the controller.
+     * @since 1.1 (HappyHex 1.4)
      */
     public ViewerGUI(Controller controller){
         this.gameUI = new GameUI(controller);
@@ -89,6 +91,15 @@ public final class ViewerGUI extends JComponent {
         this.add(gameUI);
     }
 
+    /**
+     * Returns the exposed keyboard listener from the {@code EnterField}.
+     * This listener is responsible for handling keyboard input events.
+     *
+     * @return the {@link ActionListener} that handles keyboard events
+     */
+    public ActionListener getKeyboardListener() {
+        return enterField.exportListener();
+    }
     /**
      * Lays out the components within the {@code ViewerGUI}.
      * Allocates vertical space based on component height:
