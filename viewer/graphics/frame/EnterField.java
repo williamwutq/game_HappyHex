@@ -108,6 +108,7 @@ public final class EnterField extends JComponent implements FileGUIInterface{
      * @param e the action event representing a key press
      */
     private void onKeyPress(ActionEvent e) {
+        if (!keyboardShown) return;
         String cmd = e.getActionCommand();
         if (!cmd.startsWith("press ")) return;
         String key = cmd.substring(6);
