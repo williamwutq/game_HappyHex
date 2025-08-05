@@ -71,6 +71,8 @@ public class FeatureFactory {
                 return new special.Halloween.SpookyTheme();
             } else if (special.Thanksgiving.ThanksgivingDate.isThanksgiving()){
                 return new special.Thanksgiving.GratefulHarvest();
+            } else if ((date.getMonthValue() == 12 && date.getDayOfMonth() == 25)) {
+                return new special.Christmas.ChristmasSuper();
             }
         } else if (className.equals("Animation") || className.equals("GUI.animation.Animation")){
             java.time.LocalDate date = java.time.LocalDate.now();
