@@ -33,6 +33,8 @@ package special.Christmas;
 
 import special.SpecialFeature;
 
+import java.awt.Color;
+
 public class ChristmasSuper implements SpecialFeature {
     private boolean enable;
     private boolean valid;
@@ -98,6 +100,37 @@ public class ChristmasSuper implements SpecialFeature {
                     return new String[]{"Comic Sans MS"};
                 } else if(hint.contains("MonoFont")){
                     return new String[]{"Andale Mono"};
+                }
+            }
+            boolean isColorBaseArray = objects.length == 6 || objects.length == 12;
+            int k = 0;
+            while (k < objects.length && isColorBaseArray) {
+                if (!(objects[k] instanceof Color)) {
+                    isColorBaseArray = false;
+                } else k++;
+            }
+            if (isColorBaseArray){
+                return new Color[]{
+                        new Color(220, 151, 18),
+                        new Color(207, 140, 86),
+                        new Color(63, 189, 139),
+                        new Color(209, 104, 127),
+                        new Color(162, 118, 195),
+                        new Color(50, 154, 189),
+                        new Color(188, 185, 38),
+                        new Color(168, 107, 61),
+                        new Color(163, 84, 120),
+                        new Color(113, 168, 41),
+                        new Color(225, 80, 59),
+                        new Color(122, 121, 121),
+                };
+            } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String hint) {
+                if (hint.contains("TitlePanel")){
+                    objects[0] = new Color(216, 194, 121);
+                } else if (hint.contains("StartButton")){
+                    objects[0] = new Color(58, 67, 41);
+                } else if (hint.contains("Background")){
+                    objects[0] = new Color(216, 212, 185);
                 }
             }
         }
