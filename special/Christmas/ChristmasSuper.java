@@ -127,8 +127,26 @@ public class ChristmasSuper implements SpecialFeature {
             } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String hint) {
                 if (hint.contains("TitlePanel")){
                     objects[0] = new Color(216, 194, 121);
+                } else if (hint.contains("Hint")){
+                    objects[0] = new Color(159, 147, 145);
+                } else if (hint.contains("Version")){
+                    objects[0] = new Color(156, 120, 6);
                 } else if (hint.contains("StartButton")){
                     objects[0] = new Color(58, 67, 41);
+                } else if (hint.contains("QuitButton")){
+                    objects[0] = new Color(149, 0, 0);
+                } else if (hint.contains("ConfirmButton")){
+                    objects[0] = new Color(34, 139, 34);
+                } else if (hint.contains("LoginField")){
+                    objects[0] = new Color(119, 0, 0);
+                } else if (hint.contains("PlayerName")){
+                    objects[0] = new Color(234, 234, 0);
+                } else if (hint.contains("PlayerPrompt")){
+                    objects[0] = new Color(0, 234, 0);
+                } else if (hint.contains("PlayerError")){
+                    objects[0] = new Color(255, 29, 29);
+                } else if (hint.contains("PlayerSpecial")){
+                    objects[0] = new Color(0, 225, 225);
                 } else if (hint.contains("Background")){
                     objects[0] = new Color(216, 212, 185);
                 }
