@@ -1,15 +1,36 @@
-/java
-/Lib
-/out
+### MacOS ###
+.DS_Store
+
+### Python Cache ###
+__pycache__/
+*.pyc
+*/*.pyc
+
+### Game Files ###
+/data
+*.hpyhex.json
+*/*.hpyhex.json
+*.game.json
+*/*.game.json
+*.hpyhex
+*/*.hpyhex
+
+### Game Logs ###
 **/logs.json
 logs.json
 templogs.json
-/data
-/.idea
-*.hpyhex.json
-*.game.json
-**/*.hpyhex.json
-**/*.game.json
-*.class
-**/*.class
+
+### Evironment ###
 /custom-jre/
+*.mf
+
+### Intellij ###
+.idea/
+*.iml
+
+### Java ###
+/java
+/Lib
+/out
+*.class
+*/*.class
