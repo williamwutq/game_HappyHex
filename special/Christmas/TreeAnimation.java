@@ -70,8 +70,28 @@ public class TreeAnimation extends Animation {
             {0.3, -0.4},
             {0.6, -0.4},
     };
+    private static final double[][] circlePoints = {
+            // X, Y range: (-1, 1)
+            {0.4, 0.45},
+            {-0.8, 0.7},
+            {0.3, 0.35},
+            {-0.4, 0.3},
+            {0, -0.2},
+            {-0.6, -0.1},
+            {0.7, -0.05},
+            {-0.1, -0.3},
+            {0.5, 0.25},
+            {-0.5, -0.6},
+            {0.8, -0.15},
+            {-0.3, 0.4},
+            {0.1, -0.65},
+            {0, -0.9},
+            {-0.7, -0},
+            {0.6, 0.75},
+    };
     private hex.Hex hex;
     private final int colorIndex;
+    private final int[] randomHidden;
     private static Color interpretColor(int index, int alpha){
         // Custom color interpreter that is faster
         if (index == -1 || index == 13){
@@ -87,6 +107,20 @@ public class TreeAnimation extends Animation {
         super(2000, 1);
         hex = block.thisHex();
         colorIndex = block.getColor();
+        randomHidden = new int[2 + (int)(Math.random() * 4)];
+        for (int i = 0; i < randomHidden.length; i++) {
+            randomHidden[i] = (int)(Math.random() * circlePoints.length);
+        }
+        // Use insertion sort to sort the random hidden points
+        for (int i = 1; i < randomHidden.length; i++) {
+            int key = randomHidden[i];
+            int j = i - 1;
+            while (j >= 0 && randomHidden[j] > key) {
+                randomHidden[j + 1] = randomHidden[j];
+                j--;
+            }
+            randomHidden[j + 1] = key;
+        }
     }
     public final void resetSize(){
         if(hex == null) {
@@ -120,6 +154,8 @@ public class TreeAnimation extends Animation {
         int cooX = (int) Math.round(size * (sinOf60 + 0.5));
         int cooY = (int) Math.round(size * extended);
         int alpha = 255 - (int)(progress * progress * 255);
+        int radius = (int)(size * 0.1 * (1 - progress * progress * progress));
+        if (radius < 2) radius = 2;
         final Color treeColor = new Color(0, 128, 0, alpha);
         final Color dominantColor = interpretColor(colorIndex, alpha);
         final Color sideColor = interpretColor(11 - colorIndex, alpha);
@@ -138,5 +174,19 @@ public class TreeAnimation extends Animation {
         }
         g2d.setColor(treeColor);
         g2d.fillPolygon(xPoints, yPoints, treePoints.length);
+        g2d.setColor(sideColor);
+        int randomHiddenIndex = 0;
+        for (int i = 0; i < circlePoints.length; i++) {
+            if (i == circlePoints.length / 3){
+                g2d.setColor(dominantColor);
+            }
+            if (randomHiddenIndex < randomHidden.length && i == randomHidden[randomHiddenIndex]) {
+                randomHiddenIndex++;
+                continue;
+            }
+            int x = (int) Math.round(cooX + size * circlePoints[i][0] * sinOf60);
+            int y = (int) Math.round(cooY + size * circlePoints[i][1]);
+            g2d.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        }
     }
 }
