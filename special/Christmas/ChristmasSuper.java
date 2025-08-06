@@ -87,7 +87,9 @@ public class ChristmasSuper implements SpecialFeature {
     public Object[] process(Object[] objects) {
         if(isActive()) {
             if (objects == null || objects.length == 0) return null;
-            if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String hint){
+            if (objects[0] instanceof GUI.animation.DisappearEffect && objects[1] instanceof hex.Block) {
+                return new Object[]{new TreeAnimation((hex.Block) objects[1])};
+            } else if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String hint){
                 if(hint.contains("Title")){
                     return new String[]{"Comic Sans MS"};
                 } else if(hint.contains("VersionFont")){
@@ -122,7 +124,7 @@ public class ChristmasSuper implements SpecialFeature {
                         new Color(163, 84, 120),
                         new Color(113, 168, 41),
                         new Color(225, 80, 59),
-                        new Color(122, 121, 121),
+                        new Color(184, 184, 184),
                 };
             } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String hint) {
                 if (hint.contains("TitlePanel") || hint.contains("OverBackground")){
