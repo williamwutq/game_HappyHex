@@ -25,7 +25,7 @@ import sys
 from abc import ABC, abstractmethod
 from typing import Optional, List
 
-__all__ = ['CommandProcessor', 'NullProcessor', 'MainProcessor']
+__all__ = ['CommandProcessor', 'MainProcessor']
 
 
 class CommandProcessor(ABC):
@@ -131,61 +131,6 @@ class CommandProcessor(ABC):
         if processor is self:
             raise ValueError("Cannot add self as callback processor")
         raise NotImplementedError("Callback not supported for this command processor")
-
-
-class NullProcessor(CommandProcessor):
-    """
-    A placeholder implementation of the CommandProcessor interface.
-
-    The NullProcessor is a stub implementation used in contexts where a
-    command processor is required but no actual command execution should occur.
-    It raises an exception on any attempt to execute a command, making it useful
-    for guarding against uninitialized or invalid processor references.
-
-    It supports setting and retrieving a callback processor to conform to
-    the CommandProcessor interface, but executing a command with this class
-    is considered an error.
-    """
-    def __init__(self):
-        """
-        Initializes the NullProcessor with no callback processor assigned.
-        """
-        self._callback: Optional[CommandProcessor] = None
-    def execute_command(self, command: str, args: List[str]) -> None:
-        """
-        Raises an error when an attempt is made to execute a command.
-
-        This method exists to fulfill the CommandProcessor interface contract,
-        but always raises an error to indicate that this processor is not
-        intended for use in actual command execution.
-
-        :param command: The command to be executed.
-        :param args: The list of arguments for the command.
-
-        :raises ValueError: Always raised to indicate that command execution is invalid.
-        """
-        raise ValueError('Attempted execution call to NullProcessor')
-    def get_callback_processor(self) -> Optional['CommandProcessor']:
-        """
-        Returns the callback processor associated with this processor, if any.
-
-        :returns: The callback processor, or None if not set.
-        """
-        return self._callback
-    def set_callback_processor(self, processor: Optional['CommandProcessor']) -> None:
-        """
-        Sets the callback processor to be used after command execution.
-
-        The callback processor must not be the same instance as this processor.
-        If `None` is provided, any existing callback processor is cleared.
-
-        :param processor: The processor to set as a callback.
-
-        :raise ValueError: If attempting to set the callback processor to self.
-        """
-        if processor is self:
-            raise ValueError("Cannot add self as callback processor")
-        else: self._callback = processor
 
 
 class PeripheralCommandProcessor(CommandProcessor):
