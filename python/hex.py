@@ -1,4 +1,32 @@
-"""
+'''
+This module implements a simplified and optimized hexagonal grid system designed for machine learning applications. 
+This module is duplicated from the hpyhexml repository, with modifications to improve memory efficiency and performance.
+This module does not contain colors, as it is unnecessary for this python script to implement graphical features.
+The system is built with memory efficiency and computational performance in mind, leveraging several key optimizations:
+1. Flyweight Pattern in Hex Class:
+    - The `Hex` class uses a flyweight pattern to cache instances of small hexagonal coordinates, reducing memory usage.
+    - It directly applies line coordinates (i, k) instead of raw coordinates (i, j, k), simplifying calculations and improving performance.
+2. Pre-Cached Singleton Piece Class:
+    - The `Piece` class represents a logical structure of 7 blocks using a pre-cached singleton pattern.
+    - All possible states (0-127) are precomputed and stored, allowing for efficient reuse and memory savings.
+3. Boolean-Based Grid Representation:
+    - Neither the `Piece` class nor the `HexEngine` class stores actual block data.
+    - Instead, they use boolean arrays to represent the occupancy state of blocks, significantly reducing memory overhead.
+4. Enhanced Compatibility:
+    - The system is designed to be compatible with tuples and lists, making it easier to integrate with other Python libraries and frameworks.
+5. Comprehensive Documentation:
+    - The module is thoroughly documented, providing clear explanations of the design, functionality, and usage of each class and method.
+Classes:
+    - `Hex`: Represents a hexagonal grid coordinate using a custom line-based coordinate system.
+    - `Piece`: Represents a shape or unit made up of 7 blocks, optimized with a pre-cached singleton pattern.
+    - `HexEngine`: Provides a complete engine for managing a hexagonal grid, including operations like adding pieces, eliminating lines, and computing entropy.
+Usage:
+    This module is ideal for applications requiring efficient hexagonal grid management, such as games, simulations, or machine learning tasks.
+'''
+
+from typing import Union
+
+'''
   MIT License
 
   Copyright (c) 2025 William Wu
@@ -20,708 +48,506 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-"""
-
-import copy
-import math
-from math import log2, exp
-from abc import ABC, abstractmethod
-from typing import List
-
-__all__ = ['Hex', 'Block', 'HexEngine', 'Piece', 'HexGrid', '__sin60__']
-__sin60__ = math.sqrt(3) / 2
+'''
 
 class Hex:
-    """
-    The Hex class represents a 2D coordinate in a hexagonal grid system using
-    a specialized integer coordinate model. It supports both raw coordinate access
-    and derived line-based computations across three axes: I, J, and K.
+    '''
+    Represents a hexagonal grid coordinate using a custom line-based coordinate system.
 
-    Coordinate System:
-    - Designed by William Wu.
-    - Axes I, J, K run diagonally through the hexagonal grid.
-    - I+ is 60 degrees to J+, J+ is 60 degrees to K+, K+ is 60 degrees to J-.
-    - Coordinates (i, k) correspond to a basis for representing any hexagon.
-    - Raw coordinates: distance along one axis multiplied by 2, with i - j + k = 0.
-    - Line coordinates: distance perpendicular to axes, with I + J - K = 0.
-    - Line coordinates are preferred due to complexities with raw coordinates.
+    This class models hexagonal positions with two line coordinates (i, k), implicitly
+    defining the third axis (j) as `j = k - i` to maintain hex grid constraints.
+    It supports standard arithmetic, equality, and hashing operations, as well as
+    compatibility with coordinate tuples.
 
-    Coordinate System Implementation:
-    - x and y are base values stored in each Hex instance.
-    - I = x, K = y, J = x + y.
-    - Line indices: get_line_i = (2y + x) / 3, get_line_j = (x - y) / 3, get_line_k = (2x + y) / 3.
+    For small grids, Hex instances are cached for performance, allowing more efficient memory usage
+    and faster access. The caching is limited to a range of -64 to 64 for both i and k coordinates.
 
-    Functionality:
-    - Access raw coordinates: I(), J(), K().
-    - Access line coordinates: get_line_i(), get_line_j(), get_line_k().
-    - Create Hex objects: constructors or factory methods hex().
-    - Move along I, J, K axes: move_i(), move_j(), move_k().
-    - Addition/subtraction: add(), subtract().
-    - Check line alignment and adjacency: in_line_i(), adjacent(), etc.
-    - Determine relative orientation: front(), back(), and axis-specific versions.
-    - Clone instances.
+    Use of Hex over tuples is recommended for clarity and to leverage the singleton feature of small Hexes.
 
-    Usage Notes:
-    - Use factory method hex(i, k) instead of direct constructors for correct line coordinate shifts.
-    """
-    _half_sin_of_60 = math.sqrt(3) / 4
+    Coordinate Systems:
+        - Raw Coordinates (i, j, k): Three axes satisfying i + j + k = 0, where
+          each axis is diagonal to the others at 60° increments.
+        - Line Coordinates (i, k): Derived coordinates representing distances
+          perpendicular to axes, simplifying grid operations.
 
-    def __init__(self, i=0, k=0):
-        """Initialize a Hex coordinate at (i, k). Defaults to (0, 0)."""
-        self._x = i
-        self._y = k
+    Note:
+        - This class is immutable and optimized with __slots__.
+        - Raw coordinate methods (__i__, __j__, __k__) are retained for backward compatibility.
+        - Only basic functionality is implemented; complex adjacency, iteration,
+          and mutability features are omitted for simplicity.
 
-    @staticmethod
-    def hex(i=0, k=0):
-        """Create a Hex coordinate using line indices, shifted accordingly."""
-        return Hex().shift_i(k).shift_k(i)
+    Attributes:
+        i (int): The line i coordinate.
+        j (int): The computed line j coordinate (k - i).
+        k (int): The line k coordinate.
+    '''
+    __slots__ = ('__i', '__k')
+    __cache_min = -64
+    __cache_max = 64
+    __cache = {}
 
-    # Raw coordinates
-    def __i__(self):
-        """Return raw I-coordinate."""
-        return self._x
+    def __new__(cls, i=0, k=0) -> 'Hex':
+        if not isinstance(i, int) or not isinstance(k, int):
+            raise TypeError("Coordinates must be integers")
+        if cls.__cache_min <= i <= cls.__cache_max and cls.__cache_min <= k <= cls.__cache_max:
+            key = (i, k)
+            if key not in cls.__cache:
+                instance = super().__new__(cls)
+                instance.__i = i
+                instance.__k = k
+                cls.__cache[key] = instance
+            return cls.__cache[key]
+        # Fallback for out-of-range Hexes (no caching)
+        instance = super().__new__(cls)
+        instance.__i = i
+        instance.__k = k
+        return instance
+    
+    def __init__(self, i: int=0, k: int=0) -> None:
+        '''
+        Initialize a Hex coordinate at (i, k). Defaults to (0, 0).
+        Arguments:
+            i (int): The I-line coordinate of the hex.
+            k (int): The K-line coordinate of the hex.
+        Returns:
+            None
+        Raises:
+            TypeError: If i or k is not an integer.
+        '''
+        pass # __new__ handles initialization and caching, so __init__ is empty.
+    
+    @property
+    def i(self) -> int:
+        '''
+        Get the I-line coordinate of the hex.
+        Returns:
+            int: The I-line coordinate.
+        '''
+        return self.__i
+    
+    @property
+    def j(self) -> int:
+        '''
+        Get the J-line coordinate of the hex.
+        Returns:
+            int: The J-line coordinate.
+        '''
+        return self.__k - self.__i
+    
+    @property
+    def k(self) -> int:
+        '''
+        Get the K-line coordinate of the hex.
+        Returns:
+            int: The K-line coordinate.
+        '''
+        return self.__k
+    
+    def __iter__(self) -> iter:
+        '''
+        Return an iterator over the hex coordinates.
+        Yields:
+            int: The I-line coordinate of the hex.
+            int: The K-line coordinate of the hex.
+        '''
+        yield self.__i
+        yield self.__k
+    
+    def __i__(self) -> int:
+        '''
+        Return the raw i coordinate of the hex.
+        Returns:
+            int: The raw i coordinate.
+        '''
+        return self.__k * 2 - self.__i
+    
+    def __j__(self) -> int:
+        '''
+        Return the raw j coordinate of the hex.
+        Returns:
+            int: The raw j coordinate.
+        '''
+        return self.__i + self.__k
+    
+    def __k__(self) -> int:
+        '''
+        Return the raw k coordinate of the hex.
+        Returns:
+            int: The raw k coordinate.
+        '''
+        return self.__i * 2 - self.__k
+    
+    def __str__(self) -> str:
+        '''
+        Return a string representation of the hex coordinates.
+        Format: Hex(i, j, k), where i, j, and k are the line coordinates.
+        Returns:
+            str: The string representation of the hex.
+        '''
+        return f"Hex({self.__i}, {self.j}, {self.__k})"
+    
+    def __repr__(self) -> str:
+        '''
+        Return a string representation of the hex coordinates for debugging.
+        Format: Hex(i, j, k), where i, j, and k are the line coordinates.
+        Returns:
+            str: The string representation of the hex.
+        '''
+        return f"({self.__i}, {self.__k})"
+    
+    def __eq__(self, value: Union['Hex', tuple]) -> bool:
+        '''
+        Check equality with another Hex or a tuple of coordinates.
+        Arguments:
+            value (Hex or tuple): The value to compare with.
+        Returns:
+            bool: True if the coordinates match, False otherwise.
+        '''
+        if isinstance(value, Hex):
+            return self.__i == value.__i and self.__k == value.__k
+        elif isinstance(value, tuple) and len(value) == 2:
+            return self.__i == value[0] and self.__k == value[1]
+        return False
+    
+    def __hash__(self) -> int:
+        '''
+        Return a hash of the hex coordinates.
+        Returns:
+            int: The hash value of the hex coordinates.
+        '''
+        return hash((self.__i, self.__k))
+    
+    def __add__(self, other: Union['Hex', tuple]) -> 'Hex':
+        '''
+        Add another Hex or a tuple of coordinates to this hex.
+        Arguments:
+            other (Hex or tuple): The value to add.
+        Returns:
+            Hex: A new Hex with the added coordinates.
+        Raises:
+            TypeError: If the other operand is not a Hex or a tuple of coordinates.
+        '''
+        if isinstance(other, Hex):
+            return Hex(self.__i + other.__i, self.__k + other.__k)
+        elif isinstance(other, tuple) and len(other) == 2:
+            return Hex(self.__i + other[0], self.__k + other[1])
+        raise TypeError("Unsupported type for addition with Hex")
+    
+    def __radd__(self, other: Union['Hex', tuple]) -> 'Hex':
+        '''
+        Reverse addition of this hex to another Hex or a tuple.
+        Arguments:
+            other (Hex or tuple): The value to add this hex to.
+        Returns:
+            Hex: A new Hex with the added coordinates.
+        Raises:
+            TypeError: If the other operand is not a Hex or a tuple of coordinates.
+        '''
+        if isinstance(other, Hex):
+            return Hex(other.__i + self.__i, other.__k + self.__k)
+        elif isinstance(other, tuple) and len(other) == 2:
+            return Hex(other[0] + self.__i, other[1] + self.__k)
+        raise TypeError("Unsupported type for reverse addition with Hex")
+    
+    def __sub__(self, other: Union['Hex', tuple]) -> 'Hex':
+        '''
+        Subtract another Hex or a tuple of coordinates from this hex.
+        Arguments:
+            other (Hex or tuple): The value to subtract.
+        Returns:
+            Hex: A new Hex with the subtracted coordinates.
+        Raises:
+            TypeError: If the other operand is not a Hex or a tuple of coordinates.
+        '''
+        if isinstance(other, Hex):
+            return Hex(self.__i - other.__i, self.__k - other.__k)
+        elif isinstance(other, tuple) and len(other) == 2:
+            return Hex(self.__i - other[0], self.__k - other[1])
+        raise TypeError("Unsupported type for subtraction with Hex")
+    
+    def __rsub__(self, other: Union['Hex', tuple]) -> 'Hex':
+        '''
+        Reverse subtraction of this hex from another Hex or a tuple.
+        Arguments:
+            other (Hex or tuple): The value to subtract this hex from.
+        Returns:
+            Hex: A new Hex with the subtracted coordinates.
+        Raises:
+            TypeError: If the other operand is not a Hex or a tuple of coordinates.
+        '''
+        if isinstance(other, Hex):
+            return Hex(other.__i - self.__i, other.__k - self.__k)
+        elif isinstance(other, tuple) and len(other) == 2:
+            return Hex(other[0] - self.__i, other[1] - self.__k)
+        raise TypeError("Unsupported type for reverse subtraction with Hex")
+    
+    def __copy__(self) -> 'Hex':
+        '''
+        Create a copy of this Hex.
+        Returns:
+            Hex: A new Hex with the same coordinates.
+        '''
+        return Hex(self.__i, self.__k)
+    
+    def __deepcopy__(self, memo=None) -> 'Hex':
+        '''
+        Create a deep copy of this Hex.
+        Arguments:
+            memo (dict): A dictionary to keep track of copied objects.
+        Returns:
+            Hex: A new Hex with the same coordinates.
+        '''
+        if memo is None:
+            memo = {}
+        if id(self) in memo:
+            return memo[id(self)]
+        new_hex = Hex(self.__i, self.__k)
+        memo[id(self)] = new_hex
+        return new_hex
+    
+    def __bool__(self) -> bool:
+        '''
+        Check if the Hex is not at the origin (0, 0).
+        Returns:
+            bool: True if the Hex is not at the origin, False otherwise.
+        '''
+        return self.__i != 0 or self.__k != 0
+    
+    def shift_i(self, units: int) -> 'Hex':
+        '''
+        Return a new Hex shifted along the i-axis by units.
+        Arguments:
+            units (int): The number of units to shift along the i-axis.
+        Returns:
+            Hex: A new Hex shifted by the specified units along the i-axis.
+        Raises:
+            TypeError: If units is not an integer.
+        '''
+        return Hex(self.__i + units, self.__k)
+    
+    def shift_j(self, units: int) -> 'Hex':
+        '''
+        Return a new Hex shifted along the j-axis by units.
+        Arguments:
+            units (int): The number of units to shift along the j-axis.
+        Returns:
+            Hex: A new Hex shifted by the specified units along the j-axis.
+        Raises:
+            TypeError: If units is not an integer.
+        '''
+        return Hex(self.__i - units, self.__k + units)
+    
+    def shift_k(self, units: int) -> 'Hex':
+        '''
+        Return a new Hex shifted along the k-axis by units.
+        Arguments:
+            units (int): The number of units to shift along the k-axis.
+        Returns:
+            Hex: A new Hex shifted by the specified units along the k-axis.
+        Raises:
+            TypeError: If units is not an integer.
+        '''
+        return Hex(self.__i, self.__k + units)
+    
 
-    def __j__(self):
-        """Return raw J-coordinate."""
-        return self._x + self._y
+class Piece:
+    '''
+    Represents a shape or unit made up of 7 Block instances,
+    typically forming a logical structure such as a game piece.
 
-    def __k__(self):
-        """Return raw K-coordinate."""
-        return self._y
+    This implementation of piece contains no blocks, and instead only contains 
+    a list of boolean values representing the occupancy state of each block.
 
-    # Line coordinates
-    def get_line_i(self):
-        """Compute line index along I-axis."""
-        return (2 * self._y + self._x) // 3
+    This is a singleton class, meaning that each unique Piece state is cached
+    and reused to save memory and improve performance.
 
-    def get_line_j(self):
-        """Compute line index along J-axis."""
-        return (self._x - self._y) // 3
+    Attributes:
+        positions (list[Hex]): A list of Hex coordinates representing the positions of the blocks in the piece.
+        states (list[bool]): A list of boolean values representing the occupancy state of each block in the piece.
+    '''
+    __slots__ = ('__states',)
+    __cache = {}
+    positions = (Hex(-1, -1), Hex(-1, 0), Hex(0, -1), Hex(0, 0), Hex(0, 1), Hex(1, 0), Hex(1, 1))
 
-    def get_line_k(self):
-        """Compute line index along K-axis."""
-        return (2 * self._x + self._y) // 3
-
-    def get_lines(self):
-        """Return string of line indices: {I = i, J = j, K = k}."""
-        return f"{{I = {self.get_line_i()}, J = {self.get_line_j()}, K = {self.get_line_k()}}}"
-
-    # Line booleans
-    def in_line_i(self, line_or_hex):
-        """Check if Hex is in the given I-line or same I-line as another Hex."""
-        if isinstance(line_or_hex, int):
-            return self.get_line_i() == line_or_hex
-        return self.get_line_i() == line_or_hex.get_line_i()
-
-    def in_line_j(self, line_or_hex):
-        """Check if Hex is in the given J-line or same J-line as another Hex."""
-        if isinstance(line_or_hex, int):
-            return self.get_line_j() == line_or_hex
-        return self.get_line_j() == line_or_hex.get_line_j()
-
-    def in_line_k(self, line_or_hex):
-        """Check if Hex is in the given K-line or same K-line as another Hex."""
-        if isinstance(line_or_hex, int):
-            return self.get_line_k() == line_or_hex
-        return self.get_line_k() == line_or_hex.get_line_k()
-
-    def adjacent(self, other):
-        """Check if this Hex is adjacent to another Hex."""
-        return self.front(other) or self.back(other)
-
-    def front(self, other):
-        """Check if this Hex is in front of another Hex on any axis."""
-        return self.front_i(other) or self.front_j(other) or self.front_k(other)
-
-    def back(self, other):
-        """Check if this Hex is behind another Hex on any axis."""
-        return self.back_i(other) or self.back_j(other) or self.back_k(other)
-
-    def front_i(self, other):
-        """Check if this Hex is one unit higher on I-axis."""
-        return self._x == other.__i__() + 2 and self._y == other.__k__() - 1
-
-    def front_j(self, other):
-        """Check if this Hex is one unit higher on J-axis."""
-        return self._x == other.__i__() + 1 and self._y == other.__k__() + 1
-
-    def front_k(self, other):
-        """Check if this Hex is one unit higher on K-axis."""
-        return self._x == other.__i__() - 1 and self._y == other.__k__() + 2
-
-    def back_i(self, other):
-        """Check if this Hex is one unit lower on I-axis."""
-        return self._x == other.__i__() - 2 and self._y == other.__k__() + 1
-
-    def back_j(self, other):
-        """Check if this Hex is one unit lower on J-axis."""
-        return self._x == other.__i__() - 1 and self._y == other.__k__() - 1
-
-    def back_k(self, other):
-        """Check if this Hex is one unit lower on K-axis."""
-        return self._x == other.__i__() + 1 and self._y == other.__k__() - 2
-
-    def __eq__(self, other):
-        """Check if this Hex equals another Hex."""
-        return self._x == other.__i__() and self._y == other.__k__()
-
-    def in_range(self, radius):
-        """Check if Hex is within given radius from origin."""
-        return (0 <= self.get_line_i() < radius * 2 - 1 and
-                -radius < self.get_line_j() < radius and
-                0 <= self.get_line_k() < radius * 2 - 1)
-
-    # Rectangular coordinates
-    def __x__(self):
-        """Convert to rectangular X coordinate."""
-        return self._half_sin_of_60 * (self._x + self._y)
-
-    def __y__(self):
-        """Convert to rectangular Y coordinate."""
-        return (self._x - self._y) / 4.0
-
-    def __str__(self):
-        """Return string representation for debugging."""
-        return (f"Hex[raw = {{{self.__i__()}, {self.__j__()}, {self.__k__()}}}, "
-                f"line = {{{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}}}, "
-                f"rect = {{{self.__x__()}, {self.__y__()}}}]")
-
-    # Coordinate manipulation
-    def move_i(self, unit):
-        """Move Hex along I-axis by unit."""
-        self._x += 2 * unit
-        self._y -= unit
-
-    def move_j(self, unit):
-        """Move Hex along J-axis by unit."""
-        self._x += unit
-        self._y += unit
-
-    def move_k(self, unit):
-        """Move Hex along K-axis by unit."""
-        self._x -= unit
-        self._y += 2 * unit
-
-    def shift_i(self, unit):
-        """Return new Hex shifted along I-axis."""
-        return Hex(self._x + 2 * unit, self._y - unit)
-
-    def shift_j(self, unit):
-        """Return new Hex shifted along J-axis."""
-        return Hex(self._x + unit, self._y + unit)
-
-    def shift_k(self, unit):
-        """Return new Hex shifted along K-axis."""
-        return Hex(self._x - unit, self._y + 2 * unit)
-
-    # Add and subtract
-    def __add__(self, other):
-        """Return new Hex with summed coordinates."""
-        if issubclass(type(other), type(Hex())) and not type(other) == type(Hex()):
-            return other + self
+    def __new__(cls, states: Union[list[bool], int] = None) -> 'Piece':
+        if isinstance(states, int):
+            key = states
+        elif states is None:
+            key = 0
+        elif isinstance(states, list) and len(states) == 7 and all(isinstance(s, bool) for s in states):
+            key = sum((1 << (6 - i)) if s else 0 for i, s in enumerate(states))
         else:
-            return Hex(self._x + other.__i__(), self._y + other.__k__())
+            raise TypeError("Invalid type for states")
+        if key not in cls.__cache:
+            raise ValueError(f"Piece with state {key} has not been initialized in cache")
+        return cls.__cache[key]
+    
+    @classmethod
+    def __initialize_cache(cls) -> None:
+        '''
+        Initialize the cache with all possible Piece states (0-127).
+        This method is called automatically when the class is defined.
+        Returns:
+            None
+        '''
+        for key in range(128):
+            instance = object.__new__(cls)
+            # Make __states immutable tuple
+            instance.__states = tuple((key & (1 << (6 - i))) != 0 for i in range(7))
+            cls.__cache[key] = instance
+    
+    def __init__(self, states: Union[list[bool], int] = None) -> None:
+        '''
+        Initialize a Piece with a list of occupancy states.
+        Arguments:
+            states (list[bool] | list[Block] | int, optional):
+                - A list of 7 boolean values representing the occupancy state of each block.
+                - A list of Block objects, where each Block's state is used to determine occupancy.
+                - An integer between 0 and 127, where each bit represents the occupancy state of a block.
+        Raises:
+            TypeError: If states is not a list of boolean values, valid byte, or Block objects.
+        Returns:
+            None
+        '''
+        pass # This is a singleton class, so the __new__ method handles initialization.
 
-    def __sub__(self, other):
-        """Return new Hex with subtracted coordinates."""
-        return Hex(self._x - other.__i__(), self._y - other.__k__())
+    def __repr__(self) -> str:
+        '''
+        Return a string representation of the Piece in byte format.
+        This representation is useful for debugging and serialization.
+        Returns:
+            str: A string representation of the Piece in byte format.
+        '''
+        return str(self.__int__())
+    
+    def __str__(self) -> str:
+        '''
+        Return a string representation of the Piece.
+        Format: Piece{Block(i, j, k, state), ...}, where i, j, and k are the line coordinates of each block,
+        and state is the occupancy state, if occupied, else "null".
+        Returns:
+            str: The string representation of the Piece.
+        '''
+        return "Piece{" + ", ".join(
+            f"({self.positions[i].i}, {self.positions[i].k}, {self.__states[i]})" for i in range(7)
+        ) + "}"
+    
+    def __iter__(self) -> iter:
+        '''
+        Return an iterator over the occupancy states of the Piece.
+        Yields:
+            bool: The occupancy state of each block in the Piece.
+        '''
+        return iter(self.__states)
 
-    def set(self, other):
-        """Set this Hex to another Hex's coordinates."""
-        self._x = other.__i__()
-        self._y = other.__k__()
-
-    def __this__(self):
-        """Return this Hex as a new instance using line coordinates."""
-        return Hex.hex(self.get_line_i(), self.get_line_k())
-
-    def __copy__(self):
-        """Return a copy of this Hex."""
-        return Hex(self._x, self._y)
-
-    def __deepcopy__(self, memo):
-        """Return a deep copy of this Hex."""
-        return Hex(self._x, self._y)
-
-
-class Block(Hex):
-    """
-    The Block class extends Hex and represents a colored block with an occupancy state
-    within the hexagonal grid system.
-
-    Block inherits the coordinate system from Hex. See Hex for details on the hexagonal
-    coordinate system, including both raw and line-based coordinates.
-
-    In addition to Hex functionality, each Block instance encapsulates:
-    - A color index: -1 for empty, -2 for default filled, 0-n for real colors.
-    - A boolean state: True for occupied, False for unoccupied.
-
-    The class provides constructors and factory methods for creating blocks using
-    standard (i, k) coordinates or line indices, and methods for moving, shifting,
-    adding, subtracting coordinates, and modifying/retrieving state and color.
-    """
-
-    def __init__(self, __hex__ = Hex(), color = 0, state=False):
-        """
-        Initialize a Block with various parameter combinations.
-
-        :param __hex__: Hex object.
-        :param color: k-coordinate or color index.
-        :param state: State boolean.
-        """
-        super().__init__()
-        self.set(__hex__)
-        self._color = color
-        self._state = state
-
-    @staticmethod
-    def block(i, k, color):
-        """Create a Block using line indices with specified color."""
-        return Block(Hex(), color).shift_i(k).shift_k(i)
-
-    # Getters
-    def get_color(self):
-        """Return the color index of the block."""
-        return self._color
-
-    def get_state(self):
-        """Return the occupancy state of the block."""
-        return self._state
-
-    def __str__(self):
-        """Return string representation for debugging with line coordinates."""
-        return (f"Block[color = {self._color}, coordinates = {{"
-                f"{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}}}, "
-                f"state = {self._state}]")
-
-    def __copy__(self):
-        """Return a copy of this Block."""
-        block = Block(self.__this__(), self._color, self._state)
-        return block
-
-    def __deepcopy__(self, memo):
-        """Return a deep copy of this Block."""
-        block = Block(self.__this__(), self._color, self._state)
-        return block
-
-    # Setters
-    def set_color(self, color):
-        """Set the color index of the block."""
-        self._color = color
-
-    def set_state(self, state):
-        """Set the occupancy state of the block."""
-        self._state = state
-
-    def change_state(self):
-        """Toggle the occupancy state of the block."""
-        self._state = not self._state
-
-    # Shift methods
-    def shift_i(self, unit):
-        """Return this Block shifted along I-axis."""
-        self.move_i(unit)
-        return self
-
-    def shift_j(self, unit):
-        """Return this Block shifted along J-axis."""
-        self.move_j(unit)
-        return self
-
-    def shift_k(self, unit):
-        """Return this Block shifted along K-axis."""
-        self.move_k(unit)
-        return self
-
-    # Add and subtract
-    def __add__(self, other):
-        """Return new Block with summed coordinates."""
-        return Block(self.__this__() + other, self._color, self._state)
-
-    def __sub__(self, other):
-        """Return new Block with subtracted coordinates."""
-        return Block(self.__this__() - other, self._color, self._state)
-
-    def basic_str(self):
-        """Return minimal string representation with line coordinates and state."""
-        return (f"{{{self.get_line_i()}, {self.get_line_j()}, {self.get_line_k()}, "
-                f"{self._state}}}")
-
-
-class HexGrid(ABC):
-    """
-    Interface for a two-dimensional hexagonal grid composed of Block objects.
-
-    The HexGrid represents a grid layout based on axial coordinates (I-line and K-line),
-    where each valid position may contain a Block object. This interface supports querying,
-    iteration, merging, and neighbor-counting functionalities.
-
-    It is designed to be flexible enough to support a wide range of hex-based systems,
-    including tile-based games, simulations, or cellular automata. Implementations must
-    ensure consistent behavior when accessing blocks by coordinate or index, and must
-    provide methods for determining grid boundaries and merging with other grids.
-
-    Coordinate System:
-    - Uses a hexagonal coordinate system with positions indexed by (i, k),
-      representing the I-line and K-line respectively, corresponding to Hex objects.
-    - See Hex for detailed description of the coordinate system.
-
-    Usage:
-    - Iterate through blocks using length() and get_block(index).
-    - Access specific positions using get_block(__hex__).
-    - Merge grids using add(origin, other) and check in-bounds with in_range(__hex__).
-    """
-
-    @abstractmethod
-    def length(self) -> int:
-        """
-        Return the number of Block objects in the grid.
-        Use with get_block(index) to iterate through all blocks.
-        """
-        pass
-
-    @abstractmethod
-    def blocks(self) -> list[Block]:
-        """
-        Return a list of all non-null Block objects in the grid,
-        sorted by Hex coordinate.
-        """
-        pass
-
-    @abstractmethod
-    def in_range(self, __hex__ : Hex) -> bool:
-        """
-        Check if the specified Hex coordinate are within the valid range of the grid.
-
-        :param __hex__: The Hex coordinate.
-
-        :return: True if coordinates are within range, False otherwise.
-        """
-        pass
-
-    @abstractmethod
-    def get_block(self, *args) -> Block:
-        """
-        Retrieve the Block at specified coordinates or index.
-
-        :param args: Either Hex coordinates or a single index.
-
-        :return: The block at the specified coordinates/index, or None if not found or out of range.
-        """
-        pass
-
-    @abstractmethod
-    def add(self, origin: Hex, other: 'HexGrid') -> None:
-        """
-        Add all blocks from another HexGrid to this grid, aligning them based on a specified Hex coordinate.
-
-        :param origin: The reference Hex position for alignment.
-        :param other: The other HexGrid to merge into this grid.
-
-        :raise ValueError: If the grids cannot be merged due to alignment issues.
-        """
-        pass
-
-    def add_without_shift(self, other: 'HexGrid') -> None:
-        """
-        Add all blocks from another HexGrid to this grid without shifting positions.
-
-        :param other: The other HexGrid to merge into this grid.
-
-        :raise ValueError: If the grids cannot be merged.
-        """
-        self.add(Hex(), other)
-
-    def count_neighbors(self, __hex__: Hex, include_null: bool) -> int:
-        """
+    def __len__(self) -> int:
+        '''
+        Return the number of occupied blocks in the Piece.
+        Returns:
+            int: The number of occupied blocks in the Piece.
+        '''
+        return sum(self.__states)
+    
+    def __bool__(self) -> bool:
+        '''
+        Check if the Piece has any occupied blocks.
+        Returns:
+            bool: True if any block is occupied, False otherwise.
+        '''
+        return any(self.__states)
+    
+    def __int__(self) -> int:
+        '''
+        Return a byte representation of the blocks in a standard 7-Block piece.
+        Returns:
+            int: A byte representation of the Piece, where each bit represents the occupancy state of a
+        '''
+        data = 0
+        for i, state in enumerate(self.__states):
+            data <<= 1
+            if state:
+                data += 1
+        return data
+    
+    def states(self) -> tuple[bool, ...]:
+        '''
+        Get the tuple of boolean values representing the occupancy state of each block in the Piece.
+        Returns:
+            tuple[bool, ...]: The tuple of boolean values for the Piece.
+        '''
+        return self.__states
+    
+    def __eq__(self, other: Union['Piece', int]) -> bool:
+        '''
+        Returns True if the occupancy states match, False otherwise.
+        Arguments:
+            other (Piece): The Piece to compare with.
+        Returns:
+            bool: True if the occupancy states match, False otherwise.
+        '''
+        if isinstance(other, int):
+            return self.__int__() == other
+        if not isinstance(other, Piece):
+            return False
+        return self.__states == other.__states
+    
+    def __hash__(self) -> int:
+        '''
+        Return a hash of the Piece's occupancy states.
+        This method directly uses the byte representation of the Piece to generate a hash value.
+        Returns:
+            int: The hash value of the Piece.
+        '''
+        return self.__int__()
+    
+    def count_neighbors(self, coo: Union[Hex, tuple]) -> int:
+        '''
         Count occupied neighboring Blocks around the given Hex position.
 
         Checks up to six adjacent positions to the block at Hex coordinate.
         A neighbor is occupied if the block is non-null and its state is True.
-        Null or out-of-bounds neighbors are counted as occupied if include_null is True.
 
-        :param __hex__: The Hex coordinate.
-        :param include_null: Treat null/out-of-bounds neighbors as occupied (True) or unoccupied (False).
-
-        :return: Number of occupied neighbors. Returns 0 if the center position is out of range.
-        """
+        Parameters:
+            coo (Hex | tuple): The Hex coordinate to check for neighbors.
+        Returns:
+            int: The count of occupied neighboring Blocks.
+        Raises:
+            TypeError: If coo is not a Hex or a tuple of coordinates.
+        '''
         count = 0
-        if self.in_range(__hex__):
-            __i__ = __hex__.get_line_i()
-            __k__ = __hex__.get_line_k()
-            neighbors = [
-                (__i__ - 1, __k__ - 1),
-                (__i__ - 1, __k__),
-                (__i__, __k__ - 1),
-                (__i__, __k__ + 1),
-                (__i__ + 1, __k__),
-                (__i__ + 1, __k__ + 1)
-            ]
-            for ni, nk in neighbors:
-                n_hex = Hex.hex(ni, nk)
-                if self.in_range(n_hex):
-                    block = self.get_block(n_hex)
-                    if block and block.get_state():
-                        count += 1
-                elif include_null:
-                    count += 1
-        return count
-
-
-
-class Piece(HexGrid):
-    """
-    Represents a shape or unit made up of multiple Block instances,
-    typically forming a logical structure such as a game piece.
-
-    A Piece implements the HexGrid interface and behaves like a small,
-    self-contained hexagonal grid. It holds a fixed-size array of Block
-    elements and supports block addition, color management, coordinate
-    lookup, and comparison.
-
-    It is recommended not to modify a Piece once created and filled with
-    sufficient Blocks. If changes are needed, copy the piece block by block.
-    For efficiency, cloning is not supported, and multiple references to the
-    same object are preferred.
-
-    Coordinate access uses the 'line' system (I, K), defined in Hex, which
-    simplifies hex grid navigation by avoiding raw (I, J, K) coordinates.
-
-    Example creation:
-        p = Piece(3, 0)
-        p.add(Block.block(0, 0, 0))
-        p.add(Block.block(0, 1, 0))
-        p.add(Block.block(1, 1, 0))
-    This produces a shape with blocks at line coordinates (0,0), (0,1), and (1,1).
-    """
-
-    def __init__(self, length: int = 1, color: int = None):
-        """
-        Initialize a Piece with specified capacity and color, or a default single block.
-
-        :param length: Number of blocks this piece can hold (minimum 1). Defaults to 1.
-        :param color: Color index for this piece's blocks. Defaults to None for default constructor.
-        """
-        if length < 1:
-            length = 1
-        self._blocks = [Block()] * length
-        for i in range(length):
-            self._blocks[i] = None
-        self._color = color
-
-    def set_color(self, color: int) -> None:
-        """Set the color of this piece and apply it to all current blocks."""
-        self._color = color
-        for block in self._blocks:
-            if isinstance (block, Block) and block is not None:
-                block.set_color(color)
-
-    def get_color(self) -> int:
-        """Return the current color of this piece."""
-        return self._color
-
-    def add_hex(self, block_or_hex: Block | Hex) -> bool:
-        """
-        Add a Block or create a Block at Hex coordinates to the first available slot.
-
-        Automatically applies the current color and marks the block as occupied.
-        If the piece is full, the block is not added.
-
-        :param block_or_hex: Block to add or Hex coordinates for a new block.
-
-        :return bool: True if the block was added, False if the piece is full.
-        """
-        for i in range(self.length()):
-            if self._blocks[i] is None:
-                if isinstance(block_or_hex, Block):
-                    self._blocks[i] = block_or_hex
-                else:
-                    self._blocks[i] = Block.block(block_or_hex.get_line_i(), block_or_hex.get_line_k(), self._color)
-                self._blocks[i].set_color(self._color)
-                self._blocks[i].set_state(True)
-                return True
-        return False
-
-    # HexGrid implementation
-    def length(self) -> int:
-        """Return the number of Block objects in the piece."""
-        return len(self._blocks) if self._blocks is not None else 0
-
-    def blocks(self) -> list[Block]:
-        """
-        Return all Block elements in the piece.
-
-        Null blocks are replaced with dummy placeholders at (0, 0) to preserve order.
-        """
-        self._sort()
-        result = self._blocks.copy()
-        for i in range(self.length()):
-            if result[i] is None:
-                result[i] = Block(Hex(), self._color)
-        return result
-
-    def in_range(self, __hex__: Hex) -> bool:
-        """Check if a block exists at the given Hex coordinate."""
-        return self.get_block(__hex__) is not None
-
-    def get_block(self, *args) -> Block | None:
-        """
-        Retrieve a Block at specified Hex coordinates or index.
-
-        :param args: Either a Hex object or a single index.
-
-        :return: The block at the specified coordinates/index, or None if not found.
-        """
-        if len(args) == 1 and isinstance(args[0], int):
-            return self._blocks[args[0]]
-        elif len(args) == 1 and isinstance(args[0], Hex):
-            __hex__ = args[0]
-            for block in self._blocks:
-                if isinstance(block, Block) and block is not None:
-                    if block.get_line_i() == __hex__.get_line_i() and block.get_line_k() == __hex__.get_line_k():
-                        return block
-        return None
-
-    def get_state(self, __hex__: Hex) -> bool:
-        """
-        Retrieve the state of a Block at the specified Hex coordinates.
-
-        Returns False if the block does not exist.
-
-        :param __hex__: The Hex coordinate.
-
-        :return: True if the block exists and is occupied, False otherwise.
-        """
-        block = self.get_block(__hex__)
-        return block is not None and block.get_state()
-
-    def add(self, origin: Hex, other: HexGrid) -> None:
-        """
-        Prohibited operation: Pieces cannot be merged with other grids.
-
-        :param origin: The reference Hex position for alignment.
-        :param other: The other HexGrid to merge.
-
-        :raise ValueError: Always, as merging grids with pieces is not allowed.
-        """
-        raise ValueError("Adding Grid to piece prohibited. Please add block by block.")
-
-    def _sort(self) -> None:
-        """Sort Blocks in-place using insertion sort based on Hex line-coordinates (I, K)."""
-        n = len(self._blocks)
-        for i in range(1, n):
-            key = self._blocks[i]
-            j = i - 1
-            if isinstance(key, Block) and key is not None:
-                while j >= 0 and (self._blocks[j] is None or ((isinstance(self._blocks[j], Block)) and (
-                        self._blocks[j].get_line_i() > key.get_line_i() or
-                        (self._blocks[j].get_line_i() == key.get_line_i() and
-                         self._blocks[j].get_line_k() > key.get_line_k())))):
-                    self._blocks[j + 1] = self._blocks[j]
-                    j -= 1
-                self._blocks[j + 1] = key
+        if isinstance(coo, tuple):
+            if len(coo) == 2:
+                coo = Hex(coo[0], coo[1])
+            elif len(coo) == 3:
+                coo = Hex(coo[0], coo[2])
             else:
-                self._blocks[j + 1] = key
+                raise TypeError("Invalid type for Hex coordinates")
+        elif not isinstance(coo, Hex):
+            raise TypeError("Invalid type for Hex coordinates")
+        try:
+            if self.__states[self.positions.index(coo)]:
+                for pos in self.positions:
+                    try:
+                        if self.__states[self.positions.index(pos + coo)]:
+                            count += 1
+                    except ValueError:
+                        continue
+            return count
+        except ValueError:
+            return 0
 
-    def __str__(self) -> str:
-        """Return a string representation of the piece and its block line coordinates."""
-        str_builder = ["Piece{"]
-        if self._blocks:
-            str_builder.append("null" if self._blocks[0] is None else self._blocks[0].basic_str())
-        for block in self._blocks[1:]:
-            str_builder.append(", ")
-            str_builder.append("null" if block is None else block.basic_str())
-        str_builder.append("}")
-        return "".join(str_builder)
-
-    def to_byte(self) -> int:
-        """
-        Return a byte representation of the blocks in a standard 7-Block piece.
-
-        Empty blocks are 0s, filled blocks are 1s. Does not record color.
-
-        :returns: A byte representing this 7-block piece, with the first bit empty.
-        """
-        data = 0
-        if self.get_state(Hex.hex(-1, -1)): data += 1
-        data <<= 1
-        if self.get_state(Hex.hex(-1, 0)): data += 1
-        data <<= 1
-        if self.get_state(Hex.hex(0, -1)): data += 1
-        data <<= 1
-        if self.get_state(Hex.hex(0, 0)): data += 1
-        data <<= 1
-        if self.get_state(Hex.hex(0, 1)): data += 1
-        data <<= 1
-        if self.get_state(Hex.hex(1, 0)): data += 1
-        data <<= 1
-        if self.get_state(Hex.hex(1, 1)): data += 1
-        return data & 0x7F
-
-    @staticmethod
-    def piece_from_byte(data: int, color: int) -> 'Piece':
-        """
-        Construct a standard 7 or fewer Block piece from byte data.
-
-        :param data: Byte data representing the piece.
-        :param color: Color for this piece's blocks.
-
-        :returns: A piece constructed from the byte data with the specified color.
-
-        :raise ValueError: If data represents an empty piece or has an extra bit.
-        """
-        if data < 0:
-            raise ValueError("Data must have empty most significant bit")
-        if data == 0:
-            raise ValueError("Data must contain at least one block")
-
-        count = bin(data).count("1")
-        piece = Piece(count, color)
-        if data >> 6 & 1: piece.add_hex(Hex.hex(-1, -1))
-        if data >> 5 & 1: piece.add_hex(Hex.hex(-1, 0))
-        if data >> 4 & 1: piece.add_hex(Hex.hex(0, -1))
-        if data >> 3 & 1: piece.add_hex(Hex.hex(0, 0))
-        if data >> 2 & 1: piece.add_hex(Hex.hex(0, 1))
-        if data >> 1 & 1: piece.add_hex(Hex.hex(1, 0))
-        if data & 1: piece.add_hex(Hex.hex(1, 1))
-        return piece
-
-    def __eq__(self, piece: 'Piece') -> bool:
-        """
-        Compare this piece to another for equality.
-
-        Two pieces are equal if they have the same length and identical Block positions.
-        Color index is not considered.
-
-        :param piece: The other piece to compare to.
-
-        :return: True if pieces are structurally equal, False otherwise.
-        """
-        if piece.length() != self.length():
-            return False
-        self._sort()
-        piece._sort()
-        for i in range(self.length()):
-            if not self._blocks[i] == piece._blocks[i]:
-                return False
-        return True
+# Pre-populate the cache with all possible Piece states (0-127)
+Piece._Piece__initialize_cache()
 
 
+class HexEngine:
+    '''
+    The HexEngine class provides a complete engine for managing a two-dimensional hexagonal
+    block grid used for constructing and interacting with hex-based shapes in the game.
 
-class HexEngine(HexGrid):
-    """
-    The HexEngine class implements the HexGrid interface and provides a complete engine
-    for managing a two-dimensional hexagonal block grid used for constructing and
-    interacting with hex-based shapes in the game.
-
-    The engine maintains an array of Block instances arranged in a hexagonal pattern
-    with its leftmost Block at origin (0,0), and provides operations such as:
-    - Grid initialization and reset
-    - Automatic coloring through color indexes
-    - Efficient block lookup using binary search
-    - Grid placement validation and piece insertion
-    - Line detection and elimination across I/J/K axes
-    - Deep copy support through the clone method
+    The engine does not actually contain any blocks, but instead contains a list of booleans
+    representing the occupancy state of each block in the hexagonal grid. The correspondence is achieved
+    through optimized indexing and coordinate transformations.
 
     Grid Structure:
     - Uses an axial coordinate system (i, k), where i - j + k = 0, and j is derived as j = i + k.
@@ -734,380 +560,629 @@ class HexEngine(HexGrid):
     - Total blocks for radius r: Aₖ = 1 + 3*r*(r-1)
     - Derived from: Aₖ = Aₖ₋₁ + 6*(k-1); A₁ = 1
 
-    Block Coloring:
-    - Default: two colors for empty (False) and filled (True) states.
-    - State updates via set_state or initialization/reset change colors automatically.
-    - set_block allows manual color assignment.
-
     Machine Learning:
     - Supports reward functions for evaluating action quality.
     - check_add discourages invalid moves (e.g., overlaps).
     - compute_dense_index evaluates placement density for rewarding efficient gap-filling.
-    """
 
-    def __init__(self, radius: int):
-        """
-        Construct a HexEngine with the specified radius and default colors.
-
-        Populates the hexagonal block grid with valid blocks, tested via Block.in_range.
-        Blocks are inserted in row-major order (by i, then k) for binary search efficiency.
-
-        Args:
-            radius: Radius of the hexagonal grid, must be greater than 1.
-        """
-        self._radius = radius
-        # Calculate array size: Aₖ = 1 + 3*r*(r-1)
-        self._blocks = [Block()] * (1 + 3 * radius * (radius - 1))
-        # Populate grid
-        index = 0
-        for a in range(radius * 2):
-            for b in range(radius * 2):
-                block = Block(Hex())
-                block.move_i(b)
-                block.move_k(a)
-                if block.in_range(radius):
-                    self._blocks[index] = block
-                    index += 1
-        # Blocks are sorted by I, then K
-
-    def reset(self) -> None:
-        """Reset all blocks to their default state and color."""
-        new_blocks = [Block(block) for block in self._blocks]
-        self._blocks = new_blocks
-
-    def get_radius(self) -> int:
-        """Return the radius of the grid."""
-        return self._radius
-
-    # HexGrid implementation
-    def length(self) -> int:
-        """Return the number of blocks in the grid."""
-        return len(self._blocks) if self._blocks is not None else 0
-
-    def len(self) -> int:
-        """Return the number of blocks in the grid."""
-        return self.length()
-
-    def blocks(self) -> List[Block]:
-        """Return all blocks in the grid."""
-        return self._blocks
-
-    def in_range(self, __hex__: Hex) -> bool:
-        """Check if a hexagonal coordinate is within the grid bounds."""
-        return __hex__.in_range(self._radius)
-
-    def get_block(self, *args) -> Block | None:
-        """
-        Retrieve a Block at the given Hex coordinate or array index.
-
-        Args:
-            *args: Either a Hex object or a single index.
-
+    Attributes:
+        radius (int): The radius of the hexagonal grid, defining the size of the grid.
+        states (list[bool]): A list of booleans representing the occupancy state of each block in the grid.
+    '''
+    __slots__ = ('__radius', '__states')
+    @staticmethod
+    def __in_range(coo: Union[Hex, tuple], radius: int) -> bool:
+        '''
+        Check if a Hex coordinate is within the specified radius of the hexagonal grid.
+        Arguments:
+            coo: Hex coordinate to check.
+            radius: Radius of the hexagonal grid.
         Returns:
-            Block: The Block if found, or None if out of range.
+            bool: True if the coordinate is within range, False otherwise.
+        '''
+        if isinstance(coo, Hex):
+            i, j, k = coo.i, coo.j, coo.k
+        elif isinstance(coo, tuple):
+            if len(coo) == 2:
+                i, k = coo[0], coo[1]
+                j = k - i
+            elif len(coo) == 3:
+                i, j, k = coo
+            else:
+                return False
+        return (0 <= i < radius * 2 - 1 and
+                -radius < j < radius and
+                0 <= k < radius * 2 - 1)
+    
+    @staticmethod
+    def solve_radius(length: int) -> int:
         """
-        if len(args) == 1 and isinstance(args[0], int):
-            return self._blocks[args[0]]
-        elif len(args) == 1 and isinstance(args[0], Hex):
-            __hex__ = args[0]
-            if self.in_range(__hex__):
-                index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
-                if index >= 0:
-                    return self._blocks[index]
-        return None
-
-    def set_block(self, __hex__: Hex, block: Block) -> None:
+        Solves for the radius of a HexEngine based on its length.
+        Arguments:
+            length (int): The length of the hexagonal grid.
+        Returns:
+            int: The radius of the hexagonal grid, or -1 if the length is invalid.
         """
-        Set the Block at a specific grid coordinate using binary search.
+        valid_pairs = {
+            7: 2, 19: 3, 37: 4, 61: 5, 91: 6, 127: 7, 169: 8, 217: 9, 271: 10, 331: 11, 397: 12, 469: 13
+        }
+        if length <= 1:
+            return -1
+        if 0 <= length <= 546:
+            v = valid_pairs.get(length, -1)
+            return v if v is not None else -1
+        if length % 3 != 1:
+            return -1
+        target = (length - 1) // 3
+        for x in range(1, target + 1):
+            if x * (x - 1) == target:
+                return x
+        return -1
+    
+    def __init__(self, arg: Union[int, list[bool], str]) -> None:
+        '''
+        Construct a HexEngine with the specified radius.
 
+        This method initializes the hexagonal grid with a given radius,
+        creating an array of booleans to represent the grid.
+
+        Arguments:
+            arg (int | list[bool] | list[Block]): 
+                - An integer representing the radius of the hexagonal grid.
+                - A list of booleans representing the occupancy state of each block.
+                - A string representation of the occupancy state, either as 'X'/'O' or '1'/'0'.
+        Raises:
+            TypeError: If radius is not an integer.
+            ValueError: If radius is less than 1.
+        '''
+        if isinstance(arg, int):
+            if arg < 1:
+                raise ValueError("Radius must be greater than 0")
+            self.__radius = arg
+            self.__states = [False] * (1 + 3 * arg * (arg - 1))
+        elif isinstance(arg, str):
+            # Accept a string representation of either X/O or 1/0
+            arg = arg.strip()
+            if not all(c in "01" for c in arg) or all(c in "XO" for c in arg):
+                raise ValueError("String must contain only '0' or '1', or 'X' or 'O'")
+            self.__radius = self.solve_radius(len(arg))
+            if self.__radius < 1:
+                raise ValueError("Invalid length for hexagonal grid")
+            self.__states = [c == '1' or c == 'X' for c in arg]
+        elif isinstance(arg, list):
+            if all(isinstance(s, bool) for s in arg):
+                radius = self.solve_radius(len(arg))
+                if radius < 1:
+                    raise ValueError("Invalid length for hexagonal grid")
+                self.__states = arg
+            else:
+                raise TypeError("Invalid type for HexEngine initialization")
+        else:
+            raise TypeError("Invalid type for HexEngine initialization")
+
+    @property
+    def radius(self) -> int:
+        '''
+        Get the radius of the hexagonal grid.
+        Returns:
+            int: The radius of the hexagonal grid.
+        '''
+        return self.__radius
+    
+    @property
+    def states(self) -> list[bool]:
+        '''
+        Get the occupancy states of the hexagonal grid blocks.
+        Returns:
+            list[bool]: The occupancy states of the blocks in the grid.
+        '''
+        return self.__states
+    
+    def __eq__(self, value):
+        '''
+        Check equality with another HexEngine or a list of booleans.
+        Returns True if the states match, False otherwise.
+        Arguments:
+            value (HexEngine | list[bool]): The HexEngine or list of booleans to compare with.
+        Returns:
+            bool: True if the states match, False otherwise.
+        '''
+        if isinstance(value, HexEngine):
+            return self.__states == value.__states
+        elif isinstance(value, list):
+            return self.__states == value
+        return False
+    
+    def __hash__(self) -> int:
+        '''
+        Return a hash of the HexEngine's occupancy states.
+        This method uses the tuple representation of the states for hashing.
+        Returns:
+            int: The hash value of the HexEngine.
+        '''
+        return hash(tuple(self.__states))
+    
+    def __len__(self) -> int:
+        '''
+        Get the number of blocks in the hexagonal grid.
+        Returns:
+            int: The number of blocks in the grid.
+        '''
+        return len(self.__states)
+    
+    def __iter__(self) -> iter:
+        '''
+        Return an iterator over the occupancy states of the hexagonal grid blocks.
+        Yields:
+            bool: The occupancy state of each block in the grid.
+        '''
+        yield from self.__states
+    
+    def __repr__(self):
+        '''
+        Return a string representation of the grid block states.
+        This representation is useful for debugging and serialization.
+        Format: "1" for occupied blocks, "0" for unoccupied blocks.
+        Returns:
+            str: A string representation of the grid block states.
+        '''
+        return ''.join(['1' if b else '0' for b in self.__states])
+
+    def __str__(self) -> str:
+        '''
+        Return a string representation of the grid block states.
+        Format: "HexEngine[blocks = {block1, block2, ...}]",
+        where each block is represented by its string representation.
+        Returns:
+            str: The string representation of the HexEngine.
+        '''
+        return "HexEngine[blocks = {" + ', '.join(
+            f"({self.coordinate_block(i).i}, {self.coordinate_block(i).k}, {self.__states[i]})"
+            for i in range(len(self.__states))) + "}]"
+
+    def __copy__(self) -> 'HexEngine':
+        '''
+        Create a deep copy of the HexEngine.
+        Returns:
+            HexEngine: A new HexEngine instance with the same radius and blocks.
+        '''
+        new_engine = HexEngine(self.__radius)
+        new_engine.__states = self.__states[:]
+        return new_engine
+    
+    def __deepcopy__(self, memo=None) -> 'HexEngine':
+        '''
+        Create a deep copy of the HexEngine.
+        Arguments:
+            memo (dict): A dictionary to keep track of copied objects.
+        Returns:
+            HexEngine: A new HexEngine instance with the same radius and blocks.
+        '''
+        if memo is None:
+            memo = {}
+        if id(self) in memo:
+            return memo[id(self)]
+        new_engine = HexEngine(self.__radius)
+        new_engine.__states = self.__states[:]
+        memo[id(self)] = new_engine
+        return new_engine
+    
+    def reset(self) -> None:
+        '''
+        Reset the HexEngine grid to its initial state, clearing all blocks.
+        This method reinitializes the grid, setting all blocks to unoccupied.
+        Returns:
+            None
+        '''
+        self.__states = [False] * (1 + 3 * self.__radius * (self.__radius - 1))
+
+    def in_range(self, coo: Union[Hex, tuple]) -> bool:
+        '''
+        Check if a Hex coordinate is within the radius of the hexagonal grid.
+        Arguments:
+            coo: Hex coordinate to check.
+        Returns:
+            bool: True if the coordinate is within range, False otherwise.
+        '''
+        return self.__in_range(coo, self.__radius)
+
+    def index_block(self, coo: Union[Hex, tuple]) -> int:
+        '''
+        Get the index of the Block at the specified Hex coordinate.
+
+        This method is heavily optimized for performance and achieves O(1) complexity by using direct index formulas
+        based on the hexagonal grid's structure. It calculates the index based on the I and K coordinates of the Hex.
         Args:
-            __hex__: The Hex coordinate.
-            block: The new Block to place.
-        """
-        if self.in_range(__hex__):
-            index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
-            if index >= 0:
-                self._blocks[index] = block
-
-    def set_state(self, __hex__: Hex, state: bool) -> None:
-        """
-        Set the state of a Block at a specific grid coordinate using binary search.
-
-        Automatically sets the color based on state (-2 for True, -1 for False).
-
-        Args:
-            __hex__: The Hex coordinate.
-            state: The new state (True = occupied).
-        """
-        if self.in_range(__hex__):
-            index = self._search(__hex__.get_line_i(), __hex__.get_line_k(), 0, self.length() - 1)
-            if index >= 0:
-                block = self._blocks[index]
-                if block.get_state() != state:
-                    block.set_state(state)
-                    block.set_color(-2 if state else -1)
-
-    def _search(self, i: int, k: int, start: int, end: int) -> int:
-        """
-        Perform a binary search to locate a block at (i, k).
-
-        Assumes the array is sorted by I, then K.
-
-        Args:
-            i: I coordinate.
-            k: K coordinate.
-            start: Search range start index.
-            end: Search range end index.
-
+            coo: The Hex coordinate.
         Returns:
             int: Index of the block, or -1 if not found.
-        """
-        if start > end:
-            return -1
-        mid = (start + end) // 2
-        block = self._blocks[mid]
-        if block.get_line_i() == i and block.get_line_k() == k:
-            return mid
-        elif block.get_line_i() < i or (block.get_line_i() == i and block.get_line_k() < k):
-            return self._search(i, k, mid + 1, end)
-        else:
-            return self._search(i, k, start, mid - 1)
+        '''
+        if self.in_range(coo):
+            r = self.__radius
+            if isinstance(coo, Hex):
+                i = coo.i
+                k = coo.k
+            elif isinstance(coo, tuple):
+                if len(coo) == 2:
+                    i, k = coo[0], coo[1]
+                elif len(coo) == 3:
+                    i, k = coo[0], coo[2]
+                else:
+                    return -1
+            if i < r:
+                return k + i * r + i * (i - 1) // 2
+            else:
+                return k - (r - 1) ** 2 + i * r * 3 - i * (i + 5) // 2
+        return -1
+    
+    def coordinate_block(self, index: int) -> Hex:
+        '''
+        Get the Hex coordinate of the Block at the specified index.
 
-    def check_add(self, origin: Hex, other: HexGrid) -> bool:
-        """
-        Check if another grid can be added at the given origin without overlap or out-of-bounds.
-
+        This method retrieves the Hex coordinate based on the index in the hexagonal grid.
+        If the index is out of range, raise ValueError.
         Args:
-            origin: Origin offset for placement.
-            other: The other HexGrid to check.
-
+            index (int): The index of the block.
         Returns:
-            bool: True if placement is valid.
-        """
-        for block in other.blocks():
-            if block is not None and block.get_state():
-                placed_block = block + origin
-                target = self.get_block(placed_block)
-                if target is None or target.get_state():
-                    return False
-        return True
+            Hex: The Hex coordinate of the block.
+        Raises:
+            ValueError: If the index is out of range.
+        '''
+        l = len(self.__states)
+        r = self.__radius
+        for i in range(r):
+            if index < i + r:
+                return Hex(i, index)
+            index -= i + r
+        for i in range(r):
+            if index < 2 * r - 2 - i:
+                return Hex(i + r, index + i + 1)
+            index -= 2 * r - 2 - i
+        else:
+            raise ValueError("Index out of range")
 
-    def add(self, origin: Hex, other: HexGrid) -> None:
-        """
-        Add another grid to this grid at the given origin.
+    def get_state(self, coo: Union[Hex, tuple, int]) -> bool:
+        '''
+        Get the Block occupancy state at the specified Hex coordinate or index.
 
-        Modifies the grid permanently. Throws an exception if placement is invalid.
+        This method retrieves the Block state based on either a Hex coordinate or an index.
+        If the coordinate is out of range, raise ValueError.
+        Args:
+            coo: The Hex coordinate or index of the block.
+        Returns:
+            state (bool): The occupancy state at the specified coordinate or index.
+        Raises:
+            ValueError: If the coordinate is out of range or index is invalid.
+            TypeError: If the coordinate type is unsupported.
+        '''
+        if isinstance(coo, (Hex, tuple)):
+            index = self.index_block(coo)
+            if index == -1:
+                raise ValueError("Coordinate out of range")
+            return self.__states[index]
+        elif isinstance(coo, int):
+            if 0 <= coo < len(self.__states):
+                return self.__states[coo]
+            else:
+                raise ValueError("Coordinate out of range")
+        else:
+            raise TypeError("Unsupported type for block operation")
+    
+    def set_state(self, coo: Union[Hex, tuple, int], state: bool) -> None:
+        '''
+        Set the occupancy state of the Block at the specified Hex coordinate.
+
+        This method updates the state of a Block at the given coordinate.
+        If the coordinate is out of range, raise ValueError.
 
         Args:
-            origin: Offset for placement.
-            other: The grid to add.
+            coo: The Hex coordinate of the block to set.
+            state (bool): The new occupancy state to set for the block.
 
         Raises:
-            ValueError: If placement is out of bounds or overlaps.
-        """
-        for block in other.blocks():
-            if block is not None and block.get_state():
-                placed_block = block + origin
-                target = self.get_block(placed_block)
-                if target is None:
-                    raise ValueError("Block out of grid when adding")
-                if target.get_state():
-                    raise ValueError("Cannot add into existing block")
-                self.set_block(placed_block, placed_block)
+            ValueError: If the coordinate is out of range.
+            TypeError: If the coordinate type is unsupported, or state is not a boolean.
+        '''
+        if not isinstance(state, bool):
+            raise TypeError("State must be a boolean value")
+        if isinstance(coo, Hex):
+            # Get the index of the block using the optimized index_block method
+            index = self.index_block(coo)
+            if index == -1:
+                raise ValueError("Coordinate out of range")
+            self.__states[index] = state
+            return
+        elif isinstance(coo, tuple):
+            if len(coo) == 2:
+                index = self.index_block(coo)
+            elif len(coo) == 3:
+                # If coo is a 3-tuple, we need to know whether it represents a coordinate or a Block
+                if isinstance(coo[2], bool):
+                    index = self.index_block(coo[:2])
+                elif isinstance(coo[2], int):
+                    index = self.index_block(coo)
+                else:
+                    raise TypeError("Unsupported type for block operation")
+            if index == -1:
+                raise ValueError("Coordinate out of range")
+            self.__states[index] = state
+        elif isinstance(coo, int):
+            if 0 <= coo < len(self.__states):
+                self.__states[coo] = state
+                return
+            else:
+                raise ValueError("Coordinate out of range")
+        else:
+            raise TypeError("Unsupported type for block operation")
 
-    def check_positions(self, other: HexGrid) -> List[Hex]:
-        """
-        Return all valid positions where another grid can be added.
+    def check_add(self, coo: Union[Hex, tuple], piece: Union[Piece, int]) -> bool:
+        '''
+        Check if a Piece can be added to the hexagonal grid without overlaps.
+
+        This method checks if the Piece can be placed on the grid without overlapping
+        any existing occupied blocks. It returns True if the Piece can be added,
+        otherwise returns False.
 
         Args:
-            other: The HexGrid to place.
-
+            piece (Piece): The Piece to check for addition.
         Returns:
-            List[Hex]: List of possible Hex origins for valid placement.
-        """
+            bool: True if the Piece can be added, False otherwise.
+        Raises:
+            TypeError: If the piece is not a valid Piece instance.
+        '''
+        if isinstance(piece, int):
+            piece = Piece(piece)
+        elif not isinstance(piece, Piece):
+            raise TypeError("Piece must be an instance of Piece or an integer representing a Piece state")
+        
+        for i in range(7):
+            if piece.states()[i]:
+                try:
+                    if self.get_state(piece.positions[i] + coo):
+                        return False
+                except ValueError:
+                    return False
+        return True
+    
+    def add_piece(self, coo: Union[Hex, tuple], piece: Union[Piece, int]) -> None:
+        '''
+        Add a Piece to the hexagonal grid at the specified Hex coordinate.
+
+        This method places the Piece on the grid, updating the occupancy state of
+        the blocks based on the Piece's states. If the Piece cannot be added due to
+        overlaps or out-of-range coordinates, it raises a ValueError.
+
+        Args:
+            piece (Piece): The Piece to add to the grid.
+        Raises:
+            TypeError: If the piece is not a valid Piece instance.
+            ValueError: If the Piece cannot be added due to overlaps or out-of-range coordinates.
+        '''
+        if isinstance(piece, int):
+            piece = Piece(piece)
+        elif not isinstance(piece, Piece):
+            raise TypeError("Piece must be an instance of Piece or an integer representing a Piece state")
+        
+        if not self.check_add(coo, piece):
+            raise ValueError("Cannot add piece due to overlaps or out-of-range coordinates")
+        
+        for i in range(7):
+            if piece.states()[i]:
+                self.set_state(piece.positions[i] + coo, True)
+
+    def check_positions(self, piece: Union[Piece, int]) -> list[Hex]:
+        '''
+        Return all valid positions where another grid can be added.
+
+        This method returns a list of Hex coordinate candidates where the Piece can be added
+        without overlaps. It checks each position in the Piece and returns the Hex coordinates
+        of the occupied blocks.
+        If the Piece is not valid, it raises a ValueError.
+
+        Args:
+            piece (Piece): The Piece to check for occupied positions.
+        Returns:
+            list[Hex]: A list of Hex coordinates for the occupied blocks in the Piece.
+        Raises:
+            TypeError: If the piece is not a valid Piece instance.
+        '''
+        if isinstance(piece, int):
+            piece = Piece(piece)
+        elif not isinstance(piece, Piece):
+            raise TypeError("Piece must be an instance of Piece or an integer representing a Piece state")
         positions = []
-        for block in self._blocks:
-            hex_coord = block.__this__()
-            if self.check_add(hex_coord, other):
-                positions.append(hex_coord)
+        for a in range(self.__radius * 2):
+            for b in range(self.__radius * 2):
+                hex = Hex(a, b)
+                if self.check_add(hex, piece):
+                    positions.append(hex)
         return positions
 
-    def eliminate(self) -> List[Block]:
-        """
-        Eliminate fully occupied lines along I, J, or K axes and return eliminated blocks.
+    def eliminate(self) -> list[Hex]:
+        '''
+        Eliminate fully occupied lines along I, J, or K axes and return eliminated coordinates.
 
         Modifies the grid permanently.
 
         Returns:
-            List[Block]: Blocks eliminated.
-        """
+            List[Hex]: coordinates eliminated.
+        '''
         eliminate = []
         # Find candidates
-        self._eliminate_i(eliminate)
-        self._eliminate_j(eliminate)
-        self._eliminate_k(eliminate)
+        self.__eliminate_i(eliminate)
+        self.__eliminate_j(eliminate)
+        self.__eliminate_k(eliminate)
         # Eliminate
-        eliminated = []
-        for block in eliminate:
-            eliminated.append(block.__copy__())
-            self.set_state(block, False)
-        return eliminated
+        for coo in eliminate:
+            self.set_state(coo, False)
+        return eliminate
+    
+    def __eliminate_i(self, eliminate : list[Hex]) -> None:
+        '''
+        Identify coordinates along I axis that can be eliminated and insert them into the input list
 
-    def _eliminate_i(self, eliminate : list[Block]):
-        """
-        Identify blocks along I axis that can be eliminated and insert them into the input list
-
-        Args:
-            eliminate: The list of Blocks to insert into.
-        """
-        for i in range(self._radius):
+        Arguments:
+            eliminate: The list of coordinates to insert into.
+        '''
+        r = self.__radius
+        for i in range(r):
             _all_valid = True
-            _index = i * (self._radius * 2 + i - 1) // 2
-            for b in range(self._radius + i):
-                if not self._blocks[_index + b].get_state():
+            _index = i * (r * 2 + i - 1) // 2
+            for b in range(r + i):
+                if not self.__states[_index + b]:
                     _all_valid = False
                     break
             if _all_valid:
-               eliminate.extend(self._blocks[_index + b] for b in range(self._radius + i))
-        const_term = self._radius * (self._radius * 3 - 1) // 2
-        for i in range(self._radius - 2, -1, -1):
+               eliminate.extend(self.coordinate_block(_index + b) for b in range(r + i))
+        const_term = r * (r * 3 - 1) // 2
+        for i in range(r - 2, -1, -1):
             _all_valid = True
-            _index = const_term + (self._radius - i - 2) * (self._radius * 3 - 1 + i) // 2
-            for b in range(self._radius + i):
-                if not self._blocks[_index + b].get_state():
+            _index = const_term + (r - i - 2) * (r * 3 - 1 + i) // 2
+            for b in range(r + i):
+                if not self.__states[_index + b]:
                     _all_valid = False
                     break
             if _all_valid:
-                eliminate.extend(self._blocks[_index + b] for b in range(self._radius + i))
+                eliminate.extend(self.coordinate_block(_index + b) for b in range(r + i))
 
-    def _eliminate_j(self, eliminate : list[Block]):
-        """
-        Identify blocks along J axis that can be eliminated and insert them into the input list
+    def __eliminate_j(self, eliminate : list[Hex]) -> None:
+        '''
+        Identify coordinates along J axis that can be eliminated and insert them into the input list
 
-        Args:
-            eliminate: The list of Blocks to insert into.
-        """
-        for r in range(self._radius):
+        Arguments:
+            eliminate: The list of coordinates to insert into.
+        '''
+        radius = self.__radius
+        for r in range(radius):
             _index = r
             _all_valid = True
-            for c in range(1, self._radius):
-                if not self._blocks[_index].get_state():
+            for c in range(1, radius):
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += self._radius + c
-            for c in range(self._radius - r):
-                if not self._blocks[_index].get_state():
+                _index += radius + c
+            for c in range(radius - r):
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += 2 * self._radius - c - 1
+                _index += 2 * radius - c - 1
             if _all_valid:
                 _index = r
-                for c in range(1, self._radius):
-                    eliminate.append(self._blocks[_index])
-                    _index += self._radius + c
-                for c in range(self._radius - r):
-                    eliminate.append(self._blocks[_index])
-                    _index += 2 * self._radius - c - 1
-        for r in range(1, self._radius):
-            _index = self._radius * r + r * (r - 1) // 2
+                for c in range(1, radius):
+                    eliminate.append(self.coordinate_block(_index))
+                    _index += radius + c
+                for c in range(radius - r):
+                    eliminate.append(self.coordinate_block(_index))
+                    _index += 2 * radius - c - 1
+        for r in range(1, radius):
+            _index = radius * r + r * (r - 1) // 2
             _start_index = _index
             _all_valid = True
-            for c in range(1, self._radius - r):
-                if not self._blocks[_index].get_state():
+            for c in range(1, radius - r):
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += self._radius + c + r
-            for c in range(self._radius):
-                if not self._blocks[_index].get_state():
+                _index += radius + c + r
+            for c in range(radius):
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += 2 * self._radius - c - 1
+                _index += 2 * radius - c - 1
             if _all_valid:
-                for c in range(1, self._radius - r):
-                    eliminate.append(self._blocks[_start_index])
-                    _start_index += self._radius + c + r
-                for c in range(self._radius):
-                    eliminate.append(self._blocks[_start_index])
-                    _start_index += 2 * self._radius - c - 1
+                for c in range(1, radius - r):
+                    eliminate.append(self.coordinate_block(_start_index))
+                    _start_index += radius + c + r
+                for c in range(radius):
+                    eliminate.append(self.coordinate_block(_start_index))
+                    _start_index += 2 * radius - c - 1
 
-    def _eliminate_k(self, eliminate : list[Block]):
-        """
-        Identify blocks along K axis that can be eliminated and insert them into the input list
+    def __eliminate_k(self, eliminate : list[Hex]) -> None:
+        '''
+        Identify coordinates along K axis that can be eliminated and insert them into the input list
 
         Args:
-            eliminate: The list of Blocks to insert into.
-        """
-        for r in range(self._radius):
+            eliminate: The list of coordinates to insert into.
+        '''
+        radius = self.__radius
+        for r in range(radius):
             _index = r
             _all_valid = True
-            for c in range(self._radius - 1):
-                if not self._blocks[_index].get_state():
+            for c in range(radius - 1):
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += self._radius + c
+                _index += radius + c
             for c in range(r + 1):
-                if not self._blocks[_index].get_state():
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += 2 * self._radius - c - 2
+                _index += 2 * radius - c - 2
             if _all_valid:
                 _index = r
-                for c in range(self._radius - 1):
-                    eliminate.append(self._blocks[_index])
-                    _index += self._radius + c
+                for c in range(radius - 1):
+                    eliminate.append(self.coordinate_block(_index))
+                    _index += radius + c
                 for c in range(r + 1):
-                    eliminate.append(self._blocks[_index])
-                    _index += 2 * self._radius - c - 2
-        for r in range(1, self._radius):
-            _index = self._radius * (r + 1) + r * (r + 1) // 2 - 1
+                    eliminate.append(self.coordinate_block(_index))
+                    _index += 2 * radius - c - 2
+        for r in range(1, radius):
+            _index = radius * (r + 1) + r * (r + 1) // 2 - 1
             _start_index = _index
             _all_valid = True
-            for c in range(r, self._radius - 1):
-                if not self._blocks[_index].get_state():
+            for c in range(r, radius - 1):
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += self._radius + c
-            for c in range(self._radius - 1, -1, -1):
-                if not self._blocks[_index].get_state():
+                _index += radius + c
+            for c in range(radius - 1, -1, -1):
+                if not self.__states[_index]:
                     _all_valid = False
                     break
-                _index += self._radius + c - 1
+                _index += radius + c - 1
             if _all_valid:
-                for c in range(r, self._radius - 1):
-                    eliminate.append(self._blocks[_start_index])
-                    _start_index += self._radius + c
-                for c in range(self._radius - 1, -1, -1):
-                    eliminate.append(self._blocks[_start_index])
-                    _start_index += self._radius + c - 1
+                for c in range(r, radius - 1):
+                    eliminate.append(self.coordinate_block(_start_index))
+                    _start_index += radius + c
+                for c in range(radius - 1, -1, -1):
+                    eliminate.append(self.coordinate_block(_start_index))
+                    _start_index += radius + c - 1
 
-    def compute_dense_index(self, origin: Hex, other: HexGrid) -> float:
-        """
-        Compute a density index score for hypothetically placing another grid.
+    def count_neighbors(self, coo: Union[Hex, tuple]) -> int:
+        '''
+        Count occupied neighboring Blocks around the given Hex position.
 
-        Returns a value between 0 and 1 representing surrounding density.
-        A score of 1 means all surrounding blocks would be filled, 0 means the grid would be alone.
+        Checks up to six adjacent positions to the block at Hex coordinate.
+        A neighbor is occupied if the block is null or its state is True.
 
-        Args:
-            origin: Position for hypothetical placement.
-            other: The HexGrid to evaluate.
-
+        Parameters:
+            coo (Hex | tuple): The Hex coordinate to check for neighbors.
         Returns:
-            float: Density index (0 to 1), or 0 if placement is invalid or no neighbors exist.
-        """
-        total_possible = 0
-        total_populated = 0
-        for block in other.blocks():
-            if block is not None and block.get_state():
-                placed_block = block + origin
-                target = self.get_block(placed_block)
-                if target is None or target.get_state():
-                    return 0.0
-                total_possible += 6 - other.count_neighbors(placed_block, False)
-                total_populated += self.count_neighbors(placed_block, True)
-        return total_populated / total_possible if total_possible > 0 else 0.0
-
-    def _get_pattern(self, __hex__: Hex, include_null: bool) -> int:
-        """
+            int: The count of occupied neighboring Blocks.
+        Raises:
+            TypeError: If coo is not a Hex or a tuple of coordinates.
+        '''
+        count = 0
+        if isinstance(coo, tuple):
+            if len(coo) == 2:
+                coo = Hex(coo[0], coo[1])
+            elif len(coo) == 3:
+                coo = Hex(coo[0], coo[2])
+            else:
+                raise TypeError("Invalid type for Hex coordinates")
+        elif not isinstance(coo, Hex):
+            raise TypeError("Invalid type for Hex coordinates")
+        
+        for pos in Piece.positions:
+            target = pos + coo
+            if self.in_range(target):
+                if self.get_state(target):
+                    count += 1
+            else:
+                count += 1 # Padding counts as a neighbor
+        return count
+    
+    def get_pattern(self, coo: Union[Hex, tuple]) -> int:
+        '''
         Determine the pattern of blocks around the given position in the hexagonal grid, including the block itself.
 
         This method checks up to seven positions in a hexagonal box centered at coordinates (i, k).
@@ -1117,33 +1192,51 @@ class HexEngine(HexGrid):
         it is treated as occupied or unoccupied based on the include_null flag.
 
         Args:
-            __hex__ (Hex): The hex coordinate of the block at the center of the box.
-            include_null (bool): Whether to treat None or out-of-bounds neighbors as occupied (True) or unoccupied (False).
+            coo (Hex | tuple): The hex coordinate of the block at the center of the box.
 
         Returns:
-            int: A number in the range [0, 127] representing the pattern of blocks in the hexagonal box.
-        """
+            pattern (int): A number in the range [0, 127] representing the pattern of blocks in the hexagonal box.
+        '''
         pattern = 0
-        shifts = [
-            __hex__.shift_j(-1),
-            __hex__.shift_i(-1),
-            __hex__.shift_k(-1),
-            __hex__,
-            __hex__.shift_k(1),
-            __hex__.shift_i(1),
-            __hex__.shift_j(1)
-        ]
-        for neighbor in shifts:
-            pattern <<= 1
-            if self.in_range(neighbor):
-                if self.get_block(neighbor).get_state():
-                    pattern += 1
-            elif include_null:
-                pattern += 1
+        for i in range(7):
+            i <<= 1
+            try:
+                if self.get_state(Piece.positions[i] + coo):
+                    pattern + 1
+            except ValueError:
+                continue
         return pattern
 
+    def compute_dense_index(self, coo: Hex, piece: Piece) -> float:
+        '''
+        Compute a density index score for hypothetically placing another piece.
+
+        Returns a value between 0 and 1 representing surrounding density.
+        A score of 1 means all surrounding blocks would be filled, 0 means the grid would be alone.
+
+        Args:
+            coo: Position for hypothetical placement.
+            piece: The Piece to evaluate.
+
+        Returns:
+            float: Density index (0 to 1), or 0 if placement is invalid or no neighbors exist.
+        '''
+        total_possible = 0
+        total_populated = 0
+        for i in range(7):
+            if piece.states()[i]:
+                placed_block = piece.positions[i] + coo
+                try:
+                    if self.get_state(placed_block):
+                        return 0.0
+                except ValueError:
+                    return 0.0
+                total_possible += 6 - piece.count_neighbors(placed_block)
+                total_populated += self.count_neighbors(placed_block)
+        return total_populated / total_possible if total_possible > 0 else 0.0
+
     def compute_entropy(self) -> float:
-        """
+        '''
         Compute the entropy of the hexagonal grid based on the distribution of 7-block patterns.
 
         Entropy is calculated using the Shannon entropy formula, measuring the randomness of block
@@ -1162,18 +1255,19 @@ class HexEngine(HexGrid):
         Blocks on the grid's boundary (beyond radius - 1) are excluded to avoid incomplete patterns.
 
         Returns:
-            float: The entropy of the grid in bits, a non-negative value representing the randomness
+            entropy (float): The entropy of the grid in bits, a non-negative value representing the randomness
                    of block arrangements. Returns 0.0 for a uniform grid (all filled or all empty)
                    or if no valid patterns are counted.
-        """
+        '''
+        from math import log2
         pattern_counts = [0] * 128
         pattern_total = 0
-        radius = self.get_radius() - 1
+        radius = self.__radius - 1
 
-        for block in self._blocks:
-            center = block.__this__()
-            if center.shift_j(1).in_range(radius):
-                pattern = self._get_pattern(center, False)
+        for i in range(len(self.__states)):
+            center = self.coordinate_block(i)
+            if self.__in_range(center.shift_j(1), radius):
+                pattern = self.get_pattern(center)
                 pattern_counts[pattern] += 1
                 pattern_total += 1
 
@@ -1183,125 +1277,3 @@ class HexEngine(HexGrid):
                 p = count / pattern_total
                 entropy -= p * log2(p)
         return entropy
-
-    def compute_entropy_index(self, origin: Hex, other: HexGrid) -> float:
-        """
-        Compute an entropy-based index score for hypothetically placing another grid.
-
-        The entropy index is a value between 0 and 1 that measures the change in the grid's entropy
-        when the specified other grid is placed at the given origin coordinate. This index is derived
-        by computing the difference in Shannon entropy (as calculated by compute_entropy) between
-        the current grid and a hypothetical grid state after adding other and performing an elimination
-        step. The entropy difference is adjusted by a constant offset (0.21) and transformed using a
-        sigmoid function to map the result to the range [0, 1]. The sigmoid function used is:
-            f(x) = 1 / (1 + e^(-3 * x))
-        where x is the adjusted entropy difference. A higher index indicates a placement that results
-        in a grid configuration with significantly different pattern diversity, which may be useful in
-        reinforcement learning or game strategy evaluation to prioritize moves that increase or maintain
-        randomness in block arrangements.
-
-        The method operates on a deep copy of the HexEngine to avoid modifying the current grid state.
-        It adds the other grid at the specified origin, performs an elimination step (e.g., removing
-        completed lines or clusters as per game rules), and calculates the entropy difference.
-
-        Args:
-            origin (Hex): The position in the grid where the other grid is hypothetically placed.
-            other (HexGrid): The HexGrid representing the piece to be evaluated for placement.
-
-        Returns:
-            float: A value between 0 and 1 representing the entropy-based index score, where higher
-                   values indicate a greater change in pattern diversity after placement and elimination.
-
-        Raises:
-            ValueError: If the piece placement is invalid.
-        """
-        # Test move on a deep copy to avoid affecting the current grid
-        copy_engine = copy.deepcopy(self)
-        copy_engine.add(origin, other)
-        copy_engine.eliminate()
-        x = copy_engine.compute_entropy() - self.compute_entropy() - 0.21
-        # Sigmoid: 1/(1+e^-k(x)) k=3
-        return 1 / (1 + exp(-3 * x))
-
-    def compute_weighted_index(self, origin: Hex, other: HexGrid, w_current_entropy) -> float:
-        score = self.compute_dense_index(origin, other) * 8
-        copy_engine = self.__copy__()
-        copy_engine.add(origin, other)
-        score += len(copy_engine.eliminate()) / self._radius * 10
-        x = copy_engine.compute_entropy() - w_current_entropy
-        return score + 14 / (1 + exp(-3 * x))
-
-    def __str__(self) -> str:
-        """Return a string representation of the grid color and block states."""
-        str_builder = ["HexEngine[blocks = {"]
-        if self._blocks:
-            str_builder.append(self._blocks[0].basic_str())
-        for block in self._blocks[1:]:
-            str_builder.append(", ")
-            str_builder.append(block.basic_str())
-        str_builder.append("}]")
-        return "".join(str_builder)
-
-    def to_booleans(self) -> list[bool]:
-        """
-        Returns a boolean list representation of the blocks in this HexEngine.
-
-        Empty blocks are represented with False and filled blocks with True.
-        This method does not record color information.
-        """
-        length = self.length()
-        booleans = [False] * length
-        for i in range(length):
-            if self._blocks[i].get_state():
-                booleans[i] = True
-        return booleans
-
-    @staticmethod
-    def solve_radius(length: int) -> int:
-        """
-        Solves for the radius of a HexEngine based on its length.
-        """
-        valid_pairs = {
-            7: 2, 19: 3, 37: 4, 61: 5, 91: 6, 127: 7, 169: 8, 217: 9, 271: 10, 331: 11, 397: 12, 469: 13
-        }
-        if length <= 1:
-            return -1
-        if 0 <= length <= 546:
-            v = valid_pairs.get(length, -1)
-            return v if v is not None else -1
-        if length % 3 != 1:
-            return -1
-        target = (length - 1) // 3
-        for x in range(1, target + 1):
-            if x * (x - 1) == target:
-                return x
-        return -1
-
-    @staticmethod
-    def engine_from_booleans(data: list[bool]):
-        """
-        Constructs a HexEngine instance from a boolean array.
-
-        The boolean array should follow the format produced by the `to_booleans()` method.
-        Raises a ValueError if the data does not represent a valid engine configuration.
-        """
-        length = len(data)
-        radius = HexEngine.solve_radius(length)
-        if radius == -1:
-            raise ValueError("Data array is of invalid length")
-        engine = HexEngine(radius)
-        for i in range(length):
-            engine._blocks[i].set_state(data[i])
-        return engine
-
-    def __copy__(self):
-        """Return a deep copy of this HexEngine."""
-        new_engine = HexEngine(self._radius)
-        new_engine._blocks = [block.__copy__() for block in self._blocks]
-        return new_engine
-
-    def __deepcopy__(self, memo):
-        """Return a deep copy of this HexEngine."""
-        new_engine = HexEngine(self._radius)
-        new_engine._blocks = [copy.deepcopy(block, memo) for block in self._blocks]
-        return new_engine
