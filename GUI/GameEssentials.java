@@ -60,6 +60,8 @@ public final class GameEssentials implements GameGUIInterface {
     private static PiecePanel piecePanel;
     private static GamePanel gamePanel;
 
+    private static final Object moveLock = new Object(); // Lock to modify the engine and queue
+
     private static AutoplayHandler autoplayHandler = new AutoplayHandler(new GameEssentials());
 
     private static int selectedPieceIndex = -1;
@@ -234,31 +236,35 @@ public final class GameEssentials implements GameGUIInterface {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
-        engine = new HexEngine(size);
-        queue = new Queue(queueSize);
         window = frame;
-        // Logger initialize
-        gameLogger = logger;
-        if(logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize){
-            for (hex.Block block : logger.getEngine().blocks()){
-                if (block != null && block.getState()) {
-                    hex.Block cloned = block.clone();
-                    engine.setBlock(block.getLineI(), block.getLineK(), cloned);
+        synchronized (moveLock) {
+            engine = null;
+            queue = null;
+            engine = new HexEngine(size);
+            queue = new Queue(queueSize);
+            gameLogger = logger;
+            // Logger initialize
+            if (logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize) {
+                for (hex.Block block : logger.getEngine().blocks()) {
+                    if (block != null && block.getState()) {
+                        hex.Block cloned = block.clone();
+                        engine.setBlock(block.getLineI(), block.getLineK(), cloned);
+                    }
                 }
-            }
-            Piece[] loggerQueue = logger.getQueue();
-            for (int i = 0; i < loggerQueue.length; i++) {
-                Piece piece = loggerQueue[i];
-                if (piece != null) {
-                    queue.inject(piece, i);
+                Piece[] loggerQueue = logger.getQueue();
+                for (int i = 0; i < loggerQueue.length; i++) {
+                    Piece piece = loggerQueue[i];
+                    if (piece != null) {
+                        queue.inject(piece, i);
+                    }
                 }
+            } else {
+                // Copy info to logger
+                gameLogger.setEngine(engine);
+                gameLogger.setQueue(queue.getPieces());
+                gameLogger.setScore(0);
+                gameLogger.setTurn(0);
             }
-        } else {
-            // Copy info to logger
-            gameLogger.setEngine(engine);
-            gameLogger.setQueue(queue.getPieces());
-            gameLogger.setScore(0);
-            gameLogger.setTurn(0);
         }
         // Construct GUI
         HexButton.setSize(1);
@@ -362,19 +368,23 @@ public final class GameEssentials implements GameGUIInterface {
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
         gameLogger = new HexLogger(Launcher.LaunchEssentials.getCurrentPlayer(), Launcher.LaunchEssentials.getCurrentPlayerID());
-        engine.reset();
-        queue.reset();
-        gameLogger.setEngine(engine);
-        gameLogger.setQueue(queue.getPieces());
+        synchronized (moveLock){
+            engine.reset();
+            queue.reset();
+            gameLogger.setEngine(engine);
+            gameLogger.setQueue(queue.getPieces());
+        }
         window.repaint();
     }
 
     // Logging at the end
     public static void logGame(){
         boolean complete = gameEnds();
-        gameLogger.setEngine(engine);
-        gameLogger.setQueue(queue.getPieces());
-        if (complete) gameLogger.completeGame();
+        synchronized (moveLock) {
+            gameLogger.setEngine(engine);
+            gameLogger.setQueue(queue.getPieces());
+            if (complete) gameLogger.completeGame();
+        }
         final HexLogger writeOnLogger = gameLogger; // This logger will be used for writing
         gameLogger = gameLogger.clone(); // Create cloned logger
         new Thread(() -> {
@@ -457,9 +467,11 @@ public final class GameEssentials implements GameGUIInterface {
         position = position.subtract(piece.getBlock(blockIndex));
         // Check this position, if good then add
         if (engine().checkAdd(position, piece)) {
-            gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
-            gamePanel.updateDisplayedInfo(getTurn(), getScore());
-            engine().add(position, queue().fetch(pieceIndex));
+            synchronized (moveLock) {
+                gameLogger.addMove(position, selectedPieceIndex, queue.getPieces());
+                gamePanel.updateDisplayedInfo(getTurn(), getScore());
+                engine().add(position, queue().fetch(pieceIndex));
+            }
             // Generate animation
             for (int i = 0; i < piece.length(); i ++){
                 addAnimation(createCenterEffect(piece.getBlock(i).add(position)));
@@ -479,7 +491,10 @@ public final class GameEssentials implements GameGUIInterface {
     }
     public static void eliminate(){
         // Run elimination
-        hex.Block[] eliminated = engine().eliminate();
+        hex.Block[] eliminated;
+        synchronized (moveLock) {
+            eliminated = engine().eliminate();
+        }
         // Add animation
         for(hex.Block block : eliminated){
             addAnimation(createDisappearEffect(block));
@@ -527,11 +542,23 @@ public final class GameEssentials implements GameGUIInterface {
         }
         // Check this position, if good then add
         if (engine().checkAdd(position, piece)) {
-            gameLogger.addMove(position, pieceIndex, queue.getPieces());
-            gamePanel.updateDisplayedInfo(getTurn(), getScore());
-            engine().add(position, queue().fetch(pieceIndex));
+            synchronized (moveLock) {
+                if (!gameLogger.addMove(position, pieceIndex, queue.getPieces())) {
+                    // If the move cannot be added, there must be a desync issue. Manually sync the game with the logger.
+                    engine = gameLogger.getEngine().clone();
+                    queue = Queue.fromPieces(gameLogger.getQueue());
+                    gamePanel.updateDisplayedInfo(getTurn(), getScore());
+                    // Shutdown autoplay
+                    autoplayHandler.genericClose();
+                    // Update GUI
+                    window.repaint();
+                    return false;
+                }
+                gamePanel.updateDisplayedInfo(getTurn(), getScore());
+                engine().add(position, queue().fetch(pieceIndex));
+            }
             // Generate animation
-            for (int i = 0; i < piece.length(); i ++){
+            for (int i = 0; i < piece.length(); i++) {
                 addAnimation(createCenterEffect(piece.getBlock(i).add(position)));
             }
         }
