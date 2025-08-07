@@ -473,24 +473,19 @@ public class HexLogger {
      */
     public boolean addMove(Hex origin, int index, Piece[] queue){
         if (completed) {return false;}
-        boolean success = false;
-        int eliminated = 0;
-        Piece piece;
         try {
-            piece = queue[index];
+            Piece piece = queue[index];
             currentEngine.add(origin, piece);
-            eliminated = currentEngine.eliminate().length;
-            score += piece.length();
-            success = true;
-        } catch (IndexOutOfBoundsException | IllegalArgumentException e){}
-        if (success) {
             moveOrigins.add(origin);
             moveQueues.add(queue.clone());
             movePieces.add(index);
-            score += eliminated * 5;
-            turn++;
+            score += currentEngine.eliminate().length * 5;
+            score += piece.length();
+            turn ++;
+            return true;
+        } catch (IndexOutOfBoundsException | IllegalArgumentException e){
+            return false;
         }
-        return success;
     }
     /**
      * Returns a String representation of the {@code HexLogger}, containing all its essential information.

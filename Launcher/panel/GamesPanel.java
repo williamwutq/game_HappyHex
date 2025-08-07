@@ -31,7 +31,14 @@ import hexio.HexLogger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+
+import static io.GameTime.generateSimpleTime;
 
 public class GamesPanel extends JPanel {
     double size;
@@ -75,11 +82,12 @@ public class GamesPanel extends JPanel {
 
     private class ListGame extends JPanel {
         private final JLabel fileNameLabel;
-        private final JButton gameStartButton;
+        private final JButton gameStartButton, gameViewButton;
         private final GUI.InlineInfoPanel gameScorePanel, gameTurnPanel;
         public ListGame(HexLogger logger) {
             this.fileNameLabel = new JLabel(logger.getDataFileName());
             this.gameStartButton = new JButton("RESUME");
+            this.gameViewButton = new JButton("VIEW");
             this.gameScorePanel = new InlineInfoPanel();
             this.gameTurnPanel = new InlineInfoPanel();
             this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -105,6 +113,15 @@ public class GamesPanel extends JPanel {
                 LauncherGUI.startGame(logger.getDataFileName());
             });
 
+            gameViewButton.setAlignmentX(CENTER_ALIGNMENT);
+            gameViewButton.setAlignmentY(CENTER_ALIGNMENT);
+            gameViewButton.setBorder(BorderFactory.createEmptyBorder());
+            gameViewButton.setForeground(LaunchEssentials.launchConfirmButtonBackgroundColor);
+            gameViewButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, 16));
+            gameViewButton.addActionListener(e -> {
+                runGameViewer(logger.getDataFileName());
+            });
+
             gameScorePanel.setTitle("   Score: ");
             gameScorePanel.setInfo(logger.getScore() + "   ");
             gameTurnPanel.setTitle("   Turn: ");
@@ -118,6 +135,9 @@ public class GamesPanel extends JPanel {
             this.add(Box.createVerticalGlue());
             this.add(gameStartButton);
             this.add(Box.createVerticalGlue());
+            this.add(gameViewButton);
+            this.add(Box.createVerticalGlue());
+            this.add(Box.createVerticalGlue());
         }
 
         public void doLayout() {
@@ -126,6 +146,7 @@ public class GamesPanel extends JPanel {
             gameTurnPanel.setSize(sizeInt);
             fileNameLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.BOLD, sizeInt));
             gameStartButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, sizeInt));
+            gameViewButton.setFont(new Font(LaunchEssentials.launchEnterUsernameFont, Font.BOLD, sizeInt));
             super.doLayout();
         }
 
@@ -139,6 +160,42 @@ public class GamesPanel extends JPanel {
             g2.fillRoundRect(3+sizeP, 3+sizeP, getWidth()-6-sizeQ, getHeight()-6-sizeQ, sizeInt, sizeInt);
             g2.dispose();
             paintChildren(g);
+        }
+    }
+
+    public static void runGameViewer(String filename) {
+        File jarFile = new File("viewer/GameViewer.jar");
+        // Check if JAR exists
+        if (!jarFile.exists()) {
+            System.err.println(generateSimpleTime() + " GameViewer Launcher: Launch failed because GameViewer jar is not found.");
+            return;
+        }
+        // Build the command to launch the JAR
+        List<String> command = new ArrayList<>();
+        String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        command.add(javaBin);
+        command.add("-jar");
+        command.add(jarFile.getPath());
+        // If filename is a file in data/, convert it to an absolute path
+        if (filename.startsWith("data/")){
+            Path filePath;
+            try {
+                filePath = Path.of(filename);
+            } catch (InvalidPathException e) {
+                System.err.println(generateSimpleTime() + " GameViewer Launcher: Launch failed because " + filename + " does not exist.");
+                return;
+            }
+            filename = filePath.toAbsolutePath().toString();
+        }
+        // Add -file <filename> if filename is valid
+        if (filename != null && !filename.trim().isEmpty()) {
+            command.add("-file");
+            command.add(filename);
+        }
+        try {
+            new ProcessBuilder(command).start();
+        } catch (IOException e) {
+            System.err.println(generateSimpleTime() + " GameViewer Launcher: Launch failed because " + e.getMessage());
         }
     }
 }
