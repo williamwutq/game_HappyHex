@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for autoplay and [ML](#develop--machine-learning))  
-<b>Last edited:</b> 12/07/2025  
-<b>Latest release:</b> [1.4.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.0)
+<b>Last edited:</b> 06/08/2025  
+<b>Latest release:</b> [1.4.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.1)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -19,8 +19,9 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 > [!NOTE]
 > The project may contain bugs:  
 > - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).  
-> - The most recent release have ***one*** detected bug: 
+> - The most recent release have ***two*** detected bug: 
 >   - Autoplay GUI not updated when python processor unexpectedly close #79. Fix not planned.
+>   - Desynconization between game and logger when on autoplay fast mode. Fix not planned currently.
 
 ---
 
@@ -723,13 +724,7 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.4.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.0)
-- Version 1.4.1
-  - Add rare chance shinning font ("HappyHex" font animated by `Animation` or `DynamicProperty<T>` class switching between the colors of the rainbow)
-  - Add Christmas super special (Christmas colors, gift blocks, decals)
-- Version 1.5
-  - Potentially add 3 way selection button
-
+- Latest Release: [1.4.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.1)
 - Version 2  
 
   > Version 2 will be fundamentally different from all of Version 1 and be incompatible.
