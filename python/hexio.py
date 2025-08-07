@@ -22,7 +22,7 @@
   SOFTWARE.
 """
 
-import hex as hx
+from hex import HexEngine, Hex, Piece
 from pathlib import Path
 
 __all__ = ['read_f', 'smart_find_f', 'smart_read_f', 'HexReader']
@@ -44,7 +44,7 @@ def read_f (name : str) -> str:
     return data
 
 
-def smart_find_f () -> [Path]:
+def smart_find_f () -> list[Path]:
     """
     Scans the source data_path directory for all valid .hpyhex files.
     :return: A list of file paths pointing to .hpyhex files in the directory.
@@ -133,11 +133,11 @@ class HexReader:
         self._g_ = False # game has not been read
         self._g_completed = False
         self._g_turn = 0; self._g_score = 0
-        self._g_engine = hx.HexEngine(1)
-        self._g_queue = [hx.Piece()]
-        self._g_m_origins = [hx.Hex()]
+        self._g_engine = HexEngine(1)
+        self._g_queue = [Piece()]
+        self._g_m_origins = [Hex()]
         self._g_m_pieces = [int()]
-        self._g_m_queues = [[hx.Piece()]]
+        self._g_m_queues = [[Piece()]]
 
     def get_path(self) -> Path:
         """
@@ -170,11 +170,11 @@ class HexReader:
         self._g_ = False # game has not been read
         self._g_completed = False
         self._g_turn = 0; self._g_score = 0
-        self._g_engine = hx.HexEngine(1)
-        self._g_queue = [hx.Piece()]
-        self._g_m_origins = [hx.Hex()]
+        self._g_engine = HexEngine(1)
+        self._g_queue = [Piece()]
+        self._g_m_origins = [Hex()]
         self._g_m_pieces = [int()]
-        self._g_m_queues = [[hx.Piece()]]
+        self._g_m_queues = [[Piece()]]
 
     def erase(self):
         """
@@ -233,16 +233,15 @@ class HexReader:
             d_engine_radius = int(hex_str_clone[:4], 16)
             if d_engine_radius < 1:
                 self.__fail('engine data cannot be read due to impossible radius')
-            d_engine = hx.HexEngine(d_engine_radius)
+            d_engine = HexEngine(d_engine_radius)
             d_engine_block_index = 0
-            d_engine_read_limit = (d_engine.length()+3)//4
+            d_engine_read_limit = (len(d_engine)+3)//4
             for i in range(d_engine_read_limit):
                 d_engine_read_value = int(hex_str_clone[4+i:5+i], 16)
                 d_engine_read_bit = 0
-                while d_engine_read_bit < 4 and d_engine_block_index < d_engine.length():
+                while d_engine_read_bit < 4 and d_engine_block_index < len(d_engine):
                     d_engine_block_state = (d_engine_read_value & (0x1 << d_engine_read_bit)) != 0
-                    d_engine.get_block(d_engine_block_index).set_state(d_engine_block_state)
-                    d_engine.get_block(d_engine_block_index).set_color(-2)
+                    d_engine.set_state(d_engine_block_index, d_engine_block_state)
                     d_engine_read_bit += 1
                     d_engine_block_index += 1
             if not hex_str_clone[d_engine_read_limit+4:d_engine_read_limit+6] == 'FF':
@@ -250,21 +249,21 @@ class HexReader:
             else: hex_str_clone = hex_str_clone[d_engine_read_limit+6:]
             # read queue
             d_queue_length = int(hex_str_clone[:4], 16)
-            d_queue_data = [hx.Piece()]
+            d_queue_data = [Piece()]
             if not hex_str_clone[d_queue_length*2+4:d_queue_length*2+6] == 'FF':
                 self.__fail('file data divider cannot be found at the correct position')
             else: hex_str_clone = hex_str_clone[d_queue_length*2+6:]
             for i in range(d_queue_length):
                 d_queue_piece_byte = int(hex_str_clone[i*2+4:i*2+6], 16)
                 try:
-                    d_queue_piece = hx.Piece.piece_from_byte(d_queue_piece_byte, -2)
+                    d_queue_piece = Piece(d_queue_piece_byte)
                     d_queue_data.append(d_queue_piece)
                 except ValueError:
                     self.__fail('failed to read queue data')
             # read moves
-            d_move_origins = [hx.Hex()]
+            d_move_origins = [Hex()]
             d_move_indexes = [int()]
-            d_move_queues = [[hx.Piece()]]
+            d_move_queues = [[Piece()]]
             d_move_read_length = (10 + 2 * d_queue_length) * d_turn
             if not hex_str_clone[d_move_read_length:d_move_read_length+4] == 'FFFF':
                 self.__fail('file data divider cannot be found at the correct position')
@@ -273,14 +272,14 @@ class HexReader:
                 d_move_base_index = i * (10 + 2 * d_queue_length)
                 d_move_origin_i = int(hex_str_clone[d_move_base_index:d_move_base_index+4], 16)
                 d_move_origin_k = int(hex_str_clone[d_move_base_index+4:d_move_base_index+8], 16)
-                d_move_origins.append(hx.Hex.hex(d_move_origin_i, d_move_origin_k))
+                d_move_origins.append(Hex(d_move_origin_i, d_move_origin_k))
                 d_move_index = int(hex_str_clone[d_move_base_index+8:d_move_base_index+10], 16)
                 d_move_indexes.append(d_move_index)
-                d_move_queue_data = [hx.Piece()]
+                d_move_queue_data = [Piece()]
                 for q in range(d_queue_length):
                     d_move_queue_piece_byte = int(hex_str_clone[q*2+d_move_base_index+10:q*2+d_move_base_index+12], 16)
                     try:
-                        d_move_queue_piece = hx.Piece.piece_from_byte(d_move_queue_piece_byte, -2)
+                        d_move_queue_piece = Piece(d_move_queue_piece_byte)
                         d_move_queue_data.append(d_move_queue_piece)
                     except ValueError:
                         self.__fail('failed to read queue data in move data')
@@ -296,24 +295,16 @@ class HexReader:
                 d_engine_radius = int(hex_str_clone[:4], 16)
                 if d_engine_radius < 1:
                     self.__fail('engine data cannot be read due to impossible radius')
-                d_engine = hx.HexEngine(d_engine_radius)
+                d_engine = HexEngine(d_engine_radius)
                 d_engine_block_index = 0
-                d_engine_read_limit = (d_engine.length()+3)//4
-                for i in range(d_engine.length()):
-                    d_engine_block_color = -1
-                    c_engine_color = int(hex_str_clone[4+i:5+i], 16)
-                    if c_engine_color == 14:
-                        d_engine_block_color = -2
-                    elif 0 <= c_engine_color <= 13:
-                        d_engine_block_color = c_engine_color
-                    d_engine.get_block(i).set_color(d_engine_block_color)
-                hex_str_clone = hex_str_clone[d_engine.length()+4:]
+                d_engine_read_limit = (len(d_engine)+3)//4
+                hex_str_clone = hex_str_clone[len(d_engine)+4:]
                 for i in range(d_engine_read_limit):
                     d_engine_read_value = int(hex_str_clone[4+i:5+i], 16)
                     d_engine_read_bit = 0
-                    while d_engine_read_bit < 4 and d_engine_block_index < d_engine.length():
+                    while d_engine_read_bit < 4 and d_engine_block_index < len(d_engine):
                         d_engine_block_state = (d_engine_read_value & (0x1 << d_engine_read_bit)) != 0
-                        d_engine.get_block(d_engine_block_index).set_state(d_engine_block_state)
+                        d_engine.set_state(d_engine_block_index, d_engine_block_state)
                         d_engine_read_bit += 1
                         d_engine_block_index += 1
                 if not hex_str_clone[d_engine_read_limit:d_engine_read_limit+2] == 'FF':
@@ -321,17 +312,11 @@ class HexReader:
                 else: hex_str_clone = hex_str_clone[d_engine_read_limit+2:]
                 # read queue
                 d_queue_length = int(hex_str_clone[:4], 16)
-                d_queue_data = [hx.Piece()]
+                d_queue_data = [Piece()]
                 for i in range(d_queue_length):
                     d_queue_piece_byte = int(hex_str_clone[i*3+4:i*3+6], 16)
-                    d_queue_piece_color = -1
-                    c_piece_color = int(hex_str_clone[i*3+6:i*3+7], 16)
-                    if c_piece_color == 14:
-                        d_queue_piece_color = -2
-                    elif 0 <= c_piece_color <= 13:
-                        d_queue_piece_color = c_piece_color
                     try:
-                        d_queue_piece = hx.Piece.piece_from_byte(d_queue_piece_byte, d_queue_piece_color)
+                        d_queue_piece = Piece(d_queue_piece_byte)
                         d_queue_data.append(d_queue_piece)
                     except ValueError:
                         self.__fail('failed to read queue data')
@@ -339,27 +324,21 @@ class HexReader:
                     self.__fail('file data divider cannot be found at the correct position')
                 else: hex_str_clone = hex_str_clone[d_queue_length*3+6:]
                 # read moves
-                d_move_origins = [hx.Hex()]
+                d_move_origins = [Hex()]
                 d_move_indexes = [int()]
-                d_move_queues = [[hx.Piece()]]
+                d_move_queues = [[Piece()]]
                 for i in range(d_turn):
                     d_move_base_index = i * (10 + 3 * d_queue_length)
                     d_move_origin_i = int(hex_str_clone[d_move_base_index:d_move_base_index+4], 16)
                     d_move_origin_k = int(hex_str_clone[d_move_base_index+4:d_move_base_index+8], 16)
-                    d_move_origins.append(hx.Hex.hex(d_move_origin_i, d_move_origin_k))
+                    d_move_origins.append(Hex(d_move_origin_i, d_move_origin_k))
                     d_move_index = int(hex_str_clone[d_move_base_index+8:d_move_base_index+10], 16)
                     d_move_indexes.append(d_move_index)
-                    d_move_queue_data = [hx.Piece()]
+                    d_move_queue_data = [Piece()]
                     for q in range(d_queue_length):
                         d_move_queue_piece_byte = int(hex_str_clone[q*3+d_move_base_index+10:q*3+d_move_base_index+12], 16)
-                        d_move_queue_piece_color = -1
-                        c_move_piece_color = int(hex_str_clone[q*3+d_move_base_index+12:q*3+d_move_base_index+13], 16)
-                        if c_move_piece_color == 14:
-                            d_move_queue_piece_color = -2
-                        elif 0 <= c_move_piece_color <= 13:
-                            d_move_queue_piece_color = c_move_piece_color
                         try:
-                            d_move_queue_piece = hx.Piece.piece_from_byte(d_move_queue_piece_byte, d_move_queue_piece_color)
+                            d_move_queue_piece = Piece(d_move_queue_piece_byte)
                             d_move_queue_data.append(d_move_queue_piece)
                         except ValueError:
                             self.__fail('failed to read queue data in move data')
@@ -429,7 +408,7 @@ class HexReader:
         return "".join(builder)
 
 
-def smart_read_f () -> [HexReader]:
+def smart_read_f () -> list[HexReader]:
     """
     Constructs and reads all valid HexReader objects from .hpyhex files.
     :returns: A list of HexReader objects for which the both game file and data exists, with .read() already called on each.
