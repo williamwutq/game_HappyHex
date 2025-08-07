@@ -643,7 +643,7 @@ class HexEngine:
         elif isinstance(arg, str):
             # Accept a string representation of either X/O or 1/0
             arg = arg.strip()
-            if not all(c in "01" for c in arg) or all(c in "XO" for c in arg):
+            if not all(c in "01" for c in arg) and not all(c in "XO" for c in arg):
                 raise ValueError("String must contain only '0' or '1', or 'X' or 'O'")
             self.__radius = self.solve_radius(len(arg))
             if self.__radius < 1:
