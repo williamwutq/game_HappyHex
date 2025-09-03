@@ -245,12 +245,7 @@ public final class GameEssentials implements GameGUIInterface {
             gameLogger = logger;
             // Logger initialize
             if (logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize) {
-                for (hex.Block block : logger.getEngine().blocks()) {
-                    if (block != null && block.getState()) {
-                        hex.Block cloned = block.clone();
-                        engine.setBlock(block.getLineI(), block.getLineK(), cloned);
-                    }
-                }
+                engine = logger.getEngine().clone();
                 Piece[] loggerQueue = logger.getQueue();
                 for (int i = 0; i < loggerQueue.length; i++) {
                     Piece piece = loggerQueue[i];
