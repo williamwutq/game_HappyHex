@@ -542,8 +542,10 @@ public final class GameEssentials implements GameGUIInterface {
             synchronized (moveLock) {
                 if (!gameLogger.addMove(position, pieceIndex, queue.getPieces())) {
                     // If the move cannot be added, there must be a desync issue. Manually sync the game with the logger.
+                    // See the other part for explanation of desync. In fact, the desync detected here is a bit more
+                    // complicated, but the solution is the same.
                     engine = gameLogger.getEngine().clone();
-                    queue = Queue.fromPieces(gameLogger.getQueue());
+                    queue = Queue.fromPieces(gameLogger.getQueue().clone());
                     gamePanel.updateDisplayedInfo(getTurn(), getScore());
                     // Shutdown autoplay
                     autoplayHandler.genericClose();
@@ -557,6 +559,18 @@ public final class GameEssentials implements GameGUIInterface {
             // Generate animation
             for (int i = 0; i < piece.length(); i++) {
                 addAnimation(createCenterEffect(piece.getBlock(i).add(position)));
+            }
+        } else {
+            // If the move cannot be added, there must be a desync issue. Manually sync the game with the logger.
+            // Desync happen not because we are not syncing, but because graphic elimination is lagging behind the real elimination.
+            // When the autoplay plays faster than elimination, the game will desync. This is to be expected and handled here.
+            // The ony symptom of desync is that the game cannot add a piece, but the logger can.
+            synchronized (moveLock) {
+                engine = gameLogger.getEngine().clone();
+                queue = Queue.fromPieces(gameLogger.getQueue().clone());
+                gamePanel.updateDisplayedInfo(getTurn(), getScore());
+                // Update GUI
+                window.repaint();
             }
         }
         // Reset index
