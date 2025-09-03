@@ -294,4 +294,21 @@ public class PythonEnvsChecker {
         }
         return runnableModels.toArray(new String[0]);
     }
+    /**
+     * Returns the file path of a specific model that can run HappyHex.
+     * This method checks against the list of available models that have been updated.
+     * <p>
+     * However, because the availability of models is always outdated, this method may not reflect the actual availability of the model.
+     *
+     * @param modelName The name of the model to get the path for.
+     * @return The file path of the model, or null if the model is not found.
+     */
+    public static String getModelPath(String modelName) {
+        for (ModelInformation model : availableModels) {
+            if (model.name().equals(modelName)) {
+                return "python/models/" + model.path();
+            }
+        }
+        return null; // Model not found
+    }
 }
