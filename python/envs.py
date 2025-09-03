@@ -81,7 +81,33 @@ def install_torch() -> None:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'torch', 'torchvision', 'torchaudio'])
     except subprocess.CalledProcessError as e:
         raise RuntimeError("Failed to install PyTorch") from e
-    
+
+def check_gpu_tensorflow() -> bool:
+    '''
+    Check if TensorFlow can access a GPU.
+
+    Returns:
+        bool: True if TensorFlow can access a GPU, False otherwise.
+    '''
+    try:
+        import tensorflow as tf
+        return tf.config.list_physical_devices('GPU') != []
+    except ImportError:
+        return False
+
+def check_gpu_torch() -> bool:
+    '''
+    Check if PyTorch can access a GPU.
+
+    Returns:
+        bool: True if PyTorch can access a GPU, False otherwise.
+    '''
+    try:
+        import torch
+        return torch.cuda.is_available()
+    except ImportError:
+        return False
+
 if __name__ == "__main__":
     # Get the running argument
     import sys
@@ -122,5 +148,18 @@ if __name__ == "__main__":
                 print(f"PyTorch: Error {e}")
         else:
             print("PyTorch: Installed")
+    elif sys.argv[1] == "gpu":
+        if len(sys.argv) > 2 and sys.argv[2] == "tf":
+            if check_gpu_tensorflow():
+                print("TensorFlow: GPU Available")
+            else:
+                print("TensorFlow: GPU Unavailable")
+        elif len(sys.argv) > 2 and sys.argv[2] == "torch":
+            if check_gpu_torch():
+                print("PyTorch: GPU Available")
+            else:
+                print("PyTorch: GPU Unavailable")
+        else:
+            exit(1)
     else:
         exit(1)
