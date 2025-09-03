@@ -77,17 +77,17 @@ public class PythonEnvsChecker {
     }
     /**
      * Asynchronously checks and installs TensorFlow if not present.
-     * @return A Future representing the pending completion of the task.
+     * @return A Future representing the pending completion of the task, with a Boolean result
      */
-    public static Future<?> checkAndInstallTensorFlowAsync() {
-        return java.util.concurrent.CompletableFuture.runAsync(PythonEnvsChecker::checkAndInstallTensorFlow);
+    public static Future<Boolean> checkAndInstallTensorFlowAsync() {
+        return java.util.concurrent.CompletableFuture.supplyAsync(PythonEnvsChecker::checkAndInstallTensorFlow);
     }
     /**
      * Asynchronously checks and installs PyTorch if not present.
-     * @return A Future representing the pending completion of the task.
+     * @return A Future representing the pending completion of the task, with a Boolean result
      */
-    public static Future<?> checkAndInstallTorchAsync() {
-        return java.util.concurrent.CompletableFuture.runAsync(PythonEnvsChecker::checkAndInstallTorch);
+    public static Future<Boolean> checkAndInstallTorchAsync() {
+        return java.util.concurrent.CompletableFuture.supplyAsync(PythonEnvsChecker::checkAndInstallTorch);
     }
     /**
      * Executes a Python script and listens for its outputs.
