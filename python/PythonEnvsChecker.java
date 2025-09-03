@@ -24,7 +24,10 @@
 
 package python;
 
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Java end of Python machine learning environments checker.
@@ -38,10 +41,36 @@ import java.util.concurrent.Future;
  * libraries using pip, ensuring that the required environments are set up correctly.
  */
 public class PythonEnvsChecker {
+    /**
+     * A record class to document the information of a machine model that can run HappyHex.
+     * This class contains the name, path, framework, engine type, and queue type of the model.
+     * <p>
+     * The name is the identifier of the model, the path is the file path to the model,
+     * the engine is an integer representing the specific engine radius and queue size supported by the model,
+     * and the specific framework is the machine learning framework used to create the model.
+     * <p>
+     * For queue size, if the value is null, it means the model support all queue sizes.
+     * For engine radius, if the value is null, it means the model supports all engine radii down to 2.
+     * <p>
+     * This is a record class, getters are the same name as the fields. This class is immutable and all objects
+     * are generated in advance. The class is only used inside the PythonEnvsChecker class to store model information.
+     */
+    private record ModelInformation(String name, String path, String frameWork, Integer engine, Integer queue){
+    }
     private static final String[] KEYS = {
         "Installed", "Error"
     };
     private static final String CHECKER_SCRIPT = "python/envs.py";
+    private static final ModelInformation[] SUPPORTED_MODELS = {
+            new ModelInformation("CNN_1", "hex_tensorflow_cnn_5_3_stack_1.keras", "tf", 5, 3),
+            new ModelInformation("CNN_4", "hex_tensorflow_cnn_5_3_stack_4.keras", "tf", 5, 3),
+            new ModelInformation("CNN_40", "hex_tensorflow_cnn_5_3_stack_4_refined_0.keras", "tf", 5, 3),
+            new ModelInformation("CNN_41", "hex_tensorflow_cnn_5_3_stack_4_refined_1.keras", "tf", 5, 3),
+    };
+    private static final List<ModelInformation> availableModels = Collections.synchronizedList(new ArrayList<ModelInformation>());
+    private static volatile boolean isTorchAvailable = false;
+    private static volatile boolean isTensorFlowAvailable = false;
+    private static volatile boolean isMLAvailable = false;
     private PythonEnvsChecker() {
         // Prevent instantiation
     }
@@ -79,14 +108,14 @@ public class PythonEnvsChecker {
      * Asynchronously checks and installs TensorFlow if not present.
      * @return A Future representing the pending completion of the task, with a Boolean result
      */
-    public static Future<Boolean> checkAndInstallTensorFlowAsync() {
+    public static CompletableFuture<Boolean> checkAndInstallTensorFlowAsync() {
         return java.util.concurrent.CompletableFuture.supplyAsync(PythonEnvsChecker::checkAndInstallTensorFlow);
     }
     /**
      * Asynchronously checks and installs PyTorch if not present.
      * @return A Future representing the pending completion of the task, with a Boolean result
      */
-    public static Future<Boolean> checkAndInstallTorchAsync() {
+    public static CompletableFuture<Boolean> checkAndInstallTorchAsync() {
         return java.util.concurrent.CompletableFuture.supplyAsync(PythonEnvsChecker::checkAndInstallTorch);
     }
     /**
@@ -129,5 +158,140 @@ public class PythonEnvsChecker {
         } catch (Exception ignored) {
         }
         return terminationKey;
+    }
+    /**
+     * Checks if a specific machine learning model is available as a file.
+     * This method can be used to verify the presence of models such "hex_torch_5_n_large.pth" or "hex_tensorflow_5_3_large.keras".
+     *
+     * @param model The information of the model to check.
+     *              The model information should include a valid path.
+     * @return true if the model is available, false otherwise.
+     */
+    public static boolean isModelAvailable(ModelInformation model) {
+        java.io.File modelFile = new java.io.File("python/models/" + model.path());
+        return modelFile.exists() && modelFile.isFile();
+    }
+    /**
+     * Update the list of available machine learning models that can run HappyHex.
+     * This method checks the availability of each model defined in SUPPORTED_MODELS.
+     */
+    public static void updateAvailableModels() {
+        availableModels.clear();
+        for (ModelInformation model : SUPPORTED_MODELS) {
+            if (isModelAvailable(model)) {
+                availableModels.add(model);
+            }
+        }
+    }
+
+    public static void run() {
+        // Start futures
+        CompletableFuture<Boolean> tfFuture = checkAndInstallTensorFlowAsync();
+        CompletableFuture<Boolean> torchFuture = checkAndInstallTorchAsync();
+        // When either completes with true, set isMLAvailable
+        tfFuture.thenAccept(result -> {
+            if (result) {
+                isTensorFlowAvailable = true;
+                isMLAvailable = true;
+            }
+        });
+        torchFuture.thenAccept(result -> {
+            if (result) {
+                isTorchAvailable = true;
+                isMLAvailable = true;
+            }
+        });
+        // Call updateAvailableModels to refresh the list of available models
+        updateAvailableModels();
+    }
+    /**
+     * Checks if machine learning environments are available.
+     * This method will return true if either TensorFlow or PyTorch is installed and available, and a machine learning model is present.
+     * This method does not guarantee that the model will run correctly with the installed libraries.
+     *
+     * @return true if at least one of the machine learning libraries is available, false otherwise.
+     */
+    public static boolean isMLAvailable() {
+        return isMLAvailable;
+    }
+    /**
+     * Returns the names of all available machine learning models that can run HappyHex.
+     * The models are defined in the SUPPORTED_MODELS array and checked for availability.
+     * <p>
+     * The data contained here maybe out of date.
+     *
+     * @return An array of strings containing the names of available models.
+     */
+    public static String[] availableModels() {
+        String[] modelNames = new String[availableModels.size()];
+        for (int i = 0; i < availableModels.size(); i++) {
+            modelNames[i] = availableModels.get(i).name();
+        }
+        return modelNames;
+    }
+    /**
+     * Checks if a specific model can run with the available machine learning environments.
+     * This method checks against the list of available models that have been updated.
+     *
+     * @param modelName The name of the model to check.
+     * @return true if the model is available and can run, false otherwise.
+     */
+    public static boolean canRunModel(String modelName) {
+        if (!isMLAvailable) {
+            return false; // No ML environment available
+        }
+        for (ModelInformation model : availableModels) {
+            if (model.name().equals(modelName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Checks if a model can run with the specified engine radius and queue size.
+     * This method checks against the list of available models that have been updated.
+     * <p>
+     * If the model's engine or queue is null, it means the model supports all engine radii or queue sizes respectively.
+     *
+     * @param engineRadius The engine radius to check.
+     * @param queueSize    The queue size to check.
+     * @return true if a model can run with the specified parameters, false otherwise.
+     */
+    public static boolean canRunModel(int engineRadius, int queueSize) {
+        if (!isMLAvailable) {
+            return false; // No ML environment available
+        }
+        for (ModelInformation model : availableModels) {
+            if ((model.engine() == null || model.engine() == engineRadius)
+             && (model.queue() == null || model.queue() == queueSize)
+             && (model.frameWork().equals("tf") && isTensorFlowAvailable || model.frameWork().equals("torch") && isTorchAvailable)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Returns the names of all runnable models that can run with the specified engine radius and queue size.
+     * This method checks against the list of available models that have been updated.
+     * <p>
+     * If the model's engine or queue is null, it means the model supports all engine radii or queue sizes respectively.
+     *
+     * @param engineRadius The engine radius to check.
+     * @param queueSize    The queue size to check.
+     * @return An array of strings containing the names of runnable models.
+     */
+    public static String[] runnableModels(int engineRadius, int queueSize) {
+        if (!isMLAvailable) {
+            return new String[0]; // No ML environment available
+        }
+        List<String> runnableModels = new ArrayList<>();
+        for (ModelInformation model : availableModels) {
+            if ((model.engine() == null || model.engine() == engineRadius)
+                && (model.queue() == null || model.queue() == queueSize)
+                && (model.frameWork().equals("tf") && isTensorFlowAvailable || model.frameWork().equals("torch") && isTorchAvailable)) {
+                runnableModels.add(model.name());
+            }
+        }
+        return runnableModels.toArray(new String[0]);
     }
 }
