@@ -524,7 +524,9 @@ public final class GameEssentials implements GameGUIInterface {
     }
     @Override
     public HexEngine getEngine() {
-        return engine;
+        synchronized (moveLock) {
+            return gameLogger.getEngine();
+        }
     }
     @Override
     public Piece[] getQueue() {
