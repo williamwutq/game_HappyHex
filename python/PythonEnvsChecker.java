@@ -184,6 +184,14 @@ public class PythonEnvsChecker {
         }
     }
 
+    /**
+     * Runs the PythonEnvsChecker to check and install machine learning environments.
+     * This method will start checking for TensorFlow and PyTorch asynchronously.
+     * It will also update the list of available models that can run HappyHex.
+     * <p>
+     * This method should be called at the start of the application to ensure that the machine learning
+     * environments are checked and installed before any model is used.
+     */
     public static void run() {
         // Start futures
         CompletableFuture<Boolean> tfFuture = checkAndInstallTensorFlowAsync();
