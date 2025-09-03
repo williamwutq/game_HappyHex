@@ -41,6 +41,10 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * In addition, if needed, this class can also handle the installation of these
  * libraries using pip, ensuring that the required environments are set up correctly.
+ *
+ * @author William Wu
+ * @version 2.0
+ * @since 2.0
  */
 public class PythonEnvsChecker {
     /**
@@ -60,7 +64,7 @@ public class PythonEnvsChecker {
     private record ModelInformation(String name, String path, String frameWork, Integer engine, Integer queue){
     }
     private static final String[] KEYS = {
-        "Installed", "Error"
+        "Installed", "Error", "Available", "Unavailable"
     };
     private static final String CHECKER_SCRIPT = "python/envs.py";
     private static final ModelInformation[] SUPPORTED_MODELS = {
@@ -72,7 +76,10 @@ public class PythonEnvsChecker {
     private static final List<ModelInformation> availableModels = Collections.synchronizedList(new ArrayList<ModelInformation>());
     private static volatile boolean isTorchAvailable = false;
     private static volatile boolean isTensorFlowAvailable = false;
+    private static volatile boolean isTorchGPUAvailable = false;
+    private static volatile boolean isTensorFlowGPUAvailable = false;
     private static volatile boolean isMLAvailable = false;
+    private static volatile boolean isGPUAvailable = false;
     private PythonEnvsChecker() {
         // Prevent instantiation
     }
@@ -93,6 +100,21 @@ public class PythonEnvsChecker {
         return false;
     }
     /**
+     * Checks if TensorFlow with GPU support is available.
+     * This method checks if TensorFlow is installed and if it has GPU support.
+     * It only returns true if TensorFlow is installed can access a GPU device.
+     * @return true if TensorFlow with GPU support is available, false otherwise.
+     */
+    public static boolean checkTensorFlowGPU() {
+        String result = executePython(CHECKER_SCRIPT, "gpu tf", KEYS);
+        if ("Unavailable".equals(result)) {
+            return false;
+        } else if ("Available".equals(result)) {
+            return true;
+        }
+        return false;
+    }
+    /**
      * Checks if PyTorch is installed and attempts to install it if not.
      *
      * @return true if PyTorch is installed or was successfully installed, false otherwise.
@@ -102,6 +124,21 @@ public class PythonEnvsChecker {
         if ("Error".equals(result)) {
             return false;
         } else if ("Installed".equals(result)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Checks if PyTorch with GPU support is available.
+     * This method checks if PyTorch is installed and if it has GPU support.
+     * It only returns true if PyTorch is installed can access a GPU device.
+     * @return true if PyTorch with GPU support is available, false otherwise.
+     */
+    public static boolean checkTorchGPU() {
+        String result = executePython(CHECKER_SCRIPT, "gpu torch", KEYS);
+        if ("Unavailable".equals(result)) {
+            return false;
+        } else if ("Available".equals(result)) {
             return true;
         }
         return false;
@@ -119,6 +156,20 @@ public class PythonEnvsChecker {
      */
     public static CompletableFuture<Boolean> checkAndInstallTorchAsync() {
         return java.util.concurrent.CompletableFuture.supplyAsync(PythonEnvsChecker::checkAndInstallTorch);
+    }
+    /**
+     * Asynchronously checks for TensorFlow GPU support.
+     * @return A Future representing the pending completion of the task, with a Boolean result
+     */
+    public static CompletableFuture<Boolean> checkTensorFlowGPUAsync() {
+        return java.util.concurrent.CompletableFuture.supplyAsync(PythonEnvsChecker::checkTensorFlowGPU);
+    }
+    /**
+     * Asynchronously checks for PyTorch GPU support.
+     * @return A Future representing the pending completion of the task, with a Boolean result
+     */
+    public static CompletableFuture<Boolean> checkTorchGPUAsync() {
+        return java.util.concurrent.CompletableFuture.supplyAsync(PythonEnvsChecker::checkTorchGPU);
     }
     /**
      * Executes a Python script and listens for its outputs.
@@ -169,7 +220,7 @@ public class PythonEnvsChecker {
      *              The model information should include a valid path.
      * @return true if the model is available, false otherwise.
      */
-    public static boolean isModelAvailable(ModelInformation model) {
+    private static boolean isModelAvailable(ModelInformation model) {
         java.io.File modelFile = new java.io.File("python/models/" + model.path());
         return modelFile.exists() && modelFile.isFile();
     }
@@ -204,12 +255,26 @@ public class PythonEnvsChecker {
                 isTensorFlowAvailable = true;
                 isMLAvailable = true;
             }
+            CompletableFuture<Boolean> tfGPUFuture = checkTensorFlowGPUAsync();
+            tfGPUFuture.thenAccept(gpuResult -> {
+                if (gpuResult) {
+                    isTensorFlowGPUAvailable = true;
+                    isGPUAvailable = true;
+                }
+            });
         });
         torchFuture.thenAccept(result -> {
             if (result) {
                 isTorchAvailable = true;
                 isMLAvailable = true;
             }
+            CompletableFuture<Boolean> torchGPUFuture = checkTorchGPUAsync();
+            torchGPUFuture.thenAccept(gpuResult -> {
+                if (gpuResult) {
+                    isTorchGPUAvailable = true;
+                    isGPUAvailable = true;
+                }
+            });
         });
         // Call updateAvailableModels to refresh the list of available models
         updateAvailableModels();
@@ -223,6 +288,15 @@ public class PythonEnvsChecker {
      */
     public static boolean isMLAvailable() {
         return isMLAvailable;
+    }
+    /**
+     * Checks if a GPU is available for machine learning tasks.
+     * This method will return true if either TensorFlow or PyTorch with GPU support is available.
+     *
+     * @return true if a GPU is available, false otherwise.
+     */
+    public static boolean isGPUAvailable() {
+        return isGPUAvailable;
     }
     /**
      * Returns the names of all available machine learning models that can run HappyHex.
