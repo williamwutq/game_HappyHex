@@ -206,6 +206,9 @@ public final class LaunchEssentials {
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;
         if (Math.random() <= animationChance) GameEssentials.setAnimator(LauncherGUI.getMainFrame()::repaint); // By chance
+        // Start python detection
+        python.PythonEnvsChecker.run();
+        // Print the launch message
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }
     public static void setEasyMode(){
