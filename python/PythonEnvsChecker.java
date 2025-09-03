@@ -24,6 +24,8 @@
 
 package python;
 
+import io.GameTime;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -140,7 +142,7 @@ public class PythonEnvsChecker {
                 String line;
                 boolean terminated = false;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
+                    System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): " + line);
                     for (String key : terminationKeys) {
                         if (line.contains(key)) {
                             process.destroy();
