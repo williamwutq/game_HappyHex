@@ -148,13 +148,21 @@ if __name__ == "__main__":
                 print(f"PyTorch: Error {e}")
         else:
             print("PyTorch: Installed")
-    elif sys.argv[1] == "gpu":
-        if len(sys.argv) > 2 and sys.argv[2] == "tf":
+    elif sys.argv[1] == "gpu" or sys.argv[1] == "gpu tf" or sys.argv[1] == "gpu torch":
+        if sys.argv[1] == "gpu":
+            if len(sys.argv) > 2:
+                second = sys.argv[2]
+            else:
+                exit(1)
+        else:
+            second = sys.argv[1][4:]  # Remove "gpu " prefix
+
+        if second == "tf":
             if check_gpu_tensorflow():
                 print("TensorFlow: GPU Available")
             else:
                 print("TensorFlow: GPU Unavailable")
-        elif len(sys.argv) > 2 and sys.argv[2] == "torch":
+        elif second == "torch":
             if check_gpu_torch():
                 print("PyTorch: GPU Available")
             else:
