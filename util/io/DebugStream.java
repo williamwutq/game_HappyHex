@@ -125,7 +125,11 @@ public class DebugStream extends OutputStream {
             }
             @Override
             public String next() {
-                return nextLine();
+                String line = nextLine();
+                if (line == null) {
+                    throw new java.util.NoSuchElementException("No complete line available");
+                }
+                return line;
             }
         };
     }
@@ -142,6 +146,9 @@ public class DebugStream extends OutputStream {
             }
             @Override
             public Character next() {
+                if (buffer.length() == 0) {
+                    throw new java.util.NoSuchElementException("No character available");
+                }
                 return nextChar();
             }
         };
