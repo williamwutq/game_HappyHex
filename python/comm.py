@@ -24,8 +24,28 @@
 import sys
 from hex import HexEngine, Piece, Hex
 from algos import nrsearch as alg
+from algos import __all__ as allalgos
 
 if __name__ == "__main__":
+    # If there are arguments, get it
+    if len(sys.argv) > 1:
+        arg = sys.argv[1]
+        if arg in allalgos:
+            alg = getattr(__import__('algos', fromlist=[arg]), arg)
+        else:
+            path = arg
+            if len(sys.argv) > 2:
+                name = sys.argv[2]
+            else:
+                name = 'alg'
+            # load alg from path
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("custom_algo", path)
+            custom_algo = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(custom_algo)
+            alg = getattr(custom_algo, name, None)
+            if alg is None:
+                sys.exit(1)
     try:
         # Read commands from stdin
         for line in sys.stdin:
