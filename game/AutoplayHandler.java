@@ -157,8 +157,7 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
         setupPython();
     }
     /**
-     * If not already using a machine learning model and if ML is available,
-     * attempts to set up the Python command processor with a compatible ML model
+     * If ML is available, attempts to set up the Python command processor with a compatible ML model
      * based on the current game settings. If no suitable model is found or if ML
      * is not available, does nothing. Throws an exception if initialization fails.
      * <p>
@@ -171,7 +170,7 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
      * @throws IllegalStateException If the Python process fails to start.
      */
     public void useMLIfAvailable(){
-        if (!usingML && PythonEnvsChecker.isMLAvailable()){
+        if (PythonEnvsChecker.isMLAvailable()){
             // Request the list of available models
             PythonEnvsChecker.updateAvailableModels();
             // Get the engine and queue from gameGUI
