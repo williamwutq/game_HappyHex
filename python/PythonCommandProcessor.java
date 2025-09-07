@@ -25,6 +25,7 @@
 package python;
 
 import comm.CommandProcessor;
+import util.io.DebugStream;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -64,6 +65,8 @@ import java.util.concurrent.RejectedExecutionException;
  * @since 1.4
  */
 public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
+    private static boolean DEBUG_ENABLED = false;
+    public static final DebugStream DEBUG = new DebugStream();
     private final Process process;
     private final BufferedWriter writer;
     private final BufferedReader reader;
@@ -114,6 +117,27 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
     }
 
     /**
+     * Writes a debug message to the debug stream, prefixed with the Python process ID, if debugging is enabled.
+     *
+     * @param message the debug message to write
+     */
+    private void writeToDebug(String message) {
+        if (DEBUG_ENABLED) DEBUG.writeln("(Python " + process.pid() + "): " + message);
+    }
+    /**
+     * Enables or disables debug output for all instances of {@code PythonCommandProcessor}.
+     * When enabled, debug messages will be written to the static {@link #DEBUG} stream.
+     * <p>
+     * To avoid memory issues, it is recommended to disable debug output when not needed, and
+     * always read from the {@code DEBUG} stream to clear the buffer when debug is enabled.
+     *
+     * @param enabled {@code true} to enable debug output, {@code false} to disable it
+     */
+    public static void setDebugEnabled(boolean enabled) {
+        DEBUG_ENABLED = enabled;
+    }
+
+    /**
      * Continuously listens for output from the Python process and forwards it to the
      * callback processor as a command string.
      */
@@ -123,6 +147,7 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
             CommandProcessor processor = this.getCallBackProcessor();
             while ((line = reader.readLine()) != null) {
                 final String received = line.trim();
+                writeToDebug("Received: " + received);
                 if (processor != null && !received.isEmpty()) {
                     try {
                         executor.submit(() -> {
@@ -179,6 +204,7 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
         }
         if (callbackProcessor == null) throw new IllegalStateException("Callback processor must not be null");
         try {
+            writeToDebug("Sending: " + command + " " + String.join(" ", args));
             synchronized (writer) {
                 writer.write(command);
                 for (String arg : args) {
