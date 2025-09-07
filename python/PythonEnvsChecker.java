@@ -436,4 +436,36 @@ public class PythonEnvsChecker {
         }
         return null; // Model not found
     }
+    /**
+     * Returns the name of a specific model given its file path.
+     * This method checks against the list of available models that have been updated.
+     * <p>
+     * However, because the availability of models is always outdated, this method may not reflect the actual availability of the model.
+     *
+     * @param modelPath The file path of the model to get the name for.
+     * @return The name of the model, or null if the model is not found.
+     */
+    public static String getModelName(String modelPath) {
+        for (ModelInformation model : availableModels) {
+            if (model.path().equals(modelPath)) {
+                return model.name();
+            }
+        }
+        return null; // Model not found
+    }
+    /**
+     * Returns the machine learning framework used by a specific model.
+     * This method checks against the list of supported models.
+     *
+     * @param modelName The name of the model to get the framework for.
+     * @return The framework of the model ("tf" for TensorFlow, "torch" for PyTorch), or null if the model is not found.
+     */
+    public static String getModelFramework(String modelName) {
+        for (ModelInformation model : supportedModels) {
+            if (model.name().equals(modelName)) {
+                return model.frameWork();
+            }
+        }
+        return null; // Model not found
+    }
 }
