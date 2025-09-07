@@ -50,6 +50,22 @@ public class DebugStream extends OutputStream {
     public void write(byte[] b) {
         buffer.append(new String(b));
     }
+    /**
+     * Writes the specified string to the buffer.
+     *
+     * @param s the string to write.
+     */
+    public void write(String s) {
+        buffer.append(s);
+    }
+    /**
+     * Writes the specified string followed by a newline character to the buffer.
+     *
+     * @param s the string to write.
+     */
+    public void writeln(String s) {
+        buffer.append(s).append('\n');
+    }
     // Content management
     /**
      * Retrieves the current content of the buffer as a String.
