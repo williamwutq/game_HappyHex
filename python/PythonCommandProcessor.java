@@ -59,7 +59,7 @@ import java.util.concurrent.RejectedExecutionException;
  *   <li>The Python process is terminated if the callback throws {@link InterruptedException} or
  *   if the process ends naturally.</li>
  * </ul></p>
- * @version 1.4
+ * @version 2.0
  * @author William Wu
  * @since 1.4
  */
@@ -81,6 +81,29 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
      */
     public PythonCommandProcessor(String pathToPythonScript) throws IOException {
         ProcessBuilder pb = new ProcessBuilder("python3", pathToPythonScript);
+        this.process = pb.start();
+        this.writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+        this.reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+        this.outputListenerThread = new Thread(this::listenForOutput);
+        this.outputListenerThread.setDaemon(true);
+        this.outputListenerThread.start();
+    }
+    /**
+     * Constructs a new {@code PythonCommandProcessor}, starting a Python 3 process using the
+     * given script path and additional arguments. The Python process must support receiving
+     * commands on standard input and producing results on standard output, one line at a time.
+     *
+     * @param pathToPythonScript the path to the Python script to run
+     * @param args additional arguments to pass to the Python script
+     * @throws IOException if the process cannot be started
+     */
+    public PythonCommandProcessor(String pathToPythonScript, String[] args) throws IOException {
+        String[] command = new String[args.length + 2];
+        command[0] = "python3";
+        command[1] = pathToPythonScript;
+        System.arraycopy(args, 0, command, 2, args.length);
+        ProcessBuilder pb = new ProcessBuilder(command);
         this.process = pb.start();
         this.writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
         this.reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
