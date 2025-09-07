@@ -237,6 +237,7 @@ public final class GameEssentials implements GameGUIInterface {
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
         window = frame;
+        // Construct engine, queue, logger
         synchronized (moveLock) {
             engine = null;
             queue = null;
@@ -261,6 +262,8 @@ public final class GameEssentials implements GameGUIInterface {
                 gameLogger.setTurn(0);
             }
         }
+        // Autoplay
+        autoplayHandler.useMLIfAvailable();
         // Construct GUI
         HexButton.setSize(1);
         piecePanel = new PiecePanel();
