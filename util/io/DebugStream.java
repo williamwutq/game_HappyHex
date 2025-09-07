@@ -2,6 +2,7 @@ package util.io;
 
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.function.Supplier;
 
 /**
  * A debugging output stream that captures written data into an internal buffer.
@@ -168,5 +169,32 @@ public class DebugStream extends OutputStream {
                 return nextChar();
             }
         };
+    }
+    /**
+     * Creates an unstarted daemon thread that continuously reads lines from the buffer
+     * and writes them to the specified OutputStream. The thread flushes each second.
+     * This is useful for redirecting debug output to another stream in real-time.
+     * @param out the OutputStream to write lines to
+     * @param prefix a Supplier that provides a prefix string to prepend to each line.
+     *               If sequence is to be tracked, use a Supplier to generate it dynamically.
+     * @return a daemon thread that copies lines from the buffer to the OutputStream
+     */
+    public Thread copierThread(OutputStream out, Supplier<String> prefix) {
+        Thread t = new Thread(() -> {
+            try {
+                while (true) {
+                    String line = nextLine();
+                    if (line != null) {
+                        out.write((prefix.get() + " " + line + "\n").getBytes());
+                        out.flush();
+                    } else {
+                        Thread.sleep(1000); // Avoid busy-waiting
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        });
+        t.setDaemon(true);
+        return t;
     }
 }
