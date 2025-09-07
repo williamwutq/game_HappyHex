@@ -27,6 +27,7 @@ package python;
 import io.GameTime;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -67,12 +68,12 @@ public class PythonEnvsChecker {
         "Installed", "Error", "Available", "Unavailable"
     };
     private static final String CHECKER_SCRIPT = "python/envs.py";
-    private static final ModelInformation[] SUPPORTED_MODELS = {
+    private static final List<ModelInformation> supportedModels = Arrays.asList(new ModelInformation[]{
             new ModelInformation("CNN_1", "hex_tensorflow_cnn_5_3_stack_1.keras", "tf", 5, 3),
             new ModelInformation("CNN_4", "hex_tensorflow_cnn_5_3_stack_4.keras", "tf", 5, 3),
             new ModelInformation("CNN_40", "hex_tensorflow_cnn_5_3_stack_4_refined_0.keras", "tf", 5, 3),
             new ModelInformation("CNN_41", "hex_tensorflow_cnn_5_3_stack_4_refined_1.keras", "tf", 5, 3),
-    };
+    });
     private static final List<ModelInformation> availableModels = Collections.synchronizedList(new ArrayList<ModelInformation>());
     private static volatile boolean isTorchAvailable = false;
     private static volatile boolean isTensorFlowAvailable = false;
@@ -83,7 +84,47 @@ public class PythonEnvsChecker {
     private PythonEnvsChecker() {
         // Prevent instantiation
     }
-
+    /**
+     * Injects a new model into the supported models list.
+     * This method allows adding new models dynamically to the list of supported models.
+     * It checks for the validity of the framework, engine, and queue parameters before adding.
+     * If a model with the same name or path already exists, it will not be added again.
+     * <p>
+     * Although this method allows adding new models, it does not guarantee that those models will be added
+     * to the available models list. To update the available models list, call {@link #updateAvailableModels()}.
+     * <p>
+     * Only valid models that exist as files in the "python/models/" directory will be added to the available models list.
+     * In a compiled evironment, this means open the application folder, navigate to "python/models/" and place the model files there.
+     *
+     * @param name      The name of the model.
+     * @param path      The file path to the model.
+     * @param framework The machine learning framework used by the model ("tf" for TensorFlow, "torch" for PyTorch).
+     * @param engine    The engine radius supported by the model. If null, supports all engine radii down to 2.
+     * @param queue     The queue size supported by the model. If null, supports all queue sizes.
+     * @return true if the model was successfully added, false if it already exists or parameters are invalid.
+     * @throws IllegalArgumentException if the framework is invalid or if engine/queue values are out of bounds.
+     */
+    public static boolean injectModel(String name, String path, String framework, Integer engine, Integer queue) {
+        ModelInformation model = new ModelInformation(name, path, framework, engine, queue);
+        // Check framework validity
+        if (!framework.equals("tf") && !framework.equals("torch")) {
+            throw new IllegalArgumentException("Invalid framework " + framework);
+        }
+        // Check engine and queue validity
+        if (engine != null && engine < 2) {
+            throw new IllegalArgumentException("Engine radius must be at least 2");
+        }
+        if (queue != null && queue < 1) {
+            throw new IllegalArgumentException("Queue size must be at least 1");
+        }
+        // Check if model already exists
+        for (ModelInformation m : supportedModels) {
+            if (m.name().equals(name) || m.path().equals(path)) {
+                return false; // Model already exists
+            }
+        }
+        return supportedModels.add(model);
+    }
     /**
      * Checks if TensorFlow is installed in the Python environment.
      * If not installed, it attempts to install it.
@@ -226,11 +267,11 @@ public class PythonEnvsChecker {
     }
     /**
      * Update the list of available machine learning models that can run HappyHex.
-     * This method checks the availability of each model defined in SUPPORTED_MODELS.
+     * This method checks the availability of each model defined in supportedModels.
      */
     public static void updateAvailableModels() {
         availableModels.clear();
-        for (ModelInformation model : SUPPORTED_MODELS) {
+        for (ModelInformation model : supportedModels) {
             if (isModelAvailable(model)) {
                 availableModels.add(model);
             }
@@ -300,7 +341,7 @@ public class PythonEnvsChecker {
     }
     /**
      * Returns the names of all available machine learning models that can run HappyHex.
-     * The models are defined in the SUPPORTED_MODELS array and checked for availability.
+     * The models are defined in the supportedModels array and checked for availability.
      * <p>
      * The data contained here maybe out of date.
      *
