@@ -81,8 +81,8 @@ def create_model_predictor(model_path: str, func_name: str) -> callable:
     def predictor(engine, queue):
         try:
             return predict_data(model, engine, queue)
-        except Exception:
-            raise ValueError("Prediction failed")
+        except Exception as e:
+            raise ValueError(f"Prediction failed because {e}")
 
     # Assign function name dynamically
     predictor.__name__ = func_name
