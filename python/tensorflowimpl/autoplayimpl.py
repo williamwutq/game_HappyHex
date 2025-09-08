@@ -6,7 +6,7 @@ import keras
 from ..hex import HexEngine, Piece, Hex
 import tensorflow as tf
 import numpy as np
-from .. import hex as hx
+from .. import ml_hex as hx
 from .hexcnn import HexDynamicConv, HexConv
 
 keras.config.enable_unsafe_deserialization()
