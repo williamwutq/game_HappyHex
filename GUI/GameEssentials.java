@@ -45,6 +45,9 @@ import java.io.IOException;
  * This class is final and cannot be extended.
  */
 public final class GameEssentials implements GameGUIInterface {
+    private GameEssentials() {
+        // Private constructor to prevent instantiation
+    }
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The delay to a typical action of the game, in ms*/
@@ -62,7 +65,7 @@ public final class GameEssentials implements GameGUIInterface {
 
     private static final Object moveLock = new Object(); // Lock to modify the engine and queue
 
-    private static AutoplayHandler autoplayHandler = new AutoplayHandler(new GameEssentials());
+    private static final AutoplayHandler autoplayHandler = new AutoplayHandler(new GameEssentials());
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
@@ -512,6 +515,9 @@ public final class GameEssentials implements GameGUIInterface {
     public static int getHoveredOverIndex() {return hoveredOverIndex;}
     public static int getClickedOnIndex() {return clickedOnIndex;}
 
+    public static AutoplayHandler getAutoplayHandler() {
+        return autoplayHandler;
+    }
     @Override
     public void setEngine(HexEngine newEngine) {
         engine = newEngine;
