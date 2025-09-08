@@ -5,6 +5,9 @@ import python.PythonCommandProcessor;
 import python.PythonEnvsChecker;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Handles lifecycle management and coordination between a {@link GameCommandProcessor}
@@ -95,6 +98,7 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
     private PythonCommandProcessor pythonProcessor;
     private final GameCommandProcessor gameProcessor;
     private final GameGUIInterface gameGUI;
+    private final List<Supplier<Boolean>> mlPreconditions;
     private boolean usingML = false;
     private static final long hardCloseDelay = 600000;
     private static final String defaultPath = "python/comm.py";
@@ -112,6 +116,16 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
         this.lastCloseTime = System.currentTimeMillis();
         this.gameProcessor = new GameCommandProcessor(gameGUI);
         smartSetupPython();
+        this.mlPreconditions = new ArrayList<>();
+        synchronized (mlPreconditions) {
+            this.mlPreconditions.add(PythonEnvsChecker::isMLAvailable);
+            this.mlPreconditions.add(() -> {
+                PythonEnvsChecker.updateAvailableModels();
+                int radius = gameGUI.getEngine().getRadius();
+                int size = gameGUI.getQueue().length;
+                return PythonEnvsChecker.canRunModel(radius, size);
+            });
+        }
     }
     /**
      * Attempts to set up the Python command processor with a machine learning model
@@ -123,35 +137,29 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
      * @throws IllegalStateException If the Python process fails to start.
      */
     public void smartSetupPython() throws IllegalStateException {
-        if (PythonEnvsChecker.isMLAvailable()){
-            // Request the list of available models
-            PythonEnvsChecker.updateAvailableModels();
+        if (shouldUseML()) {
             // Get the engine and queue from gameGUI
             int radius = gameGUI.getEngine().getRadius();
             int size = gameGUI.getQueue().length;
-            if (PythonEnvsChecker.canRunModel(radius, size)){
-                String[] models = PythonEnvsChecker.runnableModels(radius, size);
-                if (models.length > 0){
-                    // Use the first available model
-                    String model = models[0];
-                    String framework = PythonEnvsChecker.getModelFramework(model);
-                    String modelPath = PythonEnvsChecker.getModelPath(model);
-                    if (framework == null || modelPath == null){
-                        System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): No compatible ML model found for " + radius + "-" + size);
-                        setupPython();
-                    } else if (framework.equals("tf")){
-                        setupPython(tensorflowPath, new String[]{modelPath});
-                        System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using TensorFlow model " + model);
-                        usingML = true;
-                    } else if (framework.equals("torch")){
-                        setupPython(torchPath, new String[]{modelPath});
-                        System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
-                        usingML = true;
-                    }
-                    return;
+            String[] models = PythonEnvsChecker.runnableModels(radius, size);
+            if (models.length > 0) {
+                // Use the first available model
+                String model = models[0];
+                String framework = PythonEnvsChecker.getModelFramework(model);
+                String modelPath = PythonEnvsChecker.getModelPath(model);
+                if (framework == null || modelPath == null) {
+                    System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): No compatible ML model found for " + radius + "-" + size);
+                    setupPython();
+                } else if (framework.equals("tf")) {
+                    setupPython(tensorflowPath, new String[]{modelPath});
+                    System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using TensorFlow model " + model);
+                    usingML = true;
+                } else if (framework.equals("torch")) {
+                    setupPython(torchPath, new String[]{modelPath});
+                    System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
+                    usingML = true;
                 }
-            } else {
-                System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): No compatible ML model found for " + radius + "-" + size);
+                return;
             }
         }
         setupPython();
@@ -170,30 +178,26 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
      * @throws IllegalStateException If the Python process fails to start.
      */
     public void useMLIfAvailable(){
-        if (PythonEnvsChecker.isMLAvailable()){
-            // Request the list of available models
-            PythonEnvsChecker.updateAvailableModels();
+        if (shouldUseML()) {
             // Get the engine and queue from gameGUI
             int radius = gameGUI.getEngine().getRadius();
             int size = gameGUI.getQueue().length;
-            if (PythonEnvsChecker.canRunModel(radius, size)){
-                String[] models = PythonEnvsChecker.runnableModels(radius, size);
-                if (models.length > 0){
-                    // Use the first available model
-                    String model = models[0];
-                    String framework = PythonEnvsChecker.getModelFramework(model);
-                    String modelPath = PythonEnvsChecker.getModelPath(model);
-                    if (framework != null && framework.equals("tf")){
-                        hardClose();
-                        setupPython(tensorflowPath, new String[]{modelPath});
-                        System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using TensorFlow model " + model);
-                        usingML = true;
-                    } else if (framework != null && framework.equals("torch")){
-                        hardClose();
-                        setupPython(torchPath, new String[]{modelPath});
-                        System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
-                        usingML = true;
-                    }
+            String[] models = PythonEnvsChecker.runnableModels(radius, size);
+            if (models.length > 0) {
+                // Use the first available model
+                String model = models[0];
+                String framework = PythonEnvsChecker.getModelFramework(model);
+                String modelPath = PythonEnvsChecker.getModelPath(model);
+                if (framework != null && framework.equals("tf")) {
+                    hardClose();
+                    setupPython(tensorflowPath, new String[]{modelPath});
+                    System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using TensorFlow model " + model);
+                    usingML = true;
+                } else if (framework != null && framework.equals("torch")) {
+                    hardClose();
+                    setupPython(torchPath, new String[]{modelPath});
+                    System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
+                    usingML = true;
                 }
             }
         }
@@ -312,5 +316,62 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
         if (gameProcessor != null) {
             return gameProcessor.changeQueryDelay(millis);
         } else return false;
+    }
+    /**
+     * Returns whether the handler is currently using a machine learning model.
+     *
+     * @return true if using ML, false otherwise
+     */
+    public boolean isUsingML(){ return usingML;}
+    /**
+     * Evaluates all preconditions for using machine learning models.
+     * If all preconditions return true, indicates that ML can be used.
+     * If there are no preconditions, returns true by default.
+     *
+     * @return true if all ML preconditions are met, false otherwise
+     */
+    public boolean shouldUseML() {
+        if (mlPreconditions == null) return false;
+        if (mlPreconditions.isEmpty()) return true;
+        synchronized (mlPreconditions) {
+            for (Supplier<Boolean> precondition : mlPreconditions) {
+                if (!precondition.get()) return false;
+            }
+            return true;
+        }
+    }
+    /**
+     * Adds a new precondition for using machine learning models.
+     * The precondition is a Supplier that returns a boolean indicating
+     * whether the condition is met. All preconditions must return true
+     * for ML to be considered usable.
+     * <p>
+     * The precondition to add must not be null and cannot already exist.
+     *
+     * @param precondition the precondition to add
+     */
+    public void addMLPrecondition(Supplier<Boolean> precondition){
+        if (precondition == null) return;
+        synchronized (mlPreconditions) {
+            if (mlPreconditions.contains(precondition)) return;
+            mlPreconditions.add(precondition);
+        }
+    }
+    /**
+     * Removes an existing precondition for using machine learning models.
+     * If the precondition is found and removed, returns true; otherwise, returns false.
+     * <p>
+     * The precondition to remove must not be null and cannot be the default
+     * ML availability check.
+     *
+     * @param precondition the precondition to remove
+     * @return true if the precondition was found and removed, false otherwise
+     */
+    public boolean removeMLPrecondition(Supplier<Boolean> precondition){
+        if (precondition == null || mlPreconditions.isEmpty()) return false;
+        if (precondition.equals((Supplier<Boolean>) PythonEnvsChecker::isMLAvailable)) return false;
+        synchronized (mlPreconditions) {
+            return mlPreconditions.remove(precondition);
+        }
     }
 }
