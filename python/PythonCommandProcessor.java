@@ -25,6 +25,7 @@
 package python;
 
 import comm.CommandProcessor;
+import util.io.DebugStream;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -59,11 +60,13 @@ import java.util.concurrent.RejectedExecutionException;
  *   <li>The Python process is terminated if the callback throws {@link InterruptedException} or
  *   if the process ends naturally.</li>
  * </ul></p>
- * @version 1.4
+ * @version 2.0
  * @author William Wu
  * @since 1.4
  */
 public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
+    private static boolean DEBUG_ENABLED = false;
+    public static final DebugStream DEBUG = new DebugStream();
     private final Process process;
     private final BufferedWriter writer;
     private final BufferedReader reader;
@@ -89,6 +92,51 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
         this.outputListenerThread.setDaemon(true);
         this.outputListenerThread.start();
     }
+    /**
+     * Constructs a new {@code PythonCommandProcessor}, starting a Python 3 process using the
+     * given script path and additional arguments. The Python process must support receiving
+     * commands on standard input and producing results on standard output, one line at a time.
+     *
+     * @param pathToPythonScript the path to the Python script to run
+     * @param args additional arguments to pass to the Python script
+     * @throws IOException if the process cannot be started
+     */
+    public PythonCommandProcessor(String pathToPythonScript, String[] args) throws IOException {
+        String[] command = new String[args.length + 2];
+        command[0] = "python3";
+        command[1] = pathToPythonScript;
+        System.arraycopy(args, 0, command, 2, args.length);
+        ProcessBuilder pb = new ProcessBuilder(command);
+        this.process = pb.start();
+        if (DEBUG_ENABLED) DEBUG.writeln("(Python " + process.pid() + "): Started with command: " + String.join(" ", command));
+        this.writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+        this.reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+        this.outputListenerThread = new Thread(this::listenForOutput);
+        this.outputListenerThread.setDaemon(true);
+        this.outputListenerThread.start();
+    }
+
+    /**
+     * Writes a debug message to the debug stream, prefixed with the Python process ID, if debugging is enabled.
+     *
+     * @param message the debug message to write
+     */
+    private void writeToDebug(String message) {
+        if (DEBUG_ENABLED) DEBUG.writeln("(Python " + process.pid() + "): " + message);
+    }
+    /**
+     * Enables or disables debug output for all instances of {@code PythonCommandProcessor}.
+     * When enabled, debug messages will be written to the static {@link #DEBUG} stream.
+     * <p>
+     * To avoid memory issues, it is recommended to disable debug output when not needed, and
+     * always read from the {@code DEBUG} stream to clear the buffer when debug is enabled.
+     *
+     * @param enabled {@code true} to enable debug output, {@code false} to disable it
+     */
+    public static void setDebugEnabled(boolean enabled) {
+        DEBUG_ENABLED = enabled;
+    }
 
     /**
      * Continuously listens for output from the Python process and forwards it to the
@@ -100,6 +148,7 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
             CommandProcessor processor = this.getCallBackProcessor();
             while ((line = reader.readLine()) != null) {
                 final String received = line.trim();
+                writeToDebug("Received: " + received);
                 if (processor != null && !received.isEmpty()) {
                     try {
                         executor.submit(() -> {
@@ -156,6 +205,7 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
         }
         if (callbackProcessor == null) throw new IllegalStateException("Callback processor must not be null");
         try {
+            writeToDebug("Sending: " + command + " " + String.join(" ", args));
             synchronized (writer) {
                 writer.write(command);
                 for (String arg : args) {

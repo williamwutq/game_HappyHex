@@ -45,6 +45,9 @@ import java.io.IOException;
  * This class is final and cannot be extended.
  */
 public final class GameEssentials implements GameGUIInterface {
+    private GameEssentials() {
+        // Private constructor to prevent instantiation
+    }
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
     /** The delay to a typical action of the game, in ms*/
@@ -62,7 +65,7 @@ public final class GameEssentials implements GameGUIInterface {
 
     private static final Object moveLock = new Object(); // Lock to modify the engine and queue
 
-    private static AutoplayHandler autoplayHandler = new AutoplayHandler(new GameEssentials());
+    private static final AutoplayHandler autoplayHandler = new AutoplayHandler(new GameEssentials());
 
     private static int selectedPieceIndex = -1;
     private static int selectedBlockIndex = -1;
@@ -237,6 +240,7 @@ public final class GameEssentials implements GameGUIInterface {
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
         window = frame;
+        // Construct engine, queue, logger
         synchronized (moveLock) {
             engine = null;
             queue = null;
@@ -245,12 +249,7 @@ public final class GameEssentials implements GameGUIInterface {
             gameLogger = logger;
             // Logger initialize
             if (logger.getEngine().getRadius() == size && logger.getQueue().length == queueSize) {
-                for (hex.Block block : logger.getEngine().blocks()) {
-                    if (block != null && block.getState()) {
-                        hex.Block cloned = block.clone();
-                        engine.setBlock(block.getLineI(), block.getLineK(), cloned);
-                    }
-                }
+                engine = logger.getEngine().clone();
                 Piece[] loggerQueue = logger.getQueue();
                 for (int i = 0; i < loggerQueue.length; i++) {
                     Piece piece = loggerQueue[i];
@@ -266,6 +265,8 @@ public final class GameEssentials implements GameGUIInterface {
                 gameLogger.setTurn(0);
             }
         }
+        // Autoplay
+        autoplayHandler.useMLIfAvailable();
         // Construct GUI
         HexButton.setSize(1);
         piecePanel = new PiecePanel();
@@ -514,6 +515,9 @@ public final class GameEssentials implements GameGUIInterface {
     public static int getHoveredOverIndex() {return hoveredOverIndex;}
     public static int getClickedOnIndex() {return clickedOnIndex;}
 
+    public static AutoplayHandler getAutoplayHandler() {
+        return autoplayHandler;
+    }
     @Override
     public void setEngine(HexEngine newEngine) {
         engine = newEngine;
@@ -524,7 +528,9 @@ public final class GameEssentials implements GameGUIInterface {
     }
     @Override
     public HexEngine getEngine() {
-        return engine;
+        synchronized (moveLock) {
+            return gameLogger.getEngine();
+        }
     }
     @Override
     public Piece[] getQueue() {
@@ -545,8 +551,10 @@ public final class GameEssentials implements GameGUIInterface {
             synchronized (moveLock) {
                 if (!gameLogger.addMove(position, pieceIndex, queue.getPieces())) {
                     // If the move cannot be added, there must be a desync issue. Manually sync the game with the logger.
+                    // See the other part for explanation of desync. In fact, the desync detected here is a bit more
+                    // complicated, but the solution is the same.
                     engine = gameLogger.getEngine().clone();
-                    queue = Queue.fromPieces(gameLogger.getQueue());
+                    queue = Queue.fromPieces(gameLogger.getQueue().clone());
                     gamePanel.updateDisplayedInfo(getTurn(), getScore());
                     // Shutdown autoplay
                     autoplayHandler.genericClose();
@@ -560,6 +568,18 @@ public final class GameEssentials implements GameGUIInterface {
             // Generate animation
             for (int i = 0; i < piece.length(); i++) {
                 addAnimation(createCenterEffect(piece.getBlock(i).add(position)));
+            }
+        } else {
+            // If the move cannot be added, there must be a desync issue. Manually sync the game with the logger.
+            // Desync happen not because we are not syncing, but because graphic elimination is lagging behind the real elimination.
+            // When the autoplay plays faster than elimination, the game will desync. This is to be expected and handled here.
+            // The ony symptom of desync is that the game cannot add a piece, but the logger can.
+            synchronized (moveLock) {
+                engine = gameLogger.getEngine().clone();
+                queue = Queue.fromPieces(gameLogger.getQueue().clone());
+                gamePanel.updateDisplayedInfo(getTurn(), getScore());
+                // Update GUI
+                window.repaint();
             }
         }
         // Reset index
