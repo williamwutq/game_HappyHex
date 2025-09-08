@@ -108,6 +108,7 @@ public class PythonCommandProcessor implements CommandProcessor, AutoCloseable {
         System.arraycopy(args, 0, command, 2, args.length);
         ProcessBuilder pb = new ProcessBuilder(command);
         this.process = pb.start();
+        if (DEBUG_ENABLED) DEBUG.writeln("(Python " + process.pid() + "): Started with command: " + String.join(" ", command));
         this.writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
         this.reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
