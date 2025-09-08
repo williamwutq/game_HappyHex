@@ -21,7 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 """
-import sys
+import sys, os
 from hex import HexEngine, Piece, Hex
 
 # This script only allow loading of one model, specified by path
@@ -29,12 +29,16 @@ from hex import HexEngine, Piece, Hex
 # The model should be a keras model saved using model.save('path')
 
 if __name__ == "__main__":
+    sys.path.append(os.path.dirname(os.path.dirname(__file__))) # Add parent directory to path
     # If there are arguments, get it
     if len(sys.argv) > 1:
         path = sys.argv[1]
         # Create model from path
-        from tensorflowimpl.autoplayimpl import create_model_predictor
-        from keras import backend
+        try:
+            from python.tensorflowimpl.autoplayimpl import create_model_predictor
+            from keras import backend
+        except ImportError as e:
+            sys.exit(1)
         try:
             alg = create_model_predictor(path, 'alg')
         except Exception as e:
@@ -76,7 +80,11 @@ if __name__ == "__main__":
                                 continue
                             queue.append(piece)
                         # evaluate
-                        best_piece_option, best_position_option = alg(engine, queue)
+                        try:
+                            best_piece_option, best_position_option = alg(engine, queue)
+                        except Exception as e:
+                            print(f"Error encountered: {e}", flush=True)
+                            break
                         # type check
                         if not isinstance(best_piece_option, int):
                             try:
@@ -91,5 +99,6 @@ if __name__ == "__main__":
                         # call
                         print(f'move {best_position_option.i} {best_position_option.k} {best_piece_option}', flush=True)
     except KeyboardInterrupt:
+        print('Interrupted', flush=True)
         backend.clear_session() # Clear TensorFlow session to free resources
         sys.exit(0)
