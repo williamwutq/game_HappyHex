@@ -3,12 +3,9 @@ package achievements;
 import io.JsonConvertible;
 import io.Username;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
-import java.util.ArrayList;
-import java.util.List;
+import javax.json.*;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * The {@code UserAchievements} class represents a collection of game achievements associated with a specific user.
@@ -40,11 +37,11 @@ import java.util.List;
  */
 public class UserAchievements implements JsonConvertible {
     private final Username user;
-    private final List<GameAchievement> achievements;
+    private final Set<GameAchievement> achievements;
 
     /**
      * Constructs a UserAchievements object for the specified user.
-     * The achievements list is initialized as an empty list.
+     * The achievements set is initialized as an empty set.
      * <p>
      * The constructor is thread safe as it only initializes final fields.
      * @param user the Username of the user whose achievements are being tracked
@@ -53,7 +50,7 @@ public class UserAchievements implements JsonConvertible {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
-        this.achievements = new ArrayList<GameAchievement>();
+        this.achievements = new HashSet<GameAchievement>();
         this.user = user;
     }
     /**
@@ -66,20 +63,20 @@ public class UserAchievements implements JsonConvertible {
         return user;
     }
     /**
-     * Returns an unmodifiable list of the user's achievements. Used by the AUT thread.
-     * The returned list cannot be modified to ensure the integrity of the achievement data.
+     * Returns an unmodifiable set of the user's achievements. Used by the AUT thread.
+     * The returned set cannot be modified to ensure the integrity of the achievement data.
      * <p>
      * However, the items are mutable, as they do not have direct setters, but can only be
      * updated through update methods.
      * <p>
-     * However, use the resulting achievements list outside the AUT thread is not recommended,
+     * However, use the resulting achievements set outside the AUT thread is not recommended,
      * as the achievements may be updated in the AUT thread. If you want a copy of the list,
      * run the method in the AUT thread with {@link GameAchievement#invokeLater} and cache the result.
      *
      * @return an unmodifiable list of GameAchievement objects representing the user's achievements.
      */
-    public List<GameAchievement> getAchievements() {
-        return List.copyOf(achievements);
+    public Set<GameAchievement> getAchievements() {
+        return Collections.unmodifiableSet(achievements);
     }
     /**
      * Converts the user's achievements to a JsonArrayBuilder.
@@ -87,15 +84,35 @@ public class UserAchievements implements JsonConvertible {
      * <p>
      * This method is thread safe as it uses {@link GameAchievement#invokeLater(Runnable)}
      * to ensure that the conversion is done in a thread-safe manner.
+     * It blocks the current thread until the conversion is complete.
      * @return a JsonArrayBuilder containing the user's achievements in JSON format
+     * @throws JsonException if there is an error during JSON conversion
      */
-    public JsonArrayBuilder toJsonArrayBuilder() {
+    public JsonArrayBuilder toJsonArrayBuilder() throws JsonException {
         JsonArrayBuilder jab = Json.createArrayBuilder();
-        GameAchievement.invokeLater(() -> {
+        if (GameAchievement.inAUT()) {
+            // If this is the AUT thread, then run directly
             for (GameAchievement ga : achievements) {
                 jab.add(ga.toJsonObject());
             }
+            return jab;
+        }
+        CountDownLatch latch = new CountDownLatch(1);
+        GameAchievement.invokeLater(() -> {
+            try {
+                for (GameAchievement ga : achievements) {
+                    jab.add(ga.toJsonObject());
+                }
+            } finally {
+                latch.countDown();
+            }
         });
+        try {
+            latch.await(); // block until invokeLater runnable completes
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new JsonException("Thread interrupted during achievement operation", e);
+        }
         return jab;
     }
     /**
@@ -104,6 +121,7 @@ public class UserAchievements implements JsonConvertible {
      * <p>
      * This method is thread safe as it uses {@link GameAchievement#invokeLater(Runnable)}
      * to ensure that the conversion is done in a thread-safe manner.
+     * It blocks the current thread until the conversion is complete.
      * @return a JsonObjectBuilder representing the UserAchievements in JSON format
      */
     public JsonObjectBuilder toJsonObjectBuilder() {
@@ -113,9 +131,9 @@ public class UserAchievements implements JsonConvertible {
         return job;
     }
     /**
-     * Adds a new achievement to the user's list of achievements.
+     * Adds a new achievement to the user's set of achievements.
      * If the achievement is null or does not belong to the user, an IllegalArgumentException is thrown.
-     * If the achievement already exists in the list, it is not added again.
+     * If the achievement already exists in the set, it is not added again.
      * <p>
      * This method is not thread safe. It should be called from the AUT thread.
      * If you want to call it from another thread, use {@link GameAchievement#invokeLater(Runnable)}
@@ -130,12 +148,10 @@ public class UserAchievements implements JsonConvertible {
         if (!achievement.getUser().equals(this.user)) {
             throw new IllegalArgumentException("Achievement user does not match");
         }
-        if (!achievements.contains(achievement)) {
-            achievements.add(achievement);
-        }
+        achievements.add(achievement);
     }
     /**
-     * Adds multiple achievements to the user's list of achievements.
+     * Adds multiple achievements to the user's set of achievements.
      * Each achievement is added using the addAchievement method, ensuring that
      * null values and user mismatches are handled appropriately.
      * <p>
@@ -150,19 +166,22 @@ public class UserAchievements implements JsonConvertible {
      */
     public void addAllAchievements(List<GameAchievement> achievements) {
         for (GameAchievement ga : achievements) {
-            try{addAchievement(ga);}
+            try{
+                addAchievement(ga);
+            }
             catch (IllegalArgumentException ignored){}
         }
     }
     /**
-     * Deserializes a JsonArray into the user's list of achievements.
+     * Deserializes a JsonArray into the user's set of achievements.
      * This method populates it with achievements created from the provided JsonArray.
      * <p>
      * This method is unsafe as it does not validate the achievements being added.
      * It is assumed that the JsonArray contains valid achievement data.
      * <p>
      * This method is thread safe as it uses {@link GameAchievement#invokeLater(Runnable)}
-     * to ensure that the modification of the achievements list is done in a thread-safe manner.
+     * to ensure that the modification of the achievements set is done in a thread-safe manner.
+     * It blocks until the addition is complete to ensure consistency.
      *
      * @param ja the JsonArray containing achievement data
      * @throws DataSerializationException if there is an error during deserialization
@@ -172,18 +191,37 @@ public class UserAchievements implements JsonConvertible {
         for (int i = 0; i < ja.size(); i++) {
             temp.add(GameAchievement.fromJsonObject(ja.getJsonObject(i)));
         }
-        GameAchievement.invokeLater(() -> achievements.addAll(temp));
+        if (GameAchievement.inAUT()) {
+            // If this is the AUT thread, then run directly
+            achievements.addAll(temp);
+            return;
+        }
+        CountDownLatch latch = new CountDownLatch(1);
+        GameAchievement.invokeLater(() -> {
+            try {
+                achievements.addAll(temp);
+            } finally {
+                latch.countDown();
+            }
+        });
+        try {
+            latch.await(); // block until invokeLater runnable completes
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new DataSerializationException("Thread interrupted during achievement operation", e);
+        }
     }
     /**
-     * Deserializes a JsonArray into the user's list of achievements.
+     * Deserializes a JsonArray into the user's set of achievements.
      * This method creates a temporary list of achievements from the provided JsonArray
-     * and only adds them to the user's list if all achievements are successfully deserialized.
+     * and only adds them to the user's set if all achievements are successfully deserialized.
      * <p>
      * This method is safe as it ensures that either all achievements are added or none are,
      * maintaining the integrity of the user's achievement data.
      * <p>
      * This method is thread safe as it uses {@link GameAchievement#invokeLater(Runnable)}
-     * to ensure that the modification of the achievements list is done in a thread-safe manner.
+     * to ensure that the modification of the achievements set is done in a thread-safe manner.
+     * It blocks until the addition is complete to ensure consistency.
      *
      * @param ja the JsonArray containing achievement data
      * @throws DataSerializationException if there is an error during deserialization
@@ -194,6 +232,24 @@ public class UserAchievements implements JsonConvertible {
             temp.add(GameAchievement.fromJsonObject(ja.getJsonObject(i)));
         }
         // If all deserialized successfully, add them
-        addAllAchievements(temp);
+        if (GameAchievement.inAUT()) {
+            // If this is the AUT thread, then run directly
+            addAllAchievements(temp);
+            return;
+        }
+        CountDownLatch latch = new CountDownLatch(1);
+        GameAchievement.invokeLater(() -> {
+            try {
+                addAllAchievements(temp);
+            } finally {
+                latch.countDown();
+            }
+        });
+        try {
+            latch.await(); // block until invokeLater runnable completes
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new DataSerializationException("Thread interrupted during achievement operation", e);
+        }
     }
 }
