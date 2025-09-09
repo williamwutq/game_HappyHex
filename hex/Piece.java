@@ -75,7 +75,7 @@ package hex;
  * @see Hex#getLines()
  * @since 1.0
  * @author William Wu
- * @version 1.3
+ * @version 2.0
  */
 public class Piece implements HexGrid{
     private Block[] blocks;
@@ -337,6 +337,15 @@ public class Piece implements HexGrid{
         data = (byte) (data << 1);
         if (getState(1, 1)) data ++;
         return (byte) (data & mask);
+    }
+    /**
+     * Returns a hash code value for the piece.
+     * The hash code is derived from the byte representation of the piece.
+     * @return a hash code value for this piece.
+     * @see #toByte()
+     */
+    public int hashCode(){
+        return toByte();
     }
     /**
      * Construct a standard 7 or less {@link Block} piece from a byte data.
