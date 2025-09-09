@@ -1,0 +1,54 @@
+{
+  "Game": "HappyHex",
+  "Environment": "java",
+  "Version": {
+    "Major": 2,
+    "Minor": 0,
+    "Patch": 0
+  },
+  "Achievements" : [
+    {
+      "type": "JavaBuildIn",
+      "name": "Identity, Destiny",
+      "description": "Have all pieces in the queue be the exact same piece"
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "I've got something",
+      "description": "Achieve 10 turns and score of 36 in any game in any game mode",
+      "turnRequirement": [10, 10, 10],
+      "scoreRequirement": [36, 36, 36]
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "In my 20s",
+      "description": "Achieve 20 turns and score of 72 in any game in any game mode",
+      "turnRequirement": [20, 20, 20],
+      "scoreRequirement": [72, 72, 72]
+    },
+    {
+      "type": "QueueBasedAchievement",
+      "name": "Trio",
+      "description": "Have a set of three line pieces in the queue at the same time",
+      "requiredLeastLength": 3,
+      "requiredMostLength": 5,
+      "requiredPieces": [28, 73, 42]
+    },
+    {
+      "type": "QueueBasedAchievement",
+      "name": "Big Block Party",
+      "description": "Have three big blocks in the queue at the same time",
+      "requiredLeastLength": 3,
+      "requiredMostLength": 127,
+      "requiredPieces": [127, 127, 127]
+    },
+    {
+      "type": "QueueBasedAchievement",
+      "name": "I'm a big fan of this",
+      "description": "Have two of each of the two fan pieces in the queue at the same time",
+      "requiredLeastLength": 3,
+      "requiredMostLength": 127,
+      "requiredPieces": [78, 78, 57, 57]
+    }
+  ]
+}
