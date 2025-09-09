@@ -16,7 +16,11 @@ public class GameAchievement implements JsonConvertible {
     private static final List<GameAchievement> activeAchievements = new ArrayList<GameAchievement>();
     private static Username activeUser = null;
     private static final int AUT_DELAY = 60;
-    private static ExecutorService autExecutor = Executors.newSingleThreadExecutor(); // Achievement Update Thread Executor
+    private static final ExecutorService autExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r);
+        t.setName("Achievement-Update-Thread");
+        return t;
+    }); // Achievement Update Thread Executor
     private static Thread autClockThread = new Thread(() -> {
         while (true) {
             try {
@@ -215,10 +219,24 @@ public class GameAchievement implements JsonConvertible {
     /**
      * Schedules a task to be executed in the achievement update thread.
      * This method is thread-safe and can be called from any thread.
+     * <p>
+     * For some code, it may be necessary to check if the current thread is the achievement update thread
+     * using {@link #inAUT()} before executing certain operations. If the current thread is the achievement,
+     * you can execute the code directly; otherwise, use this method to schedule the task.
+     * @see #inAUT()
      * @param task the Runnable task to be executed
      */
     public static void invokeLater(Runnable task){
         autExecutor.submit(task);
+    }
+    /**
+     * Shuts down the achievement update thread.
+     * This method will stop the thread and prevent any further achievement updates.
+     * It is recommended to call this method when the application is closing to ensure a clean shutdown.
+     */
+    public static void shutdownAUT(){
+        autExecutor.shutdownNow();
+        autClockThread.interrupt();
     }
     /**
      * Sets the active user for achievement tracking.
@@ -233,5 +251,20 @@ public class GameAchievement implements JsonConvertible {
             activeAchievements.clear();
         });
     }
-
+    /**
+     * Returns the currently active user for achievement tracking.
+     * @return the Username of the active user, or null if no user is active
+     */
+    public static Username getActiveUser(){
+        return activeUser;
+    }
+    /**
+     * Returns whether the current thread is the achievement update thread.
+     * This can be used to ensure that certain operations are only performed on the correct thread.
+     * @see #invokeLater(Runnable)
+     * @return {@code true} if the current thread is the achievement update thread, {@code false} otherwise
+     */
+    public static boolean inAUT(){
+        return Thread.currentThread().getName().equals("Achievement-Update-Thread");
+    }
 }
