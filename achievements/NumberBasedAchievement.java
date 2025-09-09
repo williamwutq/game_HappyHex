@@ -127,6 +127,34 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
     }
     /**
      * {@inheritDoc}
+     * Compares this achievement to another object for equality.
+     * Two achievements are considered equal if they have the same name, description,
+     * turn requirements, and score requirements.
+     * @param obj the object to compare with
+     * @return {@code true} if the objects are equal, {@code false} otherwise
+     */
+    public boolean equals(Object obj){
+        if (this == obj) return true;
+        if (!(obj instanceof NumberBasedAchievement other)) return false;
+        return name.equals(other.name)
+                && java.util.Arrays.equals(turnRequirement, other.turnRequirement)
+                && java.util.Arrays.equals(scoreRequirement, other.scoreRequirement);
+    }
+    /**
+     * {@inheritDoc}
+     * Returns a hash code value for the achievement.
+     * The hash code is computed based on the name, description, turn requirements, and score requirements.
+     * @return a hash code value for the achievement
+     */
+    public int hashCode(){
+        int result = name.hashCode();
+        result = 31 * result + description.hashCode();
+        result = 31 * result + java.util.Arrays.hashCode(turnRequirement);
+        result = 31 * result + java.util.Arrays.hashCode(scoreRequirement);
+        return result;
+    }
+    /**
+     * {@inheritDoc}
      * Converts the achievement to a JSON object builder.
      * @return a {@link JsonObjectBuilder} representing the achievement
      */

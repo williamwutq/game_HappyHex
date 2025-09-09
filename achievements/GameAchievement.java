@@ -72,6 +72,26 @@ public class GameAchievement implements JsonConvertible {
         this.achieved = achieved;
     }
 
+    /**
+     * {@inheritDoc}
+     * @param obj the object to compare with
+     * @return {@code true} if the objects are equal, {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof GameAchievement other)) return false;
+        return template.equals(other.template) && user.equals(other.user);
+    }
+    /**
+     * {@inheritDoc}
+     * @return the hash code of the achievement
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(template, user);
+    }
+
     // Getters
     /**
      * Returns the {@link GameAchievementTemplate} associated with this achievement.
