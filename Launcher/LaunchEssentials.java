@@ -25,7 +25,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
-import game.AutoplayHandler;
+import achievements.GameAchievement;
 import hexio.HexLogger;
 import io.*;
 
@@ -40,6 +40,9 @@ import java.util.Collections;
  * This class is final and cannot be extended.
  */
 public final class LaunchEssentials {
+    private LaunchEssentials() {
+        // Prevent instantiation
+    }
     // Program info
     public static final GameVersion currentGameVersion = new GameVersion(2, 0, 0);
     public static final String currentGameName = "HappyHex";
@@ -167,6 +170,11 @@ public final class LaunchEssentials {
         gameStarted = false;
     }
     public static void setCurrentPlayer(Username currentPlayer, long currentPlayerID) {
+        if (currentPlayer == null || currentPlayer.equals("Guest") || currentPlayerID == -1) {
+            GameAchievement.unloadActive();
+        } else {
+            GameAchievement.setActiveUser(currentPlayer);
+        }
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
     }
@@ -209,6 +217,8 @@ public final class LaunchEssentials {
         if (Math.random() <= animationChance) GameEssentials.setAnimator(LauncherGUI.getMainFrame()::repaint); // By chance
         // Start python detection
         python.PythonEnvsChecker.run();
+        // Achievement System
+        GameAchievement.startAchievementSystem();
         // Hook up the debug stream of python to console
 //         python.PythonCommandProcessor.setDebugEnabled(true);
 //         python.PythonCommandProcessor.DEBUG.copierThread(System.out, () -> (GameTime.generateSimpleTime() + (GameEssentials.getAutoplayHandler().isUsingML() ? " Hpyhexml" : " Autoplay"))).start();

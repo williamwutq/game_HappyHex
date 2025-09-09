@@ -26,6 +26,7 @@ package Launcher;
 
 import GUI.GameEssentials;
 import Launcher.panel.*;
+import achievements.GameAchievement;
 
 import javax.swing.*;
 import java.awt.*;
@@ -169,6 +170,7 @@ public class LauncherGUI {
                 GameEssentials.closeAnimator();
                 System.out.println(io.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
+                GameAchievement.shutdownAchievementSystem();
                 System.exit(0);
             }
         });
