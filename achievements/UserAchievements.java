@@ -139,7 +139,8 @@ public class UserAchievements implements JsonConvertible {
      * If you want to call it from another thread, use {@link GameAchievement#invokeLater(Runnable)}
      * to ensure thread safety.
      * @param achievement the GameAchievement to be added
-     * @throws IllegalArgumentException if the achievement is null or does not belong to the user
+     * @throws IllegalArgumentException if the achievement is null or does not belong to the user, or
+     *                                  if the achievement template does not match the registered template
      */
     public void addAchievement(GameAchievement achievement) {
         if (achievement == null) {
@@ -147,6 +148,12 @@ public class UserAchievements implements JsonConvertible {
         }
         if (!achievement.getUser().equals(this.user)) {
             throw new IllegalArgumentException("Achievement user does not match");
+        }
+        GameAchievementTemplate template = achievement.getTemplate();
+        GameAchievement.registerTemplate(template); // Ensure that the template is registered
+        GameAchievementTemplate existing = GameAchievement.getTemplateByName(template.name());
+        if (existing == null || !existing.equals(template)) {
+            throw new IllegalArgumentException("Achievement template does not match registered template");
         }
         achievements.add(achievement);
     }
