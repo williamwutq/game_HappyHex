@@ -145,9 +145,9 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
      * The JSON object must contain the fields "name", "description", "turnRequirement", and "scoreRequirement".
      * @param obj the JSON object representing the achievement
      * @return a NumberBasedAchievement instance
-     * @throws IllegalArgumentException if the JSON object is invalid or missing required fields
+     * @throws DataSerializationException if the JSON object is invalid or missing required fields
      */
-    public static NumberBasedAchievement fromJsonObject(JsonObject obj){
+    public static NumberBasedAchievement fromJsonObject(JsonObject obj) throws DataSerializationException {
         try {
             String name = obj.getString("name");
             String description = obj.getString("description");
@@ -157,7 +157,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
             int[] scoreRequirement = scoreArray.stream().mapToInt(v -> ((javax.json.JsonNumber) v).intValue()).toArray();
             return new NumberBasedAchievement(turnRequirement, scoreRequirement, name, description);
         } catch (Exception e){
-            throw new IllegalArgumentException("Invalid JSON object for NumberBasedAchievement", e);
+            throw new DataSerializationException("Invalid JSON object for NumberBasedAchievement", e);
         }
     }
 }
