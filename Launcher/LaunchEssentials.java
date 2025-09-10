@@ -53,6 +53,7 @@ public final class LaunchEssentials {
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
+    private static boolean mlEnabled = true;
 
     // Graphics Theme
     private static int themeIndex = 2;
@@ -212,8 +213,17 @@ public final class LaunchEssentials {
         // Hook up the debug stream of python to console
 //         python.PythonCommandProcessor.setDebugEnabled(true);
 //         python.PythonCommandProcessor.DEBUG.copierThread(System.out, () -> (GameTime.generateSimpleTime() + (GameEssentials.getAutoplayHandler().isUsingML() ? " Hpyhexml" : " Autoplay"))).start();
+        GameEssentials.getAutoplayHandler().addMLPrecondition(() -> mlEnabled);
         // Print the launch message
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
+    }
+    public static void setMLEnabled(){
+        mlEnabled = true;
+        System.out.println(GameTime.generateSimpleTime() + " Autoplay (Python): Machine learning enabled");
+    }
+    public static void setMLDisabled(){
+        mlEnabled = false;
+        System.out.println(GameTime.generateSimpleTime() + " Autoplay (Python): Machine learning disabled");
     }
     public static void setEasyMode(){
         if (currentGameInfo.getGameMode() == GameMode.Small){
