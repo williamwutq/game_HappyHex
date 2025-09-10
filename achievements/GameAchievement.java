@@ -543,10 +543,13 @@ public class GameAchievement implements JsonConvertible {
      * @see #setActiveUser(UserAchievements)
      */
     public static void injectActiveAchievements(List<GameAchievement> achievements){
-        if (achievements == null || activeUser == null) {
+        if (achievements == null) {
             return;
         }
         if (inAUT()) {
+            if (activeUser == null) {
+                return;
+            }
             for (GameAchievement achievement : achievements) {
                 if (achievement.getUser().equals(activeUser) && notInAchievements(achievement.getTemplate().name())) {
                     activeAchievements.add(achievement);
@@ -555,6 +558,9 @@ public class GameAchievement implements JsonConvertible {
             return;
         }
         autExecutor.submit(() -> {
+            if (activeUser == null) {
+                return;
+            }
             for (GameAchievement achievement : achievements) {
                 if (achievement.getUser().equals(activeUser) && notInAchievements(achievement.getTemplate().name())) {
                     activeAchievements.add(achievement);
@@ -577,8 +583,8 @@ public class GameAchievement implements JsonConvertible {
      * @see #setActiveUser(UserAchievements)
      */
     public static void completeActiveAchievement() {
-        if (activeUser == null) return;
         invokeLater(() -> {
+            if (activeUser == null) return;
             Set<String> existingNames = activeAchievements.stream()
                     .map(a -> a.getTemplate().name())
                     .collect(Collectors.toSet());
