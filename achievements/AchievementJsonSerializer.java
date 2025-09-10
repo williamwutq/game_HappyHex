@@ -55,6 +55,7 @@ public class AchievementJsonSerializer {
         achievements.NumberBasedAchievement.load();
         achievements.QueueBasedAchievement.load();
         achievements.SerialAchievement.load();
+        achievements.EliminationAchievement.load();
     }
     /**
      * Registers a custom achievement class with a deserializer function.
