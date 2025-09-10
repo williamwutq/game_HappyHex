@@ -47,9 +47,6 @@ import hex.Piece;
  * @since 2.0
  */
 public class IdenticalQueueAchievement implements GameAchievementTemplate{
-    static {
-        AchievementJsonSerializer.registerBuildInClass(IdenticalQueueAchievement.class);
-    }
     /**
      * Creates a new IdenticalQueueAchievement.
      * The achievement is achieved if all pieces in the current piece queue are identical.
