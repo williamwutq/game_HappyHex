@@ -26,6 +26,7 @@ package Launcher;
 
 import GUI.GameEssentials;
 import achievements.GameAchievement;
+import achievements.GameAchievementTemplate;
 import hexio.HexLogger;
 import io.*;
 
@@ -224,6 +225,11 @@ public final class LaunchEssentials {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        // Debug: prints out all templates
+//        System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: Loaded " + GameAchievement.getTemplates().size() + " achievement templates:");
+//        for (GameAchievementTemplate t : GameAchievement.getTemplates()){
+//             System.out.println("    " + t.name() + ": " + t.description());
+//        }
         // Hook up the debug stream of python to console
 //         python.PythonCommandProcessor.setDebugEnabled(true);
 //         python.PythonCommandProcessor.DEBUG.copierThread(System.out, () -> (GameTime.generateSimpleTime() + (GameEssentials.getAutoplayHandler().isUsingML() ? " Hpyhexml" : " Autoplay"))).start();
