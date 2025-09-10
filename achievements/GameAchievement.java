@@ -108,6 +108,7 @@ import java.util.stream.Collectors;
  */
 public class GameAchievement implements JsonConvertible {
     private static final String TEMPLATES_FILE = "achievements/buildin.hpyhexach.json";
+    private static final String USER_DIRECTORY = "users/achievements/";
     private static final Set<GameAchievementTemplate> TEMPLATES = new HashSet<GameAchievementTemplate>();
     private static final Set<GameAchievement> activeAchievements = new HashSet<GameAchievement>();
     private static volatile Supplier<GameState> gameStateSupplier = null;
@@ -431,6 +432,32 @@ public class GameAchievement implements JsonConvertible {
         });
     }
     /**
+     * Serializes the active user's achievements to a JSON file.
+     * The file will be saved in the {@code users/achievements/} directory with the filename
+     * corresponding to the active user's username.
+     * <p>
+     * This method is thread-safe and will be executed in the achievement update thread.
+     * If no user is active, this method will have no effect.
+     * <p>
+     * The method blocks currently until the serialization is complete. If this is not desired,
+     * wrap this call in {@link CompletableFuture#runAsync(Runnable)} or similar.
+     * @throws IOException if an I/O error occurs during serialization
+     * @see #setActiveUser(Username)
+     * @see #setActiveUser(UserAchievements)
+     */
+    public static void serializeActiveUserAchievements() throws IOException {
+        UserAchievements ua;
+        try {
+            ua = getActiveUserAchievements().get();
+        } catch (InterruptedException | ExecutionException | NullPointerException e) {
+            throw new IOException("Failed to retrieve active user achievements", e);
+        }
+        if (ua == null) {
+            return;
+        }
+        AchievementJsonSerializer.serializeUserAchievements(ua, USER_DIRECTORY);
+    }
+    /**
      * Injects a list of achievements into the active achievements for the active user.
      * Only achievements that belong to the active user and are not already present
      * in the active achievements list will be added.
@@ -496,21 +523,26 @@ public class GameAchievement implements JsonConvertible {
     /**
      * Retrieves the active user's achievements.
      * This method returns a Future that will complete with the UserAchievements of the active user.
-     * If no user is active, the UserAchievements will contain a null user and an empty achievement list.
+     * If no user is active, the UserAchievements will return null.
      * <p>
      * The method is thread-safe and will be executed in the achievement update thread.
      * @return a Future containing the UserAchievements of the active user
      */
     public static Future<UserAchievements> getActiveUserAchievements(){
         if (inAUT()) {
+            if (activeUser == null) {
+                return null;
+            }
             UserAchievements ua = new UserAchievements(activeUser);
             ua.addAllAchievements(activeAchievements.stream().toList());
             return CompletableFuture.completedFuture(ua);
         }
         final UserAchievements[] achievements = new UserAchievements[1];
         return autExecutor.submit(() ->{
-            achievements[0] = new UserAchievements(activeUser);
-            achievements[0].addAllAchievements(activeAchievements.stream().toList());
+            if (activeUser != null) {
+                achievements[0] = new UserAchievements(activeUser);
+                achievements[0].addAllAchievements(activeAchievements.stream().toList());
+            } else achievements[0] = null;
         }, achievements[0]);
     }
     /**
