@@ -348,7 +348,7 @@ public final class GameEssentials implements GameGUIInterface {
         if(gameEnds()){
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             CompletableFuture.runAsync(autoplayHandler::genericClose);
-            logGame();
+            if (GameEssentials.getTurn() != 0) logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();
         }
