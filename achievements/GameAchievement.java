@@ -259,7 +259,7 @@ public class GameAchievement implements JsonConvertible {
      */
     protected void updateAchieved(GameState state) {
         if (!achieved && template.test(state)){
-            // Update only if not already achieved and the template test passes1
+            // Update only if not already achieved and the template test passes
             achieved = true;
             System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
         }
