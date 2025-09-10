@@ -34,10 +34,12 @@ import java.awt.*;
 public class SettingPanel extends UniversalPanel {
     private JLabel launchSettingTitleLabel;
     private JLabel launchSettingEasyModeLabel;
+    private JLabel launchSettingMLEnableLabel;
     private JLabel launchSettingGameSizeLabel;
     private JLabel launchSettingGameSmallLabel;
     private JLabel launchSettingGameMediumLabel;
     private JLabel launchSettingGameLargeLabel;
+    private SlidingButton launchSettingMLEnableButton;
     private SlidingButton launchSettingEasyModeButton;
     private SlidingButton launchSettingGameSmallButton;
     private SlidingButton launchSettingGameMediumButton;
@@ -85,6 +87,34 @@ public class SettingPanel extends UniversalPanel {
         launchSettingEasyModePanel.add(launchSettingEasyModeLabel);
         launchSettingEasyModePanel.add(launchSettingEasyModeButton);
         launchSettingEasyModePanel.add(Box.createHorizontalGlue());
+
+        launchSettingMLEnableLabel = new JLabel("    ML Models | ");
+        launchSettingMLEnableLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
+        launchSettingMLEnableLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        launchSettingMLEnableLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        launchSettingMLEnableLabel.setVerticalAlignment(SwingConstants.CENTER);
+        launchSettingMLEnableLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        launchSettingMLEnableButton = new SlidingButton(){
+            @Override
+            protected void turnedOn() {
+                super.turnedOn();
+                LaunchEssentials.setMLEnabled();
+            }
+            @Override
+            protected void turnedOff(){
+                super.turnedOff();
+                LaunchEssentials.setMLDisabled();
+            }
+        };
+        launchSettingMLEnableButton.setState(true);
+
+        JPanel launchSettingMLEnablePanel = new JPanel();
+        launchSettingMLEnablePanel.setBackground(this.getBackground());
+        launchSettingMLEnablePanel.setLayout(new BoxLayout(launchSettingMLEnablePanel, BoxLayout.X_AXIS));
+        launchSettingMLEnablePanel.add(Box.createHorizontalGlue());
+        launchSettingMLEnablePanel.add(launchSettingMLEnableLabel);
+        launchSettingMLEnablePanel.add(launchSettingMLEnableButton);
+        launchSettingMLEnablePanel.add(Box.createHorizontalGlue());
 
         launchSettingGameSizeLabel = new JLabel("- Game Size -");
         launchSettingGameSizeLabel.setFont(new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, 40));
@@ -185,7 +215,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingGameLargePanel.add(Box.createHorizontalGlue());
 
         return new JComponent[]{launchSettingTitleLabel, (JComponent) Box.createVerticalGlue(),
-                launchSettingEasyModePanel,
+                launchSettingEasyModePanel, launchSettingMLEnablePanel,
                 launchSettingGameSizeLabel, launchSettingGameSmallPanel, launchSettingGameMediumPanel, launchSettingGameLargePanel,
                 new QuitButton(), (JComponent) Box.createVerticalGlue()};
     }
@@ -206,6 +236,7 @@ public class SettingPanel extends UniversalPanel {
         launchSettingTitleLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/200.0)*2, 0, (int)Math.round(referenceGameNameSize/200.0), 0));
         Font labelFont = new Font(LaunchEssentials.launchSettingsFont, Font.PLAIN, (int)Math.round(referenceStartButtonSize/24.0));
         launchSettingEasyModeLabel.setFont(labelFont);
+        launchSettingMLEnableLabel.setFont(labelFont);
         launchSettingGameSizeLabel.setFont(labelFont);
         launchSettingGameSmallLabel.setFont(labelFont);
         launchSettingGameMediumLabel.setFont(labelFont);
@@ -214,6 +245,7 @@ public class SettingPanel extends UniversalPanel {
 
         Dimension buttonSize = new Dimension((int)Math.round(referenceStartButtonSize/4), (int)Math.round(referenceStartButtonSize/12));
         launchSettingEasyModeButton.mandateSize(buttonSize);
+        launchSettingMLEnableButton.mandateSize(buttonSize);
         launchSettingGameSmallButton.mandateSize(buttonSize);
         launchSettingGameMediumButton.mandateSize(buttonSize);
         launchSettingGameLargeButton.mandateSize(buttonSize);
