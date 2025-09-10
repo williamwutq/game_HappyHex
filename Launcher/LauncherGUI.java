@@ -31,6 +31,7 @@ import achievements.GameAchievement;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 public class LauncherGUI {
     private static JFrame mainFrame;
@@ -170,6 +171,11 @@ public class LauncherGUI {
                 GameEssentials.closeAnimator();
                 System.out.println(io.GameTime.generateSimpleTime() + " LaunchLogger: Application quits.");
                 mainFrame.dispose();
+                try {
+                    GameAchievement.serializeActiveUserAchievements();
+                } catch (IOException ex) {
+                    System.err.println(io.GameTime.generateSimpleTime() + " Achievement: Failed to serialize achievements because " + ex.getMessage());
+                }
                 GameAchievement.shutdownAchievementSystem();
                 System.exit(0);
             }

@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -171,6 +172,13 @@ public final class LaunchEssentials {
         gameStarted = false;
     }
     public static void setCurrentPlayer(Username currentPlayer, long currentPlayerID) {
+        try {
+            if (GameAchievement.getActiveUser().get() != null) {
+                GameAchievement.serializeActiveUserAchievements();
+            }
+        } catch (Exception e) {
+            System.err.println(io.GameTime.generateSimpleTime() + " Achievement: Failed to serialize achievements because " + e.getMessage());
+        }
         if (currentPlayer == null || currentPlayer.equals("Guest") || currentPlayerID == -1) {
             GameAchievement.unloadActive();
         } else {
