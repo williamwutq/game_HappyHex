@@ -329,6 +329,13 @@ public class GameAchievement implements JsonConvertible {
             return TEMPLATES.add(template);
         }
     }
+    /**
+     * Loads achievement templates from the built-in JSON file.
+     * This method reads the templates from the specified file and registers them.
+     * It is recommended to call this method during the initialization phase of the application
+     * to ensure that all templates are available for use.
+     * @throws IOException if an I/O error occurs while reading the file
+     */
     public static void loadTemplate() throws IOException {
         GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateFile(TEMPLATES_FILE);
         synchronized (TEMPLATES) {
@@ -462,6 +469,63 @@ public class GameAchievement implements JsonConvertible {
             return;
         }
         AchievementJsonSerializer.serializeUserAchievements(ua, USER_DIRECTORY);
+    }
+    /**
+     * Loads the active user's achievements from a JSON file.
+     * The file will be read from the {@code users/achievements/} directory with the filename
+     * corresponding to the active user's username.
+     * <p>
+     * This method is thread-safe and will be executed in the achievement update thread.
+     * If no user is active, this method will have no effect.
+     * <p>
+     * The method blocks currently until the deserialization is complete. If this is not desired,
+     * wrap this call in {@link CompletableFuture#runAsync(Runnable)} or similar. The IO operation
+     * will be done in the calling thread, not the AUT.
+     * @throws IOException if an I/O error occurs during deserialization
+     * @see #setActiveUser(Username)
+     * @see #setActiveUser(UserAchievements)
+     */
+    public static void loadActiveUserAchievements() throws IOException {
+        Username active;
+        if (inAUT()) {
+            active = activeUser;
+        } else {
+            try {
+                active = getActiveUser().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IOException("Failed to retrieve active user", e);
+            }
+        }
+        if (active == null) {
+            return;
+        }
+        UserAchievements ua = AchievementJsonSerializer.deserializeUserAchievements(active.toString(), USER_DIRECTORY);
+        if (inAUT()) {
+            activeAchievements.clear();
+            activeAchievements.addAll(ua.getAchievements());
+            return;
+        }
+        autExecutor.submit(() -> {
+            activeAchievements.clear();
+            activeAchievements.addAll(ua.getAchievements());
+        });
+    }
+    /**
+     * Loads and completes the active user's achievements.
+     * This method first loads the active user's achievements from a JSON file,
+     * then ensures that all registered achievement templates are represented
+     * in the active achievements list for the current active user.
+     * <p>
+     * The method is thread-safe and will be executed in the achievement update thread.
+     * If no user is active, this method will have no effect.
+     * @see #setActiveUser(Username)
+     * @see #loadActiveUserAchievements()
+     * @see #completeActiveAchievement()
+     * @throws IOException if an I/O error occurs during loading
+     */
+    public static void loadAndCompleteActiveUserAchievements() throws IOException {
+        loadActiveUserAchievements();
+        completeActiveAchievement();
     }
     /**
      * Injects a list of achievements into the active achievements for the active user.

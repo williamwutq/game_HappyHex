@@ -183,6 +183,11 @@ public final class LaunchEssentials {
             GameAchievement.unloadActive();
         } else {
             GameAchievement.setActiveUser(currentPlayer);
+            try {
+                GameAchievement.loadAndCompleteActiveUserAchievements();
+            } catch (IOException e) {
+                System.err.println(io.GameTime.generateSimpleTime() + " Achievement: Failed to load achievements because " + e.getMessage());
+            }
         }
         LaunchEssentials.currentPlayerInfo.setPlayer(currentPlayer, currentPlayerID);
         LaunchEssentials.currentGameInfo.setPlayer(currentPlayer, currentPlayerID);
