@@ -24,8 +24,6 @@
 
 package achievements;
 
-import io.JsonConvertible;
-
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonWriter;
@@ -41,7 +39,9 @@ import java.util.function.Function;
 public class AchievementJsonSerializer {
     // We do not, in fact, have a serialization map. We only have a deserialization map.
     private static final Map<String, Function<JsonObject, GameAchievementTemplate>> ACHIEVEMENT_DESERIAL_NAME_MAP = new HashMap<>();
-    private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = new HashSet<>();
+    private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = Set.of(
+            new IdenticalQueueAchievement()
+    );
     static {
         // Add default deserializers for built-in achievements
         ACHIEVEMENT_DESERIAL_NAME_MAP.put("JavaBuildIn", json -> {
@@ -51,21 +51,10 @@ public class AchievementJsonSerializer {
                 throw new RuntimeException("Failed to deserialize built-in achievement.", e);
             }
         });
-    }
-    /**
-     * Registers a built-in achievement class.
-     * For internal use only. Does not have any checks.
-     * @param clazz the class to register
-     */
-    static void registerBuildInClass(Class<? extends GameAchievementTemplate> clazz){
-        // Create an instance of the class using reflection
-        GameAchievementTemplate instance;
-        try {
-            instance = clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to instantiate class: " + clazz.getName(), e);
-        }
-        BUILT_IN_ACHIEVEMENT_INSTANCE.add(instance);
+        // Imports: This is necessary to ensure that the built-in achievements are loaded and registered.
+        achievements.NumberBasedAchievement.load();
+        achievements.QueueBasedAchievement.load();
+        achievements.SerialAchievement.load();
     }
     /**
      * Registers a custom achievement class with a deserializer function.
@@ -83,6 +72,7 @@ public class AchievementJsonSerializer {
         if (ACHIEVEMENT_DESERIAL_NAME_MAP.containsKey(serialName)) {
             throw new IllegalArgumentException("An achievement with the name " + serialName + " is already registered.");
         }
+        ACHIEVEMENT_DESERIAL_NAME_MAP.put(serialName, deserializer);
     }
     /**
      * Deserializes a GameAchievementTemplate from a JsonObject for built-in achievements.
@@ -108,12 +98,69 @@ public class AchievementJsonSerializer {
             if (achievement.name().equals(name) && achievement.description().equals(description)) {
                 return achievement;
             }
+            if (achievement.name().equals(name) && !achievement.description().equals(description)) {
+                throw new DataSerializationException("Built-in achievement name conflict: multiple achievements with the name '" + name + "' but different descriptions.");
+            }
         }
         throw new DataSerializationException("No built-in achievement found with name: " + name);
     }
 
     private AchievementJsonSerializer() {
         // Private constructor to prevent instantiation
+    }
+
+    /**
+     * Deserializes an array of GameAchievementTemplate from a JsonObject.
+     * The JsonObject must contain an "Achievements" array, where each element is a JsonObject
+     * representing an achievement with a "type" field indicating the achievement type.
+     * @param json the JsonObject containing the "Achievements" array
+     * @return an array of deserialized GameAchievementTemplate instances
+     * @throws DataSerializationException if the JsonObject is invalid or if deserialization fails
+     */
+    public static GameAchievementTemplate[] deserializeAchievementTemplateArray(JsonObject json) throws DataSerializationException {
+        if (!json.containsKey("Achievements") || !json.get("Achievements").getValueType().equals(javax.json.JsonValue.ValueType.ARRAY)) {
+            throw new DataSerializationException("Invalid JSON: missing 'Achievements' array");
+        }
+        javax.json.JsonArray jsonArray = json.getJsonArray("Achievements");
+        List<GameAchievementTemplate> achievements = new ArrayList<>();
+        // Parse
+        for (javax.json.JsonValue value : jsonArray) {
+            if (!value.getValueType().equals(javax.json.JsonValue.ValueType.OBJECT)) {
+                throw new DataSerializationException("Invalid JSON: 'achievements' array must contain JSON objects");
+            }
+            JsonObject obj = (JsonObject) value;
+            String type;
+            try {
+                type = obj.getString("type");
+            } catch (Exception e) {
+                throw new DataSerializationException("Invalid JSON: each achievement object must contain a 'type' field", e);
+            }
+            Function<JsonObject, GameAchievementTemplate> deserializer = ACHIEVEMENT_DESERIAL_NAME_MAP.get(type);
+            if (deserializer == null) {
+                throw new DataSerializationException("No deserializer registered for achievement of type " + type);
+            }
+            try {
+                achievements.add(deserializer.apply(obj));
+            } catch (Exception e) {
+                throw new DataSerializationException("Failed to deserialize achievement of type " + type, e.getCause());
+            }
+        }
+        return achievements.toArray(new GameAchievementTemplate[0]);
+    }
+    /**
+     * Deserializes an array of GameAchievementTemplate from a JSON file.
+     * The file must contain a JSON object with an "Achievements" array, where each element is a JsonObject
+     * representing an achievement with a "type" field indicating the achievement type.
+     * @param filePath the path to the JSON file
+     * @return an array of deserialized GameAchievementTemplate instances
+     * @throws IOException if an I/O error occurs reading from the file
+     * @throws DataSerializationException if the JSON is invalid or if deserialization fails
+     */
+    public static GameAchievementTemplate[] deserializeAchievementTemplateFile(String filePath) throws IOException, DataSerializationException {
+        AchievementJsonSerializer serializer = new AchievementJsonSerializer();
+        String fileContent = serializer.readFile(filePath);
+        JsonObject jsonObject = serializer.parseJsonString(fileContent);
+        return deserializeAchievementTemplateArray(jsonObject);
     }
 
     // JSON to and from String
