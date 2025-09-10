@@ -244,6 +244,10 @@ public final class GameEssentials implements GameGUIInterface {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
+        eliminationBlockAccumulator = 0;
+        eliminationBlockCount = 0;
+        eliminationLineCount = 0;
+        eliminationDirectionCount = 0;
         window = frame;
         // Construct engine, queue, logger
         synchronized (moveLock) {
@@ -373,6 +377,10 @@ public final class GameEssentials implements GameGUIInterface {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
+        eliminationDirectionCount = 0;
+        eliminationLineCount = 0;
+        eliminationBlockCount = 0;
+        eliminationBlockAccumulator = 0;
         gameLogger = new HexLogger(Launcher.LaunchEssentials.getCurrentPlayer(), Launcher.LaunchEssentials.getCurrentPlayerID());
         synchronized (moveLock){
             engine.reset();
