@@ -106,7 +106,7 @@ public class SettingPanel extends UniversalPanel {
                 LaunchEssentials.setMLDisabled();
             }
         };
-        launchSettingMLEnableButton.setState(true);
+        launchSettingMLEnableButton.setState(LaunchEssentials.isMlEnabled());
 
         JPanel launchSettingMLEnablePanel = new JPanel();
         launchSettingMLEnablePanel.setBackground(this.getBackground());

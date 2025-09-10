@@ -217,6 +217,9 @@ public final class LaunchEssentials {
         // Print the launch message
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }
+    public static boolean isMlEnabled(){
+        return mlEnabled;
+    }
     public static void setMLEnabled(){
         mlEnabled = true;
         System.out.println(GameTime.generateSimpleTime() + " Autoplay (Python): Machine learning enabled");
