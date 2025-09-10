@@ -158,8 +158,12 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
                     setupPython(torchPath, new String[]{modelPath});
                     System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
                     usingML = true;
+                } else {
+                    usingML = false;
                 }
                 return;
+            } else {
+                usingML = false;
             }
         }
         setupPython();
@@ -198,7 +202,11 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
                     setupPython(torchPath, new String[]{modelPath});
                     System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
                     usingML = true;
+                } else {
+                    usingML = false;
                 }
+            } else {
+                usingML = false;
             }
         }
     }
