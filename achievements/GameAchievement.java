@@ -25,6 +25,7 @@
 package achievements;
 
 import hex.GameState;
+import io.GameTime;
 import io.JsonConvertible;
 import io.Username;
 
@@ -257,9 +258,10 @@ public class GameAchievement implements JsonConvertible {
      * @param state the current game state to test against the achievement criteria
      */
     protected void updateAchieved(GameState state) {
-        if (!achieved){
-            // Update only if not already achieved
-            achieved = template.test(state);
+        if (!achieved && template.test(state)){
+            // Update only if not already achieved and the template test passes1
+            achieved = true;
+            System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
         }
     }
 

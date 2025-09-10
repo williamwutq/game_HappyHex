@@ -68,7 +68,7 @@ public class IdenticalQueueAchievement implements GameAchievementTemplate{
         }
         Piece first = queue[0];
         for (Piece p : queue) {
-            if (p != first) {
+            if (!p.equals(first)) {
                 return false;
             }
         }
