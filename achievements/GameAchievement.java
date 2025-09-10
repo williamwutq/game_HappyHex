@@ -31,6 +31,7 @@ import io.Username;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -106,6 +107,7 @@ import java.util.stream.Collectors;
  * @since 2.0
  */
 public class GameAchievement implements JsonConvertible {
+    private static final String TEMPLATES_FILE = "achievements/buildin.hpyhexach.json";
     private static final Set<GameAchievementTemplate> TEMPLATES = new HashSet<GameAchievementTemplate>();
     private static final Set<GameAchievement> activeAchievements = new HashSet<GameAchievement>();
     private static volatile Supplier<GameState> gameStateSupplier = null;
@@ -319,6 +321,14 @@ public class GameAchievement implements JsonConvertible {
                 return false;
             }
             return TEMPLATES.add(template);
+        }
+    }
+    public static void loadTemplate() throws IOException {
+        GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateFile(TEMPLATES_FILE);
+        synchronized (TEMPLATES) {
+            for (GameAchievementTemplate template : templateArr) {
+                registerTemplate(template);
+            }
         }
     }
     /**

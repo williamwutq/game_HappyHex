@@ -219,6 +219,11 @@ public final class LaunchEssentials {
         python.PythonEnvsChecker.run();
         // Achievement System
         GameAchievement.startAchievementSystem();
+        try {
+            GameAchievement.loadTemplate();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         // Hook up the debug stream of python to console
 //         python.PythonCommandProcessor.setDebugEnabled(true);
 //         python.PythonCommandProcessor.DEBUG.copierThread(System.out, () -> (GameTime.generateSimpleTime() + (GameEssentials.getAutoplayHandler().isUsingML() ? " Hpyhexml" : " Autoplay"))).start();
