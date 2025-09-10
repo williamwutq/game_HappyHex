@@ -93,7 +93,7 @@ public class UserAchievements implements JsonConvertible {
      * However, the items are mutable, as they do not have direct setters, but can only be
      * updated through update methods.
      * <p>
-     * However, use the resulting achievements set outside the AUT thread is not recommended,
+     * However, using the resulting achievements set outside the AUT thread is not recommended,
      * as the achievements may be updated in the AUT thread. If you want a copy of the list,
      * run the method in the AUT thread with {@link GameAchievement#invokeLater} and cache the result.
      *
