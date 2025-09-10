@@ -109,6 +109,23 @@ public class AchievementJsonSerializer {
         // Private constructor to prevent instantiation
     }
 
+    // Serialization of User Achievements
+    /**
+     * Serializes a UserAchievements instance to a JSON file.
+     * The file will be named after the user's name and saved in the specified directory.
+     * @param achievements the UserAchievements instance to serialize
+     * @param dirPath the directory path where the JSON file will be saved
+     * @throws IOException if an I/O error occurs writing to or creating the file
+     */
+    public static void serializeUserAchievements(UserAchievements achievements, String dirPath) throws IOException {
+        String userName = achievements.getUser().toString();
+        String filePath = dirPath + "/" + userName + ".hpyhexua.json";
+        JsonObject jsonObject = achievements.toJsonObject();
+        String jsonString = createJsonString(jsonObject);
+        writeFile(filePath, jsonString);
+    }
+
+    // Deserialization of Achievement Templates
     /**
      * Deserializes an array of GameAchievementTemplate from a JsonObject.
      * The JsonObject must contain an "Achievements" array, where each element is a JsonObject
@@ -170,7 +187,7 @@ public class AchievementJsonSerializer {
      * @param jsonObject the JsonObject to convert
      * @return a pretty-printed JSON string representation of the JsonObject
      */
-    public String createJsonString(JsonObject jsonObject) {
+    public static String createJsonString(JsonObject jsonObject) {
         StringWriter stringWriter = new StringWriter();
         JsonWriterFactory writerFactory = Json.createWriterFactory(
                 Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
@@ -186,7 +203,7 @@ public class AchievementJsonSerializer {
      * @param jsonString the JSON string to parse
      * @return the parsed JsonObject
      */
-    public JsonObject parseJsonString(String jsonString) {
+    public static JsonObject parseJsonString(String jsonString) {
         return Json.createReader(new java.io.StringReader(jsonString)).readObject();
     }
 
@@ -198,7 +215,7 @@ public class AchievementJsonSerializer {
      * @return the contents of the file as a string
      * @throws IOException if an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read
      */
-    public String readFile(String filePath) throws IOException {
+    public static String readFile(String filePath) throws IOException {
         return new String(Files.readAllBytes(Path.of(filePath)));
     }
     /**
@@ -208,7 +225,7 @@ public class AchievementJsonSerializer {
      * @param content  the content to write to the file
      * @throws IOException if an I/O error occurs writing to or creating the file
      */
-    public void writeFile(String filePath, String content) throws IOException {
+    public static void writeFile(String filePath, String content) throws IOException {
         Path path = Path.of(filePath);
         Files.writeString(path, content);
     }
@@ -219,7 +236,7 @@ public class AchievementJsonSerializer {
      * @param content  the content to append to the file
      * @throws IOException if an I/O error occurs writing to or creating the file
      */
-    public void appendToFile(String filePath, String content) throws IOException {
+    public static void appendToFile(String filePath, String content) throws IOException {
         Path path = Path.of(filePath);
         Files.writeString(path, content, java.nio.file.StandardOpenOption.APPEND, java.nio.file.StandardOpenOption.CREATE);
     }
