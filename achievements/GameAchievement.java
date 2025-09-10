@@ -149,6 +149,11 @@ public class GameAchievement implements JsonConvertible {
             autClockThread.setDaemon(true);
             autClockThread.start();
         }
+        // Create directory if it doesn't exist
+        java.io.File dir = new java.io.File(USER_DIRECTORY);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
     }
     /**
      * Shuts down the achievement update thread.
@@ -453,6 +458,7 @@ public class GameAchievement implements JsonConvertible {
             throw new IOException("Failed to retrieve active user achievements", e);
         }
         if (ua == null) {
+            System.out.println("No active user to serialize achievements for");
             return;
         }
         AchievementJsonSerializer.serializeUserAchievements(ua, USER_DIRECTORY);
@@ -531,19 +537,22 @@ public class GameAchievement implements JsonConvertible {
     public static Future<UserAchievements> getActiveUserAchievements(){
         if (inAUT()) {
             if (activeUser == null) {
+                return CompletableFuture.completedFuture(null);
+            } else {
+                UserAchievements ua = new UserAchievements(activeUser);
+                ua.addAllAchievements(activeAchievements.stream().toList());
+                return CompletableFuture.completedFuture(ua);
+            }
+        }
+        return autExecutor.submit(() -> {
+            if (activeUser != null) {
+                UserAchievements ua = new UserAchievements(activeUser);
+                ua.addAllAchievements(activeAchievements.stream().toList());
+                return ua;
+            } else {
                 return null;
             }
-            UserAchievements ua = new UserAchievements(activeUser);
-            ua.addAllAchievements(activeAchievements.stream().toList());
-            return CompletableFuture.completedFuture(ua);
-        }
-        final UserAchievements[] achievements = new UserAchievements[1];
-        return autExecutor.submit(() ->{
-            if (activeUser != null) {
-                achievements[0] = new UserAchievements(activeUser);
-                achievements[0].addAllAchievements(activeAchievements.stream().toList());
-            } else achievements[0] = null;
-        }, achievements[0]);
+        });
     }
     /**
      * Checks if the active user has an achievement based on the specified template.
@@ -689,10 +698,9 @@ public class GameAchievement implements JsonConvertible {
         if (inAUT()) {
             return CompletableFuture.completedFuture(activeUser);
         }
-        final Username[] user = new Username[1];
         return autExecutor.submit(() -> {
-            user[0] = activeUser;
-        }, user[0]);
+            return activeUser;
+        });
     }
     /**
      * Updates all active achievements based on the current game state.
