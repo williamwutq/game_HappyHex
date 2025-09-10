@@ -283,4 +283,51 @@ public class UserAchievements implements JsonConvertible {
             throw new DataSerializationException("Thread interrupted during achievement operation", e);
         }
     }
+    /**
+     * Deserializes a JsonObject into a UserAchievements object.
+     * The JsonObject must contain the fields "user" (a string) and "achievements" (a JsonArray).
+     * <p>
+     * This method is static and can be called without an instance of UserAchievements.
+     * It creates a new UserAchievements object based on the provided JSON data.
+     * <p>
+     * This method is thread safe because its internal calls are all thread safe.
+     *
+     * @param jo the JsonObject containing user achievement data
+     * @return a UserAchievements object populated with data from the JsonObject
+     * @throws DataSerializationException if there is an error during deserialization or if required fields are missing
+     */
+    public static UserAchievements fromJsonObject(JsonObject jo) throws DataSerializationException {
+        if (!jo.containsKey("user") || !jo.containsKey("achievements")) {
+            throw new DataSerializationException("Invalid JSON: Missing required fields");
+        }
+        Username user = new Username(jo.getString("user"));
+        UserAchievements ua = new UserAchievements(user);
+        ua.deserializeAchievements(jo.getJsonArray("achievements"));
+        return ua;
+    }
+    /**
+     * Deserializes a JsonObject into a UserAchievements object without validation.
+     * The JsonObject must contain the fields "user" (a string) and "achievements" (a JsonArray).
+     * <p>
+     * This method is static and can be called without an instance of UserAchievements.
+     * It creates a new UserAchievements object based on the provided JSON data.
+     * <p>
+     * This method is unsafe as it does not validate the achievements being added.
+     * It is assumed that the JsonArray contains valid achievement data.
+     * <p>
+     * This method is thread safe because its internal calls are all thread safe.
+     *
+     * @param jo the JsonObject containing user achievement data
+     * @return a UserAchievements object populated with data from the JsonObject
+     * @throws DataSerializationException if there is an error during deserialization or if required fields are missing
+     */
+    public static UserAchievements fromJsonObjectUnsafe(JsonObject jo) throws DataSerializationException {
+        if (!jo.containsKey("user") || !jo.containsKey("achievements")) {
+            throw new DataSerializationException("Invalid JSON: Missing required fields");
+        }
+        Username user = new Username(jo.getString("user"));
+        UserAchievements ua = new UserAchievements(user);
+        ua.unsafeDeserializeAchievements(jo.getJsonArray("achievements"));
+        return ua;
+    }
 }
