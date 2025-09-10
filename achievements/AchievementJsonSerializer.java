@@ -24,6 +24,8 @@
 
 package achievements;
 
+import io.JsonConvertible;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonWriter;
@@ -33,9 +35,83 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.*;
+import java.util.function.Function;
 
 public class AchievementJsonSerializer {
+    // We do not, in fact, have a serialization map. We only have a deserialization map.
+    private static final Map<String, Function<JsonObject, GameAchievementTemplate>> ACHIEVEMENT_DESERIAL_NAME_MAP = new HashMap<>();
+    private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = new HashSet<>();
+    static {
+        // Add default deserializers for built-in achievements
+        ACHIEVEMENT_DESERIAL_NAME_MAP.put("JavaBuildIn", json -> {
+            try{
+                return deserializeBuiltInAchievement(json);
+            } catch (DataSerializationException e){
+                throw new RuntimeException("Failed to deserialize built-in achievement.", e);
+            }
+        });
+    }
+    /**
+     * Registers a built-in achievement class.
+     * For internal use only. Does not have any checks.
+     * @param clazz the class to register
+     */
+    static void registerBuildInClass(Class<? extends GameAchievementTemplate> clazz){
+        // Create an instance of the class using reflection
+        GameAchievementTemplate instance;
+        try {
+            instance = clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to instantiate class: " + clazz.getName(), e);
+        }
+        BUILT_IN_ACHIEVEMENT_INSTANCE.add(instance);
+    }
+    /**
+     * Registers a custom achievement class with a deserializer function.
+     * @param serialName the unique name for the achievement class
+     * @param deserializer the function to deserialize a JsonObject into an instance of the achievement class
+     * @throws IllegalArgumentException if the serialName is already registered or if deserializer is null
+     */
+    public static void registerAchievementClass(String serialName, Function<JsonObject, GameAchievementTemplate> deserializer) {
+        if (deserializer == null) {
+            throw new IllegalArgumentException("Deserializer function cannot be null.");
+        }
+        if (serialName == null || serialName.isBlank()) {
+            throw new IllegalArgumentException("Serial name cannot be null or blank.");
+        }
+        if (ACHIEVEMENT_DESERIAL_NAME_MAP.containsKey(serialName)) {
+            throw new IllegalArgumentException("An achievement with the name " + serialName + " is already registered.");
+        }
+    }
+    /**
+     * Deserializes a GameAchievementTemplate from a JsonObject for built-in achievements.
+     * @param json the JsonObject to deserialize
+     * @return the deserialized GameAchievementTemplate
+     * @throws DataSerializationException if the JsonObject is invalid or if deserialization fails
+     */
+    private static GameAchievementTemplate deserializeBuiltInAchievement(JsonObject json) throws DataSerializationException {
+        // Get name, description
+        String type, name, description;
+        try {
+            type = json.getString("type");
+            name = json.getString("name");
+            description = json.getString("description");
+        } catch (Exception e){
+            throw new DataSerializationException("Failed to parse built-in achievement: missing or invalid 'type', 'name', or 'description' fields.", e);
+        }
+        if (type == null || !type.equals("JavaBuildIn") || name == null || name.isBlank() || description == null || description.isBlank()) {
+            throw new DataSerializationException("Failed to parse built-in achievement: 'type' must be 'JavaBuildIn', 'name', and 'description' fields cannot be null or blank.");
+        }
+        // Search for the built-in achievement with the given name
+        for (GameAchievementTemplate achievement : BUILT_IN_ACHIEVEMENT_INSTANCE) {
+            if (achievement.name().equals(name) && achievement.description().equals(description)) {
+                return achievement;
+            }
+        }
+        throw new DataSerializationException("No built-in achievement found with name: " + name);
+    }
+
     private AchievementJsonSerializer() {
         // Private constructor to prevent instantiation
     }

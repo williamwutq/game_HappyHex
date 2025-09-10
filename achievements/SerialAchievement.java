@@ -63,6 +63,15 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
     private final GameAchievementTemplate[] requirements;
     private final String name;
     private final String description;
+    static {
+        AchievementJsonSerializer.registerAchievementClass("serial", json -> {
+            try {
+                return fromJsonObject(json);
+            } catch (DataSerializationException e) {
+                throw new RuntimeException("Failed to deserialize serial.", e);
+            }
+        });
+    }
     /**
      * Creates a new SerialAchievement with the specified requirements, name, and description.
      * The achievement is achieved if the player has achieved all the specified achievements in the given order.
@@ -191,7 +200,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
      * @return a SerialAchievement represented by the JsonObject
      * @throws DataSerializationException if the JSON object is invalid or missing required fields
      */
-    public SerialAchievement fromJsonObject(javax.json.JsonObject jsonObject) throws DataSerializationException {
+    public static SerialAchievement fromJsonObject(javax.json.JsonObject jsonObject) throws DataSerializationException {
         if (!jsonObject.containsKey("type") || !jsonObject.getString("type").equals("serial")) {
             throw new DataSerializationException("Invalid JSON object for SerialAchievement");
         }

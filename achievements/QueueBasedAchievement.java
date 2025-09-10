@@ -60,6 +60,15 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
     private final int requiredMostLength;
     private final String name;
     private final String description;
+    static {
+        AchievementJsonSerializer.registerAchievementClass("QueueBasedAchievement", json -> {
+            try {
+                return fromJsonObject(json);
+            } catch (DataSerializationException e) {
+                throw new RuntimeException("Failed to deserialize QueueBasedAchievement.", e);
+            }
+        });
+    }
     /**
      * Creates a new QueueBasedAchievement with the specified requirements, name, and description.
      * The achievement is achieved if the current piece queue contains at least the required pieces

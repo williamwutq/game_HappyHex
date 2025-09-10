@@ -65,6 +65,15 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
     private final int[] scoreRequirement;
     private final String name;
     private final String description;
+    static {
+        AchievementJsonSerializer.registerAchievementClass("NumberBasedAchievement", json -> {
+            try {
+                return fromJsonObject(json);
+            } catch (DataSerializationException e) {
+                throw new RuntimeException("Failed to deserialize NumberBasedAchievement.", e);
+            }
+        });
+    }
 
     /**
      * Creates a new NumberBasedAchievement with the specified requirements, name, and description.
