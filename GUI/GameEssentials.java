@@ -72,6 +72,9 @@ public final class GameEssentials implements GameGUIInterface {
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
     private static int clickedOnIndex = -1;
+    private static long eliminationBlockAccumulator = 0;
+    private static int eliminateBlockCount = 0;
+    private static int eliminationLineCount = 0;
 
     // Special Features
     private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
@@ -485,6 +488,10 @@ public final class GameEssentials implements GameGUIInterface {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
+            eliminateBlockCount = engine.countEliminate(false);
+            eliminationLineCount = engine.countEliminate(true);
+            eliminationBlockAccumulator += eliminateBlockCount;
+            // Behavior may be expected: long integer overflow; this will take a very long time to happen
             Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
@@ -621,6 +628,10 @@ public final class GameEssentials implements GameGUIInterface {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
+            eliminateBlockCount = engine.countEliminate(false);
+            eliminationLineCount = engine.countEliminate(true);
+            eliminationBlockAccumulator += eliminateBlockCount;
+            // Behavior may be expected: long integer overflow; this will take a very long time to happen
             Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
@@ -628,4 +639,7 @@ public final class GameEssentials implements GameGUIInterface {
         } else checkEnd();
         return true;
     }
+    public int getEliminateBlockCount(){return eliminateBlockCount;}
+    public int getEliminateLineCount(){return eliminationLineCount;}
+    public long getTotalEliminatedBlocks(){return eliminationBlockAccumulator;}
 }
