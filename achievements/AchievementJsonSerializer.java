@@ -116,13 +116,84 @@ public class AchievementJsonSerializer {
      * @param achievements the UserAchievements instance to serialize
      * @param dirPath the directory path where the JSON file will be saved
      * @throws IOException if an I/O error occurs writing to or creating the file
+     * @throws IllegalArgumentException if achievements is null or if dirPath is null or blank
      */
     public static void serializeUserAchievements(UserAchievements achievements, String dirPath) throws IOException {
+        if (achievements == null) {
+            throw new IllegalArgumentException("Achievements cannot be null.");
+        }
+        if (dirPath == null || dirPath.isBlank()) {
+            throw new IllegalArgumentException("Directory path cannot be null or blank.");
+        }
         String userName = achievements.getUser().toString();
         String filePath = dirPath + "/" + userName + ".hpyhexua.json";
         JsonObject jsonObject = achievements.toJsonObject();
         String jsonString = createJsonString(jsonObject);
         writeFile(filePath, jsonString);
+    }
+    /**
+     * Deserializes a UserAchievements instance from a JSON file named after the user's name in the specified directory.
+     * @param user the name of the user
+     * @param dirPath the directory path where the JSON file is located
+     * @return the deserialized UserAchievements instance
+     * @throws IOException if an I/O error occurs reading from the file
+     * @throws DataSerializationException if the JSON is invalid or if deserialization fails
+     * @throws IllegalArgumentException if user is null or blank, or if dirPath is null or blank
+     */
+    public static UserAchievements deserializeUserAchievements(String user, String dirPath) throws IOException, DataSerializationException {
+        if (user == null || user.isBlank()) {
+            throw new IllegalArgumentException("User cannot be null or blank.");
+        }
+        if (dirPath == null || dirPath.isBlank()) {
+            throw new IllegalArgumentException("Directory path cannot be null or blank.");
+        }
+        String filePath = dirPath + "/" + user + ".hpyhexua.json";
+        return deserializeUserAchievements(filePath);
+    }
+    /**
+     * Deserializes a UserAchievements instance from a JSON file.
+     * The file must contain a valid JSON representation of a UserAchievements instance.
+     * @param filePath the path to the JSON file
+     * @return the deserialized UserAchievements instance
+     * @throws IOException if an I/O error occurs reading from the file
+     * @throws DataSerializationException if the JSON is invalid or if deserialization fails
+     * @throws IllegalArgumentException if filePath is null or does not end with .hpyhexua.json
+     */
+    public static UserAchievements deserializeUserAchievements(String filePath) throws IOException, DataSerializationException {
+        if (filePath == null || !filePath.endsWith(".hpyhexua.json")) {
+            throw new IllegalArgumentException("File path cannot be null and must end with .hpyhexua.json");
+        }
+        String fileContent = readFile(filePath);
+        JsonObject jsonObject = parseJsonString(fileContent);
+        return UserAchievements.fromJsonObject(jsonObject);
+    }
+    /**
+     * Adds achievements from a UserAchievements instance to an existing UserAchievements file if it exists.
+     * If the file does not exist, the original UserAchievements instance is returned.
+     * @param achievements the UserAchievements instance to add
+     * @param dirPath the directory path where the JSON file is located or will be saved
+     * @return the updated UserAchievements instance if the file exists, otherwise the original instance
+     * @throws IOException if an I/O error occurs reading from or writing to the file
+     * @throws DataSerializationException if deserialization fails
+     * @throws IllegalArgumentException if achievements is null or if dirPath is null or blank
+     */
+    public static UserAchievements addToUserAchievementsWithName(UserAchievements achievements, String dirPath) throws IOException, DataSerializationException {
+        if (achievements == null) {
+            throw new IllegalArgumentException("Achievements cannot be null.");
+        }
+        if (dirPath == null || dirPath.isBlank()) {
+            throw new IllegalArgumentException("Directory path cannot be null or blank.");
+        }
+        String userName = achievements.getUser().toString();
+        String filePath = dirPath + "/" + userName + ".hpyhexua.json";
+        Path path = Path.of(filePath);
+        if (Files.exists(path)) {
+            UserAchievements existingAchievements = deserializeUserAchievements(filePath);
+            existingAchievements.addAllAchievements(achievements.getAchievements().stream().toList());
+            return existingAchievements;
+        } else {
+            return achievements;
+        }
     }
 
     // Deserialization of Achievement Templates
