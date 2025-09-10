@@ -465,7 +465,6 @@ public class GameAchievement implements JsonConvertible {
             throw new IOException("Failed to retrieve active user achievements", e);
         }
         if (ua == null) {
-            System.out.println("No active user to serialize achievements for");
             return;
         }
         AchievementJsonSerializer.serializeUserAchievements(ua, USER_DIRECTORY);

@@ -238,6 +238,7 @@ public final class LaunchEssentials {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        GameAchievement.initializeGameStateSupplier(GameEssentials::getGameState);
         // Debug: prints out all templates
 //        System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: Loaded " + GameAchievement.getTemplates().size() + " achievement templates:");
 //        for (GameAchievementTemplate t : GameAchievement.getTemplates()){
