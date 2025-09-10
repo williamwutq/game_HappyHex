@@ -63,7 +63,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
     private final GameAchievementTemplate[] requirements;
     private final String name;
     private final String description;
-    static {
+    static void load()  {
         AchievementJsonSerializer.registerAchievementClass("serial", json -> {
             try {
                 return fromJsonObject(json);

@@ -60,7 +60,7 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
     private final int requiredMostLength;
     private final String name;
     private final String description;
-    static {
+    static void load()  {
         AchievementJsonSerializer.registerAchievementClass("QueueBasedAchievement", json -> {
             try {
                 return fromJsonObject(json);
