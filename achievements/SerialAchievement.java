@@ -4,8 +4,10 @@ import hex.GameState;
 import io.JsonConvertible;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObjectBuilder;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -157,5 +159,35 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
         }
         builder.add("requirements", reqArrayBuilder);
         return builder;
+    }
+    /**
+     * Creates a SerialAchievement from a JsonObject.
+     * The JSON object must contain the type, name, description, and requirements.
+     * @param jsonObject the JsonObject to convert
+     * @return a SerialAchievement represented by the JsonObject
+     * @throws DataSerializationException if the JSON object is invalid or missing required fields
+     */
+    public SerialAchievement fromJsonObject(javax.json.JsonObject jsonObject) throws DataSerializationException {
+        if (!jsonObject.containsKey("type") || !jsonObject.getString("type").equals("serial")) {
+            throw new DataSerializationException("Invalid JSON object for SerialAchievement");
+        }
+        if (!jsonObject.containsKey("name") || !jsonObject.containsKey("description") || !jsonObject.containsKey("requirements")) {
+            throw new DataSerializationException("Missing required fields in JSON object for SerialAchievement");
+        }
+        String name = jsonObject.getString("name");
+        String description = jsonObject.getString("description");
+        JsonArray reqArray = jsonObject.getJsonArray("requirements");
+        GameAchievementTemplate[] requirements = new GameAchievementTemplate[reqArray.size()];
+        Map<String, GameAchievementTemplate> templateMap = GameAchievement.getTemplates().stream()
+                .collect(Collectors.toMap(GameAchievementTemplate::name, t -> t));
+        for (int i = 0; i < reqArray.size(); i++) {
+            String reqName = reqArray.getString(i);
+            if (!templateMap.containsKey(reqName)) {
+                throw new DataSerializationException("Unknown requirement: " + reqName + ", templates may not have been loaded." +
+                        "If this is the initialization, serialize independent templates first.");
+            }
+            requirements[i] = templateMap.get(reqName);
+        }
+        return new SerialAchievement(requirements, name, description);
     }
 }
