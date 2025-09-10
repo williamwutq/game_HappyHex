@@ -133,7 +133,12 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
         // Make a copy of the required pieces to track which have been found. This allows for duplicates.
         List<Piece> toFind = new java.util.ArrayList<>(requiredPieces);
         for (Piece p : queue) {
-            toFind.remove(p); // Remove the piece if found
+            for (int i = 0; i < toFind.size(); i++) {
+                if (p.equals(toFind.get(i))) {
+                    toFind.remove(i);
+                    break;
+                }
+            }
             if (toFind.isEmpty()) {
                 break; // All required pieces found
             }

@@ -13,6 +13,21 @@
       "description": "Have all pieces in the queue be the exact same piece"
     },
     {
+      "type": "JavaBuildIn",
+      "name": "Thousand Cuts",
+      "description": "Eliminate a total of 1000 blocks in the same game without quitting it"
+    },
+    {
+      "type": "JavaBuildIn",
+      "name": "Perfect Fit",
+      "description": "Have a piece in queue that perfectly fits an empty slot in the game board"
+    },
+    {
+      "type": "JavaBuildIn",
+      "name": "All Perfect Fit",
+      "description": "Have all pieces in queue fitting empty slots in the game board"
+    },
+    {
       "type": "NumberBasedAchievement",
       "name": "I've got something",
       "description": "Achieve 10 turns and score of 36 in any game in any game mode",

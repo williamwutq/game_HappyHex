@@ -72,6 +72,10 @@ public final class GameEssentials implements GameGUIInterface {
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
     private static int clickedOnIndex = -1;
+    private static long eliminationBlockAccumulator = 0;
+    private static int eliminationBlockCount = 0;
+    private static int eliminationLineCount = 0;
+    private static int eliminationDirectionCount = 0;
 
     // Special Features
     private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
@@ -240,6 +244,10 @@ public final class GameEssentials implements GameGUIInterface {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
+        eliminationBlockAccumulator = 0;
+        eliminationBlockCount = 0;
+        eliminationLineCount = 0;
+        eliminationDirectionCount = 0;
         window = frame;
         // Construct engine, queue, logger
         synchronized (moveLock) {
@@ -369,6 +377,10 @@ public final class GameEssentials implements GameGUIInterface {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
+        eliminationDirectionCount = 0;
+        eliminationLineCount = 0;
+        eliminationBlockCount = 0;
+        eliminationBlockAccumulator = 0;
         gameLogger = new HexLogger(Launcher.LaunchEssentials.getCurrentPlayer(), Launcher.LaunchEssentials.getCurrentPlayerID());
         synchronized (moveLock){
             engine.reset();
@@ -485,6 +497,17 @@ public final class GameEssentials implements GameGUIInterface {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
+            eliminationBlockCount = engine.countEliminate(false);
+            int i = engine.countEliminateI(true);
+            int j = engine.countEliminateJ(true);
+            int k = engine.countEliminateK(true);
+            eliminationLineCount = i + j + k;
+            eliminationDirectionCount = 0;
+            if (i > 0) eliminationDirectionCount++;
+            if (j > 0) eliminationDirectionCount++;
+            if (k > 0) eliminationDirectionCount++;
+            eliminationBlockAccumulator += eliminationBlockCount;
+            // Behavior may be expected: long integer overflow; this will take a very long time to happen
             Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
@@ -621,6 +644,17 @@ public final class GameEssentials implements GameGUIInterface {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
+            eliminationBlockCount = engine.countEliminate(false);
+            int i = engine.countEliminateI(true);
+            int j = engine.countEliminateJ(true);
+            int k = engine.countEliminateK(true);
+            eliminationLineCount = i + j + k;
+            eliminationDirectionCount = 0;
+            if (i > 0) eliminationDirectionCount++;
+            if (j > 0) eliminationDirectionCount++;
+            if (k > 0) eliminationDirectionCount++;
+            eliminationBlockAccumulator += eliminationBlockCount;
+            // Behavior may be expected: long integer overflow; this will take a very long time to happen
             Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
@@ -628,4 +662,8 @@ public final class GameEssentials implements GameGUIInterface {
         } else checkEnd();
         return true;
     }
+    public static int getEliminateBlockCount(){return eliminationBlockCount;}
+    public static int getEliminateDirectionCount(){return eliminationDirectionCount;}
+    public static int getEliminateLineCount(){return eliminationLineCount;}
+    public static long getTotalEliminatedBlocks(){return eliminationBlockAccumulator;}
 }
