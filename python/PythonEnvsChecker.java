@@ -373,6 +373,31 @@ public class PythonEnvsChecker {
         return false;
     }
     /**
+     * Checks if a specific model can run with the specified engine radius and queue size.
+     * This method checks against the list of available models that have been updated.
+     * <p>
+     * If the model's engine or queue is null, it means the model supports all engine radii or queue sizes respectively.
+     *
+     * @param modelName    The name of the model to check.
+     * @param engineRadius The engine radius to check.
+     * @param queueSize    The queue size to check.
+     * @return true if the model can run with the specified parameters, false otherwise.
+     */
+    public static boolean canRunModel(String modelName, int engineRadius, int queueSize) {
+        if (!isMLAvailable) {
+            return false; // No ML environment available
+        }
+        for (ModelInformation model : availableModels) {
+            if (model.name().equals(modelName)
+             && (model.engine() == null || model.engine() == engineRadius)
+             && (model.queue() == null || model.queue() == queueSize)
+             && (model.frameWork().equals("tf") && isTensorFlowAvailable || model.frameWork().equals("torch") && isTorchAvailable)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
      * Checks if a model can run with the specified engine radius and queue size.
      * This method checks against the list of available models that have been updated.
      * <p>
