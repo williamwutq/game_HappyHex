@@ -267,7 +267,7 @@ public final class GameEssentials implements GameGUIInterface {
             }
         }
         // Autoplay
-        CompletableFuture.runAsync(autoplayHandler::useMLIfAvailable);
+        CompletableFuture.runAsync(autoplayHandler::smartSetupPython);
         // Construct GUI
         HexButton.setSize(1);
         piecePanel = new PiecePanel();
