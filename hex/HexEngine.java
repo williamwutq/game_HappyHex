@@ -95,7 +95,7 @@ import java.util.ArrayList;
  * Generally, moves that reduce entropy should be awarded and moves that increase entropy significantly should be punished.
  * @since 1.0
  * @author William Wu
- * @version 1.4
+ * @version 2.0
  */
 public class HexEngine implements HexGrid{
     private static final double logBaseEOf2 = Math.log(2);
@@ -675,6 +675,187 @@ public class HexEngine implements HexGrid{
                 }
             }
         }
+    }
+    /**
+     * Counts the number of lines or blocks that can be eliminated along I, J, or K axes.
+     *
+     * @param countLine if true, count the number of lines; if false, count the number of blocks
+     * @return number of lines or blocks that can be eliminated
+     * @see #countEliminateI
+     * @see #countEliminateJ
+     * @see #countEliminateK
+     * @see #eliminate
+     * @since 2.0
+     */
+    public int countEliminate(boolean countLine){
+        return countEliminateI(countLine) + countEliminateJ(countLine) + countEliminateK(countLine);
+    }
+    /**
+     * Counts the number of lines or blocks that can be eliminated along I axis.
+     *
+     * @param countLine if true, count the number of lines; if false, count the number of blocks
+     * @return number of lines or blocks that can be eliminated along I axis
+     * @see #countEliminate
+     * @since 2.0
+     */
+    public int countEliminateI(boolean countLine){
+        int counter = 0;
+        for (int i = 0; i < radius; i++){
+            boolean allValid = true;
+            int index = i * (radius * 2 + i - 1) / 2;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) {
+                if (countLine) {
+                    counter++;
+                } else {
+                    counter += radius + i;
+                }
+            }
+        }
+        int constTerm = radius * (radius * 3 - 1) / 2;
+        for (int i = radius - 2; i >= 0; i--){
+            boolean allValid = true;
+            int index = constTerm + (radius - i - 2) * (radius * 3 - 1 + i) / 2;
+            for (int b = 0; b < radius + i; b++){
+                if (!blocks[index + b].getState()){
+                    allValid = false; break;
+                }
+            }
+            if (allValid) {
+                if (countLine) {
+                    counter++;
+                } else {
+                    counter += radius + i;
+                }
+            }
+        }
+        return counter;
+    }
+    /**
+     * Counts the number of lines or blocks that can be eliminated along J axis.
+     *
+     * @param countLine if true, count the number of lines; if false, count the number of blocks
+     * @return number of lines or blocks that can be eliminated along J axis
+     * @see #countEliminate
+     * @since 2.0
+     */
+    public int countEliminateJ(boolean countLine){
+        int counter = 0;
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 1; c < radius; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c < radius - r; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid){
+                if (countLine) {
+                    counter++;
+                } else {
+                    counter += radius * 2 - r - 1;
+                }
+            }
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * r + r * (r - 1) / 2;
+            int startIndex = index;
+            boolean allValid = true;
+            for (int c = 1; c < radius - r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c + r;
+            }
+            for (int c = 0; c < radius; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 1;
+            }
+            if (allValid){
+                if (countLine) {
+                    counter++;
+                } else {
+                    counter += radius * 2 - r - 1;
+                }
+            }
+        }
+        return counter;
+    }
+    /**
+     * Counts the number of lines or blocks that can be eliminated along K axis.
+     *
+     * @param countLine if true, count the number of lines; if false, count the number of blocks
+     * @return number of lines or blocks that can be eliminated along K axis
+     * @see #countEliminate
+     * @since 2.0
+     */
+    public int countEliminateK(boolean countLine){
+        int counter = 0;
+        for (int r = 0; r < radius; r++){
+            int index = r;
+            boolean allValid = true;
+            for (int c = 0; c < radius - 1; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = 0; c <= r; c++){
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += 2 * radius - c - 2;
+            }
+            if (allValid) {
+                if (countLine) {
+                    counter++;
+                } else {
+                    counter += radius + r;
+                }
+            }
+        }
+        for (int r = 1; r < radius; r++){
+            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
+            int startIndex = index;
+            boolean allValid = true;
+            for (int c = r; c < radius - 1; c++)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c;
+            }
+            for (int c = radius - 1; c >= 0; c--)
+            {
+                if (!blocks[index].getState()){
+                    allValid = false; break;
+                }
+                index += radius + c - 1;
+            }
+            if (allValid) {
+                if (countLine) {
+                    counter++;
+                } else {
+                    counter += radius * 2 - r - 1;
+                }
+            }
+        }
+        return counter;
     }
     /**
      * Checks whether any full line can be eliminated in the hex grid.

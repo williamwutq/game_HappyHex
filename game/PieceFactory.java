@@ -44,6 +44,47 @@ import hex.Piece;
  * <p>
  * This class is stateless aside from the global difficulty setting and is not intended to be instantiated.
  * This class migrates all static generation code from {@link Piece}.
+ * <p>
+ * The details of pieces and their byte code representations are documented below:
+ * <ul>
+ *     <li>Byte 8: {@link #uno()}</li>
+ *     <li>Byte 127: {@link #bigBlock()}</li>
+ *     <li>Byte 13: {@link #triangle3A()}</li>
+ *     <li>Byte 88: {@link #triangle3B()}</li>
+ *     <li>Byte 28: {@link #line3I()}</li>
+ *     <li>Byte 73: {@link #line3J()}</li>
+ *     <li>Byte 42: {@link #line3K()}</li>
+ *     <li>Byte 74: {@link #corner3Il()}</li>
+ *     <li>Byte 56: {@link #corner3Jl()}</li>
+ *     <li>Byte 76: {@link #corner3Kl()}</li>
+ *     <li>Byte 41: {@link #corner3Ir()}</li>
+ *     <li>Byte 14: {@link #corner3Jr()}</li>
+ *     <li>Byte 25: {@link #corner3Kr()}</li>
+ *     <li>Byte 27: {@link #rhombus4I()}</li>
+ *     <li>Byte 120: {@link #rhombus4J()}</li>
+ *     <li>Byte 90: {@link #rhombus4K()}</li>
+ *     <li>Byte 78: {@link #fan4A()}</li>
+ *     <li>Byte 57: {@link #fan4B()}</li>
+ *     <li>Byte 114: {@link #corner4Ir()}</li>
+ *     <li>Byte 39: {@link #corner4Il()}</li>
+ *     <li>Byte 83: {@link #corner4Jr()}</li>
+ *     <li>Byte 101: {@link #corner4Jl()}</li>
+ *     <li>Byte 116: {@link #corner4Kr()}</li>
+ *     <li>Byte 23: {@link #corner4Kl()}</li>
+ *     <li>Byte 92: {@link #asymmetrical4Ia()}</li>
+ *     <li>Byte 30: {@link #asymmetrical4Ib()}</li>
+ *     <li>Byte 60: {@link #asymmetrical4Ic()}</li>
+ *     <li>Byte 29: {@link #asymmetrical4Id()}</li>
+ *     <li>Byte 75: {@link #asymmetrical4Ja()}</li>
+ *     <li>Byte 77: {@link #asymmetrical4Jb()}</li>
+ *     <li>Byte 89: {@link #asymmetrical4Jc()}</li>
+ *     <li>Byte 105: {@link #asymmetrical4Jd()}</li>
+ *     <li>Byte 46: {@link #asymmetrical4Ka()}</li>
+ *     <li>Byte 106: {@link #asymmetrical4Kb()}</li>
+ *     <li>Byte 43: {@link #asymmetrical4Kc()}</li>
+ *     <li>Byte 58: {@link #asymmetrical4Kd()}</li>
+ * </ul>
+ *
  * @version 1.3
  * @author William Wu
  * @since 1.3

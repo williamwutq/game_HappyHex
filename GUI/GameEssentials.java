@@ -28,6 +28,7 @@ import GUI.animation.*;
 import Launcher.LaunchEssentials;
 import game.AutoplayHandler;
 import game.GameGUIInterface;
+import hex.GameState;
 import hex.Hex;
 import hex.HexEngine;
 import game.Queue;
@@ -47,7 +48,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class GameEssentials implements GameGUIInterface {
     private GameEssentials() {
-        // Private constructor to prevent instantiation
+        // Private constructor to prevent instantiation outside of this class
     }
     /** The sine of 60 degrees, used for hexagonal calculations. For scaling, use {@code GameEssentials.sinOf60 * 2}. */
     public static final double sinOf60 = Math.sqrt(3) / 2;
@@ -72,6 +73,10 @@ public final class GameEssentials implements GameGUIInterface {
     private static int selectedBlockIndex = -1;
     private static int hoveredOverIndex = -1;
     private static int clickedOnIndex = -1;
+    private static long eliminationBlockAccumulator = 0;
+    private static int eliminationBlockCount = 0;
+    private static int eliminationLineCount = 0;
+    private static int eliminationDirectionCount = 0;
 
     // Special Features
     private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
@@ -240,6 +245,10 @@ public final class GameEssentials implements GameGUIInterface {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
+        eliminationBlockAccumulator = 0;
+        eliminationBlockCount = 0;
+        eliminationLineCount = 0;
+        eliminationDirectionCount = 0;
         window = frame;
         // Construct engine, queue, logger
         synchronized (moveLock) {
@@ -369,6 +378,10 @@ public final class GameEssentials implements GameGUIInterface {
         selectedBlockIndex = -1;
         hoveredOverIndex = -1;
         clickedOnIndex = -1;
+        eliminationDirectionCount = 0;
+        eliminationLineCount = 0;
+        eliminationBlockCount = 0;
+        eliminationBlockAccumulator = 0;
         gameLogger = new HexLogger(Launcher.LaunchEssentials.getCurrentPlayer(), Launcher.LaunchEssentials.getCurrentPlayerID());
         synchronized (moveLock){
             engine.reset();
@@ -485,6 +498,17 @@ public final class GameEssentials implements GameGUIInterface {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
+            eliminationBlockCount = engine.countEliminate(false);
+            int i = engine.countEliminateI(true);
+            int j = engine.countEliminateJ(true);
+            int k = engine.countEliminateK(true);
+            eliminationLineCount = i + j + k;
+            eliminationDirectionCount = 0;
+            if (i > 0) eliminationDirectionCount++;
+            if (j > 0) eliminationDirectionCount++;
+            if (k > 0) eliminationDirectionCount++;
+            eliminationBlockAccumulator += eliminationBlockCount;
+            // Behavior may be expected: long integer overflow; this will take a very long time to happen
             Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
@@ -515,6 +539,38 @@ public final class GameEssentials implements GameGUIInterface {
     public static int getSelectedBlockIndex(){return selectedBlockIndex;}
     public static int getHoveredOverIndex() {return hoveredOverIndex;}
     public static int getClickedOnIndex() {return clickedOnIndex;}
+    /**
+     * Get a snapshot of the current game state.
+     * This method returns a {@link GameState} object that provides a read-only view of the current game state,
+     * including the game engine, piece queue, score, and turn number. The returned object is a snapshot and
+     * will not reflect future changes to the game state.
+     *
+     * @return a {@code GameState} object representing the current state of the game
+     */
+    public static GameState getGameState(){
+        return new GameState() {
+            @Override
+            public HexEngine getEngine() {
+                synchronized (moveLock) {
+                    return engine().clone();
+                }
+            }
+            @Override
+            public Piece[] getQueue() {
+                synchronized (moveLock) {
+                    return queue().getPieces().clone();
+                }
+            }
+            @Override
+            public int getScore() {
+                return GameEssentials.getScore();
+            }
+            @Override
+            public int getTurn() {
+                return GameEssentials.getTurn();
+            }
+        };
+    }
 
     public static AutoplayHandler getAutoplayHandler() {
         return autoplayHandler;
@@ -589,6 +645,17 @@ public final class GameEssentials implements GameGUIInterface {
         // Paint and eliminate
         window().repaint();
         if (engine().checkEliminate()) {
+            eliminationBlockCount = engine.countEliminate(false);
+            int i = engine.countEliminateI(true);
+            int j = engine.countEliminateJ(true);
+            int k = engine.countEliminateK(true);
+            eliminationLineCount = i + j + k;
+            eliminationDirectionCount = 0;
+            if (i > 0) eliminationDirectionCount++;
+            if (j > 0) eliminationDirectionCount++;
+            if (k > 0) eliminationDirectionCount++;
+            eliminationBlockAccumulator += eliminationBlockCount;
+            // Behavior may be expected: long integer overflow; this will take a very long time to happen
             Timer gameTimer = new Timer(actionDelay, null);
             gameTimer.setRepeats(false);
             gameTimer.addActionListener(e -> GameEssentials.eliminate());
@@ -596,4 +663,8 @@ public final class GameEssentials implements GameGUIInterface {
         } else checkEnd();
         return true;
     }
+    public static int getEliminateBlockCount(){return eliminationBlockCount;}
+    public static int getEliminateDirectionCount(){return eliminationDirectionCount;}
+    public static int getEliminateLineCount(){return eliminationLineCount;}
+    public static long getTotalEliminatedBlocks(){return eliminationBlockAccumulator;}
 }

@@ -63,6 +63,7 @@ import java.util.ArrayList;
  *         guest profile for invalid or non-existent inputs.</li>
  *     <li><b>Game Completion:</b> Marks games as completed to prevent further modifications, ensuring
  *         data integrity for finalized game sessions.</li>
+ *     <li><b>Game Record</b> Implements {@link GameState}, can serve as a mutable game state.</li>
  * </ul>
  *
  * <h3>Data Format</h3>
@@ -129,10 +130,10 @@ import java.util.ArrayList;
  * </ul>
  *
  * @author William Wu
- * @version 1.3.4
+ * @version 2.0
  * @since 1.2
  */
-public class HexLogger {
+public class HexLogger implements GameState {
     // Hashing
     /** Bit shift values used for the hashing obfuscation process. */
     private static final int[] SHIFTS = {31, 37, 41, 27, 23, 29, 33, 43};

@@ -19,6 +19,8 @@ __pycache__/
 **/logs.json
 logs.json
 templogs.json
+*.hpyhexua.json
+users/
 
 ### Evironment ###
 /custom-jre/
