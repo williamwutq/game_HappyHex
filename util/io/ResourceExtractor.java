@@ -47,7 +47,11 @@ public class ResourceExtractor {
                     if (entry.getName().endsWith(".java") || entry.getName().endsWith(".class")) continue;
 
                     InputStream in = jar.getInputStream(entry);
-                    Path outFile = new File(target, entry.getName().substring(targetDir.length())).toPath();
+                    Path outFile = target.toPath().resolve(entry.getName().substring(targetDir.length())).normalize();
+                    // Zip Slip prevention: ensure outFile is within target directory
+                    if (!outFile.startsWith(target.toPath().normalize())) {
+                        throw new IOException("Bad zip entry: " + entry.getName());
+                    }
                     Files.createDirectories(outFile.getParent());
                     Files.copy(in, outFile, StandardCopyOption.REPLACE_EXISTING);
                 }
