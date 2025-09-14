@@ -22,9 +22,12 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.impl;
 
 import GUI.GameEssentials;
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
+import achievements.GameAchievementTemplate;
 import hex.GameState;
 import io.JsonConvertible;
 
@@ -62,7 +65,7 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
     private final int requiredMinEliminationDirection;
     private final String name;
     private final String description;
-    static void load()  {
+    public static void load()  {
         AchievementJsonSerializer.registerAchievementClass("EliminationAchievement", json -> {
             try {
                 return fromJsonObject(json);

@@ -22,8 +22,9 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.abstractimpl;
 
+import achievements.*;
 import hex.GameState;
 import io.JsonConvertible;
 
@@ -63,7 +64,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
     private final GameAchievementTemplate[] requirements;
     private final String name;
     private final String description;
-    static void load()  {
+    public static void load()  {
         AchievementJsonSerializer.registerAchievementClass("serial", json -> {
             try {
                 return fromJsonObject(json);

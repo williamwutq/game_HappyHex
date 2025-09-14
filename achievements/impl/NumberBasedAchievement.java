@@ -22,8 +22,11 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.impl;
 
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
+import achievements.GameAchievementTemplate;
 import hex.GameState;
 import io.JsonConvertible;
 
@@ -65,7 +68,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
     private final int[] scoreRequirement;
     private final String name;
     private final String description;
-    static void load() {
+    public static void load() {
         AchievementJsonSerializer.registerAchievementClass("NumberBasedAchievement", json -> {
             try {
                 return fromJsonObject(json);
