@@ -5,7 +5,8 @@ import achievements.GameAchievementTemplate;
 /**
  * A convenient marker interface for phantom achievements, which are special types of achievements
  * that have their names prefixed with "_PHANTOM_". This prefix indicates that the achievement
- * is a phantom achievement, which will not be shown anywhere by design.
+ * is a phantom achievement, which will not be shown anywhere by design. In the achievement system,
+ * the statues of a phantom achievement is always checked, regardless of whether the player has achieved it or not.
  * <p>
  * Implementing classes must provide a method to retrieve the real name of the achievement,
  * which does not include the "_PHANTOM_" prefix. This real name should be unique among all achievements.
