@@ -40,7 +40,11 @@ public class AchievementJsonSerializer {
     // We do not, in fact, have a serialization map. We only have a deserialization map.
     private static final Map<String, Function<JsonObject, GameAchievementTemplate>> ACHIEVEMENT_DESERIAL_NAME_MAP = new HashMap<>();
     private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = Set.of(
-            new IdenticalQueueAchievement(), new AccumulatedEliminationAchievement(), new EnginePerfectFitAchievement(), new EngineAllPerfectFitAchievement()
+            // Imports: Static achievements should be added here once
+            new achievements.staticimpl.IdenticalQueueAchievement(),
+            new achievements.staticimpl.AccumulatedEliminationAchievement(),
+            new achievements.staticimpl.EnginePerfectFitAchievement(),
+            new achievements.staticimpl.EngineAllPerfectFitAchievement()
     );
     static {
         // Add default deserializers for built-in achievements

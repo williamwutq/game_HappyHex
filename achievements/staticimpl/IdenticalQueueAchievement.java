@@ -22,8 +22,9 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.staticimpl;
 
+import achievements.GameAchievementTemplate;
 import hex.GameState;
 import hex.Piece;
 
@@ -46,7 +47,7 @@ import hex.Piece;
  * @version 2.0
  * @since 2.0
  */
-public class IdenticalQueueAchievement implements GameAchievementTemplate{
+public final class IdenticalQueueAchievement implements GameAchievementTemplate{
     /**
      * Creates a new IdenticalQueueAchievement.
      * The achievement is achieved if all pieces in the current piece queue are identical.

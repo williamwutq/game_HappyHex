@@ -22,9 +22,10 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.staticimpl;
 
 import GUI.GameEssentials;
+import achievements.GameAchievementTemplate;
 import hex.GameState;
 
 /**
@@ -48,7 +49,7 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public class AccumulatedEliminationAchievement implements GameAchievementTemplate{
+public final class AccumulatedEliminationAchievement implements GameAchievementTemplate{
     /**
      * Creates a new AccumulatedEliminationAchievement.
      * The achievement is achieved if the player eliminates a total of 1000 blocks in the same game without quitting it.
