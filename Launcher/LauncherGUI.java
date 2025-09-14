@@ -135,6 +135,9 @@ public class LauncherGUI {
     private static JPanel fetchSettingPanel(){
         return new SettingPanel();
     }
+    private static JPanel fetchAchievementPanel(){
+        return new AchievementsPanel();
+    }
     private static JPanel fetchGameOverPanel(){
         return new GameOverPanel();
     }
@@ -228,6 +231,14 @@ public class LauncherGUI {
         removeAllFromFrame();
         setBackgroundColor(LaunchEssentials.launchBackgroundColor);
         mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
+    }
+    public static void toAchievements(){
+        LaunchEssentials.endGame();
+
+        // Initialization
+        removeAllFromFrame();
+        setBackgroundColor(LaunchEssentials.launchBackgroundColor);
+        mainFrame.add(fetchAchievementPanel(), BorderLayout.CENTER);
     }
     public static void toThemes(){
         LaunchEssentials.endGame();
