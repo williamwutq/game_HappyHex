@@ -251,6 +251,21 @@ public class AchievementJsonSerializer {
         JsonObject jsonObject = serializer.parseJsonString(fileContent);
         return deserializeAchievementTemplateArray(jsonObject);
     }
+    /**
+     * Deserializes an array of GameAchievementTemplate from a resource file.
+     * The resource file must contain a JSON object with an "Achievements" array, where each element is a JsonObject
+     * representing an achievement with a "type" field indicating the achievement type.
+     * @param resourcePath the path to the resource file
+     * @return an array of deserialized GameAchievementTemplate instances
+     * @throws IOException if an I/O error occurs reading from the resource
+     * @throws DataSerializationException if the JSON is invalid or if deserialization fails
+     */
+    public static GameAchievementTemplate[] deserializeAchievementTemplateResource(String resourcePath) throws IOException, DataSerializationException {
+        AchievementJsonSerializer serializer = new AchievementJsonSerializer();
+        String resourceContent = serializer.readResource(resourcePath);
+        JsonObject jsonObject = serializer.parseJsonString(resourceContent);
+        return deserializeAchievementTemplateArray(jsonObject);
+    }
 
     // JSON to and from String
     /**

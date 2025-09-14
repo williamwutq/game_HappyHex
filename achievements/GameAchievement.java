@@ -108,7 +108,7 @@ import java.util.stream.Collectors;
  * @since 2.0
  */
 public class GameAchievement implements JsonConvertible {
-    private static final String TEMPLATES_FILE = "achievements/buildin.hpyhexach.json";
+    private static final String TEMPLATES_FILE = "buildin.hpyhexach.json";
     private static final String USER_DIRECTORY = "users/achievements/";
     private static final Set<GameAchievementTemplate> TEMPLATES = new HashSet<GameAchievementTemplate>();
     private static final Set<GameAchievement> activeAchievements = new HashSet<GameAchievement>();
@@ -339,7 +339,7 @@ public class GameAchievement implements JsonConvertible {
      * @throws IOException if an I/O error occurs while reading the file
      */
     public static void loadTemplate() throws IOException {
-        GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateFile(TEMPLATES_FILE);
+        GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateResource(TEMPLATES_FILE);
         synchronized (TEMPLATES) {
             for (GameAchievementTemplate template : templateArr) {
                 registerTemplate(template);
