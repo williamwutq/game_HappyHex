@@ -62,6 +62,7 @@ public class AchievementJsonSerializer {
         achievements.impl.QueueBasedAchievement.load();
         achievements.impl.EliminationAchievement.load();
         achievements.abstractimpl.SerialAchievement.load();
+        achievements.abstractimpl.AnyAchievement.load();
         achievements.abstractimpl.NotAchievedAchievement.load();
         achievements.abstractimpl.XorAchievement.load();
     }
