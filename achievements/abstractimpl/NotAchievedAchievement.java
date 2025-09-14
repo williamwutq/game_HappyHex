@@ -57,11 +57,11 @@ public class NotAchievedAchievement implements PhantomAchievementTemplate {
     }
     /**
      * {@inheritDoc}
-     * @return the name of the achievement prefixed with "_PHANTOM_"
+     * @return the name of the achievement prefixed with "_PHANTOM_NOT_"
      */
     @Override
     public String realName() {
-        return template.name();
+        return "NOT_" + template.name();
     }
     /**
      * {@inheritDoc}
