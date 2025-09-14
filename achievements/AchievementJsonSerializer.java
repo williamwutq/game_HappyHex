@@ -312,4 +312,27 @@ public class AchievementJsonSerializer {
         Path path = Path.of(filePath);
         Files.writeString(path, content, java.nio.file.StandardOpenOption.APPEND, java.nio.file.StandardOpenOption.CREATE);
     }
+
+    // Resource Loading
+    /**
+     * Reads the contents of a resource file and returns it as a string.
+     * <p>
+     * This behaves exactly like {@link #readFile(String)}, but reads from the classpath resources instead of the filesystem.
+     * If run from a JAR, it reads from within the JAR.
+     * <p>
+     * Note: For example, if the file {@code data/file.txt} is in the jar, and a {@code data/file.txt} is in the working directory
+     * then calling {@code readResource("/data/file.txt")} will read the file from within the JAR, not the working directory.
+     *
+     * @param resourcePath the path to the resource file
+     * @return the contents of the resource file as a string
+     * @throws IOException if an I/O error occurs reading from the resource or if the resource is not found
+     */
+    public static String readResource(String resourcePath) throws IOException {
+        try (java.io.InputStream is = AchievementJsonSerializer.class.getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                throw new IOException("Resource not found: " + resourcePath);
+            }
+            return new String(is.readAllBytes());
+        }
+    }
 }
