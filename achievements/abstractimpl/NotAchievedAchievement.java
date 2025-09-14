@@ -24,8 +24,18 @@
 
 package achievements.abstractimpl;
 
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
+import achievements.GameAchievement;
 import achievements.GameAchievementTemplate;
 import hex.GameState;
+import io.JsonConvertible;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A wrapper for {@link GameAchievementTemplate} that marks an achievement as not achieved.
@@ -44,7 +54,7 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public class NotAchievedAchievement implements PhantomAchievementTemplate {
+public class NotAchievedAchievement implements PhantomAchievementTemplate, JsonConvertible {
     private final GameAchievementTemplate template;
     /**
      * Constructs a new {@code NotAchievedAchievement} that wraps the given template.
@@ -96,5 +106,66 @@ public class NotAchievedAchievement implements PhantomAchievementTemplate {
     @Override
     public int hashCode() {
         return ~template.hashCode();
+    }
+    /**
+     * {@inheritDoc}
+     * Delegates to the wrapped template's name.
+     * @return the name of the achievement
+     */
+    @Override
+    public JsonObjectBuilder toJsonObjectBuilder() {
+        JsonObjectBuilder job = Json.createObjectBuilder();
+        job.add("type", "not");
+        job.add("name", name());
+        job.add("description", description());
+        job.add("template", template.name());
+        return job;
+    }
+    /**
+     * Deserializes a {@code XorAchievement} from a JSON object.
+     * <p>
+     * The JSON object must contain the following fields:
+     * <ul>
+     *     <li>"type": must be "xor"</li>
+     *     <li>"name": the name of the achievement, disregarded</li>
+     *     <li>"description": the description of the achievement, disregarded</li>
+     *     <li>"template1": the name of the first wrapped achievement template</li>
+     *     <li>"template2": the name of the second wrapped achievement template</li>
+     * </ul>
+     * If any of these fields are missing or if the type is incorrect, a {@code DataSerializationException} is thrown.
+     * <p>
+     * Note: This method assumes that all independent achievement templates have already been loaded
+     * into {@link GameAchievement#getTemplates()}. If this is not the case, an exception will be thrown.
+     *
+     * @param jsonObject the JSON object to deserialize from
+     * @return a new {@code XorAchievement} instance
+     * @throws DataSerializationException if required fields are missing or if referenced templates are unknown
+     */
+    public static PhantomAchievementTemplate fromJsonObject(JsonObject jsonObject) throws DataSerializationException {
+        if (!jsonObject.getString("type").equals("not")) {
+            throw new IllegalArgumentException("Invalid type: " + jsonObject.getString("type"));
+        }
+        if (!jsonObject.containsKey("name") || !jsonObject.containsKey("description") || !jsonObject.containsKey("template")) {
+            throw new DataSerializationException("Missing required fields in JSON object for NotAchievedAchievement.");
+        }
+        String templateName = jsonObject.getString("template");
+        Map<String, GameAchievementTemplate> templateMap = GameAchievement.getTemplates().stream()
+                .collect(Collectors.toMap(GameAchievementTemplate::name, t -> t));
+        if (!templateMap.containsKey(templateName)) {
+            throw new DataSerializationException("Unknown requirement: " + templateName + ", templates may not have been loaded." +
+                    "If this is the initialization, serialize independent templates first.");
+        } else {
+            GameAchievementTemplate template = templateMap.get(templateName);
+            return new NotAchievedAchievement(template);
+        }
+    }
+    public static void load()  {
+        AchievementJsonSerializer.registerAchievementClass("not", json -> {
+            try {
+                return fromJsonObject(json);
+            } catch (DataSerializationException e) {
+                throw new RuntimeException("Failed to deserialize not.", e);
+            }
+        });
     }
 }

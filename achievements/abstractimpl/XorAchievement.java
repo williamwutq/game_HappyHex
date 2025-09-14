@@ -24,8 +24,18 @@
 
 package achievements.abstractimpl;
 
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
+import achievements.GameAchievement;
 import achievements.GameAchievementTemplate;
 import hex.GameState;
+import io.JsonConvertible;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A wrapper for {@link GameAchievementTemplate} that is archived when exactly one of the two wrapped achievements
@@ -44,7 +54,7 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public class XorAchievement implements PhantomAchievementTemplate {
+public class XorAchievement implements PhantomAchievementTemplate, JsonConvertible {
     private final GameAchievementTemplate template1;
     private final GameAchievementTemplate template2;
     /**
@@ -98,5 +108,71 @@ public class XorAchievement implements PhantomAchievementTemplate {
     @Override
     public int hashCode() {
         return template1.hashCode() ^ template2.hashCode();
+    }
+    /**
+     * {@inheritDoc}
+     * Delegates to the wrapped template's name.
+     * @return the name of the achievement
+     */
+    @Override
+    public JsonObjectBuilder toJsonObjectBuilder() {
+        JsonObjectBuilder job = Json.createObjectBuilder();
+        job.add("type", "xor");
+        job.add("name", name());
+        job.add("description", description());
+        job.add("template1", template1.name());
+        job.add("template2", template2.name());
+        return job;
+    }
+    /**
+     * Deserializes a {@code XorAchievement} from a JSON object.
+     * <p>
+     * The JSON object must contain the following fields:
+     * <ul>
+     *     <li>"type": must be "xor"</li>
+     *     <li>"name": the name of the achievement, disregarded</li>
+     *     <li>"description": the description of the achievement, disregarded</li>
+     *     <li>"template1": the name of the first wrapped achievement template</li>
+     *     <li>"template2": the name of the second wrapped achievement template</li>
+     * </ul>
+     * If any of these fields are missing or if the type is incorrect, a {@code DataSerializationException} is thrown.
+     * <p>
+     * Note: This method assumes that all independent achievement templates have already been loaded
+     * into {@link GameAchievement#getTemplates()}. If this is not the case, an exception will be thrown.
+     *
+     * @param jsonObject the JSON object to deserialize from
+     * @return a new {@code XorAchievement} instance
+     * @throws DataSerializationException if required fields are missing or if referenced templates are unknown
+     */
+    public static PhantomAchievementTemplate fromJsonObject(JsonObject jsonObject) throws DataSerializationException {
+        if (!jsonObject.getString("type").equals("xor")) {
+            throw new IllegalArgumentException("Invalid type: " + jsonObject.getString("type"));
+        }
+        if (!jsonObject.containsKey("name") || !jsonObject.containsKey("description") || !jsonObject.containsKey("template1") || !jsonObject.containsKey("template2")) {
+            throw new DataSerializationException("Missing required fields in JSON object for XorAchievement.");
+        }
+        String template1Name = jsonObject.getString("template1");
+        String template2Name = jsonObject.getString("template2");
+        Map<String, GameAchievementTemplate> templateMap = GameAchievement.getTemplates().stream()
+                .collect(Collectors.toMap(GameAchievementTemplate::name, t -> t));
+        if (!templateMap.containsKey(template1Name)) {
+            throw new DataSerializationException("Unknown requirement: " + template1Name + ", templates may not have been loaded." +
+                    "If this is the initialization, serialize independent templates first.");
+        } else if (!templateMap.containsKey(template2Name)) {
+            throw new DataSerializationException("Unknown requirement: " + template2Name + ", templates may not have been loaded." +
+                    "If this is the initialization, serialize independent templates first.");
+        }
+        GameAchievementTemplate template1 = templateMap.get(template1Name);
+        GameAchievementTemplate template2 = templateMap.get(template2Name);
+        return new XorAchievement(template1, template2);
+    }
+    public static void load()  {
+        AchievementJsonSerializer.registerAchievementClass("xor", json -> {
+            try {
+                return fromJsonObject(json);
+            } catch (DataSerializationException e) {
+                throw new RuntimeException("Failed to deserialize xor.", e);
+            }
+        });
     }
 }

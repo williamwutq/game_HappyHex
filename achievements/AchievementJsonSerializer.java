@@ -60,8 +60,10 @@ public class AchievementJsonSerializer {
         // Imports: This is necessary to ensure that the built-in achievements are loaded and registered.
         achievements.impl.NumberBasedAchievement.load();
         achievements.impl.QueueBasedAchievement.load();
-        achievements.abstractimpl.SerialAchievement.load();
         achievements.impl.EliminationAchievement.load();
+        achievements.abstractimpl.SerialAchievement.load();
+        achievements.abstractimpl.NotAchievedAchievement.load();
+        achievements.abstractimpl.XorAchievement.load();
     }
     /**
      * Registers a custom achievement class with a deserializer function.
