@@ -39,6 +39,7 @@ import io.GameTime;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The {@link GameEssentials} class provides essential game utilities.
@@ -275,7 +276,7 @@ public final class GameEssentials implements GameGUIInterface {
             }
         }
         // Autoplay
-        autoplayHandler.useMLIfAvailable();
+        CompletableFuture.runAsync(autoplayHandler::smartSetupPython);
         // Construct GUI
         HexButton.setSize(1);
         piecePanel = new PiecePanel();
@@ -295,7 +296,7 @@ public final class GameEssentials implements GameGUIInterface {
         gamePanel.quitAuto();
     }
     public static void interruptAutoplay(){
-        autoplayHandler.genericClose();
+        CompletableFuture.runAsync(autoplayHandler::genericClose);
     }
     public static void terminateAutoplay(){
         autoplayHandler.hardClose();
@@ -346,7 +347,7 @@ public final class GameEssentials implements GameGUIInterface {
             } else {
                 System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game quits without change.");
             }
-            autoplayHandler.genericClose();
+            CompletableFuture.runAsync(autoplayHandler::genericClose);
             GameEssentials.resetGame();
         }
         Launcher.LauncherGUI.returnHome();
@@ -355,8 +356,8 @@ public final class GameEssentials implements GameGUIInterface {
         // If the game should end, log and reset
         if(gameEnds()){
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
-            autoplayHandler.genericClose();
-            logGame();
+            CompletableFuture.runAsync(autoplayHandler::genericClose);
+            if (GameEssentials.getTurn() != 0) logGame();
             resetGame();
             Launcher.LauncherGUI.toGameOver();
         }
@@ -613,7 +614,7 @@ public final class GameEssentials implements GameGUIInterface {
                     queue = Queue.fromPieces(gameLogger.getQueue().clone());
                     gamePanel.updateDisplayedInfo(getTurn(), getScore());
                     // Shutdown autoplay
-                    autoplayHandler.genericClose();
+                    CompletableFuture.runAsync(autoplayHandler::genericClose);
                     // Update GUI
                     window.repaint();
                     return false;

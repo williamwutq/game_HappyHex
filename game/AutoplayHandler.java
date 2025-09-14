@@ -99,7 +99,7 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
     private final GameCommandProcessor gameProcessor;
     private final GameGUIInterface gameGUI;
     private final List<Supplier<Boolean>> mlPreconditions;
-    private boolean usingML = false;
+    private String currentModel = null;
     private static final long hardCloseDelay = 600000;
     private static final String defaultPath = "python/comm.py";
     private static final String tensorflowPath = "python/comm_tf.py";
@@ -137,10 +137,21 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
      * @throws IllegalStateException If the Python process fails to start.
      */
     public void smartSetupPython() throws IllegalStateException {
-        if (shouldUseML()) {
-            // Get the engine and queue from gameGUI
-            int radius = gameGUI.getEngine().getRadius();
-            int size = gameGUI.getQueue().length;
+        // Get the engine and queue from gameGUI
+        boolean condition = shouldUseML();
+        int radius = -1, size = -1;
+        try {
+            radius = gameGUI.getEngine().getRadius();
+            size = gameGUI.getQueue().length;
+            condition = condition && (currentModel == null || !PythonEnvsChecker.canRunModel(currentModel, radius, size));
+            if (pythonProcessor == null) {
+                System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Python processor is uninitialized, attempting to set up.");
+            }
+            condition = condition || pythonProcessor == null; // If processor is null, reinitialize
+        } catch (NullPointerException e) {
+            condition = false;
+        }
+        if (condition) {
             String[] models = PythonEnvsChecker.runnableModels(radius, size);
             if (models.length > 0) {
                 // Use the first available model
@@ -153,14 +164,22 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
                 } else if (framework.equals("tf")) {
                     setupPython(tensorflowPath, new String[]{modelPath});
                     System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using TensorFlow model " + model);
-                    usingML = true;
+                    currentModel = model;
                 } else if (framework.equals("torch")) {
                     setupPython(torchPath, new String[]{modelPath});
                     System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
-                    usingML = true;
+                    currentModel = model;
+                } else {
+                    currentModel = null;
                 }
                 return;
+            } else {
+                currentModel = null;
             }
+        } else if (currentModel != null) {
+            // Print out current model info
+            System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Continuing to use ML model " + currentModel);
+            return;
         }
         setupPython();
     }
@@ -174,6 +193,9 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
      * because it avoids expensive process restart if no ML is to be used.
      * <p>
      * The method uses the {@link PythonEnvsChecker} class to determine model availability and compatibility.
+     * <p>
+     * For more flexibility, consider using {@link #smartSetupPython()} which automatically decides whether
+     * to reinitialize based on current conditions.
      *
      * @throws IllegalStateException If the Python process fails to start.
      */
@@ -192,13 +214,17 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
                     hardClose();
                     setupPython(tensorflowPath, new String[]{modelPath});
                     System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using TensorFlow model " + model);
-                    usingML = true;
+                    currentModel = model;
                 } else if (framework != null && framework.equals("torch")) {
                     hardClose();
                     setupPython(torchPath, new String[]{modelPath});
                     System.out.println(GameTime.generateSimpleTime() + " Hpyhexml (Python): Using PyTorch model " + model);
-                    usingML = true;
+                    currentModel = model;
+                } else {
+                    currentModel = null;
                 }
+            } else {
+                currentModel = null;
             }
         }
     }
@@ -287,19 +313,19 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
      * reinitializes the Python processor without ML. If not using ML, does nothing.
      */
     public void closeML(){
-        if (usingML){
+        if (currentModel != null){
             hardClose();
-            usingML = false;
+            currentModel = null;
             setupPython();
         }
     }
     /**
      * Determines whether to do a {@link #softClose()} or {@link #hardClose()} depending on the
-     * elapsed time since the last close. If the interval is less than
+     * elapsed time since the last close. If the interval is more than
      * {@code hardCloseDelay}, performs a hard close; otherwise, performs a soft close.
      */
     public void genericClose(){
-        if (System.currentTimeMillis() - lastCloseTime < hardCloseDelay){
+        if (System.currentTimeMillis() - lastCloseTime > hardCloseDelay){
             hardClose();
         } else {
             softClose();
@@ -322,7 +348,7 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
      *
      * @return true if using ML, false otherwise
      */
-    public boolean isUsingML(){ return usingML;}
+    public boolean isUsingML(){ return currentModel != null;}
     /**
      * Evaluates all preconditions for using machine learning models.
      * If all preconditions return true, indicates that ML can be used.

@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for autoplay and [ML](#develop--machine-learning))  
-<b>Last edited:</b> 06/08/2025  
-<b>Latest release:</b> [1.4.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.1)
+<b>Last edited:</b> 10/09/2025  
+<b>Latest release:</b> [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.0)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -21,7 +21,6 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 > - Report bugs by create an [issue](https://github.com/williamwutq/game_HappyHex/issues).  
 > - The most recent release have ***two*** detected bug: 
 >   - Autoplay GUI not updated when python processor unexpectedly close #79. Fix not planned.
->   - Desynconization between game and logger when on autoplay fast mode. Fix not planned currently.
 
 ---
 
@@ -29,7 +28,7 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 This is just a cute project of mine. From early on after learning java in high school and helped the teacher taught its graphics library `javax.swing` I
 felt compelled to actually program a functional game. Combined with my earlier ideas of designing a hexagonal grid coordinate system, the rough picture of
 what would be future `HappyHex` formed in my mind. In my spare time, I gradually developed this project through following my [timeline](#Future-Timeline)
-and added increasingly attractive features. From version 0.4 to 1.4, it has grown from just a game page with buggy information display that had to be
+and added increasingly attractive features. From version 0.4 to 2.0, it has grown from just a game page with buggy information display that had to be
 launched through terminal commands and contained no color indication to a comprehensive and enjoyable game that features settings, themes, and animation.
 Game logging and viewing, and even resume game functionalities are slowly build up in [Pull Requests](https://github.com/williamwutq/game_HappyHex/pulls).
 It has become that one project which I could not stop thinking about. Step by step improvements will be made in different aspects and merged together for
@@ -220,6 +219,15 @@ The page contains the following elements:
   This switch controls whether to enables "Easy Mode," which modifies [piece generation](#Piece-Generation) to make the game significantly easier.  
   
   Easy mode is compatible with all special game modes in the [Easter Eggs](#Easter-Eggs).
+
+- <b>Machine Learning Enable</b>
+
+  Turned `ON` by default. Turning the switch `ON` enables Machine Learning, while turning it `OFF` disables Machine Learning Models.
+  
+  This is useful if you dislike the performance of the current machine learning models, and want to switch to the traditional heuristic algorithm for autoplay.
+  Disabling machine learning models will make the autoplay less "intelligent", but may result in faster autoplay speed and more stable performance.
+
+  If your machine suffers significant performance issues when machine learning models are used, consider turning this switch `OFF`.
 
 > [!NOTE]  
 > Since first [Official Release](https://github.com/williamwutq/game_HappyHex/releases/v1.0.0) (v1.0.0), unspecified game mode creation is no longer supported.  
@@ -529,6 +537,10 @@ generate the single-block piece but may generate the full 7-block piece.
   but the user can try to turn the autoplay on and off.
 - All components in the "Dynamic Island" can detect hover. When hovering over they may change color in an animated way, expect for when a current animation
   is playing.
+- The algorithm used in autoplay is Nrsearch, which is a greedy high-performing algorithm that fuses the advantage of Density Index's local optimization
+  and Score Index's global optimization. This algorithm is fast and effective, and it is possible to survive for a long time with this algorithm. However,
+  if machine learning models are enabled and available, and python evironment supporting that model is detected, the machine learning model will be used instead.
+  When using a machine learning model, the autoplay will be smarter, but it will need time to load during startup.
 
 ### Easter Eggs  
 #### Prohibited Usernames  
@@ -668,8 +680,27 @@ game results and even personalized game play.
 ### Contribution
 This is mostly my project under my design, and I am managing all branches.  
 
-Currently (Before Release 1.4), I have no plans for collaboration with others on this project. However, if you wish to contribute on this small game, please
-feel free to contact me.  
+As of Version 2.0, all public contributions are welcome through pull requests.
+Please tag your pull request with appropriate labels, and explain what has been changed and why. Please also make sure your code is well documented and tested.
+Here are the specific package rules:
+- Code in the package `hex` is the core of the game, and it is unlikely that I will accept any changes to this package unless it is a bug fix.
+  Additional methods to `HexEngine` might be accepted if they are useful for future development, but you may need to explain why they need to exist in that class,
+  instead of being a helper method in another class.
+- The `hexio` package handles io of the `hex` package. It is a very stable package, and only bug fixes will be accepted. I am not making new `.hpyhex` file formats.
+- Code in the package `launcher` is the launcher of the game. You are welcome to improve the user experience and graphics of the launcher, but please
+  make sure they are well-designed and implemented. Changes to graphics will be approved if they are well-designed and implemented.
+- Code in the package `GUI` is the graphics and user interface of the game. Do not change it unless you know what you are doing. Please rarely touch stuff in
+  `GameEssentials`, because even I don't know how it works. Changes to graphics will be approved if they are well-designed and implemented.
+- Code in the package `special` is for special modes and themes. You are welcome to add your own special mode or theme, but please make sure they are well-designed
+  and implemented. Please also make sure they do not interfere with existing modes and themes. All special modes and themes must be registered in `FeatureFactory`.
+- The `python` package's python code is used for machine learning, and are pulled from a separate repository. Please do not change anything in this package.
+  If you want to contribute, please go to [hpyhexml](https://github.com/williamwutq/hpyhexml) instead.
+- Miscellaneous helper code is in the `util` package. You are welcome to add your own helper code, but please make sure they are well-designed, documented,
+  tested, and organized.
+- Contribution for Game Viewer please see [Game Viewer README](viewer/README.md#contribution).
+- Please do not change the project structure unless absolutely necessary. If you wish to change the project structure, please create an issue first
+  explaining why it is necessary.
+- Please contact me if you want to contribute to major features such as Autoplay, the game achievement system, the purchasable system, etc.
 
 If you wish to suggest a feature, create an [issue](https://github.com/williamwutq/game_HappyHex/issues) and add appropriate tags. Please add the
 [enhancement](https://github.com/williamwutq/game_HappyHex/issues?q=is%3Aissue%20state%3Aopen%20label%3Aenhancement) label to your issue. Please also
@@ -705,6 +736,10 @@ associated with the moves. The game viewer is developed and should be a separate
 This section concerns about the launcher of the game, namely the window that shows up when you open the application. The current launcher consists of a main
 page, with buttons redirecting to pages for player log in, settings, graphics themes, and, of course, the game itself. Branches such as `gui` are dedicated to
 the improvements of user experience. The branch `fancy`, which is no longer in use, was typically used to add fancy graphics.<br/>
+7. <a name="develop--special-themes"><b>Special Themes</b></a>  
+These are themes that could only be activated during certain days, such as Halloween, Independence Day, or Christmas. Some of them also serve as memorial to
+tragic events such as the September 11th attacks. These themes use the same injection interface as [SpecialModes](#develop--special-modes), and are packaged
+in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`. Only Christmas theme is to be developed.<br/>
 
 ### Directions of Development
 The developing process are mainly separated into the following parts:
@@ -712,11 +747,7 @@ The developing process are mainly separated into the following parts:
 How the game is played. This including scoring systems, awards, resetting, fetching and displaying previous game scores, etc. Currently, the most recent score
 and turns, the highest score and turns, and the average score and turns can be seen when the game is over.<br/><br/>
 Future considerations in this include setting passwords for user accounts, adding an achievement and purchasable system that would be linked with graphic themes, 
-and providing a page for more detailed user game analysis.  
-2. <a name="develop--special-themes"><b>Special Themes</b></a>  
-These are themes that could only be activated during certain days, such as Halloween, Independence Day, or Christmas. Some of them also serve as memorial to 
-tragic events such as the September 11th attacks. These themes use the same injection interface as [SpecialModes](#develop--special-modes), and are packaged
-in the same `special` package. Dedicated branches would be `special` and sometimes `fancy`. Only Christmas theme is to be developed.<br/>  
+and providing a page for more detailed user game analysis.
 3. <a name="develop--machine-learning"><b>Machine Learning</b></a>  
 A more precise way of describing this direction would be auto-game-play. This means a machine would be build to play the game while the player sit there and
 watch. This autoplay would be initially enabled through scoring algorithms and later through trained artificial intelligence operated in Python. This is a feature
@@ -724,14 +755,18 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [1.4.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v1.4.1)
-- Version 2  
+- Latest Release: [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.0)
 
-  > Version 2 will be fundamentally different from all of Version 1 and be incompatible.
-  - Add user achievements
-  - Add completed achievements and unlockable system
-  - Make themes and shinning font unlock-able
-  - Use machine learning to train AI for advanced autoplay
+> Version 2 will be fundamentally different from all of Version 1 and be incompatible.
+> - Add user achievements
+> - Add completed achievements and unlockable system
+> - Make themes and shinning font unlock-able
+> - Use machine learning to train AI for advanced autoplay
+  
+- Version 2.0.1
+  - Improve autoplay ml efficiency through asynchronous programming and optimization
+  - Add button to disable machine learning models
+  - Add the achievement system
 
 ## Code packages
 The packages in the source code, their dependencies, and their functions.
@@ -792,7 +827,7 @@ package `python`
 `pathlib` and `comm`
 <b>Function</b>:  
 All python code are packaged here. These include basic hex package, game log reading, both coded in python and following the exact same logic as
-the java code in other packages. This also include autoplay code.
+the java code in other packages. This also include autoplay code, machine learning model supports, and models.
 
 ### Tests
 package `tests`  

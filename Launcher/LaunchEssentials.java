@@ -58,6 +58,7 @@ public final class LaunchEssentials {
     private static PlayerInfo currentPlayerInfo = new PlayerInfo(0, 0, 0, 0, 0, 0, -1, Username.getUsername("Guest"));
     private static GameInfo currentGameInfo;
     private static boolean gameStarted = false;
+    private static boolean mlEnabled = true;
 
     // Graphics Theme
     private static int themeIndex = 2;
@@ -229,6 +230,15 @@ public final class LaunchEssentials {
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;
         if (Math.random() <= animationChance) GameEssentials.setAnimator(LauncherGUI.getMainFrame()::repaint); // By chance
+        // If the data/ directory does not exist, create it
+        // Copy everything in the python resource directory to a real directory. If it already exists, write files into it. If the file is .java or .class, ignore it.
+        try {
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get("data/"));
+            util.io.ResourceExtractor.copyResources("python/");
+        } catch (IOException e) {
+            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: Failed to create data/ or python/ directory because " + e.getMessage());
+            System.exit(1);
+        }
         // Start python detection
         python.PythonEnvsChecker.run();
         // Achievement System
@@ -247,8 +257,20 @@ public final class LaunchEssentials {
         // Hook up the debug stream of python to console
 //         python.PythonCommandProcessor.setDebugEnabled(true);
 //         python.PythonCommandProcessor.DEBUG.copierThread(System.out, () -> (GameTime.generateSimpleTime() + (GameEssentials.getAutoplayHandler().isUsingML() ? " Hpyhexml" : " Autoplay"))).start();
+        GameEssentials.getAutoplayHandler().addMLPrecondition(() -> mlEnabled);
         // Print the launch message
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
+    }
+    public static boolean isMlEnabled(){
+        return mlEnabled;
+    }
+    public static void setMLEnabled(){
+        mlEnabled = true;
+        System.out.println(GameTime.generateSimpleTime() + " Autoplay (Python): Machine learning enabled");
+    }
+    public static void setMLDisabled(){
+        mlEnabled = false;
+        System.out.println(GameTime.generateSimpleTime() + " Autoplay (Python): Machine learning disabled");
     }
     public static void setEasyMode(){
         if (currentGameInfo.getGameMode() == GameMode.Small){
