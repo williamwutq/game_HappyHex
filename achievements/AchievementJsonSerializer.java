@@ -24,6 +24,8 @@
 
 package achievements;
 
+import achievements.abstractimpl.HiddenAchievement;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonWriter;
@@ -228,15 +230,23 @@ public class AchievementJsonSerializer {
             } catch (Exception e) {
                 throw new DataSerializationException("Invalid JSON: each achievement object must contain a 'type' field", e);
             }
+            if (!obj.containsKey("name") || !obj.containsKey("description")) {
+                throw new DataSerializationException("Invalid JSON: each achievement object must contain 'name' and 'description' fields");
+            }
             Function<JsonObject, GameAchievementTemplate> deserializer = ACHIEVEMENT_DESERIAL_NAME_MAP.get(type);
+            GameAchievementTemplate template;
             if (deserializer == null) {
                 throw new DataSerializationException("No deserializer registered for achievement of type " + type);
             }
             try {
-                achievements.add(deserializer.apply(obj));
+                template = deserializer.apply(obj);
             } catch (Exception e) {
                 throw new DataSerializationException("Failed to deserialize achievement of type " + type, e.getCause());
             }
+            if (HiddenAchievement.isHidden(obj.getString("name"))) {
+                template = HiddenAchievement.wrap(template);
+            }
+            achievements.add(template);
         }
         return achievements.toArray(new GameAchievementTemplate[0]);
     }
