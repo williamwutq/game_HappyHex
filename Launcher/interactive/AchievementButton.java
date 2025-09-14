@@ -24,12 +24,19 @@
 
 package Launcher.interactive;
 
-public class AchievementButton extends GUI.SimpleButton {
+import java.awt.*;
+
+public class AchievementButton extends LaunchButton {
     public AchievementButton() {
-        super("ACHIEVEMENTS", Launcher.LaunchEssentials.launchNewButtonBackgroundColor);
+        super("TROPHY");
     }
     @Override
     protected void clicked() {
         Launcher.LauncherGUI.toAchievements();
+    }
+
+    @Override
+    protected Color fetchColor() {
+        return Launcher.LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }
