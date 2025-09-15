@@ -14,7 +14,7 @@ public class CurveGenerator {
                 "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
                 "scl", "sxy", "scb", "ssb", "rot",
                 "rm", "rml", "rmf", "rma",
-                "clear", "print", "json", "info", "undo", "redo",
+                "clear", "print", "pp", "json", "info", "undo", "redo",
                 "exit", "quit", "help"
         };
         final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
@@ -138,6 +138,7 @@ public class CurveGenerator {
                     System.out.println("  rma - Clears all points");
                     System.out.println("  clear - Clear the console");
                     System.out.println("  print - Prints the list of points and control points");
+                    System.out.println("  pp index - Prints the point and control point at index");
                     System.out.println("  json - Outputs the shape as a JSON array");
                     System.out.println("  json [json] - Loads the shape from a JSON array");
                     System.out.println("  info - Shows information about the current shape");
@@ -173,6 +174,7 @@ public class CurveGenerator {
                             case "rma"  -> "rma - Clears all points";
                             case "clear"-> "clear - Clear the console";
                             case "print"-> "print - Prints the list of points and control points";
+                            case "pp"   -> "pp index - Prints the point and control point at index";
                             case "json" -> "json - Outputs the shape as a JSON array\njson [json] - Loads the shape from a JSON array";
                             case "info" -> "info - Shows information about the current shape";
                             case "undo" -> "undo - Undoes the last action";
@@ -570,6 +572,21 @@ public class CurveGenerator {
                         for (double[] point : shape.toArray()) {
                             System.out.printf("Point: (%.2f, %.2f), Control: (%.2f, %.2f)%n", point[0], point[1], point[2], point[3]);
                         }
+                    }
+                } else if (line.startsWith("pp")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 1) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            double[] point = s.get().toArray()[index];
+                            System.out.printf("Point: (%.2f, %.2f), Control: (%.2f, %.2f)%n", point[0], point[1], point[2], point[3]);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: pp index");
                     }
                 } else if (line.equals("json")) {
                     CurvedShape shape = s.get().toCurvedShape();
