@@ -11,7 +11,7 @@ public class CurveGenerator {
         final Color controlColor = new Color(0, 153, 255);
         final Color pointColor = new Color(255, 51, 51);
         final String[] commands = new String[]{
-                "add", "set", "sp", "sc", "ins", "mv", "mp", "mc",
+                "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
                 "scl", "sxy", "scb", "ssb", "rot",
                 "rm", "rml", "rmf", "rma",
                 "clear", "print", "json", "info", "undo", "redo",
@@ -123,6 +123,8 @@ public class CurveGenerator {
                     System.out.println("  sc index dx dy - Sets the control point at index by (dx, dy)");
                     System.out.println("  ins index x y cx cy - Adds a point with coordinates (x, y) and control point (cx, cy) to index index");
                     System.out.println("  mv dx dy - Moves all points by (dx, dy)");
+                    System.out.println("  mx dx - Moves all points by (dx, 0)");
+                    System.out.println("  my dy - Moves all points by (0, dy)");
                     System.out.println("  mp index dx dy - Moves the point at index by (dx, dy)");
                     System.out.println("  mc index dx dy - Moves the control point at index by (dx, dy)");
                     System.out.println("  scl factor - Scales the entire shape by the given factor");
@@ -156,6 +158,8 @@ public class CurveGenerator {
                             case "sc"   -> "sc index dx dy - Sets the control point at index by (dx, dy)";
                             case "ins"  -> "ins index x y cx cy - Adds a point with coordinates (x, y) and control point (cx, cy) to index index";
                             case "mv"   -> "mv dx dy - Moves all points by (dx, dy)";
+                            case "mx"   -> "mx dx - Moves all points by (dx, 0)";
+                            case "my"   -> "my dy - Moves all points by (0, dy)";
                             case "mp"   -> "mp index dx dy - Moves the point at index by (dx, dy)";
                             case "mc"   -> "mc index dx dy - Moves the control point at index by (dx, dy)";
                             case "scl"  -> "scl factor - Scales the entire shape by the given factor";
@@ -263,6 +267,46 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: rm index");
+                    }
+                } else if (line.startsWith("mx")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 1) {
+                        try {
+                            double dx = Double.parseDouble(parts[0]);
+                            s.get().move(dx, 0);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: mx dx");
+                    }
+                } else if (line.startsWith("my")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 1) {
+                        try {
+                            double dy = Double.parseDouble(parts[0]);
+                            s.get().move(0, dy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: my dy");
                     }
                 } else if (line.startsWith("mv")) {
                     String[] parts = splitArgs(line, 2);
