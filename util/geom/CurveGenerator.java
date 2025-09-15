@@ -13,7 +13,7 @@ public class CurveGenerator {
         final String[] commands = new String[]{
                 "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
                 "scl", "sxy", "scb", "ssb", "rot",
-                "rm", "rml", "rmf", "rma",
+                "rd", "rm", "rml", "rmf", "rma",
                 "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
                 "exit", "quit", "help"
@@ -135,6 +135,8 @@ public class CurveGenerator {
                     System.out.println("  scb factor - Scales the viewing box by the given factor");
                     System.out.println("  ssb scale - Set the scale of the viewing box to the given scale");
                     System.out.println("  rot angle - Rotates the entire shape by the given angle in degrees");
+                    System.out.println("  rd - Round all points and control points to the nearest two decimal places");
+                    System.out.println("  rd n - Round all points and control points to the nearest n decimal places");
                     System.out.println("  rm index - Removes the indexed point");
                     System.out.println("  rml - Removes the last point");
                     System.out.println("  rmf - Removes the first point");
@@ -174,6 +176,7 @@ public class CurveGenerator {
                             case "scb"  -> "scb factor - Scales the viewing box by the given factor";
                             case "ssb"  -> "ssb scale - Set the scale of the viewing box to the given scale";
                             case "rot"  -> "rot angle - Rotates the entire shape by the given angle in degrees";
+                            case "rd"   -> "rd - Round all points and control points to the nearest two decimal places\nrd n - Round all points and control points to the nearest n decimal places";
                             case "rm"   -> "rm index - Removes the indexed point";
                             case "rml"  -> "rml - Removes the last point";
                             case "rmf"  -> "rmf - Removes the first point";
@@ -592,6 +595,32 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: ssb scale");
+                    }
+                } else if (line.equals("rd")) {
+                    s.get().round(2);
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
+                } else if (line.startsWith("rd")) {
+                    String[] input = splitArgs(line, 2);
+                    if (input.length == 1) {
+                        try {
+                            int decimalPlace = Integer.parseInt(input[0]);
+                            s.get().round(decimalPlace);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: rot angle");
                     }
                 } else if (line.startsWith("rot")) {
                     String[] parts = splitArgs(line, 3);

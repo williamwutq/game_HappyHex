@@ -205,11 +205,24 @@ public class MutableCurvedShape implements Cloneable {
         return new CurvedShape(points.toArray(new double[0][0]));
     }
     /**
+     * Rounds the coordinates and control points of all points in the MutableCurvedShape to the specified number of decimal places.
+     * @param precision the number of decimal places to round to
+     */
+    public void round(int precision){
+        double factor = Math.pow(10, precision);
+        for(double[] point : points){
+            point[0] = Math.round(point[0] * factor) / factor;
+            point[1] = Math.round(point[1] * factor) / factor;
+            point[2] = Math.round(point[2] * factor) / factor;
+            point[3] = Math.round(point[3] * factor) / factor;
+        }
+    }
+    /**
      * Converts the points of the MutableCurvedShape to a 2D array.
      * Each row in the array represents a point in the format [x, y, controlX, controlY].
      * @return a 2D array of points
      */
-    double [][] toArray(){
+    public double [][] toArray(){
         return points.toArray(new double[0][0]);
     }
     /**
