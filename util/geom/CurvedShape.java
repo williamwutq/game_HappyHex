@@ -83,6 +83,25 @@ public class CurvedShape {
     }
     /**
      * Returns a new CurvedShape that is a scaled version of this shape.
+     * @param scaleX the scaling factor in the x direction
+     * @param scaleY the scaling factor in the y direction
+     * @return a new CurvedShape scaled by the specified factors
+     */
+    public CurvedShape scaled(double scaleX, double scaleY) {
+        double[] newXPoints = new double[numPoints];
+        double[] newYPoints = new double[numPoints];
+        double[] newXControls = new double[numPoints];
+        double[] newYControls = new double[numPoints];
+        for (int i = 0; i < numPoints; i++) {
+            newXPoints[i] = xPoints[i] * scaleX;
+            newYPoints[i] = yPoints[i] * scaleY;
+            newXControls[i] = xControls[i] * scaleX;
+            newYControls[i] = yControls[i] * scaleY;
+        }
+        return new CurvedShape(newXPoints, newYPoints, newXControls, newYControls);
+    }
+    /**
+     * Returns a new CurvedShape that is a scaled version of this shape.
      * @param scale the scaling factor
      * @return a new CurvedShape scaled by the specified factor
      */
