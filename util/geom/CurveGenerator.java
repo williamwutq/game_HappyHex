@@ -17,40 +17,69 @@ public class CurveGenerator {
                 g2d.setColor(Color.WHITE);
                 int w = getWidth();
                 int h = getHeight();
+                double scale = Math.min(w, h) * 0.5 * boardScale.get();
                 CurvedShape shape = s.toCurvedShape();
-                if (shape == null) return;
-                shape = shape.scaled(Math.min(w, h) * 0.5 * boardScale.get()).shifted(w / 2.0, h / 2.0);
-                // Fill the shape
-                g2d.setColor(Color.WHITE);
-                g2d.fill(shape.toShape());
-                // Draw line from point to control point
-                g2d.setColor(Color.GRAY);
-                for (double[] point : shape.toArray()) {
-                    g2d.drawLine((int) point[0], (int) point[1], (int) point[2], (int) point[3]);
+                if (shape != null) {
+                    shape = shape.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
+                    // Fill the shape
+                    g2d.setColor(Color.WHITE);
+                    g2d.fill(shape.toShape());
+                    // Draw line from point to control point
+                    g2d.setColor(Color.GRAY);
+                    double[][] array = shape.toArray();
+                    for (int i = 0; i < array.length; i++) {
+                        double[] point = array[i];
+                        g2d.drawLine((int) point[0], (int) point[1], (int) point[2], (int) point[3]);
+                        if (i == 0) {
+                            // Draw line from last point to its control point
+                            double[] lastPoint = array[array.length - 1];
+                            g2d.drawLine((int) point[0], (int) point[1], (int) lastPoint[2], (int) lastPoint[3]);
+                        } else {
+                            // Draw line from previous point to its control point
+                            double[] prevPoint = array[i - 1];
+                            g2d.drawLine((int) point[0], (int) point[1], (int) prevPoint[2], (int) prevPoint[3]);
+                        }
+                    }
+                    // Draw points
+                    g2d.setColor(Color.RED);
+                    for (double[] point : array) {
+                        g2d.drawOval((int) (point[0] - 8), (int) (point[1] - 8), 16, 16);
+                    }
+                    // Draw control point
+                    g2d.setColor(Color.BLUE);
+                    for (double[] point : array) {
+                        g2d.drawOval((int) (point[2] - 8), (int) (point[3] - 8), 16, 16);
+                    }
+                    // Write number next to each point
+                    g2d.setColor(Color.RED);
+                    for (int i = 0; i < array.length; i++) {
+                        double[] point = array[i];
+                        g2d.drawString(Integer.toString(i), (int) point[0] - 4, (int) point[1] + 4);
+                    }
+                    // Write number next to each control point
+                    g2d.setColor(Color.BLUE);
+                    for (int i = 0; i < array.length; i++) {
+                        double[] point = array[i];
+                        g2d.drawString(Integer.toString(i), (int) point[2] - 4, (int) point[3] + 4);
+                    }
                 }
-                // Prints points
-                g2d.setColor(Color.RED);
-                for (double[] point : shape.toArray()) {
-                    g2d.drawOval((int) (point[0] - 8), (int) (point[1] - 8), 16, 16);
-                }
-                // Draw control point
-                g2d.setColor(Color.BLUE);
-                for (double[] point : shape.toArray()) {
-                    g2d.drawOval((int) (point[2] - 8), (int) (point[3] - 8), 16, 16);
-                }
+                // Draw border and coordinates of the corners
+                g2d.setColor(Color.DARK_GRAY);
+                CurvedShape fittedSquare = CurvedShape.SQUARE.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
+                CurvedShape smallerSquare = CurvedShape.SQUARE.scaled(scale * 0.9, scale * -0.9).shifted(w / 2.0, h / 2.0);
+                double[][] corners = CurvedShape.SQUARE.toArray();
+                g2d.draw(fittedSquare.toShape());
                 // Write number next to each point
-                g2d.setColor(Color.RED);
-                double[][] array = shape.toArray();
-                for (int i = 0; i < array.length; i++) {
-                    double[] point = array[i];
-                    g2d.drawString(Integer.toString(i), (int) point[0] - 4, (int) point[1] + 4);
+                double[][] smallArray = smallerSquare.toArray();
+                for (int i = 0; i < smallArray.length; i++) {
+                    double[] point = smallArray[i];
+                    g2d.drawString(intToString((int)corners[i][0]) + ", " + intToString((int)corners[i][1]), (int) point[0] - 20, (int) point[1] + 4);
                 }
-                // Write number next to each control point
-                g2d.setColor(Color.BLUE);
-                for (int i = 0; i < array.length; i++) {
-                    double[] point = array[i];
-                    g2d.drawString(Integer.toString(i), (int) point[2] - 4, (int) point[3] + 4);
-                }
+            }
+            private String intToString(int i) {
+                if (i < 0) {
+                    return i + "";
+                } else return "+" + i;
             }
         };
         f.setSize(600, 600);
