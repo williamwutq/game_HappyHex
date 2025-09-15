@@ -15,7 +15,7 @@ public class CurveGenerator {
                 "scl", "sxy", "scb", "ssb",
                 "rm", "rml", "rmf", "rma",
                 "clear", "print", "json", "info", "undo", "redo",
-                "exit", "help"
+                "exit", "quit", "help"
         };
         final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
         final AtomicInteger undoIndex = new AtomicInteger(0);
@@ -112,7 +112,7 @@ public class CurveGenerator {
                 assert s.get() != null;
                 System.out.print(">>> ");
                 String line = scanner.nextLine().trim();
-                if (line.equals("exit")){
+                if (line.equals("exit") || line.equals("quit")) {
                     System.exit(0);
                 } else if (line.equals("help")) {
                     System.out.println("Commands:");
@@ -141,6 +141,7 @@ public class CurveGenerator {
                     System.out.println("  undo - Undoes the last action");
                     System.out.println("  redo - Redoes the last undone action");
                     System.out.println("  exit - Exits the program");
+                    System.out.println("  quit - Quits the program");
                     System.out.println("  help - Shows this help message");
                     System.out.println("  help command - Shows help message for specific command");
                 } else if (line.startsWith("help")) {
@@ -171,6 +172,7 @@ public class CurveGenerator {
                             case "undo" -> "undo - Undoes the last action";
                             case "redo" -> "redo - Redoes the last undone action";
                             case "exit" -> "exit - Exits the program";
+                            case "quit" -> "quit - Quits the program";
                             case "help" -> "help - Shows this help message\nhelp command - Shows help message for specific command";
                             default -> "Unknown command";
                         });
