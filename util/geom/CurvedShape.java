@@ -82,6 +82,43 @@ public class CurvedShape {
         this.numPoints = xPoints.length;
     }
     /**
+     * Returns a new CurvedShape that is a scaled version of this shape.
+     * @param scale the scaling factor
+     * @return a new CurvedShape scaled by the specified factor
+     */
+    public CurvedShape scaled(double scale) {
+        double[] newXPoints = new double[numPoints];
+        double[] newYPoints = new double[numPoints];
+        double[] newXControls = new double[numPoints];
+        double[] newYControls = new double[numPoints];
+        for (int i = 0; i < numPoints; i++) {
+            newXPoints[i] = xPoints[i] * scale;
+            newYPoints[i] = yPoints[i] * scale;
+            newXControls[i] = xControls[i] * scale;
+            newYControls[i] = yControls[i] * scale;
+        }
+        return new CurvedShape(newXPoints, newYPoints, newXControls, newYControls);
+    }
+    /**
+     * Returns a new CurvedShape that is a shifted version of this shape.
+     * @param deltaX the amount to shift in the x direction
+     * @param deltaY the amount to shift in the y direction
+     * @return a new CurvedShape shifted by the specified amounts
+     */
+    public CurvedShape shifted(double deltaX, double deltaY) {
+        double[] newXPoints = new double[numPoints];
+        double[] newYPoints = new double[numPoints];
+        double[] newXControls = new double[numPoints];
+        double[] newYControls = new double[numPoints];
+        for (int i = 0; i < numPoints; i++) {
+            newXPoints[i] = xPoints[i] + deltaX;
+            newYPoints[i] = yPoints[i] + deltaY;
+            newXControls[i] = xControls[i] + deltaX;
+            newYControls[i] = yControls[i] + deltaY;
+        }
+        return new CurvedShape(newXPoints, newYPoints, newXControls, newYControls);
+    }
+    /**
      * Converts the CurvedShape to a java.awt.Shape object.
      * @return a Shape representing the curved shape
      */
