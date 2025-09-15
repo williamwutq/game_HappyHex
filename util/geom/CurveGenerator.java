@@ -14,6 +14,7 @@ public class CurveGenerator {
                 "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
                 "scl", "sxy", "scb", "ssb", "rot",
                 "rm", "rml", "rmf", "rma",
+                "circle", "square",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
                 "exit", "quit", "help"
         };
@@ -136,6 +137,8 @@ public class CurveGenerator {
                     System.out.println("  rml - Removes the last point");
                     System.out.println("  rmf - Removes the first point");
                     System.out.println("  rma - Clears all points");
+                    System.out.println("  circle - Sets the shape to a circle");
+                    System.out.println("  square - Sets the shape to a square");
                     System.out.println("  clear - Clear the console");
                     System.out.println("  print - Prints the list of points and control points");
                     System.out.println("  pp index - Prints the point and control point at index");
@@ -172,6 +175,8 @@ public class CurveGenerator {
                             case "rml"  -> "rml - Removes the last point";
                             case "rmf"  -> "rmf - Removes the first point";
                             case "rma"  -> "rma - Clears all points";
+                            case "circle"-> "circle - Sets the shape to a circle";
+                            case "square"-> "square - Sets the shape to a square";
                             case "clear"-> "clear - Clear the console";
                             case "print"-> "print - Prints the list of points and control points";
                             case "pp"   -> "pp index - Prints the point and control point at index";
