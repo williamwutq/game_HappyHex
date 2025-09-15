@@ -14,7 +14,7 @@ public class CurveGenerator {
                 "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
                 "scl", "sxy", "scb", "ssb", "rot",
                 "rm", "rml", "rmf", "rma",
-                "circle", "square",
+                "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
                 "exit", "quit", "help"
         };
@@ -68,13 +68,15 @@ public class CurveGenerator {
                     g2d.setColor(pointColor);
                     for (int i = 0; i < array.length; i++) {
                         double[] point = array[i];
-                        g2d.drawString(Integer.toString(i), (int) point[0] - 4, (int) point[1] + 4);
+                        String str = Integer.toString(i);
+                        g2d.drawString(str, (int) point[0] - 4 * (str.length()), (int) point[1] + 4);
                     }
                     // Write number next to each control point
                     g2d.setColor(controlColor);
                     for (int i = 0; i < array.length; i++) {
                         double[] point = array[i];
-                        g2d.drawString(Integer.toString(i), (int) point[2] - 4, (int) point[3] + 4);
+                        String str = Integer.toString(i);
+                        g2d.drawString(str, (int) point[2] - 4 * (str.length()), (int) point[3] + 4);
                     }
                 }
                 // Draw border and coordinates of the corners
@@ -137,6 +139,7 @@ public class CurveGenerator {
                     System.out.println("  rml - Removes the last point");
                     System.out.println("  rmf - Removes the first point");
                     System.out.println("  rma - Clears all points");
+                    System.out.println("  make - Creates a shape with the given number of points evenly distributed in a circle");
                     System.out.println("  circle - Sets the shape to a circle");
                     System.out.println("  square - Sets the shape to a square");
                     System.out.println("  clear - Clear the console");
@@ -175,6 +178,7 @@ public class CurveGenerator {
                             case "rml"  -> "rml - Removes the last point";
                             case "rmf"  -> "rmf - Removes the first point";
                             case "rma"  -> "rma - Clears all points";
+                            case "make" -> "make count - Creates a shape with the given number of points evenly distributed in a circle";
                             case "circle"-> "circle - Sets the shape to a circle";
                             case "square"-> "square - Sets the shape to a square";
                             case "clear"-> "clear - Clear the console";
@@ -208,6 +212,28 @@ public class CurveGenerator {
                     }
                     pastShapes.add(s.get().clone());
                     p.repaint();
+                } else if (line.startsWith("make")) {
+                    String[] parts = splitArgs(line, 4);
+                    if (parts.length == 1) {
+                        try {
+                            int count = Integer.parseInt(parts[0]);
+                            s.get().clear();
+                            for (int i = 0; i < count; i++) {
+                                s.get().addPoint(0, 1, 0, 0);
+                                s.get().rotate(360.0 / count);
+                            }
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: rot angle");
+                    }
                 } else if (line.startsWith("add")) {
                     String[] parts = splitArgs(line, 3);
                     if (parts.length == 4) {
