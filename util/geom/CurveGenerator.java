@@ -435,6 +435,23 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: scl factor");
                     }
+                } else if (line.startsWith("scb")) {
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 1) {
+                        try {
+                            double factor = Double.parseDouble(parts[0]);
+                            if (factor == 0) {
+                                System.out.println("Scale factor cannot be zero.");
+                                continue;
+                            }
+                            boardScale.updateAndGet(v -> v * factor);
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: scb factor");
+                    }
                 } else if (line.startsWith("sc")) {
                     String[] parts = splitArgs(line, 2);
                     if (parts.length == 3) {
@@ -527,23 +544,6 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: sxy sx sy");
-                    }
-                } else if (line.startsWith("scb")) {
-                    String[] parts = splitArgs(line, 3);
-                    if (parts.length == 1) {
-                        try {
-                            double factor = Double.parseDouble(parts[0]);
-                            if (factor == 0) {
-                                System.out.println("Scale factor cannot be zero.");
-                                continue;
-                            }
-                            boardScale.updateAndGet(v -> v * factor);
-                            p.repaint();
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid number format.");
-                        }
-                    } else {
-                        System.out.println("Invalid number of arguments. Usage: scb factor");
                     }
                 } else if (line.startsWith("ssb")) {
                     String[] parts = splitArgs(line, 3);
