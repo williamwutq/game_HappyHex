@@ -187,6 +187,22 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: help command");
                     }
+                } else if (line.equals("circle")){
+                    s.set(new MutableCurvedShape(CurvedShape.CIRCLE));
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
+                } else if (line.equals("square")){
+                    s.set(new MutableCurvedShape(CurvedShape.SQUARE));
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
                 } else if (line.startsWith("add")) {
                     String[] parts = splitArgs(line, 3);
                     if (parts.length == 4) {

@@ -20,6 +20,18 @@ public class MutableCurvedShape implements Cloneable {
         this.points = new ArrayList<>();
     }
     /**
+     * Constructs a MutableCurvedShape from an existing CurvedShape.
+     * The new shape will have the same points and control points as the provided shape.
+     * @param shape the CurvedShape to copy points from
+     */
+    public MutableCurvedShape(CurvedShape shape){
+        this.points = new ArrayList<>();
+        double[][] array = shape.toArray();
+        for(double[] point : array){
+            points.add(new double[]{point[0], point[1], point[2], point[3]});
+        }
+    }
+    /**
      * Adds a point to the MutableCurvedShape.
      * @param x the x coordinate of the point
      * @param y the y coordinate of the point
