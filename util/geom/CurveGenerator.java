@@ -79,6 +79,7 @@ public class CurveGenerator {
                     System.out.println("  mc index dx dy - Moves the control point at index by (dx, dy)");
                     System.out.println("  scl factor - Scales the entire shape by the given factor");
                     System.out.println("  scb factor - Scales the viewing box by the given factor");
+                    System.out.println("  ssb scale - Set the scale of the viewing box to the given scale");
                     System.out.println("  rm index - Removes the indexed point");
                     System.out.println("  rml - Removes the last point");
                     System.out.println("  rmf - Removes the first point");
@@ -276,6 +277,23 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: scb factor");
+                    }
+                } else if (line.startsWith("ssb ")) {
+                    String[] parts = line.substring(4).split(" ");
+                    if (parts.length == 1) {
+                        try {
+                            double scale = Double.parseDouble(parts[0]);
+                            if (scale == 0) {
+                                System.out.println("Scale cannot be zero.");
+                                continue;
+                            }
+                            boardScale.updateAndGet(v -> scale);
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: ssb scale");
                     }
                 } else if (line.equals("print")) {
                     CurvedShape shape = s.toCurvedShape();
