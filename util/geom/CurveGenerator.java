@@ -8,6 +8,13 @@ public class CurveGenerator {
     public static void main(String[] args){
         final Color controlColor = new Color(0, 153, 255);
         final Color pointColor = new Color(255, 51, 51);
+        final String[] commands = new String[]{
+                "add", "set", "sp", "sc", "ins", "mv", "mp", "mc",
+                "scl", "sxy", "scb", "ssb",
+                "rm", "rml", "rmf", "rma",
+                "clear", "print", "json", "info",
+                "exit", "help"
+        };
         JFrame f = new JFrame();
         MutableCurvedShape s = new MutableCurvedShape();
         AtomicReference<Double> boardScale = new AtomicReference<>(1.0);
@@ -122,11 +129,12 @@ public class CurveGenerator {
                     System.out.println("  print - Prints the list of points and control points");
                     System.out.println("  json - Outputs the shape as a JSON array");
                     System.out.println("  json [json] - Loads the shape from a JSON array");
+                    System.out.println("  info - Shows information about the current shape");
                     System.out.println("  exit - Exits the program");
                     System.out.println("  help - Shows this help message");
                     System.out.println("  help command - Shows help message for specific command");
-                } else if (line.startsWith("help ")) {
-                    String[] parts = splitArgs(line, 5);
+                } else if (line.startsWith("help")) {
+                    String[] parts = splitArgs(line, 4);
                     if (parts.length == 1) {
                         String command = parts[0];
                         System.out.println(switch (command) {
@@ -149,15 +157,16 @@ public class CurveGenerator {
                             case "clear"-> "clear - Clear the console";
                             case "print"-> "print - Prints the list of points and control points";
                             case "json" -> "json - Outputs the shape as a JSON array\njson [json] - Loads the shape from a JSON array";
+                            case "info" -> "info - Shows information about the current shape";
                             case "exit" -> "exit - Exits the program";
-                            case "help" ->  "help - Shows this help message\nhelp command - Shows this help message";
+                            case "help" -> "help - Shows this help message\nhelp command - Shows help message for specific command";
                             default -> "Unknown command";
                         });
                     } else {
                         System.out.println("Invalid number of arguments. Usage: help command");
                     }
-                } else if (line.startsWith("add ")) {
-                    String[] parts = splitArgs(line, 4);
+                } else if (line.startsWith("add")) {
+                    String[] parts = splitArgs(line, 3);
                     if (parts.length == 4) {
                         try {
                             double x = Double.parseDouble(parts[0]);
@@ -194,8 +203,8 @@ public class CurveGenerator {
                 } else if (line.equals("rmf")) {
                     s.removeFirst();
                     p.repaint();
-                } else if (line.startsWith("rm ")) {
-                    String[] parts = splitArgs(line, 3);
+                } else if (line.startsWith("rm")) {
+                    String[] parts = splitArgs(line, 2);
                     if (parts.length == 1) {
                         try {
                             int index = Integer.parseInt(parts[0]);
@@ -209,8 +218,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: rm index");
                     }
-                } else if (line.startsWith("mv ")) {
-                    String[] parts = splitArgs(line, 3);
+                } else if (line.startsWith("mv")) {
+                    String[] parts = splitArgs(line, 2);
                     if (parts.length == 2) {
                         try {
                             double dx = Double.parseDouble(parts[0]);
@@ -225,8 +234,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: mv dx dy");
                     }
-                } else if (line.startsWith("mp ")) {
-                    String[] parts = splitArgs(line, 3);
+                } else if (line.startsWith("mp")) {
+                    String[] parts = splitArgs(line, 2);
                     if (parts.length == 3) {
                         try {
                             int index = Integer.parseInt(parts[0]);
@@ -242,8 +251,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: mp index dx dy");
                     }
-                } else if (line.startsWith("mc ")) {
-                    String[] parts = splitArgs(line, 3);
+                } else if (line.startsWith("mc")) {
+                    String[] parts = splitArgs(line, 2);
                     if (parts.length == 3) {
                         try {
                             int index = Integer.parseInt(parts[0]);
@@ -259,14 +268,14 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: mc index dx dy");
                     }
-                } else if (line.startsWith("sp ")) {
-                    String[] parts = splitArgs(line, 3);
+                } else if (line.startsWith("sp")) {
+                    String[] parts = splitArgs(line, 2);
                     if (parts.length == 3) {
                         try {
                             int index = Integer.parseInt(parts[0]);
                             double x = Double.parseDouble(parts[1]);
                             double y = Double.parseDouble(parts[2]);
-                            s.setPoint(index, x, y, s.toCurvedShape().toArray()[index][2], s.toCurvedShape().toArray()[index][3]);
+                            s.setPoint(index, x, y, s.toArray()[index][2], s.toArray()[index][3]);
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -276,14 +285,14 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: sp index dx dy");
                     }
-                } else if (line.startsWith("sc ")) {
-                    String[] parts = splitArgs(line, 3);
+                } else if (line.startsWith("sc")) {
+                    String[] parts = splitArgs(line, 2);
                     if (parts.length == 3) {
                         try {
                             int index = Integer.parseInt(parts[0]);
                             double cx = Double.parseDouble(parts[1]);
                             double cy = Double.parseDouble(parts[2]);
-                            s.setPoint(index, s.toCurvedShape().toArray()[index][0], s.toCurvedShape().toArray()[index][1], cx, cy);
+                            s.setPoint(index, s.toArray()[index][0], s.toArray()[index][1], cx, cy);
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -293,8 +302,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: sc index dx dy");
                     }
-                } else if (line.startsWith("set ")) {
-                    String[] parts = splitArgs(line, 4);
+                } else if (line.startsWith("set")) {
+                    String[] parts = splitArgs(line, 3);
                     if (parts.length == 5) {
                         try {
                             int index = Integer.parseInt(parts[0]);
@@ -312,8 +321,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: set index x y cx cy");
                     }
-                } else if (line.startsWith("ins ")) {
-                    String[] parts = splitArgs(line, 4);
+                } else if (line.startsWith("ins")) {
+                    String[] parts = splitArgs(line, 3);
                     if (parts.length == 5) {
                         try {
                             int index = Integer.parseInt(parts[0]);
@@ -331,8 +340,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: ins index x y cx cy");
                     }
-                } else if (line.startsWith("scl ")) {
-                    String[] parts = splitArgs(line, 4);
+                } else if (line.startsWith("scl")) {
+                    String[] parts = splitArgs(line, 3);
                     if (parts.length == 1) {
                         try {
                             double factor = Double.parseDouble(parts[0]);
@@ -340,12 +349,7 @@ public class CurveGenerator {
                                 System.out.println("Scale factor cannot be zero.");
                                 continue;
                             }
-                            CurvedShape shape = s.toCurvedShape();
-                            shape = shape.scaled(factor);
-                            s.clear();
-                            for (double[] point : shape.toArray()) {
-                                s.addPoint(point[0], point[1], point[2], point[3]);
-                            }
+                            s.scale(factor);
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -353,8 +357,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: scl factor");
                     }
-                } else if (line.startsWith("sxy ")) {
-                    String[] parts = splitArgs(line, 4);
+                } else if (line.startsWith("sxy")) {
+                    String[] parts = splitArgs(line, 3);
                     if (parts.length == 2) {
                         try {
                             double fx = Double.parseDouble(parts[0]);
@@ -363,12 +367,7 @@ public class CurveGenerator {
                                 System.out.println("Scale factor cannot be zero.");
                                 continue;
                             }
-                            CurvedShape shape = s.toCurvedShape();
-                            shape = shape.scaled(fx, fy);
-                            s.clear();
-                            for (double[] point : shape.toArray()) {
-                                s.addPoint(point[0], point[1], point[2], point[3]);
-                            }
+                            s.scale(fx, fy);
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -376,8 +375,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: sxy sx sy");
                     }
-                } else if (line.startsWith("scb ")) {
-                    String[] parts = splitArgs(line, 4);
+                } else if (line.startsWith("scb")) {
+                    String[] parts = splitArgs(line, 3);
                     if (parts.length == 1) {
                         try {
                             double factor = Double.parseDouble(parts[0]);
@@ -393,8 +392,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: scb factor");
                     }
-                } else if (line.startsWith("ssb ")) {
-                    String[] parts = splitArgs(line, 4);
+                } else if (line.startsWith("ssb")) {
+                    String[] parts = splitArgs(line, 3);
                     if (parts.length == 1) {
                         try {
                             double scale = Double.parseDouble(parts[0]);
@@ -426,8 +425,8 @@ public class CurveGenerator {
                     } else {
                         System.out.println(shape.toJsonArrayBuilder().build().toString());
                     }
-                } else if (line.startsWith("json ")) {
-                    String json = line.substring(5).trim();
+                } else if (line.startsWith("json")) {
+                    String json = line.substring(4).trim();
                     try {
                         javax.json.JsonReader reader = javax.json.Json.createReader(new java.io.StringReader(json));
                         javax.json.JsonArray ja = reader.readArray();
@@ -441,15 +440,62 @@ public class CurveGenerator {
                     } catch (Exception e) {
                         System.out.println("Invalid JSON format.");
                     }
+                } else if (line.equals("info")) {
+                    System.out.println("Number of points: " + s.size());
+                    CurvedShape shape = s.toCurvedShape();
+                    if (shape != null) {
+                        Rectangle rect = shape.scaled(10000).toShape().getBounds();
+                        System.out.printf("Bounding box: [%.2f, %.2f] to [%.2f, %.2f]%n",
+                                rect.getMinX()*0.0001, rect.getMinY()*0.0001, rect.getMaxX()*0.0001, rect.getMaxY()*0.0001);
+                    } else {
+                        System.out.println("Bounding box: N/A");
+                    }
                 } else if (line.isEmpty()) {
                     // Do nothing for empty input
                 } else {
-                    System.out.println("Unknown command.");
+                    // Attempt to find similar command
+                    String similar = findMostSimilar(line.split("\\s+")[0], commands);
+                    System.out.println("Unknown command. Did you mean: " + similar + "?");
                 }
             }
         }).start();
     }
     private static String[] splitArgs(String input, int offset) {
         return input.substring(offset).trim().split("\\s+");
+    }
+    private static int levenshteinDistance(String a, String b) {
+        int[][] dp = new int[a.length() + 1][b.length() + 1];
+        for (int i = 0; i <= a.length(); i++) {
+            for (int j = 0; j <= b.length(); j++) {
+                if (i == 0) {
+                    dp[i][j] = j; // insert all b's characters
+                } else if (j == 0) {
+                    dp[i][j] = i; // remove all a's characters
+                } else {
+                    int cost = (a.charAt(i - 1) == b.charAt(j - 1)) ? 0 : 1;
+                    dp[i][j] = Math.min(
+                            Math.min(dp[i - 1][j] + 1,      // deletion
+                                    dp[i][j - 1] + 1),      // insertion
+                            dp[i - 1][j - 1] + cost         // substitution
+                    );
+                }
+            }
+        }
+        return dp[a.length()][b.length()];
+    }
+    public static String findMostSimilar(String string, String[] knownStrings) {
+        if (knownStrings == null || knownStrings.length == 0) {
+            return null;
+        }
+        String mostSimilar = knownStrings[0];
+        int minDistance = levenshteinDistance(string, mostSimilar);
+        for (int i = 1; i < knownStrings.length; i++) {
+            int distance = levenshteinDistance(string, knownStrings[i]);
+            if (distance < minDistance) {
+                minDistance = distance;
+                mostSimilar = knownStrings[i];
+            }
+        }
+        return mostSimilar;
     }
 }
