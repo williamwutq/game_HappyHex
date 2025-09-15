@@ -166,6 +166,7 @@ public class CurvedShape {
             pointBuilder.add("y", yPoints[i]);
             pointBuilder.add("cx", xControls[i]);
             pointBuilder.add("cy", yControls[i]);
+            jab.add(pointBuilder);
         }
         return jab;
     }
