@@ -172,4 +172,12 @@ public class MutableCurvedShape {
         }
         return new CurvedShape(points.toArray(new double[0][0]));
     }
+    /**
+     * Converts the points of the MutableCurvedShape to a 2D array.
+     * Each row in the array represents a point in the format [x, y, controlX, controlY].
+     * @return a 2D array of points
+     */
+    double [][] toArray(){
+        return points.toArray(new double[0][0]);
+    }
 }
