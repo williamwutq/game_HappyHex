@@ -30,6 +30,32 @@ public class MutableCurvedShape {
         points.add(new double[]{x, y, controlX, controlY});
     }
     /**
+     * Inserts a point at the specified index in the MutableCurvedShape.
+     * @param index the index at which the point should be inserted
+     * @param x the x coordinate of the point
+     * @param y the y coordinate of the point
+     * @param controlX the x coordinate of the control point
+     * @param controlY the y coordinate of the control point
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > size())
+     */
+    public void addPoint(int index, double x, double y, double controlX, double controlY) {
+        if (index < 0 || index > points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        points.add(index, new double[]{x, y, controlX, controlY});
+    }
+    /**
+     * Removes the point at the specified index from the MutableCurvedShape.
+     * @param index the index of the point to be removed
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void removePoint(int index) {
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        points.remove(index);
+    }
+    /**
      * Removes the last point from the MutableCurvedShape.
      * If the shape is empty, this method does nothing.
      */
