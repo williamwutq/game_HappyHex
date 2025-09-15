@@ -79,9 +79,11 @@ public class CurveGenerator {
                 // Draw border and coordinates of the corners
                 g2d.setColor(Color.DARK_GRAY);
                 CurvedShape fittedSquare = CurvedShape.SQUARE.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
+                CurvedShape fittedCircle = CurvedShape.CIRCLE.scaled(scale * 0.9, -scale * 0.9).shifted(w / 2.0, h / 2.0);
                 CurvedShape smallerSquare = CurvedShape.SQUARE.scaled(scale * 0.9, scale * -0.9).shifted(w / 2.0, h / 2.0);
                 double[][] corners = CurvedShape.SQUARE.toArray();
                 g2d.draw(fittedSquare.toShape());
+                g2d.draw(fittedCircle.toShape());
                 // Write number next to each point
                 double[][] smallArray = smallerSquare.toArray();
                 for (int i = 0; i < smallArray.length; i++) {
