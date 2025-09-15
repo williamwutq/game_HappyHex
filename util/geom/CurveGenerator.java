@@ -12,7 +12,7 @@ public class CurveGenerator {
         final Color pointColor = new Color(255, 51, 51);
         final String[] commands = new String[]{
                 "add", "set", "sp", "sc", "ins", "mv", "mp", "mc",
-                "scl", "sxy", "scb", "ssb",
+                "scl", "sxy", "scb", "ssb", "rot",
                 "rm", "rml", "rmf", "rma",
                 "clear", "print", "json", "info", "undo", "redo",
                 "exit", "quit", "help"
@@ -129,6 +129,7 @@ public class CurveGenerator {
                     System.out.println("  sxy fx fy - Scales the entire shape by the given x and y factor (fx, fy)");
                     System.out.println("  scb factor - Scales the viewing box by the given factor");
                     System.out.println("  ssb scale - Set the scale of the viewing box to the given scale");
+                    System.out.println("  rot angle - Rotates the entire shape by the given angle in degrees");
                     System.out.println("  rm index - Removes the indexed point");
                     System.out.println("  rml - Removes the last point");
                     System.out.println("  rmf - Removes the first point");
@@ -161,6 +162,7 @@ public class CurveGenerator {
                             case "sxy"  -> "sxy fx fy - Scales the entire shape by the given x and y factor (fx, fy)";
                             case "scb"  -> "scb factor - Scales the viewing box by the given factor";
                             case "ssb"  -> "ssb scale - Set the scale of the viewing box to the given scale";
+                            case "rot"  -> "rot angle - Rotates the entire shape by the given angle in degrees";
                             case "rm"   -> "rm index - Removes the indexed point";
                             case "rml"  -> "rml - Removes the last point";
                             case "rmf"  -> "rmf - Removes the first point";
@@ -497,6 +499,24 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: ssb scale");
+                    }
+                } else if (line.startsWith("rot")) {
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 1) {
+                        try {
+                            double angle = Double.parseDouble(parts[0]);
+                            s.get().rotate(angle);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: rot angle");
                     }
                 } else if (line.equals("print")) {
                     CurvedShape shape = s.get().toCurvedShape();

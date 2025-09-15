@@ -155,6 +155,26 @@ public class MutableCurvedShape implements Cloneable {
         }
     }
     /**
+     * Rotates the entire MutableCurvedShape around the origin (0,0) by the given angle in degrees.
+     * Positive angles represent counter-clockwise rotation.
+     * @param angle the angle in degrees to rotate the shape
+     */
+    public void rotate(double angle) {
+        double radians = Math.toRadians(angle);
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+        for (double[] point : points) {
+            double x = point[0];
+            double y = point[1];
+            point[0] = x * cos - y * sin;
+            point[1] = x * sin + y * cos;
+            double controlX = point[2];
+            double controlY = point[3];
+            point[2] = controlX * cos - controlY * sin;
+            point[3] = controlX * sin + controlY * cos;
+        }
+    }
+    /**
      * Returns the number of points in the MutableCurvedShape.
      * @return the number of points
      */
