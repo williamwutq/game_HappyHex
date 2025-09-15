@@ -11,7 +11,7 @@ import java.util.List;
  * This class allows for dynamic modification of the shape by adding, removing, or changing points, and offers method
  * to convert to an immutable {@link CurvedShape}.
  */
-public class MutableCurvedShape {
+public class MutableCurvedShape implements Cloneable {
     private final List<double[]> points;
     /**
      * Constructs an empty MutableCurvedShape. This shape can be modified by adding, removing, or changing points.
@@ -179,5 +179,16 @@ public class MutableCurvedShape {
      */
     double [][] toArray(){
         return points.toArray(new double[0][0]);
+    }
+    /**
+     * Creates and returns a deep copy of this MutableCurvedShape.
+     * @return a clone of this MutableCurvedShape
+     */
+    public MutableCurvedShape clone(){
+        MutableCurvedShape clone = new MutableCurvedShape();
+        for(double[] point : points){
+            clone.addPoint(point[0], point[1], point[2], point[3]);
+        }
+        return clone;
     }
 }

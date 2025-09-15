@@ -2,6 +2,8 @@ package util.geom;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class CurveGenerator {
@@ -12,11 +14,13 @@ public class CurveGenerator {
                 "add", "set", "sp", "sc", "ins", "mv", "mp", "mc",
                 "scl", "sxy", "scb", "ssb",
                 "rm", "rml", "rmf", "rma",
-                "clear", "print", "json", "info",
+                "clear", "print", "json", "info", "undo", "redo",
                 "exit", "help"
         };
+        final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
+        final AtomicInteger undoIndex = new AtomicInteger(0);
         JFrame f = new JFrame();
-        MutableCurvedShape s = new MutableCurvedShape();
+        final AtomicReference<MutableCurvedShape> s = new AtomicReference<MutableCurvedShape>(new MutableCurvedShape());
         AtomicReference<Double> boardScale = new AtomicReference<>(1.0);
         JPanel p = new JPanel(){
             @Override
@@ -27,7 +31,7 @@ public class CurveGenerator {
                 int w = getWidth();
                 int h = getHeight();
                 double scale = Math.min(w, h) * 0.5 * boardScale.get();
-                CurvedShape shape = s.toCurvedShape();
+                CurvedShape shape = s.get().toCurvedShape();
                 if (shape != null) {
                     shape = shape.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
                     // Fill the shape
@@ -102,6 +106,8 @@ public class CurveGenerator {
         new Thread(() -> {
             java.util.Scanner scanner = new java.util.Scanner(System.in);
             while (true) {
+                assert s != null;
+                assert s.get() != null;
                 System.out.print(">>> ");
                 String line = scanner.nextLine().trim();
                 if (line.equals("exit")){
@@ -130,6 +136,8 @@ public class CurveGenerator {
                     System.out.println("  json - Outputs the shape as a JSON array");
                     System.out.println("  json [json] - Loads the shape from a JSON array");
                     System.out.println("  info - Shows information about the current shape");
+                    System.out.println("  undo - Undoes the last action");
+                    System.out.println("  redo - Redoes the last undone action");
                     System.out.println("  exit - Exits the program");
                     System.out.println("  help - Shows this help message");
                     System.out.println("  help command - Shows help message for specific command");
@@ -158,6 +166,8 @@ public class CurveGenerator {
                             case "print"-> "print - Prints the list of points and control points";
                             case "json" -> "json - Outputs the shape as a JSON array\njson [json] - Loads the shape from a JSON array";
                             case "info" -> "info - Shows information about the current shape";
+                            case "undo" -> "undo - Undoes the last action";
+                            case "redo" -> "redo - Redoes the last undone action";
                             case "exit" -> "exit - Exits the program";
                             case "help" -> "help - Shows this help message\nhelp command - Shows help message for specific command";
                             default -> "Unknown command";
@@ -173,7 +183,12 @@ public class CurveGenerator {
                             double y = Double.parseDouble(parts[1]);
                             double cx = Double.parseDouble(parts[2]);
                             double cy = Double.parseDouble(parts[3]);
-                            s.addPoint(x, y, cx, cy);
+                            s.get().addPoint(x, y, cx, cy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -182,7 +197,12 @@ public class CurveGenerator {
                         try {
                             double x = Double.parseDouble(parts[0]);
                             double y = Double.parseDouble(parts[1]);
-                            s.addPoint(x, y, x, y);
+                            s.get().addPoint(x, y, x, y);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.get(), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -195,20 +215,40 @@ public class CurveGenerator {
                     System.out.print("\033[H\033[2J");
                     System.out.flush();
                 } else if (line.equals("rma")) {
-                    s.clear();
+                    s.get().clear();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
                     p.repaint();
                 } else if (line.equals("rml")) {
-                    s.removeLast();
+                    s.get().removeLast();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
                     p.repaint();
                 } else if (line.equals("rmf")) {
-                    s.removeFirst();
+                    s.get().removeFirst();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
                     p.repaint();
                 } else if (line.startsWith("rm")) {
                     String[] parts = splitArgs(line, 2);
                     if (parts.length == 1) {
                         try {
                             int index = Integer.parseInt(parts[0]);
-                            s.removePoint(index);
+                            s.get().removePoint(index);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -224,7 +264,12 @@ public class CurveGenerator {
                         try {
                             double dx = Double.parseDouble(parts[0]);
                             double dy = Double.parseDouble(parts[1]);
-                            s.move(dx, dy);
+                            s.get().move(dx, dy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -241,7 +286,12 @@ public class CurveGenerator {
                             int index = Integer.parseInt(parts[0]);
                             double dx = Double.parseDouble(parts[1]);
                             double dy = Double.parseDouble(parts[2]);
-                            s.movePoint(index, dx, dy);
+                            s.get().movePoint(index, dx, dy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -258,7 +308,12 @@ public class CurveGenerator {
                             int index = Integer.parseInt(parts[0]);
                             double dx = Double.parseDouble(parts[1]);
                             double dy = Double.parseDouble(parts[2]);
-                            s.moveControl(index, dx, dy);
+                            s.get().moveControl(index, dx, dy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -275,7 +330,12 @@ public class CurveGenerator {
                             int index = Integer.parseInt(parts[0]);
                             double x = Double.parseDouble(parts[1]);
                             double y = Double.parseDouble(parts[2]);
-                            s.setPoint(index, x, y, s.toArray()[index][2], s.toArray()[index][3]);
+                            s.get().setPoint(index, x, y, s.get().toArray()[index][2], s.get().toArray()[index][3]);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -285,6 +345,28 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: sp index dx dy");
                     }
+                } else if (line.startsWith("scl")) {
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 1) {
+                        try {
+                            double factor = Double.parseDouble(parts[0]);
+                            if (factor == 0) {
+                                System.out.println("Scale factor cannot be zero.");
+                                continue;
+                            }
+                            s.get().scale(factor);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: scl factor");
+                    }
                 } else if (line.startsWith("sc")) {
                     String[] parts = splitArgs(line, 2);
                     if (parts.length == 3) {
@@ -292,7 +374,12 @@ public class CurveGenerator {
                             int index = Integer.parseInt(parts[0]);
                             double cx = Double.parseDouble(parts[1]);
                             double cy = Double.parseDouble(parts[2]);
-                            s.setPoint(index, s.toArray()[index][0], s.toArray()[index][1], cx, cy);
+                            s.get().setPoint(index, s.get().toArray()[index][0], s.get().toArray()[index][1], cx, cy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -311,7 +398,12 @@ public class CurveGenerator {
                             double y = Double.parseDouble(parts[2]);
                             double cx = Double.parseDouble(parts[3]);
                             double cy = Double.parseDouble(parts[4]);
-                            s.setPoint(index, x, y, cx, cy);
+                            s.get().setPoint(index, x, y, cx, cy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -330,7 +422,12 @@ public class CurveGenerator {
                             double y = Double.parseDouble(parts[2]);
                             double cx = Double.parseDouble(parts[3]);
                             double cy = Double.parseDouble(parts[4]);
-                            s.addPoint(index, x, y, cx, cy);
+                            s.get().addPoint(index, x, y, cx, cy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -339,23 +436,6 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: ins index x y cx cy");
-                    }
-                } else if (line.startsWith("scl")) {
-                    String[] parts = splitArgs(line, 3);
-                    if (parts.length == 1) {
-                        try {
-                            double factor = Double.parseDouble(parts[0]);
-                            if (factor == 0) {
-                                System.out.println("Scale factor cannot be zero.");
-                                continue;
-                            }
-                            s.scale(factor);
-                            p.repaint();
-                        } catch (NumberFormatException e) {
-                            System.out.println("Invalid number format.");
-                        }
-                    } else {
-                        System.out.println("Invalid number of arguments. Usage: scl factor");
                     }
                 } else if (line.startsWith("sxy")) {
                     String[] parts = splitArgs(line, 3);
@@ -367,7 +447,12 @@ public class CurveGenerator {
                                 System.out.println("Scale factor cannot be zero.");
                                 continue;
                             }
-                            s.scale(fx, fy);
+                            s.get().scale(fx, fy);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
                             p.repaint();
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid number format.");
@@ -410,7 +495,7 @@ public class CurveGenerator {
                         System.out.println("Invalid number of arguments. Usage: ssb scale");
                     }
                 } else if (line.equals("print")) {
-                    CurvedShape shape = s.toCurvedShape();
+                    CurvedShape shape = s.get().toCurvedShape();
                     if (shape == null) {
                         System.out.println("No points in the shape.");
                     } else {
@@ -419,7 +504,7 @@ public class CurveGenerator {
                         }
                     }
                 } else if (line.equals("json")) {
-                    CurvedShape shape = s.toCurvedShape();
+                    CurvedShape shape = s.get().toCurvedShape();
                     if (shape == null) {
                         System.out.println("No points in the shape.");
                     } else {
@@ -432,23 +517,43 @@ public class CurveGenerator {
                         javax.json.JsonArray ja = reader.readArray();
                         reader.close();
                         CurvedShape shape = CurvedShape.fromJsonArray(ja);
-                        s.clear();
+                        s.get().clear();
                         for (double[] point : shape.toArray()) {
-                            s.addPoint(point[0], point[1], point[2], point[3]);
+                            s.get().addPoint(point[0], point[1], point[2], point[3]);
                         }
+                        // Break the undo chain
+                        if (undoIndex.get() > 0) {
+                            pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                        }
+                        pastShapes.add(s.get().clone());
                         p.repaint();
                     } catch (Exception e) {
                         System.out.println("Invalid JSON format.");
                     }
                 } else if (line.equals("info")) {
-                    System.out.println("Number of points: " + s.size());
-                    CurvedShape shape = s.toCurvedShape();
+                    System.out.println("Number of points: " + s.get().size());
+                    CurvedShape shape = s.get().toCurvedShape();
                     if (shape != null) {
                         Rectangle rect = shape.scaled(10000).toShape().getBounds();
                         System.out.printf("Bounding box: [%.2f, %.2f] to [%.2f, %.2f]%n",
                                 rect.getMinX()*0.0001, rect.getMinY()*0.0001, rect.getMaxX()*0.0001, rect.getMaxY()*0.0001);
                     } else {
                         System.out.println("Bounding box: N/A");
+                    }
+                } else if (line.equals("undo")) {
+                    if (undoIndex.get() < pastShapes.size() - 1) {
+                        s.set(pastShapes.get(pastShapes.size() - 1 - undoIndex.incrementAndGet()).clone());
+                        p.repaint();
+                    } else {
+                        System.out.println("No more actions to undo.");
+                    }
+                } else if (line.equals("redo")) {
+                    if (undoIndex.get() > 0) {
+                        s.set(pastShapes.get(pastShapes.size() - undoIndex.get()).clone());
+                        undoIndex.getAndDecrement();
+                        p.repaint();
+                    } else {
+                        System.out.println("No more actions to redo.");
                     }
                 } else if (line.isEmpty()) {
                     // Do nothing for empty input
