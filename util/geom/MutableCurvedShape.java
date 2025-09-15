@@ -137,9 +137,13 @@ public class MutableCurvedShape {
     }
     /**
      * Converts the MutableCurvedShape to an immutable CurvedShape.
+     * If the shape has fewer than 3 points, this method returns null.
      * @return a CurvedShape representing the current state of the MutableCurvedShape
      */
     public CurvedShape toCurvedShape() {
+        if (points.size() < 3) {
+            return null;
+        }
         return new CurvedShape(points.toArray(new double[0][0]));
     }
 }
