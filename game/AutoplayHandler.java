@@ -283,6 +283,14 @@ public class AutoplayHandler implements Runnable, AutoCloseable{
         hardClose();
     }
     /**
+     * Checks if both the game and Python processors are currently running.
+     *
+     * @return true if both processors are non-null, false otherwise
+     */
+    public boolean isRunning(){
+        return gameProcessor != null && pythonProcessor != null;
+    }
+    /**
      * Performs a full shutdown of both the Python and game processors,
      * including severing the callback link and nullifying the Python processor.
      * Also updates the lastCloseTime to current time.
