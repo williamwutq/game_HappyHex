@@ -230,6 +230,15 @@ public final class LaunchEssentials {
         currentGameInfo = new GameInfo(GameMode.Small, currentGameVersion);
         gameStarted = false;
         if (Math.random() <= animationChance) GameEssentials.setAnimator(LauncherGUI.getMainFrame()::repaint); // By chance
+        // If the data/ directory does not exist, create it
+        // Copy everything in the python resource directory to a real directory. If it already exists, write files into it. If the file is .java or .class, ignore it.
+        try {
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get("data/"));
+            util.io.ResourceExtractor.copyResources("python/");
+        } catch (IOException e) {
+            System.err.println(GameTime.generateSimpleTime() + " LaunchLogger: Failed to create data/ or python/ directory because " + e.getMessage());
+            System.exit(1);
+        }
         // Start python detection
         python.PythonEnvsChecker.run();
         // Achievement System
