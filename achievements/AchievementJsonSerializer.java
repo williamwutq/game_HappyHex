@@ -43,6 +43,7 @@ public class AchievementJsonSerializer {
     private static final Map<String, Function<JsonObject, GameAchievementTemplate>> ACHIEVEMENT_DESERIAL_NAME_MAP = new HashMap<>();
     private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = Set.of(
             // Imports: Static achievements should be added here once
+            new achievements.staticimpl.LoggedInAchievement(),
             new achievements.staticimpl.IdenticalQueueAchievement(),
             new achievements.staticimpl.AccumulatedEliminationAchievement(),
             new achievements.staticimpl.EnginePerfectFitAchievement(),
