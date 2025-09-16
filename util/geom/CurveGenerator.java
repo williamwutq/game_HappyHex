@@ -3,6 +3,7 @@ package util.geom;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -10,15 +11,18 @@ public class CurveGenerator {
     public static void main(String[] args){
         final Color controlColor = new Color(0, 153, 255);
         final Color pointColor = new Color(255, 51, 51);
+        final Color backgroundColor = new Color(255, 255, 0,128);
         final String[] commands = new String[]{
                 "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
-                "scl", "sxy", "scb", "ssb", "rot",
+                "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc",
                 "rd", "rm", "rml", "rmf", "rma",
                 "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
+                "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb",
                 "exit", "quit", "help"
         };
         final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
+        final Stack<CurvedShape> backgroundShapes = new Stack<>();
         final AtomicInteger undoIndex = new AtomicInteger(0);
         JFrame f = new JFrame();
         final AtomicReference<MutableCurvedShape> s = new AtomicReference<MutableCurvedShape>(new MutableCurvedShape());
@@ -79,6 +83,12 @@ public class CurveGenerator {
                         g2d.drawString(str, (int) point[2] - 4 * (str.length()), (int) point[3] + 4);
                     }
                 }
+                // Draw background shapes
+                g2d.setColor(backgroundColor);
+                for (CurvedShape bgShape : backgroundShapes) {
+                    CurvedShape transformed = bgShape.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
+                    g2d.fill(transformed.toShape());
+                }
                 // Draw border and coordinates of the corners
                 g2d.setColor(Color.DARK_GRAY);
                 CurvedShape fittedSquare = CurvedShape.SQUARE.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
@@ -135,6 +145,9 @@ public class CurveGenerator {
                     System.out.println("  scb factor - Scales the viewing box by the given factor");
                     System.out.println("  ssb scale - Set the scale of the viewing box to the given scale");
                     System.out.println("  rot angle - Rotates the entire shape by the given angle in degrees");
+                    System.out.println("  mrx - Mirrors the shape across the x axis");
+                    System.out.println("  mry - Mirrors the shape across the y axis");
+                    System.out.println("  mrc - Mirrors the shape across the line y = x, equivalent to swapping x and y coordinates");
                     System.out.println("  rd - Round all points and control points to the nearest two decimal places");
                     System.out.println("  rd n - Round all points and control points to the nearest n decimal places");
                     System.out.println("  rm index - Removes the indexed point");
@@ -152,6 +165,16 @@ public class CurveGenerator {
                     System.out.println("  info - Shows information about the current shape");
                     System.out.println("  undo - Undoes the last action");
                     System.out.println("  redo - Redoes the last undone action");
+                    System.out.println("  psb - Pushes the current shape to the background shapes");
+                    System.out.println("  pb index - Pulls the background shape at index to the first layer");
+                    System.out.println("  pb i l - Pulls the background shape at index i to the layer l");
+                    System.out.println("  rmb - Removes the most recent background shape");
+                    System.out.println("  rmb index - Removes the background shape at index");
+                    System.out.println("  clb - Clears all background shapes");
+                    System.out.println("  lsb - List the background shapes");
+                    System.out.println("  printb - Prints the list of points and control points of background shapes");
+                    System.out.println("  ldb - Load the most recent background shape");
+                    System.out.println("  ldb index - Load the indexed background shape");
                     System.out.println("  exit - Exits the program");
                     System.out.println("  quit - Quits the program");
                     System.out.println("  help - Shows this help message");
@@ -176,6 +199,9 @@ public class CurveGenerator {
                             case "scb"  -> "scb factor - Scales the viewing box by the given factor";
                             case "ssb"  -> "ssb scale - Set the scale of the viewing box to the given scale";
                             case "rot"  -> "rot angle - Rotates the entire shape by the given angle in degrees";
+                            case "mrx"  -> "mrx - Mirrors the shape across the x axis";
+                            case "mry"  -> "mry - Mirrors the shape across the y axis";
+                            case "mrc"  -> "mrc - Mirrors the shape across the line y = x, equivalent to swapping x and y coordinates";
                             case "rd"   -> "rd - Round all points and control points to the nearest two decimal places\nrd n - Round all points and control points to the nearest n decimal places";
                             case "rm"   -> "rm index - Removes the indexed point";
                             case "rml"  -> "rml - Removes the last point";
@@ -191,6 +217,13 @@ public class CurveGenerator {
                             case "info" -> "info - Shows information about the current shape";
                             case "undo" -> "undo - Undoes the last action";
                             case "redo" -> "redo - Redoes the last undone action";
+                            case "psb"  -> "psb - Pushes the current shape to the background shapes";
+                            case "pb"   -> "pb index - Pulls the background shape at index to the first layer\npb i l - Pulls the background shape at index i to the layer l";
+                            case "rmb"  -> "rmb - Removes the most recent background shape\nrmb index - Removes the background shape at index";
+                            case "clb"  -> "clb - Clears all background shapes";
+                            case "lsb"  -> "lsb - List the background shapes";
+                            case "printb"-> "printb - Prints the list of points and control points of background shapes";
+                            case "ldb"  -> "ldb - Load the most recent background shape\nldb index - Load the indexed background shape";
                             case "exit" -> "exit - Exits the program";
                             case "quit" -> "quit - Quits the program";
                             case "help" -> "help - Shows this help message\nhelp command - Shows help message for specific command";
@@ -276,6 +309,26 @@ public class CurveGenerator {
                     // Clear the console (works in most terminals)
                     System.out.print("\033[H\033[2J");
                     System.out.flush();
+                } else if (line.equals("rmb")) {
+                    // This does not affect current shape
+                    if (!backgroundShapes.isEmpty()) {
+                        backgroundShapes.pop();
+                        p.repaint();
+                    }
+                } else if (line.startsWith("rmb")) {
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 1) {
+                        // parse index
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            backgroundShapes.remove(index);
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    }
                 } else if (line.equals("rma")) {
                     s.get().clear();
                     // Break the undo chain
@@ -640,6 +693,30 @@ public class CurveGenerator {
                     } else {
                         System.out.println("Invalid number of arguments. Usage: rot angle");
                     }
+                } else if (line.equals("mrx")) {
+                    s.get().mirrorX();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
+                } else if (line.equals("mry")) {
+                    s.get().mirrorY();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
+                } else if (line.equals("mrc")) {
+                    s.get().mirrorC();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
                 } else if (line.equals("print")) {
                     CurvedShape shape = s.get().toCurvedShape();
                     if (shape == null) {
@@ -715,6 +792,80 @@ public class CurveGenerator {
                         p.repaint();
                     } else {
                         System.out.println("No more actions to redo.");
+                    }
+                } else if (line.startsWith("pb")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 1) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            CurvedShape shape = backgroundShapes.remove(index);
+                            backgroundShapes.add(shape);
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else if (parts.length == 2) {
+                        try {
+                            int i = Integer.parseInt(parts[0]);
+                            int j = Integer.parseInt(parts[1]);
+                            if (i == j) {
+                                // No change
+                                continue;
+                            }
+                            CurvedShape shape = backgroundShapes.remove(i);
+                            backgroundShapes.add(j, shape);
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: pb index or pb i l");
+                    }
+                } else if (line.equals("psb")) {
+                    // This does not affect current shape
+                    CurvedShape shape = s.get().toCurvedShape();
+                    if (shape != null) {
+                        backgroundShapes.push(shape);
+                    }
+                } else if (line.equals("clb")) {
+                    backgroundShapes.clear();
+                    p.repaint();
+                } else if (line.equals("lsb")) {
+                    if (backgroundShapes.isEmpty()) {
+                        System.out.println("No background shapes.");
+                    } else {
+                        for (int i = 0; i < backgroundShapes.size(); i++) {
+                            CurvedShape shape = backgroundShapes.get(i);
+                            System.out.printf("Shape %d: %d points%n", i, shape.toArray().length);
+                        }
+                    }
+                } else if (line.equals("ldb")) {
+                    if (backgroundShapes.isEmpty()) {
+                        System.out.println("No background shapes.");
+                    } else {
+                        CurvedShape shape = backgroundShapes.peek();
+                        s.set(new MutableCurvedShape(shape));
+                        if (undoIndex.get() > 0) {
+                            pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                        }
+                        pastShapes.add(s.get().clone());
+                        p.repaint();
+                    }
+                } else if (line.equals("printb")) {
+                    if (backgroundShapes.isEmpty()) {
+                        System.out.println("No background shapes.");
+                    } else {
+                        for (int i = 0; i < backgroundShapes.size(); i++) {
+                            CurvedShape shape = backgroundShapes.get(i);
+                            System.out.println("Shape " + i + ":");
+                            for (double[] point : shape.toArray()) {
+                                System.out.printf("Point: (%.2f, %.2f), Control: (%.2f, %.2f)%n", point[0], point[1], point[2], point[3]);
+                            }
+                        }
                     }
                 } else if (line.isEmpty()) {
                     // Do nothing for empty input
