@@ -187,6 +187,40 @@ public class MutableCurvedShape implements Cloneable {
         }
     }
     /**
+     * Mirrors the entire MutableCurvedShape across the Y-axis.
+     * This operation negates the x-coordinates of all points and control points.
+     */
+    public void mirrorY(){
+        for(double[] point : points){
+            point[1] = -point[1];
+            point[3] = -point[3];
+        }
+    }
+    /**
+     * Mirrors the entire MutableCurvedShape across the X-axis.
+     * This operation negates the y-coordinates of all points and control points.
+     */
+    public void mirrorX(){
+        for(double[] point : points){
+            point[0] = -point[0];
+            point[2] = -point[2];
+        }
+    }
+    /**
+     * Mirrors the entire MutableCurvedShape across the line y = x.
+     * This operation swaps the x and y coordinates of all points and control points.
+     */
+    public void mirrorC(){
+        for(double[] point : points){
+            double temp = point[0];
+            point[0] = point[1];
+            point[1] = temp;
+            temp = point[2];
+            point[2] = point[3];
+            point[3] = temp;
+        }
+    }
+    /**
      * Returns the number of points in the MutableCurvedShape.
      * @return the number of points
      */
