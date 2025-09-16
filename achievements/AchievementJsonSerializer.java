@@ -47,7 +47,8 @@ public class AchievementJsonSerializer {
             new achievements.staticimpl.AccumulatedEliminationAchievement(),
             new achievements.staticimpl.EnginePerfectFitAchievement(),
             new achievements.staticimpl.EngineAllPerfectFitAchievement(),
-            new achievements.staticimpl.DevilModeBaseAchievement()
+            new achievements.staticimpl.DevilModeBaseAchievement(),
+            new achievements.staticimpl.GodModeBaseAchievement()
     );
     static {
         // Add default deserializers for built-in achievements
