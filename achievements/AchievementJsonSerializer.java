@@ -44,6 +44,8 @@ public class AchievementJsonSerializer {
     private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = Set.of(
             // Imports: Static achievements should be added here once
             new achievements.staticimpl.LoggedInAchievement(),
+            new achievements.staticimpl.DarkThemeAchievement(),
+            new achievements.staticimpl.WhiteThemeAchievement(),
             new achievements.staticimpl.IdenticalQueueAchievement(),
             new achievements.staticimpl.AccumulatedEliminationAchievement(),
             new achievements.staticimpl.EnginePerfectFitAchievement(),
