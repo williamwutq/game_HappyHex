@@ -22,21 +22,21 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.staticimpl;
 
+import GUI.GameEssentials;
+import achievements.GameAchievementTemplate;
 import hex.GameState;
-import hex.Hex;
-import hex.HexEngine;
-import hex.Piece;
 
 /**
- * The {@code EnginePerfectFitAchievement} class represents a game achievement that is achieved when the player
- * has all piece in the queue that perfectly fits an empty slot in the game board. It implements the
+ * The {@code AccumulatedEliminationAchievement} class represents a game achievement that is achieved when the player
+ * eliminates a total of 1000 blocks in the same game without quitting it. It implements the
  * {@link GameAchievementTemplate} interface and provides functionality to check if the achievement has been
  * achieved based on the current {@link GameState}.
  * <p>
- * This class checks if all pieces in the queue that can fit perfectly into any empty slot on the game board.
- * The achievement is considered achieved if this condition is met.
+ * This class checks if the player has eliminated at least 1000 blocks in total during the game session. The achievement
+ * is considered achieved if this condition is met.
+ * This class is dependent on the {@link GameEssentials} class to retrieve the total number of eliminated blocks.
  * <p>
  * Instances of this class are immutable, meaning that once created, their state cannot be changed. This ensures
  * that the achievement criteria remain consistent throughout its lifecycle.
@@ -49,31 +49,22 @@ import hex.Piece;
  * @version 2.0
  * @since 2.0
  */
-public class EngineAllPerfectFitAchievement implements GameAchievementTemplate {
+public final class AccumulatedEliminationAchievement implements GameAchievementTemplate{
+    /**
+     * Creates a new AccumulatedEliminationAchievement.
+     * The achievement is achieved if the player eliminates a total of 1000 blocks in the same game without quitting it.
+     */
+    public AccumulatedEliminationAchievement() {}
     @Override
     public String name() {
-        return "All Perfect Fit";
+        return "Thousand Cuts";
     }
     @Override
     public String description() {
-        return "Have all pieces in queue fitting empty slots in the game board";
+        return "Eliminate a total of 1000 blocks in the same game without quitting it";
     }
     @Override
     public boolean test(GameState state) {
-        HexEngine engine = state.getEngine();
-        Piece[] queue = state.getQueue();
-        for (Piece piece : queue) {
-            boolean foundFit = false;
-            for (Hex position : engine.blocks()) {
-                if (engine.computeDenseIndex(position, piece) == 1) {
-                    foundFit = true;
-                    break;
-                }
-            }
-            if (!foundFit) {
-                return false; // this piece cannot fit in any block
-            }
-        }
-        return true; // every piece had at least one block
+        return GameEssentials.getTotalEliminatedBlocks() >= 1000;
     }
 }

@@ -22,8 +22,11 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.impl;
 
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
+import achievements.GameAchievementTemplate;
 import hex.GameState;
 import hex.Piece;
 import io.JsonConvertible;
@@ -60,7 +63,7 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
     private final int requiredMostLength;
     private final String name;
     private final String description;
-    static void load()  {
+    public static void load() {
         AchievementJsonSerializer.registerAchievementClass("QueueBasedAchievement", json -> {
             try {
                 return fromJsonObject(json);

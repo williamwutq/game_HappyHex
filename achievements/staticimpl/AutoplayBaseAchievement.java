@@ -22,20 +22,21 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.staticimpl;
 
 import GUI.GameEssentials;
+import Launcher.LaunchEssentials;
+import achievements.GameAchievementTemplate;
 import hex.GameState;
 
 /**
- * The {@code AccumulatedEliminationAchievement} class represents a game achievement that is achieved when the player
- * eliminates a total of 1000 blocks in the same game without quitting it. It implements the
- * {@link GameAchievementTemplate} interface and provides functionality to check if the achievement has been
- * achieved based on the current {@link GameState}.
+ * The {@code AutoplayBaseAchievement} class represents a game achievement that is achieved when the player
+ * starts to use Autoplay. It implements the {@link GameAchievementTemplate} interface and provides functionality
+ * to check if the achievement has been achieved by pulling the autoplay status from {@link GameEssentials}
+ * and checking if the game has started from {@link LaunchEssentials}.
  * <p>
- * This class checks if the player has eliminated at least 1000 blocks in total during the game session. The achievement
- * is considered achieved if this condition is met.
- * This class is dependent on the {@link GameEssentials} class to retrieve the total number of eliminated blocks.
+ * This class checks if the Autoplay handler is running and if the game has started. The achievement is considered
+ * achieved if both conditions are met.
  * <p>
  * Instances of this class are immutable, meaning that once created, their state cannot be changed. This ensures
  * that the achievement criteria remain consistent throughout its lifecycle.
@@ -44,26 +45,26 @@ import hex.GameState;
  *
  * @see GameAchievementTemplate
  * @see GameState
+ * @see GameEssentials
+ * @see LaunchEssentials
  * @author William Wu
  * @version 2.0
  * @since 2.0
  */
-public class AccumulatedEliminationAchievement implements GameAchievementTemplate{
-    /**
-     * Creates a new AccumulatedEliminationAchievement.
-     * The achievement is achieved if the player eliminates a total of 1000 blocks in the same game without quitting it.
-     */
-    public AccumulatedEliminationAchievement() {}
+public final class AutoplayBaseAchievement implements GameAchievementTemplate {
     @Override
     public String name() {
-        return "Thousand Cuts";
+        return "Go Automatic" ;
     }
     @Override
     public String description() {
-        return "Eliminate a total of 1000 blocks in the same game without quitting it";
+        return "Start to use Autoplay";
     }
     @Override
-    public boolean test(GameState state) {
-        return GameEssentials.getTotalEliminatedBlocks() >= 1000;
+    public boolean test(GameState state){
+        if (GameEssentials.getAutoplayHandler() == null) {
+            return false;
+        }
+        return GameEssentials.getAutoplayHandler().isRunning() && LaunchEssentials.isGameStarted();
     }
 }

@@ -103,6 +103,25 @@ public class UserAchievements implements JsonConvertible {
         return Collections.unmodifiableSet(achievements);
     }
     /**
+     * Returns an unmodifiable set of the user's real achievements that are not marked as hidden or phantom.
+     * <p>
+     * The returned set cannot be modified to ensure the integrity of the achievement data.
+     * You must run the method in the AUT thread with {@link GameAchievement#invokeLater} and cache the result.
+     *
+     * @return an unmodifiable list of GameAchievement objects representing the user's achievements.
+     */
+    public Set<GameAchievement> getRealAchievements() {
+        Set<GameAchievement> real = new HashSet<>();
+        for (GameAchievement ga : achievements) {
+            String name = ga.getTemplate().name();
+            if (!name.startsWith("_HIDDEN_") && !name.startsWith("_PHANTOM_")) {
+                // Only add non-hidden, non-phantom achievements
+                real.add(ga);
+            }
+        }
+        return Collections.unmodifiableSet(real);
+    }
+    /**
      * Converts the user's achievements to a JsonArrayBuilder.
      * Each achievement is represented as a JsonObject within the array.
      * <p>

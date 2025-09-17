@@ -22,8 +22,9 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.abstractimpl;
 
+import achievements.*;
 import hex.GameState;
 import io.JsonConvertible;
 
@@ -38,13 +39,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
- * The {@code SerialAchievement} class represents a game achievement that is based on a series of
- * other achievements that must be achieved in order. It implements the {@link GameAchievementTemplate}
+ * The {@code AnyAchievement} class represents a game achievement that is based on a series of
+ * other achievements that can trigger the achievement. It implements the {@link GameAchievementTemplate}
  * interface and provides functionality to check if the achievement has been achieved based on the current
  * {@link GameState}.
  * <p>
  * This class allows for specifying an array of required achievements.
- * The achievement is considered achieved if all required achievements have been achieved by the player.
+ * The achievement is considered achieved if any of the required achievements have been achieved by the player.
  * <p>
  * Instances of this class are immutable, meaning that once created, their state cannot be changed.
  * This ensures that the achievement criteria remain consistent throughout its lifecycle.
@@ -59,34 +60,33 @@ import java.util.stream.Collectors;
  * @version 2.0
  * @since 2.0
  */
-public class SerialAchievement implements GameAchievementTemplate, JsonConvertible {
+public class AnyAchievement implements GameAchievementTemplate, JsonConvertible {
     private final GameAchievementTemplate[] requirements;
     private final String name;
     private final String description;
-    static void load()  {
-        AchievementJsonSerializer.registerAchievementClass("serial", json -> {
+    public static void load()  {
+        AchievementJsonSerializer.registerAchievementClass("any", json -> {
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize serial.", e);
+                throw new RuntimeException("Failed to deserialize any.", e);
             }
         });
     }
     /**
-     * Creates a new SerialAchievement with the specified requirements, name, and description.
-     * The achievement is achieved if the player has achieved all the specified achievements in the given order.
+     * Creates a new AnyAchievement with the specified requirements, name, and description.
+     * The achievement is achieved if the player has achieved any of the specified achievements.
      * <p>
      * It is assumed that there are no duplicates in the requirements array. If there are duplicates,
      * the achievement will still function correctly, but it may be less efficient.
      * <p>
-     * It is assumed that there are no circular dependencies in the requirements array. If there are circular dependencies,
-     * the achievement will never be achieved.
+     * It is assumed that there are no circular dependencies in the requirements array.
      * @throws IllegalArgumentException if the requirements array is empty, or if the name or description is null or blank
-     * @param requirements the achievements that need to be achieved in order
+     * @param requirements the achievements that need to be achieved
      * @param name the name of the achievement
      * @param description the description of the achievement
      */
-    public SerialAchievement(GameAchievementTemplate[] requirements, String name, String description) {
+    public AnyAchievement(GameAchievementTemplate[] requirements, String name, String description) {
         if (requirements.length == 0) {
             throw new IllegalArgumentException("Requirements cannot be empty");
         }
@@ -124,7 +124,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof SerialAchievement other)) return false;
+        if (!(obj instanceof AnyAchievement other)) return false;
         if (!name.equals(other.name) || !description.equals(other.description)) return false;
         if (requirements.length != other.requirements.length) return false;
         for (int i = 0; i < requirements.length; i++) {
@@ -144,7 +144,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
      * {@inheritDoc}
      * <p>
      * Tests whether the achievement has been achieved based on the provided game state.
-     * The achievement is considered achieved if all the required achievements have been achieved.
+     * The achievement is considered achieved if any of the required achievements have been achieved.
      * <p>
      * This method relies on the current user management by the {@link GameAchievement} class, which
      * should be automatic. However, this make this template a dependent template.
@@ -165,24 +165,24 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
                 .stream()
                 .map(GameAchievement::getTemplate)
                 .collect(Collectors.toSet());
-        // Check if all requirements are satisfied
+        // Check if any of the requirements are satisfied
         for (GameAchievementTemplate requirement : requirements) {
-            if (!achievedTemplates.contains(requirement)) {
-                return false;
+            if (achievedTemplates.contains(requirement)) {
+                return true; // At least one of the requirements met
             }
         }
-        return true; // All requirements met
+        return false; // None of the requirements met
     }
 
     /**
-     * Converts this SerialAchievement to a JsonObjectBuilder.
+     * Converts this AnyAchievement to a JsonObjectBuilder.
      * The JSON representation includes the type, name, description, and requirements.
      * @return a JsonObjectBuilder representing this SerialAchievement
      */
     @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
-        builder.add("type", "serial");
+        builder.add("type", "any");
         builder.add("name", name);
         builder.add("description", description);
         // Add requirements as an array of JSON objects
@@ -194,18 +194,18 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
         return builder;
     }
     /**
-     * Creates a SerialAchievement from a JsonObject.
+     * Creates a AnyAchievement from a JsonObject.
      * The JSON object must contain the type, name, description, and requirements.
      * @param jsonObject the JsonObject to convert
      * @return a SerialAchievement represented by the JsonObject
      * @throws DataSerializationException if the JSON object is invalid or missing required fields
      */
-    public static SerialAchievement fromJsonObject(javax.json.JsonObject jsonObject) throws DataSerializationException {
-        if (!jsonObject.containsKey("type") || !jsonObject.getString("type").equals("serial")) {
-            throw new DataSerializationException("Invalid JSON object for SerialAchievement");
+    public static AnyAchievement fromJsonObject(javax.json.JsonObject jsonObject) throws DataSerializationException {
+        if (!jsonObject.containsKey("type") || !jsonObject.getString("type").equals("any")) {
+            throw new DataSerializationException("Invalid JSON object for AnyAchievement");
         }
         if (!jsonObject.containsKey("name") || !jsonObject.containsKey("description") || !jsonObject.containsKey("requirements")) {
-            throw new DataSerializationException("Missing required fields in JSON object for SerialAchievement");
+            throw new DataSerializationException("Missing required fields in JSON object for AnyAchievement");
         }
         String name = jsonObject.getString("name");
         String description = jsonObject.getString("description");
@@ -221,6 +221,6 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
             }
             requirements[i] = templateMap.get(reqName);
         }
-        return new SerialAchievement(requirements, name, description);
+        return new AnyAchievement(requirements, name, description);
     }
 }
