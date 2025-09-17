@@ -24,7 +24,75 @@
 
 package Launcher.panel;
 
-import javax.swing.*;
+import Launcher.LaunchEssentials;
+import Launcher.LauncherGUI;
 
-public class AchievementsPanel extends JPanel {
+import javax.swing.*;
+import java.awt.*;
+
+public class AchievementsPanel extends UniversalPanel {
+    private JLabel titleLabel;
+    private SimpleCloseButton closeButton;
+    private JPanel wrapperTopPanel;
+    public AchievementsPanel() {
+        super();
+    }
+    @Override
+    protected JComponent[] fetchContent() {
+        titleLabel = new JLabel("Achievements");
+        titleLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, 24));
+        titleLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setVerticalAlignment(SwingConstants.CENTER);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+        closeButton = new SimpleCloseButton();
+        wrapperTopPanel = new JPanel();
+        wrapperTopPanel.setLayout(new BorderLayout());
+        wrapperTopPanel.setOpaque(false);
+        wrapperTopPanel.add(titleLabel, BorderLayout.CENTER);
+        wrapperTopPanel.add(closeButton, BorderLayout.EAST);
+        return new JComponent[]{wrapperTopPanel};
+    }
+
+    @Override
+    protected JComponent[] fetchHeader() {
+        return new JComponent[0];
+    }
+
+    @Override
+    public void recalculate() {
+        super.recalculate();
+        int topNameSize = (int)(Math.min(getReferenceHeight() * 1.8, getReferenceWidth()) / 30);
+        wrapperTopPanel.setMaximumSize(new Dimension((int) getReferenceWidth(), topNameSize));
+        closeButton.setMaximumSize(new Dimension(topNameSize, topNameSize));
+        closeButton.setPreferredSize(new Dimension(topNameSize, topNameSize));
+        titleLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, topNameSize));
+    }
+
+    private class SimpleCloseButton extends JButton {
+        public SimpleCloseButton() {
+            this.setBackground(AchievementsPanel.this.getBackground());
+            this.setForeground(LaunchEssentials.launchQuitButtonBackgroundColor);
+            this.setFocusPainted(false);
+            this.setBorderPainted(false);
+            this.setContentAreaFilled(false);
+            this.setOpaque(true);
+            this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            this.addActionListener(e -> LauncherGUI.returnHome());
+        }
+        @Override
+        public void paint(Graphics g) {
+            super.paintComponent(g);
+            // Draw an "X"
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int w = getWidth(); int h = getHeight(); int a = (w + h) / 2;
+            g2.setStroke(new BasicStroke((float) a / 6));
+            g2.setColor(this.getForeground());
+            int padding = a / 4;
+            g2.drawLine(padding, padding, getWidth() - padding, getHeight() - padding);
+            g2.drawLine(getWidth() - padding, padding, padding, getHeight() - padding);
+        }
+    }
 }
