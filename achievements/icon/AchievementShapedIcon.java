@@ -134,10 +134,9 @@ public class AchievementShapedIcon implements AchievementIcon, JsonConvertible {
             if (!shapeObj.containsKey("color") || !shapeObj.containsKey("shape")) {
                 throw new DataSerializationException("Missing 'color' or 'shape' key in shape object at index " + i);
             }
-            JsonArray colorArray = shapeObj.getJsonArray("color");
             JsonArray shapeArray = shapeObj.getJsonArray("shape");
             try {
-                colors[i] = JsonColorConverter.jsonArrayToColor(colorArray);
+                colors[i] = JsonColorConverter.deserializeColorField(shapeObj, "color");
                 shapes[i] = CurvedShape.fromJsonArray(shapeArray);
             } catch (IllegalArgumentException e) {
                 throw new DataSerializationException("Invalid color or shape data at index " + i, e);

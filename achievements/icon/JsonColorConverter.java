@@ -39,6 +39,8 @@ import java.awt.*;
  *   <li>{@link #jsonObjectToColor(JsonObject obj)}: Converts a JsonObject with RGBA components to a Color object.</li>
  *   <li>{@link #colorToString(Color color)}: Converts a Color object to a string in the format #RRGGBBAA.</li>
  *   <li>{@link #stringToColor(String str)}: Converts a string in the format #RRGGBB or #RRGGBBAA to a Color object.</li>
+ *   <li>{@link #deserializeColor(Object obj)}: Deserializes a Color from a JsonArray, JsonObject, or String representation.</li>
+ *   <li>{@link #deserializeColorField(JsonObject obj, String key)}: Deserializes a Color from a field in a JsonObject that can be a JsonArray, JsonObject, or String.</li>
  * </ul>
  * <p>
  * All color representations contain four components: red, green, blue, and alpha (opacity).
@@ -129,5 +131,44 @@ public class JsonColorConverter {
         int b = Integer.parseInt(str.substring(5, 7), 16);
         int a = (str.length() == 9) ? Integer.parseInt(str.substring(7, 9), 16) : 255;
         return new Color(r, g, b, a);
+    }
+    /**
+     * Deserializes a color from various representations: JsonArray, JsonObject, or String.
+     * The method automatically detects the type of the input object and converts it to a Color.
+     *
+     * @param obj The object to deserialize (JsonArray, JsonObject, or String).
+     * @return A Color object representing the color.
+     * @throws IllegalArgumentException if the input object is of an unsupported type or contains invalid data.
+     */
+    public static Color deserializeColor(Object obj) throws IllegalArgumentException {
+        return switch (obj) {
+            case JsonArray jsonArray -> jsonArrayToColor(jsonArray);
+            case JsonObject jsonObject -> jsonObjectToColor(jsonObject);
+            case String str -> stringToColor(str);
+            case null, default -> throw new IllegalArgumentException("Unsupported color representation");
+        };
+    }
+    /**
+     * Deserializes a color from a JSON object field that can be represented as a JsonArray, JsonObject, or String.
+     * The method checks the type of the value associated with the specified key and converts it to a Color.
+     *
+     * @param obj The JsonObject containing the color field.
+     * @param key The key of the color field in the JsonObject.
+     * @return A Color object representing the color.
+     * @throws IllegalArgumentException if the key is missing or if the value is of an unsupported type or contains invalid data.
+     */
+    public static Color deserializeColorField(JsonObject obj, String key) throws IllegalArgumentException {
+        if (!obj.containsKey(key)) throw new IllegalArgumentException("JSON object does not contain key '" + key + "'");
+        // Explicitly try to get as each type
+        try {
+            return jsonArrayToColor(obj.getJsonArray(key));
+        } catch (ClassCastException | IllegalArgumentException ignored) {}
+        try {
+            return jsonObjectToColor(obj.getJsonObject(key));
+        } catch (ClassCastException | IllegalArgumentException ignored) {}
+        try {
+            return stringToColor(obj.getString(key));
+        } catch (ClassCastException | IllegalArgumentException ignored) {}
+        throw new IllegalArgumentException("Unsupported color representation for key '" + key + "'");
     }
 }

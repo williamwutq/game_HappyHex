@@ -131,7 +131,7 @@ public class AchievementTextIcon implements AchievementIcon, JsonConvertible {
         }
         Color color;
         try {
-            color = JsonColorConverter.jsonArrayToColor(obj.getJsonArray("color"));
+            color = JsonColorConverter.deserializeColorField(obj, "color");
         } catch (IllegalArgumentException e) {
             throw new DataSerializationException("Invalid color data", e);
         }
