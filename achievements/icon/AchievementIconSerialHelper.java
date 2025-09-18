@@ -44,8 +44,8 @@ import java.awt.*;
  * @author William Wu
  * @version 2.0
  */
-public class AchievementIconDeserializer {
-    private AchievementIconDeserializer() {
+public class AchievementIconSerialHelper {
+    private AchievementIconSerialHelper() {
         // Prevent instantiation
     }
     /**
@@ -140,6 +140,7 @@ public class AchievementIconDeserializer {
             case AchievementEmptyIcon achievementEmptyIcon -> null;
             case AchievementTextIcon textIcon -> textIcon.toJsonObjectBuilder().build();
             case AchievementShapedIcon shapedIcon -> shapedIcon.toJsonArrayBuilder().build();
+            case AchievementGradientIcon gradientIcon -> gradientIcon.toJsonObjectBuilder().build();
             default ->
                     throw new IllegalArgumentException("Unknown AchievementIcon implementation: " + icon.getClass().getName());
         };

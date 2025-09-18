@@ -24,8 +24,12 @@
 
 package achievements.icon;
 
+import io.JsonConvertible;
 import util.tuple.Pair;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -44,7 +48,7 @@ import java.awt.image.BufferedImage;
  * @author William Wu
  * @version 2.0
  */
-public class AchievementGradientIcon implements AchievementIcon {
+public class AchievementGradientIcon implements AchievementIcon, JsonConvertible {
     // Direction constants
     public static final int VERTICAL = 1;
     public static final int HORIZONTAL = 2;
@@ -281,5 +285,32 @@ public class AchievementGradientIcon implements AchievementIcon {
                 }
             }
         }
+    }
+
+    // Json
+    /**
+     * Serializes this AchievementGradientIcon to a JsonObjectBuilder.
+     * The JSON structure includes the background colors and the base icon.
+     * If the base icon is not serializable, it is represented as null.
+     *
+     * @return A JsonObjectBuilder representing this AchievementGradientIcon.
+     */
+    public JsonObjectBuilder toJsonObjectBuilder() {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        JsonObjectBuilder iconBuilder = Json.createObjectBuilder();
+        iconBuilder.add("background", Json.createObjectBuilder()
+                .add("00", JsonColorConverter.colorToJsonArray(c00))
+                .add("10", JsonColorConverter.colorToJsonArray(c10))
+                .add("01", JsonColorConverter.colorToJsonArray(c01))
+                .add("11", JsonColorConverter.colorToJsonArray(c11))
+        );
+        // If base icon can be serialized, serialize it
+        if (baseIcon instanceof JsonConvertible) {
+            iconBuilder.add("base", AchievementIconSerialHelper.serialize(baseIcon));
+        } else {
+            iconBuilder.add("base", JsonValue.NULL); // This is allowed as some times, the icon is just the background
+        }
+        builder.add("icon", iconBuilder.build());
+        return builder;
     }
 }

@@ -6,7 +6,7 @@
  * text-based icons, and shaped icons. Each icon type implements the {@link achievements.icon.AchievementIcon}
  * interface, which defines the contract for rendering and managing achievement icons.
  * <p>
- * The package also provides a {@link achievements.icon.AchievementIconDeserializer utility class} for
+ * The package also provides a {@link achievements.icon.AchievementIconSerialHelper utility class} for
  * serializing and deserializing achievement icons to and from JSON format, facilitating easy storage
  * and retrieval of icon data.
  * <p>
@@ -20,6 +20,6 @@
  * @author William Wu
  * @version 2.0
  * @see achievements.icon.AchievementIcon
- * @see achievements.icon.AchievementIconDeserializer
+ * @see achievements.icon.AchievementIconSerialHelper
  */
 package achievements.icon;
