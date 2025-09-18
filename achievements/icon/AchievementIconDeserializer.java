@@ -28,6 +28,7 @@ import achievements.DataSerializationException;
 
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import java.awt.*;
 
 /**
  * Utility class for serializing and deserializing AchievementIcon objects.
@@ -52,7 +53,11 @@ public class AchievementIconDeserializer {
      * <p>
      * If the JsonObject does not contain the "icon" key, an AchievementEmptyIcon is returned.
      * If the "icon" key exists but is null, an AchievementEmptyIcon is returned.
+     * If the "icon" key exists but is an empty JsonObject, an AchievementEmptyIcon is returned.
      * If the "icon" key contains a JsonObject, it is deserialized into an AchievementTextIcon.
+     * If the JsonObject contains "background" and "base" keys, it is deserialized into an AchievementGradientIcon.
+     * The "base" key is recursively deserialized into another AchievementIcon.
+     * The "background" key must contain color fields "00", "01", "10", and "11" for the four corners of the gradient.
      * If the "icon" key contains a JsonArray, it is deserialized into an AchievementShapedIcon.
      * <p>
      * If the "icon" key exists but is of an invalid type, a DataSerializationException is thrown.
@@ -78,12 +83,30 @@ public class AchievementIconDeserializer {
                 return AchievementEmptyIcon.INSTANCE;
             }
             try {
-                // Attempt to deserialize as Json Object first, turn into AchievementTextIcon
+                // Attempt to deserialize as Json Object first
                 JsonObject iconObj = object.getJsonObject("icon");
-                return AchievementTextIcon.fromJsonObject(iconObj);
+                // Try to parse as AchievementTextIcon
+                try {
+                    return AchievementTextIcon.fromJsonObject(iconObj);
+                } catch (DataSerializationException ignored) {}
+                // If fails, check whether this thing has gradient background
+                if (iconObj.containsKey("background") && iconObj.containsKey("base")) {
+                    // If it does, try to parse as AchievementTextIcon with gradient background
+                    // Parse base with recursion
+                    // To address concerns of recursion depth, the depth of a json object is limited, so we are not concerned about it.
+                    // If recursion were to occur and successfully parse, the constructor call will fail.
+                    AchievementIcon baseIcon = deserialize(iconObj.getJsonObject("base"));
+                    // Parse 4 corners of the background
+                    JsonObject backgroundObj = iconObj.getJsonObject("background");
+                    Color c00 = JsonColorConverter.deserializeColorField(backgroundObj, "00");
+                    Color c01 = JsonColorConverter.deserializeColorField(backgroundObj, "01");
+                    Color c10 = JsonColorConverter.deserializeColorField(backgroundObj, "10");
+                    Color c11 = JsonColorConverter.deserializeColorField(backgroundObj, "11");
+                    return new AchievementGradientIcon(baseIcon, c00, c01, c10, c11);
+                }
             } catch (ClassCastException ignored) {
                 // If it fails, continue
-            } catch (DataSerializationException e) {
+            } catch (DataSerializationException | IllegalArgumentException e) {
                 throw new DataSerializationException("Failed to deserialize AchievementIcon because " + e.getMessage(), e);
             }
             try {

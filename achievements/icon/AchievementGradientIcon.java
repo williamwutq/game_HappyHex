@@ -134,11 +134,14 @@ public class AchievementGradientIcon implements AchievementIcon {
      * @param startColor  The starting color of the gradient.
      * @param endColor    The ending color of the gradient.
      * @param direction   The direction of the gradient. Must be one of VERTICAL, HORIZONTAL, DIAGONAL_DOWN, DIAGONAL_UP, or MIXING.
-     * @throws IllegalArgumentException if icon is null, if startColor or endColor is null, or if direction is invalid.
+     * @throws IllegalArgumentException if icon is null or of the same type, if startColor or endColor is null, or if direction is invalid.
      */
     public AchievementGradientIcon(AchievementIcon icon, Color startColor, Color endColor, int direction){
         if (icon == null) {
             throw new IllegalArgumentException("Icon cannot be null.");
+        }
+        if (icon instanceof AchievementGradientIcon) {
+            throw new IllegalArgumentException("Cannot wrap an AchievementGradientIcon inside another AchievementGradientIcon.");
         }
         if (startColor == null || endColor == null) {
             throw new IllegalArgumentException("Colors cannot be null.");
@@ -194,11 +197,14 @@ public class AchievementGradientIcon implements AchievementIcon {
      * @param c10  The color in the top-right corner.
      * @param c01  The color in the bottom-left corner.
      * @param c11  The color in the bottom-right corner.
-     * @throws IllegalArgumentException if icon is null or if any of the colors are null.
+     * @throws IllegalArgumentException if icon is null or of the same type, or if any of the colors are null.
      */
     public AchievementGradientIcon(AchievementIcon icon, Color c00, Color c10, Color c01, Color c11){
         if (icon == null) {
             throw new IllegalArgumentException("Icon cannot be null.");
+        }
+        if (icon instanceof AchievementGradientIcon) {
+            throw new IllegalArgumentException("Cannot wrap an AchievementGradientIcon inside another AchievementGradientIcon.");
         }
         if (c00 == null || c10 == null || c01 == null || c11 == null) {
             throw new IllegalArgumentException("Colors cannot be null.");
