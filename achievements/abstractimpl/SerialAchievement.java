@@ -25,12 +25,16 @@
 package achievements.abstractimpl;
 
 import achievements.*;
+import achievements.icon.AchievementIcon;
+import achievements.icon.AchievementIconSerialHelper;
+import achievements.icon.AchievementTextIcon;
 import hex.GameState;
 import io.JsonConvertible;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObjectBuilder;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -64,6 +68,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
     private final GameAchievementTemplate[] requirements;
     private final String name;
     private final String description;
+    private final AchievementIcon icon;
     public static void load()  {
         AchievementJsonSerializer.registerAchievementClass("serial", json -> {
             try {
@@ -87,7 +92,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
      * @param name the name of the achievement
      * @param description the description of the achievement
      */
-    public SerialAchievement(GameAchievementTemplate[] requirements, String name, String description) {
+    public SerialAchievement(GameAchievementTemplate[] requirements, String name, String description, AchievementIcon icon) {
         if (requirements.length == 0) {
             throw new IllegalArgumentException("Requirements cannot be empty");
         }
@@ -97,6 +102,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
         if (description == null || description.isBlank()) {
             throw new IllegalArgumentException("Description cannot be null or blank");
         }
+        this.icon = icon == null ? new AchievementTextIcon("LINK", Color.WHITE) : icon;
         this.requirements = requirements.clone();
         this.name = name;
         this.description = description;
@@ -185,6 +191,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("type", "serial");
         builder.add("name", name);
+        builder.add("icon", AchievementIconSerialHelper.serialize(icon));
         builder.add("description", description);
         // Add requirements as an array of JSON objects
         var reqArrayBuilder = Json.createArrayBuilder();
@@ -210,6 +217,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
         }
         String name = jsonObject.getString("name");
         String description = jsonObject.getString("description");
+        AchievementIcon icon = AchievementIconSerialHelper.deserialize(jsonObject);
         JsonArray reqArray = jsonObject.getJsonArray("requirements");
         GameAchievementTemplate[] requirements = new GameAchievementTemplate[reqArray.size()];
         Map<String, GameAchievementTemplate> templateMap = GameAchievement.getTemplates().stream()
@@ -222,6 +230,6 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
             }
             requirements[i] = templateMap.get(reqName);
         }
-        return new SerialAchievement(requirements, name, description);
+        return new SerialAchievement(requirements, name, description, icon);
     }
 }

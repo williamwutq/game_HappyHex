@@ -27,6 +27,8 @@ package achievements.abstractimpl;
 import achievements.AchievementJsonSerializer;
 import achievements.DataSerializationException;
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
+import achievements.icon.AchievementIconSerialHelper;
 import hex.GameState;
 import io.JsonConvertible;
 
@@ -75,6 +77,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
     private static final Map<String, MarkableAchievement> globalRegistry = new java.util.HashMap<>();
     private final String name;
     private final String description;
+    private final AchievementIcon icon;
     private final AtomicBoolean flag;
     public static void load()  {
         AchievementJsonSerializer.registerAchievementClass("markable", json -> {
@@ -86,7 +89,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
         });
     }
     /**
-     * Constructs a new {@code MarkableAchievement} with the specified name and description.
+     * Constructs a new {@code MarkableAchievement} with the specified name, description, and icon.
      * The name must be unique among all instances of {@code MarkableAchievement}. If an achievement
      * with the same name already exists, an {@link IllegalArgumentException} is thrown.
      * <p>
@@ -101,9 +104,10 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
      * @param description a brief description of the achievement
      * @throws IllegalArgumentException if an achievement with the same name already exists
      */
-    public MarkableAchievement(String name, String description) {
+    public MarkableAchievement(String name, String description, AchievementIcon icon) {
         this.name = name;
         this.description = description;
+        this.icon = icon;
         this.flag = new AtomicBoolean(false);
         synchronized (globalRegistry) {
             if (globalRegistry.containsKey(name)) {
@@ -127,6 +131,14 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
     @Override
     public String description() {
         return description;
+    }
+    /**
+     * {@inheritDoc}
+     * @return the icon of the achievement
+     */
+    @Override
+    public AchievementIcon icon() {
+        return icon;
     }
     /**
      * {@inheritDoc}
@@ -254,6 +266,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("name", name);
         builder.add("description", description);
+        builder.add("icon", AchievementIconSerialHelper.serialize(icon));
         return builder;
     }
     /**
@@ -274,11 +287,12 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
         }
         String name = jsonObject.getString("name");
         String description = jsonObject.getString("description");
+        AchievementIcon icon = AchievementIconSerialHelper.deserialize(jsonObject);
         synchronized (globalRegistry) {
             if (globalRegistry.containsKey(name)) {
                 return globalRegistry.get(name);
             } else {
-                return new MarkableAchievement(name, description); // Constructor handles registration
+                return new MarkableAchievement(name, description, icon); // Constructor handles registration
             }
         }
     }

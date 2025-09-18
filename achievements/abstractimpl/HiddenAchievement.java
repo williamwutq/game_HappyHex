@@ -25,7 +25,12 @@
 package achievements.abstractimpl;
 
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementEmptyIcon;
+import achievements.icon.AchievementIcon;
+import achievements.icon.AchievementTextIcon;
 import hex.GameState;
+
+import java.awt.*;
 
 /**
  * A decorator for {@link GameAchievementTemplate} that marks an achievement as hidden.
@@ -78,6 +83,15 @@ public class HiddenAchievement implements GameAchievementTemplate {
     @Override
     public String description() {
         return template.description();
+    }
+    /**
+     * {@inheritDoc}
+     * @implNote This implementation returns an empty icon to avoid revealing any information about the hidden achievement.
+     * @return the icon of the achievement
+     */
+    @Override
+    public AchievementIcon icon() {
+        return AchievementEmptyIcon.INSTANCE;
     }
 
     /**

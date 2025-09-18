@@ -25,6 +25,8 @@
 package achievements.abstractimpl;
 
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementEmptyIcon;
+import achievements.icon.AchievementIcon;
 
 /**
  * A convenient marker interface for phantom achievements, which are special types of achievements
@@ -90,6 +92,18 @@ public interface PhantomAchievementTemplate extends GameAchievementTemplate {
     @Override
     default String description() {
         return "Phantom Achievement " + getClass().getSimpleName();
+    }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Phantom achievements do not have a visible representation, so this method returns an empty icon.
+     * This ensures that phantom achievements do not inadvertently reveal any information about their criteria
+     * or status through their iconography.
+     * @return an empty icon, as phantom achievements do not have a visible representation
+     */
+    @Override
+    default AchievementIcon icon() {
+        return AchievementEmptyIcon.INSTANCE;
     }
     /**
      * A utility method to generate the phantom name from a given real name.
