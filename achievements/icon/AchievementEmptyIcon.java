@@ -40,7 +40,7 @@ import java.util.Iterator;
  *
  * @see AchievementIcon
  * @author William Wu
- * @version 1.0
+ * @version 2.0
  */
 public class AchievementEmptyIcon implements AchievementIcon {
     /**

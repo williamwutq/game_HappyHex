@@ -37,6 +37,21 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 
+/**
+ * Represents an achievement icon that displays a single text string in a specified color.
+ * The text is rendered using a default font and is normalized to fit within a unit square.
+ * This class implements the {@link AchievementIcon} and {@link JsonConvertible} interfaces.
+ * <p>
+ * The {@code AchievementTextIcon} class provides methods to retrieve the icon parts
+ * as well as to convert the icon to and from a JSON representation for serialization purposes.
+ *
+ * @see AchievementIcon
+ * @see JsonConvertible
+ * @see Color
+ * @see Font
+ * @author William Wu
+ * @version 2.0
+ */
 public class AchievementTextIcon implements AchievementIcon, JsonConvertible {
     public static final Font DEFAULT_FONT = new Font("Arial", Font.PLAIN, 1);
     private final String text;
