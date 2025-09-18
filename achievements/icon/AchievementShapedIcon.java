@@ -39,7 +39,8 @@ import java.util.Iterator;
  * The icon can be converted to and from a JSON representation for serialization purposes.
  * <p>
  * This class implements the {@link AchievementIcon} interface, providing the necessary methods
- * to retrieve the icon parts and convert them to JSON format.
+ * to retrieve the icon parts and convert them to JSON format. It also includes static methods
+ * to create an instance of {@code AchievementShapedIcon} from a JSON array representation.
  *
  * @see AchievementIcon
  * @see CurvedShape
@@ -115,6 +116,22 @@ public class AchievementShapedIcon implements AchievementIcon, JsonConvertible {
         return rootObj;
     }
     /**
+     * Converts the icon to a JSON array builder.
+     * The JSON array contains objects, where each object has a color and a shape.
+     *
+     * @return A JsonArrayBuilder representing the icon.
+     */
+    public JsonArrayBuilder toJsonArrayBuilder() {
+        JsonArrayBuilder shapesArray = Json.createArrayBuilder();
+        for (int i = 0; i < iconShapes.length; i++) {
+            JsonObjectBuilder shapeObj = Json.createObjectBuilder();
+            shapeObj.add("color", JsonColorConverter.colorToJsonArray(iconColors[i]));
+            shapeObj.add("shape", iconShapes[i].toJsonArrayBuilder());
+            shapesArray.add(shapeObj);
+        }
+        return shapesArray;
+    }
+    /**
      * Constructs an AchievementShapedIcon from a JSON object.
      * The JSON object must contain an array of parts, where each part has a color and a shape.
      *
@@ -131,6 +148,32 @@ public class AchievementShapedIcon implements AchievementIcon, JsonConvertible {
         Color[] colors = new Color[shapesArray.size()];
         for (int i = 0; i < shapesArray.size(); i++) {
             JsonObject shapeObj = shapesArray.getJsonObject(i);
+            if (!shapeObj.containsKey("color") || !shapeObj.containsKey("shape")) {
+                throw new DataSerializationException("Missing 'color' or 'shape' key in shape object at index " + i);
+            }
+            JsonArray shapeArray = shapeObj.getJsonArray("shape");
+            try {
+                colors[i] = JsonColorConverter.deserializeColorField(shapeObj, "color");
+                shapes[i] = CurvedShape.fromJsonArray(shapeArray);
+            } catch (IllegalArgumentException e) {
+                throw new DataSerializationException("Invalid color or shape data at index " + i, e);
+            }
+        }
+        return new AchievementShapedIcon(shapes, colors);
+    }
+    /**
+     * Constructs an AchievementShapedIcon from a JSON array.
+     * The JSON array must contain objects, where each object has a color and a shape.
+     *
+     * @param array The JsonArray to convert.
+     * @return An AchievementShapedIcon constructed from the JSON data.
+     * @throws DataSerializationException if the JSON array is malformed or missing required data.
+     */
+    public static AchievementShapedIcon fromJsonArray(JsonArray array) throws DataSerializationException {
+        CurvedShape[] shapes = new CurvedShape[array.size()];
+        Color[] colors = new Color[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject shapeObj = array.getJsonObject(i);
             if (!shapeObj.containsKey("color") || !shapeObj.containsKey("shape")) {
                 throw new DataSerializationException("Missing 'color' or 'shape' key in shape object at index " + i);
             }
