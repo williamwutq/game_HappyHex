@@ -43,6 +43,8 @@ import java.util.Iterator;
  * @version 2.0
  */
 public class AchievementEmptyIcon implements AchievementIcon {
+    /** A singleton instance of AchievementEmptyIcon. */
+    public static final AchievementEmptyIcon INSTANCE = new AchievementEmptyIcon();
     /**
      * Constructs an AchievementEmptyIcon.
      * This icon has no parts and will render as empty.

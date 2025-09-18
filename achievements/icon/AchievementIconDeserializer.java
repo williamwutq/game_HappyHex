@@ -44,7 +44,6 @@ import javax.json.JsonValue;
  * @version 2.0
  */
 public class AchievementIconDeserializer {
-    private static final AchievementEmptyIcon emptyIcon = new AchievementEmptyIcon();
     private AchievementIconDeserializer() {
         // Prevent instantiation
     }
@@ -70,13 +69,13 @@ public class AchievementIconDeserializer {
             throw new IllegalArgumentException("Input JsonObject cannot be null.");
         }
         if (!object.containsKey("icon")) {
-            return emptyIcon;
+            return AchievementEmptyIcon.INSTANCE;
         } else {
             if (object.isNull("icon")) {
-                return emptyIcon;
+                return AchievementEmptyIcon.INSTANCE;
             }
             if (object.isEmpty()){
-                return emptyIcon;
+                return AchievementEmptyIcon.INSTANCE;
             }
             try {
                 // Attempt to deserialize as Json Object first, turn into AchievementTextIcon
