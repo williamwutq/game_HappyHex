@@ -28,6 +28,7 @@ import util.tuple.Pair;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.RoundRectangle2D;
 import java.util.Iterator;
 
 /**
@@ -37,11 +38,11 @@ import java.util.Iterator;
  * paint them onto a graphics context.
  * <p>
  * Implementing classes should provide the logic for generating the normalized icon parts as an
- * iterable of pairs, where each pair consists of a color and a shape.
+ * iterable of pairs, where each pair consists of a color and a shape, and can optionally override
+ * the background color, which will be used to fill the background before painting the icon parts.
  * <p>
  * The default methods handle scaling and painting the icon parts.
  */
-@FunctionalInterface
 public interface AchievementIcon {
     /**
      * Get the normalized icon parts as an iterable of pairs of color and shape.
@@ -49,6 +50,15 @@ public interface AchievementIcon {
      * @return An iterable of pairs where each pair contains a Color and a Shape.
      */
     Iterable<Pair<Color, Shape>> normalizedParts();
+    /**
+     * Get the background color of the icon.
+     * This color is used to fill the background before painting the icon parts.
+     * @implNote The default implementation returns Color.BLACK.
+     * @return The background color.
+     */
+    default Color getBackgroundColor(){
+        return Color.BLACK;
+    }
     /**
      * Get the icon parts scaled to the specified size.
      * @param size The desired size to scale the icon parts to.
@@ -74,11 +84,15 @@ public interface AchievementIcon {
     }
     /**
      * Paint the icon onto the provided Graphics context at the specified size.
+     * <p>
+     * The icon is painted on a rounded square background.
      * @param g The Graphics context to paint on.
      * @param size The size to scale the icon to.
      */
     default void paint(Graphics g, double size){
         Graphics2D g2d = (Graphics2D) g;
+        double r = size * 0.1;
+        g2d.fill(new RoundRectangle2D.Double(0.0, 0.0, size, size, r, r));
         for (Pair<Color, Shape> part : scaledParts(size)){
             g2d.setColor(part.getFirst());
             g2d.fill(part.getSecond());
