@@ -38,9 +38,12 @@ import java.util.concurrent.ExecutionException;
 public class AchievementsPanel extends UniversalPanel {
     private JLabel titleLabel;
     private SimpleCloseButton closeButton;
-    private JPanel wrapperTopPanel;
+    private JButton beginButton, prevButton, nextButton, endButton;
+    private JLabel pageLabel;
+    private JPanel wrapperTopPanel, navigationPanel;
     private GameAchievementTemplate[] achievementsCache;
-    private int pageStartIndex = 0;
+    private int pageStartIndex = 0; // The first element is pageStartIndex
+    private int pageEndIndex = 1; // The last element is pageEndIndex - 1
     public AchievementsPanel() {
         super();
         achievementsCache = fetchAchievement();
@@ -60,7 +63,79 @@ public class AchievementsPanel extends UniversalPanel {
         wrapperTopPanel.setOpaque(false);
         wrapperTopPanel.add(titleLabel, BorderLayout.CENTER);
         wrapperTopPanel.add(closeButton, BorderLayout.EAST);
-        return new JComponent[]{wrapperTopPanel, new InnerPanel()};
+        beginButton = new JButton("<<");
+        beginButton.setToolTipText("Go to first page");
+        beginButton.setBackground(this.getBackground());
+        beginButton.setForeground(LaunchEssentials.launchVersionFontColor);
+        beginButton.setFocusPainted(false);
+        beginButton.setBorderPainted(false);
+        beginButton.setContentAreaFilled(false);
+        beginButton.setOpaque(true);
+        beginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        beginButton.addActionListener(e -> {
+            pageStartIndex = 0;
+            this.revalidate();
+            this.repaint();
+        });
+        prevButton = new JButton("<");
+        prevButton.setToolTipText("Go to previous page");
+        prevButton.setBackground(this.getBackground());
+        prevButton.setForeground(LaunchEssentials.launchVersionFontColor);
+        prevButton.setFocusPainted(false);
+        prevButton.setBorderPainted(false);
+        prevButton.setContentAreaFilled(false);
+        prevButton.setOpaque(true);
+        prevButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        prevButton.addActionListener(e -> previousPage());
+        nextButton = new JButton(">");
+        nextButton.setToolTipText("Go to next page");
+        nextButton.setBackground(this.getBackground());
+        nextButton.setForeground(LaunchEssentials.launchVersionFontColor);
+        nextButton.setFocusPainted(false);
+        nextButton.setBorderPainted(false);
+        nextButton.setContentAreaFilled(false);
+        nextButton.setOpaque(true);
+        nextButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        nextButton.addActionListener(e -> nextPage());
+        endButton = new JButton(">>");
+        endButton.setToolTipText("Go to last page");
+        endButton.setBackground(this.getBackground());
+        endButton.setForeground(LaunchEssentials.launchVersionFontColor);
+        endButton.setFocusPainted(false);
+        endButton.setBorderPainted(false);
+        endButton.setContentAreaFilled(false);
+        endButton.setOpaque(true);
+        endButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        endButton.addActionListener(e -> {
+            // Move to the last page
+            int numItems = pageEndIndex - pageStartIndex;
+            if (numItems <= 0) return; // Avoid division by zero
+            pageStartIndex = ((achievementsCache.length - 1) / numItems) * numItems;
+            this.revalidate();
+            this.repaint();
+        });
+        pageLabel = new JLabel("Page: 1");
+        pageLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, 16));
+        pageLabel.setForeground(LaunchEssentials.launchVersionFontColor);
+        pageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        pageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        pageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        pageLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+        navigationPanel = new JPanel();
+        navigationPanel.setLayout(new BoxLayout(navigationPanel, BoxLayout.X_AXIS));
+        navigationPanel.setOpaque(false);
+        navigationPanel.add(Box.createHorizontalGlue());
+        navigationPanel.add(beginButton);
+        navigationPanel.add(Box.createHorizontalGlue());
+        navigationPanel.add(prevButton);
+        navigationPanel.add(Box.createHorizontalGlue());
+        navigationPanel.add(pageLabel);
+        navigationPanel.add(Box.createHorizontalGlue());
+        navigationPanel.add(nextButton);
+        navigationPanel.add(Box.createHorizontalGlue());
+        navigationPanel.add(endButton);
+        navigationPanel.add(Box.createHorizontalGlue());
+        return new JComponent[]{wrapperTopPanel, new InnerPanel(), navigationPanel};
     }
 
     @Override
@@ -72,10 +147,53 @@ public class AchievementsPanel extends UniversalPanel {
     public void recalculate() {
         super.recalculate();
         int topNameSize = (int)(Math.min(getReferenceHeight() * 1.8, getReferenceWidth()) / 30);
+        double topNameDouble = Math.min(getReferenceHeight() * 1.8, getReferenceWidth()) / 30.0;
         wrapperTopPanel.setMaximumSize(new Dimension((int) getReferenceWidth(), topNameSize));
+        navigationPanel.setMaximumSize(new Dimension((int) getReferenceWidth(), topNameSize * 2));
+        int h = topNameSize * 3 / 4; int w = (int )(topNameDouble * 4); Dimension dim = new Dimension(w, h);
+        beginButton.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, h));
+        beginButton.setMinimumSize(dim);
+        beginButton.setMaximumSize(dim);
+        beginButton.setPreferredSize(dim);
+        prevButton.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, h));
+        prevButton.setMinimumSize(dim);
+        prevButton.setMaximumSize(dim);
+        prevButton.setPreferredSize(dim);
+        pageLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, h));
+        pageLabel.setMinimumSize(dim);
+        pageLabel.setMaximumSize(dim);
+        pageLabel.setPreferredSize(dim);
+        nextButton.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, h));
+        nextButton.setMinimumSize(dim);
+        nextButton.setMaximumSize(dim);
+        nextButton.setPreferredSize(dim);
+        endButton.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, h));
+        endButton.setMinimumSize(dim);
+        endButton.setMaximumSize(dim);
+        endButton.setPreferredSize(dim);
+        closeButton.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, topNameSize));
+        closeButton.setMinimumSize(new Dimension(topNameSize * 2, topNameSize));
         closeButton.setMaximumSize(new Dimension(topNameSize * 2, topNameSize));
         closeButton.setPreferredSize(new Dimension(topNameSize * 2, topNameSize));
         titleLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, topNameSize));
+    }
+
+    private void nextPage() {
+        if (pageEndIndex < achievementsCache.length) {
+            pageStartIndex = pageEndIndex;
+            this.revalidate();
+            this.repaint();
+        }
+    }
+
+    private void previousPage() {
+        if (pageStartIndex > 0) {
+            // Move back by the number of items currently displayed
+            int numItems = pageEndIndex - pageStartIndex;
+            pageStartIndex = Math.max(0, pageStartIndex - numItems);
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     private class SimpleCloseButton extends JButton {
@@ -123,6 +241,7 @@ public class AchievementsPanel extends UniversalPanel {
             // Grab from achievementsCache starting from pageStartIndex
             int numItems = Math.min(achievementsCache.length - pageStartIndex, numRows);
             if (numItems <= 0) return; // Nothing to display
+            pageEndIndex = pageStartIndex + numItems; // Set pageEndIndex
             this.removeAll();
             for (int i = 0; i < numItems; i++) {
                 AchievementItemPanel itemPanel = new AchievementItemPanel(achievementsCache[pageStartIndex + i]);
