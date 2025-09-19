@@ -43,13 +43,6 @@ public class AchievementsPanel extends UniversalPanel {
     public AchievementsPanel() {
         super();
         achievementsCache = fetchAchievement();
-        // Test
-        if (achievementsCache.length == 0) {
-            System.out.println("No achievements found or user not logged in.");
-        } else {
-            System.out.println("Found " + achievementsCache.length + " achievements.");
-            this.add(new AchievementItemPanel(achievementsCache[0]));
-        }
     }
     @Override
     protected JComponent[] fetchContent() {
@@ -66,7 +59,7 @@ public class AchievementsPanel extends UniversalPanel {
         wrapperTopPanel.setOpaque(false);
         wrapperTopPanel.add(titleLabel, BorderLayout.CENTER);
         wrapperTopPanel.add(closeButton, BorderLayout.EAST);
-        return new JComponent[]{wrapperTopPanel};
+        return new JComponent[]{wrapperTopPanel, new InnerPanel()};
     }
 
     @Override
@@ -110,7 +103,36 @@ public class AchievementsPanel extends UniversalPanel {
         }
     }
 
+    private class InnerPanel extends JPanel {
+        public InnerPanel() {
+            this.setOpaque(false);
+            this.setLayout(null);
+        }
+        @Override
+        public void doLayout() {
+            // Manual grid layout, starting from pageStartIndex
+            // Computer how many items can fit in the panel based on width = width and optimal computed height
+            int w = this.getWidth();
+            int h = this.getHeight();
+            if (w <= 0 || h <= 0) return; // Avoid division by zero
+            int optimalItemHeight = Math.min(h / 3, w / AchievementItemPanel.OPTIMAL_RATIO); // At least 3 rows, and not too tall
+            if (optimalItemHeight <= 0) return; // Avoid division by zero
+            int numRows = Math.max(1, h / optimalItemHeight);
+            System.out.println("Optimal item height: " + optimalItemHeight + ", numRows: " + numRows);
+            // Grab from achievementsCache starting from pageStartIndex
+            int numItems = Math.min(achievementsCache.length - pageStartIndex, numRows);
+            if (numItems <= 0) return; // Nothing to display
+            this.removeAll();
+            for (int i = 0; i < numItems; i++) {
+                AchievementItemPanel itemPanel = new AchievementItemPanel(achievementsCache[pageStartIndex + i]);
+                itemPanel.setBounds(0, i * optimalItemHeight, w, optimalItemHeight);
+                this.add(itemPanel);
+            }
+        }
+    }
+
     private class AchievementItemPanel extends JPanel {
+        static int OPTIMAL_RATIO = 6; // Width to height ratio to display info
         private GameAchievementTemplate achievement;
         private double iconSize = 1.0;
         private boolean infoDisplayed = false;
