@@ -32,6 +32,7 @@ import achievements.UserAchievements;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.util.concurrent.ExecutionException;
 
 public class AchievementsPanel extends UniversalPanel {
@@ -72,8 +73,8 @@ public class AchievementsPanel extends UniversalPanel {
         super.recalculate();
         int topNameSize = (int)(Math.min(getReferenceHeight() * 1.8, getReferenceWidth()) / 30);
         wrapperTopPanel.setMaximumSize(new Dimension((int) getReferenceWidth(), topNameSize));
-        closeButton.setMaximumSize(new Dimension(topNameSize, topNameSize));
-        closeButton.setPreferredSize(new Dimension(topNameSize, topNameSize));
+        closeButton.setMaximumSize(new Dimension(topNameSize * 2, topNameSize));
+        closeButton.setPreferredSize(new Dimension(topNameSize * 2, topNameSize));
         titleLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, topNameSize));
     }
 
@@ -90,16 +91,15 @@ public class AchievementsPanel extends UniversalPanel {
         }
         @Override
         public void paint(Graphics g) {
-            super.paintComponent(g);
             // Draw an "X"
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int w = getWidth(); int h = getHeight(); int a = (w + h) / 2;
+            int w = getWidth(); int h = getHeight(); int a = Math.min(w, h);
             g2.setStroke(new BasicStroke((float) a / 6));
             g2.setColor(this.getForeground());
-            int padding = a / 4;
-            g2.drawLine(padding, padding, getWidth() - padding, getHeight() - padding);
-            g2.drawLine(getWidth() - padding, padding, padding, getHeight() - padding);
+            int p = a / 4; int wp = (w - a / 2) / 2; int hp = (h - a / 2) / 2;
+            g2.drawLine(wp, hp, w - wp, h - hp);
+            g2.drawLine(w - wp, hp, wp, h - hp);
         }
     }
 
@@ -114,18 +114,19 @@ public class AchievementsPanel extends UniversalPanel {
             // Computer how many items can fit in the panel based on width = width and optimal computed height
             int w = this.getWidth();
             int h = this.getHeight();
+            int offset = (int) (h * 0.05);
+            h -= offset * 2; // Leave some space at top and bottom
             if (w <= 0 || h <= 0) return; // Avoid division by zero
             int optimalItemHeight = Math.min(h / 3, w / AchievementItemPanel.OPTIMAL_RATIO); // At least 3 rows, and not too tall
             if (optimalItemHeight <= 0) return; // Avoid division by zero
             int numRows = Math.max(1, h / optimalItemHeight);
-            System.out.println("Optimal item height: " + optimalItemHeight + ", numRows: " + numRows);
             // Grab from achievementsCache starting from pageStartIndex
             int numItems = Math.min(achievementsCache.length - pageStartIndex, numRows);
             if (numItems <= 0) return; // Nothing to display
             this.removeAll();
             for (int i = 0; i < numItems; i++) {
                 AchievementItemPanel itemPanel = new AchievementItemPanel(achievementsCache[pageStartIndex + i]);
-                itemPanel.setBounds(0, i * optimalItemHeight, w, optimalItemHeight);
+                itemPanel.setBounds(0, offset + i * optimalItemHeight, w, optimalItemHeight);
                 this.add(itemPanel);
             }
         }
@@ -169,9 +170,15 @@ public class AchievementsPanel extends UniversalPanel {
             // Also draw the name and description if infoDisplayed is true
             if (infoDisplayed) {
                 g2.setColor(LaunchEssentials.launchVersionFontColor);
-                g2.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, (int) (iconSize * 0.3)));
-                g2.drawString(achievement.name(), (int) (iconSize), (int) (iconSize * 0.25));
-                g2.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, (int) (iconSize * 0.15)));
+                // Get the base font
+                // Get font every single time because it may be changed by font processors
+                Font baseFont = new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, 1);
+                AffineTransform at = AffineTransform.getScaleInstance(iconSize * 0.15, iconSize * 0.15);
+                AffineTransform dAt = AffineTransform.getScaleInstance(iconSize * 0.3, iconSize * 0.3);
+                Font smallerFont = baseFont.deriveFont(at); Font biggerFont = baseFont.deriveFont(dAt);
+                g2.setFont(biggerFont);
+                g2.drawString(achievement.name(), (float) (iconSize), (float) (iconSize * 0.25));
+                g2.setFont(smallerFont);
                 // Replace with ... if too long
                 String desc = achievement.description();
                 FontMetrics fm = g2.getFontMetrics();
