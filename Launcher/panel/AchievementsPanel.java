@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 public class AchievementsPanel extends UniversalPanel {
     private JLabel titleLabel;
+    private InnerPanel inner;
     private SimpleCloseButton closeButton;
     private JButton beginButton, prevButton, nextButton, endButton;
     private JLabel pageLabel;
@@ -74,6 +75,7 @@ public class AchievementsPanel extends UniversalPanel {
         beginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         beginButton.addActionListener(e -> {
             pageStartIndex = 0;
+            inner.doLayout();
             this.revalidate();
             this.repaint();
         });
@@ -111,6 +113,7 @@ public class AchievementsPanel extends UniversalPanel {
             int numItems = pageEndIndex - pageStartIndex;
             if (numItems <= 0) return; // Avoid division by zero
             pageStartIndex = ((achievementsCache.length - 1) / numItems) * numItems;
+            inner.doLayout();
             this.revalidate();
             this.repaint();
         });
@@ -135,7 +138,8 @@ public class AchievementsPanel extends UniversalPanel {
         navigationPanel.add(Box.createHorizontalGlue());
         navigationPanel.add(endButton);
         navigationPanel.add(Box.createHorizontalGlue());
-        return new JComponent[]{wrapperTopPanel, new InnerPanel(), navigationPanel};
+        inner = new InnerPanel();
+        return new JComponent[]{wrapperTopPanel, inner, navigationPanel};
     }
 
     @Override
@@ -181,6 +185,7 @@ public class AchievementsPanel extends UniversalPanel {
     private void nextPage() {
         if (pageEndIndex < achievementsCache.length) {
             pageStartIndex = pageEndIndex;
+            inner.doLayout();
             this.revalidate();
             this.repaint();
         }
@@ -191,6 +196,7 @@ public class AchievementsPanel extends UniversalPanel {
             // Move back by the number of items currently displayed
             int numItems = pageEndIndex - pageStartIndex;
             pageStartIndex = Math.max(0, pageStartIndex - numItems);
+            inner.doLayout();
             this.revalidate();
             this.repaint();
         }
@@ -241,11 +247,12 @@ public class AchievementsPanel extends UniversalPanel {
             // Grab from achievementsCache starting from pageStartIndex
             int numItems = Math.min(achievementsCache.length - pageStartIndex, numRows);
             if (numItems <= 0) return; // Nothing to display
+            int actualHeight = h / numRows;
             pageEndIndex = pageStartIndex + numItems; // Set pageEndIndex
             this.removeAll();
             for (int i = 0; i < numItems; i++) {
                 AchievementItemPanel itemPanel = new AchievementItemPanel(achievementsCache[pageStartIndex + i]);
-                itemPanel.setBounds(0, offset + i * optimalItemHeight, w, optimalItemHeight);
+                itemPanel.setBounds(0, offset + i * actualHeight, w, actualHeight);
                 this.add(itemPanel);
             }
         }
