@@ -26,16 +26,30 @@ package Launcher.panel;
 
 import Launcher.LaunchEssentials;
 import Launcher.LauncherGUI;
+import achievements.GameAchievement;
+import achievements.GameAchievementTemplate;
+import achievements.UserAchievements;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.ExecutionException;
 
 public class AchievementsPanel extends UniversalPanel {
     private JLabel titleLabel;
     private SimpleCloseButton closeButton;
     private JPanel wrapperTopPanel;
+    private GameAchievementTemplate[] achievementsCache;
+    private int pageStartIndex = 0;
     public AchievementsPanel() {
         super();
+        achievementsCache = fetchAchievement();
+        // Test
+        if (achievementsCache.length == 0) {
+            System.out.println("No achievements found or user not logged in.");
+        } else {
+            System.out.println("Found " + achievementsCache.length + " achievements.");
+            this.add(new AchievementItemPanel(achievementsCache[0]));
+        }
     }
     @Override
     protected JComponent[] fetchContent() {
@@ -94,5 +108,91 @@ public class AchievementsPanel extends UniversalPanel {
             g2.drawLine(padding, padding, getWidth() - padding, getHeight() - padding);
             g2.drawLine(getWidth() - padding, padding, padding, getHeight() - padding);
         }
+    }
+
+    private class AchievementItemPanel extends JPanel {
+        private GameAchievementTemplate achievement;
+        private double iconSize = 1.0;
+        private boolean infoDisplayed = false;
+        public AchievementItemPanel(GameAchievementTemplate achievement) {
+            this.achievement = achievement;
+            this.setOpaque(false);
+            this.setLayout(null);
+        }
+        @Override
+        public void doLayout() {
+            // Layout the achievement item panel
+            // Get size of the panel
+            int w = this.getWidth();
+            int h = this.getHeight();
+            // If we are wide enough, display info
+            if (w > h * 3) {
+                infoDisplayed = true;
+                iconSize = h;
+            } else {
+                infoDisplayed = false;
+                iconSize = Math.min(w, h);
+            }
+        }
+        @Override
+        public void paint(Graphics g) {
+            // Call paint to draw the icon no matter what
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            // Size g to 0.1 - 0.9 of the panel size
+            int iconX = (int) (iconSize * 0.1);
+            int iconY = (int) ((this.getHeight() - iconSize) / 2);
+            g2.translate(iconX, iconY);
+            achievement.icon().paint(g2, iconSize * 0.8);
+            // Also draw the name and description if infoDisplayed is true
+            if (infoDisplayed) {
+                g2.setColor(LaunchEssentials.launchVersionFontColor);
+                g2.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, (int) (iconSize * 0.3)));
+                g2.drawString(achievement.name(), (int) (iconSize), (int) (iconSize * 0.25));
+                g2.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, (int) (iconSize * 0.15)));
+                // Replace with ... if too long
+                String desc = achievement.description();
+                FontMetrics fm = g2.getFontMetrics();
+                int availableWidth = this.getWidth() - (int) (iconSize * 1.2);
+                if (fm.stringWidth(desc) > availableWidth) {
+                    while (fm.stringWidth(desc + "...") > availableWidth && desc.length() > 0) {
+                        desc = desc.substring(0, desc.length() - 1);
+                    }
+                    desc += "...";
+                }
+                g2.drawString(desc, (int) (iconSize), (int) (iconSize * 0.65));
+                g2.dispose();
+            }
+        }
+    }
+
+    /**
+     * Fetch achievements of the user.
+     * @return An array of GameAchievementTemplate representing achieved achievements.
+     */
+    public static GameAchievementTemplate[] fetchAchievement() {
+        // Get achievements of the user, which should be a snapshot
+        UserAchievements achievements;
+        try {
+            achievements = GameAchievement.getActiveUserAchievements().get();
+        } catch (InterruptedException | ExecutionException | NullPointerException e) {
+            // Expect InterruptedException and ExecutionException: achievement system is shutdown
+            // Expect NullPointerException: no user logged in
+            // In these cases, return an empty array
+            return new GameAchievementTemplate[0];
+        }
+        if (achievements == null) {
+            // If achievements is null, return an empty array
+            return new GameAchievementTemplate[0];
+        }
+        // Get achievements from the UserAchievements object and:
+        // 1. Filter out the ones that are not achieved
+        // 2. Map to GameAchievementTemplate
+        // 3. Collect to array
+        return achievements.getAchievements()
+                .stream()
+                .filter(GameAchievement::isAchieved)
+                .map(GameAchievement::getTemplate)
+                .toArray(GameAchievementTemplate[]::new);
     }
 }
