@@ -27,6 +27,8 @@ package achievements.impl;
 import achievements.AchievementJsonSerializer;
 import achievements.DataSerializationException;
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
+import achievements.icon.AchievementIconSerialHelper;
 import hex.GameState;
 import io.JsonConvertible;
 
@@ -68,6 +70,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
     private final int[] scoreRequirement;
     private final String name;
     private final String description;
+    private final AchievementIcon icon;
     public static void load() {
         AchievementJsonSerializer.registerAchievementClass("NumberBasedAchievement", json -> {
             try {
@@ -86,7 +89,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
      * @param name the name of the achievement
      * @param description the description of the achievement
      */
-    public NumberBasedAchievement(int turnRequirement, int scoreRequirement, String name, String description) {
+    public NumberBasedAchievement(int turnRequirement, int scoreRequirement, String name, String description, AchievementIcon icon) {
         int l = ENGINE_RADII.length;
         this.turnRequirement = new int[l];
         this.scoreRequirement = new int[l];
@@ -96,6 +99,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
         }
         this.name = name;
         this.description = description;
+        this.icon = icon;
     }
     /**
      * Creates a new NumberBasedAchievement with the specified requirements, name, and description.
@@ -106,7 +110,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
      * @param description the description of the achievement
      * @throws IllegalArgumentException if the lengths of the requirement arrays do not match ENGINE_RADII
      */
-    public NumberBasedAchievement(int[] turnRequirement, int[] scoreRequirement, String name, String description) {
+    public NumberBasedAchievement(int[] turnRequirement, int[] scoreRequirement, String name, String description, AchievementIcon icon) {
         if (turnRequirement.length != ENGINE_RADII.length || scoreRequirement.length != ENGINE_RADII.length) {
             throw new IllegalArgumentException("Requirement arrays must match the length of ENGINE_RADII");
         }
@@ -114,6 +118,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
         this.scoreRequirement = scoreRequirement.clone();
         this.name = name;
         this.description = description;
+        this.icon = icon;
     }
     /**
      * {@inheritDoc}
@@ -128,6 +133,14 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
      */
     public String description() {
         return description;
+    }
+    /**
+     * {@inheritDoc}
+     * @return the icon of the achievement
+     */
+    @Override
+    public AchievementIcon icon() {
+        return icon;
     }
 
     /**
@@ -200,6 +213,7 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
         builder.add("type", "NumberBasedAchievement");
         builder.add("name", name());
         builder.add("description", description());
+        builder.add("icon", AchievementIconSerialHelper.serialize(icon));
         builder.add("turnRequirement", Json.createArrayBuilder(java.util.Arrays.stream(turnRequirement).boxed().toList()));
         builder.add("scoreRequirement", Json.createArrayBuilder(java.util.Arrays.stream(scoreRequirement).boxed().toList()));
         return builder;
@@ -217,9 +231,10 @@ public class NumberBasedAchievement implements GameAchievementTemplate, JsonConv
             String description = obj.getString("description");
             JsonArray turnArray = obj.getJsonArray("turnRequirement");
             JsonArray scoreArray = obj.getJsonArray("scoreRequirement");
+            AchievementIcon icon = AchievementIconSerialHelper.deserialize(obj);
             int[] turnRequirement = turnArray.stream().mapToInt(v -> ((javax.json.JsonNumber) v).intValue()).toArray();
             int[] scoreRequirement = scoreArray.stream().mapToInt(v -> ((javax.json.JsonNumber) v).intValue()).toArray();
-            return new NumberBasedAchievement(turnRequirement, scoreRequirement, name, description);
+            return new NumberBasedAchievement(turnRequirement, scoreRequirement, name, description, icon);
         } catch (Exception e){
             throw new DataSerializationException("Invalid JSON object for NumberBasedAchievement", e);
         }
