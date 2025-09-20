@@ -76,7 +76,8 @@ public interface AchievementIcon {
                     }
                     @Override
                     public Pair<Color, Shape> next() {
-                        return new Pair<>(normalizedParts.next().getFirst(), scaleShape(normalizedParts.next().getSecond(), size));
+                        Pair<Color, Shape> part = normalizedParts.next();
+                        return new Pair<>(part.getFirst(), scaleShape(part.getSecond(), size));
                     }
                 };
             }
