@@ -45,6 +45,7 @@ public class AchievementsPanel extends UniversalPanel {
     private GameAchievementTemplate[] achievementsCache;
     private int pageStartIndex = 0; // The first element is pageStartIndex
     private int pageEndIndex = 1; // The last element is pageEndIndex - 1
+    private int possibleMaxItems = 3; // The maximum number of items that can be displayed in the current panel size
     public AchievementsPanel() {
         super();
         achievementsCache = fetchAchievement();
@@ -110,9 +111,8 @@ public class AchievementsPanel extends UniversalPanel {
         endButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         endButton.addActionListener(e -> {
             // Move to the last page
-            int numItems = pageEndIndex - pageStartIndex;
-            if (numItems <= 0) return; // Avoid division by zero
-            pageStartIndex = ((achievementsCache.length - 1) / numItems) * numItems;
+            if (possibleMaxItems <= 0) return; // Avoid division by zero
+            pageStartIndex = ((achievementsCache.length - 1) / possibleMaxItems) * possibleMaxItems;
             inner.doLayout();
             this.revalidate();
             this.repaint();
@@ -185,6 +185,7 @@ public class AchievementsPanel extends UniversalPanel {
     private void nextPage() {
         if (pageEndIndex < achievementsCache.length) {
             pageStartIndex = pageEndIndex;
+            pageEndIndex = Math.min(achievementsCache.length, pageEndIndex + possibleMaxItems);
             inner.doLayout();
             this.revalidate();
             this.repaint();
@@ -194,12 +195,18 @@ public class AchievementsPanel extends UniversalPanel {
     private void previousPage() {
         if (pageStartIndex > 0) {
             // Move back by the number of items currently displayed
-            int numItems = pageEndIndex - pageStartIndex;
-            pageStartIndex = Math.max(0, pageStartIndex - numItems);
+            pageStartIndex = Math.max(0, pageStartIndex - possibleMaxItems);
             inner.doLayout();
             this.revalidate();
             this.repaint();
         }
+    }
+
+    private void updatePageNumber() {
+        int number = 1;
+        if (possibleMaxItems > 0) {number += (pageEndIndex - 1) / possibleMaxItems;}
+        pageLabel.setText("Page: " + number);
+        pageLabel.repaint();
     }
 
     private class SimpleCloseButton extends JButton {
@@ -247,6 +254,7 @@ public class AchievementsPanel extends UniversalPanel {
             // Grab from achievementsCache starting from pageStartIndex
             int numItems = Math.min(achievementsCache.length - pageStartIndex, numRows);
             if (numItems <= 0) return; // Nothing to display
+            possibleMaxItems = numRows; // Update possibleMaxItems
             int actualHeight = h / numRows;
             pageEndIndex = pageStartIndex + numItems; // Set pageEndIndex
             this.removeAll();
@@ -255,6 +263,8 @@ public class AchievementsPanel extends UniversalPanel {
                 itemPanel.setBounds(0, offset + i * actualHeight, w, actualHeight);
                 this.add(itemPanel);
             }
+            updatePageNumber();
+            repaint();
         }
     }
 
