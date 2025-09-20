@@ -108,8 +108,8 @@ public interface AchievementIcon {
     static Shape scaleShape(Shape shape, double size) {
         // Transform from [-1, 1] to [0, size]
         AffineTransform transform = new AffineTransform();
-        transform.scale(size / 2.0, size / 2.0);
         transform.translate(size / 2.0, size / 2.0);
+        transform.scale(size / 2.0, size / 2.0);
         return transform.createTransformedShape(shape);
     }
     /**
