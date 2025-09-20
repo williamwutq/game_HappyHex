@@ -112,4 +112,12 @@ public interface AchievementIcon {
         transform.translate(size / 2.0, size / 2.0);
         return transform.createTransformedShape(shape);
     }
+    /**
+     * Get the type of the AchievementIcon as a string.
+     * @param icon The AchievementIcon instance.
+     * @return The type of the icon as a string.
+     */
+    static String typeOf(AchievementIcon icon){
+        return icon.getClass().getSimpleName();
+    }
 }
