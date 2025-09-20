@@ -25,6 +25,7 @@
 package achievements.staticimpl;
 
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import hex.GameState;
 import hex.Hex;
 import hex.HexEngine;
@@ -32,8 +33,8 @@ import hex.Piece;
 
 /**
  * The {@code EnginePerfectFitAchievement} class represents a game achievement that is achieved when the player
- * has a piece in the queue that perfectly fits an empty slot in the game board. It implements the
- * {@link GameAchievementTemplate} interface and provides functionality to check if the achievement has been
+ * has a piece in the queue that perfectly fits an empty slot in the game board. It extends the
+ * {@link StaticAchievement} class and provides functionality to check if the achievement has been
  * achieved based on the current {@link GameState}.
  * <p>
  * This class checks if there is at least one piece in the queue that can fit perfectly into any empty slot on the game board.
@@ -50,15 +51,11 @@ import hex.Piece;
  * @version 2.0
  * @since 2.0
  */
-public final class EnginePerfectFitAchievement implements GameAchievementTemplate {
-    @Override
-    public String name() {
-        return "Perfect Fit";
+public final class EnginePerfectFitAchievement extends StaticAchievement {
+    public static void load(){
+        register("Perfect Fit", EnginePerfectFitAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Have a piece in queue that perfectly fits an empty slot in the game board";
-    }
+    public EnginePerfectFitAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
     public boolean test(GameState state) {
         HexEngine engine = state.getEngine();

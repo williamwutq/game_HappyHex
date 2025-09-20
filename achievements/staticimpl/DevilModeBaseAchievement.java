@@ -25,12 +25,13 @@
 package achievements.staticimpl;
 
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import game.Queue;
 import hex.GameState;
 
 /**
  * The {@code DevilModeBaseAchievement} class represents a game achievement that is achieved when the player
- * activates Devil Mode. It implements the {@link GameAchievementTemplate} interface and provides functionality
+ * activates Devil Mode. It extends the {@link StaticAchievement} class and provides functionality
  * to check if the achievement has been achieved by directly querying the piece processor ID from the {@link Queue}.
  * <p>
  * This class checks if the current piece processor ID corresponds to Devil Mode (ID 2). The achievement is considered
@@ -47,15 +48,11 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public final class DevilModeBaseAchievement implements GameAchievementTemplate {
-    @Override
-    public String name() {
-        return "Devil Mode";
+public final class DevilModeBaseAchievement extends StaticAchievement {
+    public static void load(){
+        register("Devil's Invite", DevilModeBaseAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Activate Devil Mode";
-    }
+    public DevilModeBaseAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
     public boolean test(GameState state){
         int id = Queue.getPieceProcessorID();

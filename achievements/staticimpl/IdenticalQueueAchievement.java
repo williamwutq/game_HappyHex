@@ -25,13 +25,14 @@
 package achievements.staticimpl;
 
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import hex.GameState;
 import hex.Piece;
 
 /**
  * The {@code IdenticalQueueAchievement} class represents a game achievement that is achieved when all pieces
- * in the current piece queue are identical. It implements the {@link GameAchievementTemplate} interface and
- * provides functionality to check if the achievement has been achieved based on the current {@link GameState}.
+ * in the current piece queue are identical. It extends the {@link StaticAchievement} class and provides
+ * functionality to check if the achievement has been achieved based on the current {@link GameState}.
  * <p>
  * This class checks if all pieces in the queue are the same instance, meaning they must be identical in type
  * and reference. The achievement is considered achieved if this condition is met.
@@ -47,20 +48,11 @@ import hex.Piece;
  * @version 2.0
  * @since 2.0
  */
-public final class IdenticalQueueAchievement implements GameAchievementTemplate{
-    /**
-     * Creates a new IdenticalQueueAchievement.
-     * The achievement is achieved if all pieces in the current piece queue are identical.
-     */
-    public IdenticalQueueAchievement() {}
-    @Override
-    public String name() {
-        return "Identity, Destiny";
+public final class IdenticalQueueAchievement extends StaticAchievement {
+    public static void load(){
+        register("Identity, Destiny", IdenticalQueueAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Have all pieces in the queue be the exact same piece";
-    }
+    public IdenticalQueueAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
     public boolean test(GameState state) {
         Piece[] queue = state.getQueue();

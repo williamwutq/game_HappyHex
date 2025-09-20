@@ -27,13 +27,13 @@ package achievements.staticimpl;
 import GUI.GameEssentials;
 import Launcher.LaunchEssentials;
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import hex.GameState;
 
 /**
  * The {@code AutoplayBaseAchievement} class represents a game achievement that is achieved when the player
- * starts to use Autoplay. It implements the {@link GameAchievementTemplate} interface and provides functionality
- * to check if the achievement has been achieved by pulling the autoplay status from {@link GameEssentials}
- * and checking if the game has started from {@link LaunchEssentials}.
+ * starts to use Autoplay. It extends the {@link StaticAchievement} class and provides functionality
+ * to check if the achievement has been achieved by directly querying the Autoplay handler status from {@link GameEssentials}.
  * <p>
  * This class checks if the Autoplay handler is running and if the game has started. The achievement is considered
  * achieved if both conditions are met.
@@ -51,15 +51,11 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public final class AutoplayBaseAchievement implements GameAchievementTemplate {
-    @Override
-    public String name() {
-        return "Go Automatic" ;
+public final class AutoplayBaseAchievement extends StaticAchievement {
+    public static void load(){
+        register("Go Automatic", AutoplayBaseAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Start to use Autoplay";
-    }
+    public AutoplayBaseAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
     public boolean test(GameState state){
         if (GameEssentials.getAutoplayHandler() == null) {

@@ -26,12 +26,13 @@ package achievements.staticimpl;
 
 import GUI.GameEssentials;
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import hex.GameState;
 
 /**
  * The {@code DarkThemeAchievement} class represents a game achievement that is achieved when the player
- * uses the White Theme. It implements the {@link GameAchievementTemplate} interface and provides functionality
- * to check if the achievement has been achieved by pulling the color processor ID from {@link GameEssentials}.
+ * uses the White Theme. It extends the {@link StaticAchievement} class and provides functionality
+ * to check if the achievement has been achieved by directly querying the color processor ID from {@link GameEssentials}.
  * <p>
  * This class checks if the current color processor ID corresponds to the Dark Theme (ID 4). The achievement is considered
  * achieved if this condition is met.
@@ -47,15 +48,11 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public final class DarkThemeAchievement implements GameAchievementTemplate {
-    @Override
-    public String name() {
-        return "Dark Theme" ;
+public final class DarkThemeAchievement extends StaticAchievement {
+    public static void load(){
+        register("In the Dark", DarkThemeAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Use Dark Theme";
-    }
+    public DarkThemeAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
     public boolean test(GameState state){
         int id = GameEssentials.getColorProcessorID();

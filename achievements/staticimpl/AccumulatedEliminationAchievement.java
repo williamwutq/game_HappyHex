@@ -26,13 +26,13 @@ package achievements.staticimpl;
 
 import GUI.GameEssentials;
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import hex.GameState;
 
 /**
  * The {@code AccumulatedEliminationAchievement} class represents a game achievement that is achieved when the player
- * eliminates a total of 1000 blocks in the same game without quitting it. It implements the
- * {@link GameAchievementTemplate} interface and provides functionality to check if the achievement has been
- * achieved based on the current {@link GameState}.
+ * eliminates a total of 1000 blocks in the same game without quitting it. It extends the {@link StaticAchievement}
+ * class and provides functionality to check if the achievement has been achieved based on the current {@link GameState}.
  * <p>
  * This class checks if the player has eliminated at least 1000 blocks in total during the game session. The achievement
  * is considered achieved if this condition is met.
@@ -49,20 +49,11 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public final class AccumulatedEliminationAchievement implements GameAchievementTemplate{
-    /**
-     * Creates a new AccumulatedEliminationAchievement.
-     * The achievement is achieved if the player eliminates a total of 1000 blocks in the same game without quitting it.
-     */
-    public AccumulatedEliminationAchievement() {}
-    @Override
-    public String name() {
-        return "Thousand Cuts";
+public final class AccumulatedEliminationAchievement extends StaticAchievement {
+    public static void load(){
+        register("Thousand Cuts", AccumulatedEliminationAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Eliminate a total of 1000 blocks in the same game without quitting it";
-    }
+    public AccumulatedEliminationAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
     public boolean test(GameState state) {
         return GameEssentials.getTotalEliminatedBlocks() >= 1000;

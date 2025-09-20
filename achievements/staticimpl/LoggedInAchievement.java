@@ -25,12 +25,13 @@
 package achievements.staticimpl;
 
 import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import hex.GameState;
 
 /**
  * The {@code LoggedInAchievement} class represents a game achievement that is achieved when the player
- * logs into their account. It implements the {@link GameAchievementTemplate} interface and provides functionality
- * to check if the achievement has been achieved based on the current {@link GameState}.
+ * logs into their account. It extends the {@link StaticAchievement} class and always returns true for the
+ * test method, as the achievement is considered achieved if the user exists in the system.
  * <p>
  * This class always returns true for the test method, as the achievement is considered achieved if the user
  * exists in the system.
@@ -46,15 +47,11 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public final class LoggedInAchievement implements GameAchievementTemplate {
-    @Override
-    public String name() {
-        return "Welcome Aboard!";
+public final class LoggedInAchievement extends StaticAchievement {
+    public static void load(){
+        register("Welcome Aboard", LoggedInAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Log in to your account";
-    }
+    public LoggedInAchievement(String n, String d, AchievementIcon i) {super(n , d, i);}
     @Override
     public boolean test(GameState state) {
         return true; // If the user exists, they are logged in

@@ -41,28 +41,7 @@ import java.util.function.Function;
 public class AchievementJsonSerializer {
     // We do not, in fact, have a serialization map. We only have a deserialization map.
     private static final Map<String, Function<JsonObject, GameAchievementTemplate>> ACHIEVEMENT_DESERIAL_NAME_MAP = new HashMap<>();
-    private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = Set.of(
-            // Imports: Static achievements should be added here once
-            new achievements.staticimpl.LoggedInAchievement(),
-            new achievements.staticimpl.DarkThemeAchievement(),
-            new achievements.staticimpl.WhiteThemeAchievement(),
-            new achievements.staticimpl.IdenticalQueueAchievement(),
-            new achievements.staticimpl.AccumulatedEliminationAchievement(),
-            new achievements.staticimpl.EnginePerfectFitAchievement(),
-            new achievements.staticimpl.EngineAllPerfectFitAchievement(),
-            new achievements.staticimpl.AutoplayBaseAchievement(),
-            new achievements.staticimpl.DevilModeBaseAchievement(),
-            new achievements.staticimpl.GodModeBaseAchievement()
-    );
     static {
-        // Add default deserializers for built-in achievements
-        ACHIEVEMENT_DESERIAL_NAME_MAP.put("JavaBuildIn", json -> {
-            try{
-                return deserializeBuiltInAchievement(json);
-            } catch (DataSerializationException e){
-                throw new RuntimeException("Failed to deserialize built-in achievement.", e);
-            }
-        });
         // Imports: This is necessary to ensure that the built-in achievements are loaded and registered.
         achievements.impl.NumberBasedAchievement.load();
         achievements.impl.QueueBasedAchievement.load();
@@ -72,6 +51,7 @@ public class AchievementJsonSerializer {
         achievements.abstractimpl.AnyAchievement.load();
         achievements.abstractimpl.NotAchievedAchievement.load();
         achievements.abstractimpl.XorAchievement.load();
+        achievements.staticimpl.StaticAchievement.load();
     }
     /**
      * Registers a custom achievement class with a deserializer function.
@@ -90,36 +70,6 @@ public class AchievementJsonSerializer {
             throw new IllegalArgumentException("An achievement with the name " + serialName + " is already registered.");
         }
         ACHIEVEMENT_DESERIAL_NAME_MAP.put(serialName, deserializer);
-    }
-    /**
-     * Deserializes a GameAchievementTemplate from a JsonObject for built-in achievements.
-     * @param json the JsonObject to deserialize
-     * @return the deserialized GameAchievementTemplate
-     * @throws DataSerializationException if the JsonObject is invalid or if deserialization fails
-     */
-    private static GameAchievementTemplate deserializeBuiltInAchievement(JsonObject json) throws DataSerializationException {
-        // Get name, description
-        String type, name, description;
-        try {
-            type = json.getString("type");
-            name = json.getString("name");
-            description = json.getString("description");
-        } catch (Exception e){
-            throw new DataSerializationException("Failed to parse built-in achievement: missing or invalid 'type', 'name', or 'description' fields.", e);
-        }
-        if (type == null || !type.equals("JavaBuildIn") || name == null || name.isBlank() || description == null || description.isBlank()) {
-            throw new DataSerializationException("Failed to parse built-in achievement: 'type' must be 'JavaBuildIn', 'name', and 'description' fields cannot be null or blank.");
-        }
-        // Search for the built-in achievement with the given name
-        for (GameAchievementTemplate achievement : BUILT_IN_ACHIEVEMENT_INSTANCE) {
-            if (achievement.name().equals(name) && achievement.description().equals(description)) {
-                return achievement;
-            }
-            if (achievement.name().equals(name) && !achievement.description().equals(description)) {
-                throw new DataSerializationException("Built-in achievement name conflict: multiple achievements with the name '" + name + "' but different descriptions.");
-            }
-        }
-        throw new DataSerializationException("No built-in achievement found with name: " + name);
     }
 
     private AchievementJsonSerializer() {
