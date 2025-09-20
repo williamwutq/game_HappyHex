@@ -24,6 +24,8 @@
 
 package achievements;
 
+import achievements.abstractimpl.HiddenAchievement;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonWriter;
@@ -36,26 +38,36 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Utility class for serializing and deserializing achievements and user achievements to and from JSON.
+ * <p>
+ * This class provides methods to serialize {@link UserAchievements} instances to JSON files,
+ * deserialize them from JSON files, and manage achievement templates. It also allows for the
+ * registration of custom achievement classes with their respective deserialization functions.
+ * <p>
+ * The class uses the {@link javax.json} package for JSON processing and handles file I/O operations.
+ * It includes error handling for various scenarios, such as invalid JSON formats and I/O exceptions.
+ *
+ * @see UserAchievements
+ * @see GameAchievementTemplate
+ * @see DataSerializationException
+ * @author William Wu
+ * @version 2.0
+ */
 public class AchievementJsonSerializer {
     // We do not, in fact, have a serialization map. We only have a deserialization map.
     private static final Map<String, Function<JsonObject, GameAchievementTemplate>> ACHIEVEMENT_DESERIAL_NAME_MAP = new HashMap<>();
-    private static final Set<GameAchievementTemplate> BUILT_IN_ACHIEVEMENT_INSTANCE = Set.of(
-            new IdenticalQueueAchievement(), new AccumulatedEliminationAchievement(), new EnginePerfectFitAchievement(), new EngineAllPerfectFitAchievement()
-    );
     static {
-        // Add default deserializers for built-in achievements
-        ACHIEVEMENT_DESERIAL_NAME_MAP.put("JavaBuildIn", json -> {
-            try{
-                return deserializeBuiltInAchievement(json);
-            } catch (DataSerializationException e){
-                throw new RuntimeException("Failed to deserialize built-in achievement.", e);
-            }
-        });
         // Imports: This is necessary to ensure that the built-in achievements are loaded and registered.
-        achievements.NumberBasedAchievement.load();
-        achievements.QueueBasedAchievement.load();
-        achievements.SerialAchievement.load();
-        achievements.EliminationAchievement.load();
+        achievements.impl.NumberBasedAchievement.load();
+        achievements.impl.QueueBasedAchievement.load();
+        achievements.impl.EliminationAchievement.load();
+        achievements.abstractimpl.MarkableAchievement.load();
+        achievements.abstractimpl.SerialAchievement.load();
+        achievements.abstractimpl.AnyAchievement.load();
+        achievements.abstractimpl.NotAchievedAchievement.load();
+        achievements.abstractimpl.XorAchievement.load();
+        achievements.staticimpl.StaticAchievement.load();
     }
     /**
      * Registers a custom achievement class with a deserializer function.
@@ -74,36 +86,6 @@ public class AchievementJsonSerializer {
             throw new IllegalArgumentException("An achievement with the name " + serialName + " is already registered.");
         }
         ACHIEVEMENT_DESERIAL_NAME_MAP.put(serialName, deserializer);
-    }
-    /**
-     * Deserializes a GameAchievementTemplate from a JsonObject for built-in achievements.
-     * @param json the JsonObject to deserialize
-     * @return the deserialized GameAchievementTemplate
-     * @throws DataSerializationException if the JsonObject is invalid or if deserialization fails
-     */
-    private static GameAchievementTemplate deserializeBuiltInAchievement(JsonObject json) throws DataSerializationException {
-        // Get name, description
-        String type, name, description;
-        try {
-            type = json.getString("type");
-            name = json.getString("name");
-            description = json.getString("description");
-        } catch (Exception e){
-            throw new DataSerializationException("Failed to parse built-in achievement: missing or invalid 'type', 'name', or 'description' fields.", e);
-        }
-        if (type == null || !type.equals("JavaBuildIn") || name == null || name.isBlank() || description == null || description.isBlank()) {
-            throw new DataSerializationException("Failed to parse built-in achievement: 'type' must be 'JavaBuildIn', 'name', and 'description' fields cannot be null or blank.");
-        }
-        // Search for the built-in achievement with the given name
-        for (GameAchievementTemplate achievement : BUILT_IN_ACHIEVEMENT_INSTANCE) {
-            if (achievement.name().equals(name) && achievement.description().equals(description)) {
-                return achievement;
-            }
-            if (achievement.name().equals(name) && !achievement.description().equals(description)) {
-                throw new DataSerializationException("Built-in achievement name conflict: multiple achievements with the name '" + name + "' but different descriptions.");
-            }
-        }
-        throw new DataSerializationException("No built-in achievement found with name: " + name);
     }
 
     private AchievementJsonSerializer() {
@@ -224,15 +206,23 @@ public class AchievementJsonSerializer {
             } catch (Exception e) {
                 throw new DataSerializationException("Invalid JSON: each achievement object must contain a 'type' field", e);
             }
+            if (!obj.containsKey("name") || !obj.containsKey("description")) {
+                throw new DataSerializationException("Invalid JSON: each achievement object must contain 'name' and 'description' fields");
+            }
             Function<JsonObject, GameAchievementTemplate> deserializer = ACHIEVEMENT_DESERIAL_NAME_MAP.get(type);
+            GameAchievementTemplate template;
             if (deserializer == null) {
                 throw new DataSerializationException("No deserializer registered for achievement of type " + type);
             }
             try {
-                achievements.add(deserializer.apply(obj));
+                template = deserializer.apply(obj);
             } catch (Exception e) {
                 throw new DataSerializationException("Failed to deserialize achievement of type " + type, e.getCause());
             }
+            if (HiddenAchievement.isHidden(obj.getString("name"))) {
+                template = HiddenAchievement.wrap(template);
+            }
+            achievements.add(template);
         }
         return achievements.toArray(new GameAchievementTemplate[0]);
     }
@@ -249,6 +239,21 @@ public class AchievementJsonSerializer {
         AchievementJsonSerializer serializer = new AchievementJsonSerializer();
         String fileContent = serializer.readFile(filePath);
         JsonObject jsonObject = serializer.parseJsonString(fileContent);
+        return deserializeAchievementTemplateArray(jsonObject);
+    }
+    /**
+     * Deserializes an array of GameAchievementTemplate from a resource file.
+     * The resource file must contain a JSON object with an "Achievements" array, where each element is a JsonObject
+     * representing an achievement with a "type" field indicating the achievement type.
+     * @param resourcePath the path to the resource file
+     * @return an array of deserialized GameAchievementTemplate instances
+     * @throws IOException if an I/O error occurs reading from the resource
+     * @throws DataSerializationException if the JSON is invalid or if deserialization fails
+     */
+    public static GameAchievementTemplate[] deserializeAchievementTemplateResource(String resourcePath) throws IOException, DataSerializationException {
+        AchievementJsonSerializer serializer = new AchievementJsonSerializer();
+        String resourceContent = serializer.readResource(resourcePath);
+        JsonObject jsonObject = serializer.parseJsonString(resourceContent);
         return deserializeAchievementTemplateArray(jsonObject);
     }
 
@@ -311,5 +316,28 @@ public class AchievementJsonSerializer {
     public static void appendToFile(String filePath, String content) throws IOException {
         Path path = Path.of(filePath);
         Files.writeString(path, content, java.nio.file.StandardOpenOption.APPEND, java.nio.file.StandardOpenOption.CREATE);
+    }
+
+    // Resource Loading
+    /**
+     * Reads the contents of a resource file and returns it as a string.
+     * <p>
+     * This behaves exactly like {@link #readFile(String)}, but reads from the classpath resources instead of the filesystem.
+     * If run from a JAR, it reads from within the JAR.
+     * <p>
+     * Note: For example, if the file {@code data/file.txt} is in the jar, and a {@code data/file.txt} is in the working directory
+     * then calling {@code readResource("/data/file.txt")} will read the file from within the JAR, not the working directory.
+     *
+     * @param resourcePath the path to the resource file
+     * @return the contents of the resource file as a string
+     * @throws IOException if an I/O error occurs reading from the resource or if the resource is not found
+     */
+    public static String readResource(String resourcePath) throws IOException {
+        try (java.io.InputStream is = AchievementJsonSerializer.class.getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                throw new IOException("Resource not found: " + resourcePath);
+            }
+            return new String(is.readAllBytes());
+        }
     }
 }

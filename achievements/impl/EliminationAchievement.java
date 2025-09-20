@@ -22,9 +22,14 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.impl;
 
 import GUI.GameEssentials;
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
+import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
+import achievements.icon.AchievementIconSerialHelper;
 import hex.GameState;
 import io.JsonConvertible;
 
@@ -62,7 +67,8 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
     private final int requiredMinEliminationDirection;
     private final String name;
     private final String description;
-    static void load()  {
+    private final AchievementIcon icon;
+    public static void load()  {
         AchievementJsonSerializer.registerAchievementClass("EliminationAchievement", json -> {
             try {
                 return fromJsonObject(json);
@@ -81,12 +87,13 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
      * @param name the name of the achievement
      * @param description the description of the achievement
      */
-    public EliminationAchievement(int requiredMinEliminationBlock, int requiredMinEliminationLine, int requiredMinEliminationDirection, String name, String description){
+    public EliminationAchievement(int requiredMinEliminationBlock, int requiredMinEliminationLine, int requiredMinEliminationDirection, String name, String description, AchievementIcon icon){
         this.requiredMinEliminationBlock = requiredMinEliminationBlock;
         this.requiredMinEliminationLine = requiredMinEliminationLine;
         this.requiredMinEliminationDirection = requiredMinEliminationDirection;
         this.name = name;
         this.description = description;
+        this.icon = icon;
     }
     /**
      * {@inheritDoc}
@@ -103,6 +110,14 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
     @Override
     public String description() {
         return description;
+    }
+    /**
+     * {@inheritDoc}
+     * @return the icon of the achievement
+     */
+    @Override
+    public AchievementIcon icon() {
+        return icon;
     }
     /**
      * {@inheritDoc}
@@ -157,6 +172,7 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
                 .add("requiredMinEliminationBlock", requiredMinEliminationBlock)
                 .add("requiredMinEliminationLine", requiredMinEliminationLine)
                 .add("requiredMinEliminationDirection", requiredMinEliminationDirection)
+                .add("icon", AchievementIconSerialHelper.serialize(icon))
                 .add("name", name)
                 .add("description", description);
     }
@@ -173,7 +189,8 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
             int requiredMinEliminationDirection = jsonObject.getInt("requiredMinEliminationDirection");
             String name = jsonObject.getString("name");
             String description = jsonObject.getString("description");
-            return new EliminationAchievement(requiredMinEliminationBlock, requiredMinEliminationLine, requiredMinEliminationDirection, name, description);
+            AchievementIcon icon = AchievementIconSerialHelper.deserialize(jsonObject);
+            return new EliminationAchievement(requiredMinEliminationBlock, requiredMinEliminationLine, requiredMinEliminationDirection, name, description, icon);
         } catch (NullPointerException | ClassCastException e) {
             throw new DataSerializationException("Invalid JSON data for EliminationAchievement", e);
         }

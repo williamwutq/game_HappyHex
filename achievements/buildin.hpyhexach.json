@@ -10,36 +10,89 @@
     {
       "type": "JavaBuildIn",
       "name": "Identity, Destiny",
-      "description": "Have all pieces in the queue be the exact same piece"
+      "description": "Have all pieces in the queue be the exact same piece",
+      "icon": [
+        {
+          "color": "#FF3300",
+          "shape": [{"x":0.36,"y":0.0,"cx":0.36,"cy":0.36},{"x":0.0,"y":0.36,"cx":-0.36,"cy":0.36},{"x":-0.36,"y":0.0,"cx":-0.36,"cy":-0.36},{"x":0.0,"y":-0.36,"cx":0.36,"cy":-0.36}]
+        },
+        {
+          "color": "#00CCFF",
+          "shape": [{"x":0.6,"y":0.6,"cx":0.6,"cy":0.0},{"x":0.6,"y":-0.6,"cx":0.0,"cy":-0.6},{"x":-0.6,"y":-0.6,"cx":-0.6,"cy":0.0},{"x":-0.6,"y":0.6,"cx":0.0,"cy":0.6}]
+        }
+      ]
     },
     {
       "type": "JavaBuildIn",
       "name": "Thousand Cuts",
-      "description": "Eliminate a total of 1000 blocks in the same game without quitting it"
+      "description": "Eliminate a total of 1000 blocks in the same game without quitting it",
+      "icon": [
+        {
+          "color": "#333333",
+          "shape": [{"x":0,"y":0.74,"cx":0.384,"cy":0.26},{"x":0.1856,"y":0.036,"cx":0,"cy":-0.188},{"x":-0.1856,"y":0.036,"cx":-0.384,"cy":0.26},{"x":0,"y":0.74,"cx":-0.6,"cy":0.5},{"x":-0.6,"y":-0.5,"cx":0.0,"cy":-0.1},{"x":0.6,"y":-0.5,"cx":0.6,"cy":0.5}]
+        }
+      ]
     },
     {
       "type": "JavaBuildIn",
       "name": "Perfect Fit",
-      "description": "Have a piece in queue that perfectly fits an empty slot in the game board"
+      "description": "Have a piece in queue that perfectly fits an empty slot in the game board",
+      "icon": [
+        {
+          "color": "#FFD700",
+          "shape": [{"x":0.77,"y":0.11,"cx":0.44,"cy":-0.36},{"x":0.0,"y":-0.46,"cx":-0.39,"cy":-0.54},{"x":-0.44,"y":-0.4,"cx":-0.66,"cy":0.26},{"x":-0.21,"y":0.74,"cx":-0.88,"cy":0.46},{"x":-0.71,"y":-0.45,"cx":-0.53,"cy":-0.96},{"x":0.32,"y":-0.58,"cx":0.79,"cy":-0.35}]
+        },
+        {
+          "color": "#5DFF30",
+          "shape": [{"x":0.64,"y":0.15,"cx":0.18,"cy":-0.2},{"x":0.02,"y":-0.25,"cx":-0.09,"cy":-0.3},{"x":-0.17,"y":-0.18,"cx":-0.18,"cy":-0.44},{"x":0.0,"y":-0.37,"cx":0.46,"cy":-0.17}]
+        }
+      ]
     },
     {
       "type": "JavaBuildIn",
       "name": "All Perfect Fit",
-      "description": "Have all pieces in queue fitting empty slots in the game board"
+      "description": "Have all pieces in queue fitting empty slots in the game board",
+      "icon": [
+        {
+          "color": "#FFD700",
+          "shape": [{"x":0.77,"y":0.11,"cx":0.44,"cy":-0.36},{"x":0.0,"y":-0.46,"cx":-0.39,"cy":-0.54},{"x":-0.44,"y":-0.4,"cx":-0.66,"cy":0.26},{"x":-0.21,"y":0.74,"cx":-0.88,"cy":0.46},{"x":-0.71,"y":-0.45,"cx":-0.53,"cy":-0.96},{"x":0.32,"y":-0.58,"cx":0.79,"cy":-0.35}]
+        },
+        {
+          "color": "#5DFF30",
+          "shape": [{"x":0.64,"y":0.15,"cx":0.18,"cy":-0.2},{"x":0.02,"y":-0.25,"cx":-0.09,"cy":-0.3},{"x":-0.17,"y":-0.18,"cx":-0.18,"cy":-0.44},{"x":0.0,"y":-0.37,"cx":0.46,"cy":-0.17}]
+        },
+        {
+          "color": "#5DFF30",
+          "shape": [{"x":-0.13,"y":0.7,"cx":-0.35,"cy":0.2},{"x":-0.24,"y":0.03,"cx":-0.15,"cy":-0.09},{"x":-0.01,"y":-0.02,"cx":-0.29,"cy":-0.26},{"x":-0.37,"y":0.07,"cx":-0.42,"cy":0.37}]
+        },
+        {
+          "color": "#5DFF30",
+          "shape": [{"x":0.59,"y":0.25,"cx":0.13,"cy":0.05},{"x":-0.02,"y":0.12,"cx":-0.13,"cy":0.16},{"x":-0.18,"y":0.3,"cx":-0.24,"cy":0.05},{"x":0.03,"y":0.03,"cx":0.27,"cy":0.02}]
+        }
+      ]
     },
     {
       "type": "NumberBasedAchievement",
       "name": "I've got something",
       "description": "Achieve 10 turns and score of 36 in any game in any game mode",
       "turnRequirement": [10, 10, 10],
-      "scoreRequirement": [36, 36, 36]
+      "scoreRequirement": [36, 36, 36],
+      "icon": {
+        "color": "#FFFF00",
+        "text": "10"
+      }
     },
     {
       "type": "NumberBasedAchievement",
       "name": "In my 20s",
       "description": "Achieve 20 turns and score of 72 in any game in any game mode",
       "turnRequirement": [20, 20, 20],
-      "scoreRequirement": [72, 72, 72]
+      "scoreRequirement": [72, 72, 72],
+      "icon":
+      {
+        "color": "#FFFF00",
+        "text": "20"
+      }
     },
     {
       "type": "QueueBasedAchievement",
@@ -47,7 +100,13 @@
       "description": "Have a set of three line pieces in the queue at the same time",
       "requiredLeastLength": 3,
       "requiredMostLength": 5,
-      "requiredPieces": [28, 73, 42]
+      "requiredPieces": [28, 73, 42],
+      "icon": [
+        {
+          "color": "#FFFF00",
+          "shape": [{"x":0.435,"y":0.75,"cx":-0.87,"cy":-0.5},{"x":0.87,"y":0,"cx":-0.87,"cy":0.5},{"x":0.43,"y":-0.75,"cx":0,"cy":1.0},{"x":-0.43,"y":-0.75,"cx":0.87,"cy":0.5},{"x":-0.87,"y":0,"cx":0.87,"cy":-0.5},{"x":-0.43,"y":0.75,"cx":0.0,"cy":-1.0}]
+        }
+      ]
     },
     {
       "type": "QueueBasedAchievement",
@@ -55,7 +114,13 @@
       "description": "Have three big blocks in the queue at the same time",
       "requiredLeastLength": 3,
       "requiredMostLength": 127,
-      "requiredPieces": [127, 127, 127]
+      "requiredPieces": [127, 127, 127],
+      "icon": [
+        {
+          "color": "#FFFF00",
+          "shape": [{"x":0,"y":0.8,"cx":0.32,"cy":0.48},{"x":0.69,"y":0.4,"cx":0.6,"cy":0.0},{"x":0.69,"y":-0.4,"cx":0.32,"cy":-0.48},{"x":0,"y":-0.8,"cx":-0.32,"cy":-0.48},{"x":-0.69,"y":-0.4,"cx":-0.6,"cy":0.0},{"x":-0.69,"y":0.4,"cx":-0.32,"cy":0.48}]
+        }
+      ]
     },
     {
       "type": "QueueBasedAchievement",
@@ -63,7 +128,13 @@
       "description": "Have two of each of the two fan pieces in the queue at the same time",
       "requiredLeastLength": 3,
       "requiredMostLength": 127,
-      "requiredPieces": [78, 78, 57, 57]
+      "requiredPieces": [78, 78, 57, 57],
+      "icon": [
+        {
+          "color": "#FF00FF",
+          "shape": [{"x":0.0,"y":0.2,"cx":-0.4,"cy":0.2},{"x":-0.4,"y":0.8,"cx":-0.72,"cy":0.4},{"x":-0.2,"y":0.0,"cx":-0.2,"cy":-0.4},{"x":-0.8,"y":-0.4,"cx":-0.4,"cy":-0.72},{"x":0.0,"y":-0.2,"cx":0.4,"cy":-0.2},{"x":0.4,"y":-0.8,"cx":0.72,"cy":-0.4},{"x":0.2,"y":0.0,"cx":0.2,"cy":0.4},{"x":0.8,"y":0.4,"cx":0.4,"cy":0.72}]
+        }
+      ]
     }
   ]
 }

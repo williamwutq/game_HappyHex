@@ -41,7 +41,7 @@ public class LaunchPanel extends UniversalPanel {
     protected JComponent[] fetchContent() {
         LaunchButton.setSizeConstant(6);
         LaunchButton.setBackGroundColor(LaunchEssentials.launchBackgroundColor);
-        JComponent[] components = {fetchLaunchVersionLabel(), fetchLaunchHintLabel(), (JComponent) Box.createVerticalGlue(), new LoginButton(), new SettingButton(), new ThemeButton(), new ResumeButton(), new StartButton(), (JComponent) Box.createVerticalGlue()};
+        JComponent[] components = {fetchLaunchVersionLabel(), fetchLaunchHintLabel(), (JComponent) Box.createVerticalGlue(), new LoginButton(), new AchievementButton(), new SettingButton(), new ThemeButton(), new ResumeButton(), new StartButton(), (JComponent) Box.createVerticalGlue()};
         return components;
     }
     protected JComponent[] fetchHeader() {
@@ -71,7 +71,7 @@ public class LaunchPanel extends UniversalPanel {
     public void recalculate(){
         super.recalculate();
         double referenceStartButtonSize = Math.min(getReferenceHeight(), getReferenceWidth());
-        LaunchButton.setSizeConstant(referenceStartButtonSize * 0.01);
+        LaunchButton.setSizeConstant(referenceStartButtonSize * 0.0096);
         double referenceGameNameSize = Math.min(getReferenceHeight()*1.8, getReferenceWidth());
         launchVersionLabel.setFont(new Font(LaunchEssentials.launchVersionFont, Font.ITALIC, (int)Math.round(referenceGameNameSize/30.0)));
         launchVersionLabel.setBorder(new EmptyBorder((int)Math.round(referenceGameNameSize/150.0)*2, 0, (int)Math.round(referenceGameNameSize/150.0), 0));
