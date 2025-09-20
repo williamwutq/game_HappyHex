@@ -38,6 +38,22 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Utility class for serializing and deserializing achievements and user achievements to and from JSON.
+ * <p>
+ * This class provides methods to serialize {@link UserAchievements} instances to JSON files,
+ * deserialize them from JSON files, and manage achievement templates. It also allows for the
+ * registration of custom achievement classes with their respective deserialization functions.
+ * <p>
+ * The class uses the {@link javax.json} package for JSON processing and handles file I/O operations.
+ * It includes error handling for various scenarios, such as invalid JSON formats and I/O exceptions.
+ *
+ * @see UserAchievements
+ * @see GameAchievementTemplate
+ * @see DataSerializationException
+ * @author William Wu
+ * @version 2.0
+ */
 public class AchievementJsonSerializer {
     // We do not, in fact, have a serialization map. We only have a deserialization map.
     private static final Map<String, Function<JsonObject, GameAchievementTemplate>> ACHIEVEMENT_DESERIAL_NAME_MAP = new HashMap<>();
