@@ -162,6 +162,9 @@ public class GameAchievement implements JsonConvertible {
      * It is recommended to call this method when the application is closing to ensure a clean shutdown.
      */
     public static void shutdownAchievementSystem(){
+        if (!autRunning) {
+            return;
+        }
         autRunning = false;
         autExecutor.shutdownNow();
         autClockThread.interrupt();
