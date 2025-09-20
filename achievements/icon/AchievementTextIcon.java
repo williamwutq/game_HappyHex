@@ -105,9 +105,9 @@ public class AchievementTextIcon implements AchievementIcon, JsonConvertible {
                 AffineTransform tx = AffineTransform.getTranslateInstance(-centerX, -centerY);
                 Shape centered = tx.createTransformedShape(outline);
 
-                // Compute uniform scale to fit into [-1,1] × [-1,1]
-                double scaleX = 2.0 / bounds.getWidth();
-                double scaleY = 2.0 / bounds.getHeight();
+                // Compute uniform scale to fit into [-1,1] × [-1,1]. A 20% margin is used on both sides
+                double scaleX = 1.6 / bounds.getWidth();
+                double scaleY = 1.6 / bounds.getHeight();
                 double scale = Math.min(scaleX, scaleY);  // uniform scale (preserve aspect ratio)
 
                 // Apply scale
