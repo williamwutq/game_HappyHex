@@ -124,6 +124,14 @@ public class AnyAchievement implements GameAchievementTemplate, JsonConvertible 
     }
     /**
      * {@inheritDoc}
+     * @return the icon of the achievement
+     */
+    @Override
+    public AchievementIcon icon() {
+        return icon;
+    }
+    /**
+     * {@inheritDoc}
      * @param obj the object to compare with
      * @return {@code true} if the objects are equal, {@code false} otherwise
      */
