@@ -38,7 +38,7 @@ public class CurveGenerator {
                 double scale = Math.min(w, h) * 0.5 * boardScale.get();
                 CurvedShape shape = s.get().toCurvedShape();
                 if (shape != null) {
-                    shape = shape.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
+                    shape = shape.scaled(scale, scale).shifted(w / 2.0, h / 2.0);
                     // Fill the shape
                     g2d.setColor(Color.WHITE);
                     g2d.fill(shape.toShape());
@@ -86,14 +86,14 @@ public class CurveGenerator {
                 // Draw background shapes
                 g2d.setColor(backgroundColor);
                 for (CurvedShape bgShape : backgroundShapes) {
-                    CurvedShape transformed = bgShape.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
+                    CurvedShape transformed = bgShape.scaled(scale, scale).shifted(w / 2.0, h / 2.0);
                     g2d.fill(transformed.toShape());
                 }
                 // Draw border and coordinates of the corners
                 g2d.setColor(Color.DARK_GRAY);
-                CurvedShape fittedSquare = CurvedShape.SQUARE.scaled(scale, -scale).shifted(w / 2.0, h / 2.0);
-                CurvedShape fittedCircle = CurvedShape.CIRCLE.scaled(scale * 0.9, -scale * 0.9).shifted(w / 2.0, h / 2.0);
-                CurvedShape smallerSquare = CurvedShape.SQUARE.scaled(scale * 0.9, scale * -0.9).shifted(w / 2.0, h / 2.0);
+                CurvedShape fittedSquare = CurvedShape.SQUARE.scaled(scale, scale).shifted(w / 2.0, h / 2.0);
+                CurvedShape fittedCircle = CurvedShape.CIRCLE.scaled(scale * 0.9, scale * 0.9).shifted(w / 2.0, h / 2.0);
+                CurvedShape smallerSquare = CurvedShape.SQUARE.scaled(scale * 0.9, scale * 0.9).shifted(w / 2.0, h / 2.0);
                 double[][] corners = CurvedShape.SQUARE.toArray();
                 g2d.draw(fittedSquare.toShape());
                 g2d.draw(fittedCircle.toShape());
