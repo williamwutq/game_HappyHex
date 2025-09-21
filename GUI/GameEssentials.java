@@ -26,6 +26,7 @@ package GUI;
 
 import GUI.animation.*;
 import Launcher.LaunchEssentials;
+import static achievements.abstractimpl.MarkableAchievement.markIfExists;
 import game.AutoplayHandler;
 import game.GameGUIInterface;
 import hex.GameState;
@@ -373,7 +374,10 @@ public final class GameEssentials implements GameGUIInterface {
         if(gameEnds()){
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             CompletableFuture.runAsync(autoplayHandler::genericClose);
-            if (GameEssentials.getTurn() != 0) logGame();
+            if (GameEssentials.getTurn() != 0) {
+                logGame();
+                markIfExists("Game On");
+            }
             resetGame();
             Launcher.LauncherGUI.toGameOver();
         }

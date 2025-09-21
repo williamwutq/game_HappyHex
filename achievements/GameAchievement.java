@@ -24,6 +24,7 @@
 
 package achievements;
 
+import achievements.abstractimpl.MarkableAchievement;
 import hex.GameState;
 import io.GameTime;
 import io.JsonConvertible;
@@ -420,6 +421,7 @@ public class GameAchievement implements JsonConvertible {
      * @param user the Username of the active user, or null to clear the active user
      */
     public static void setActiveUser(Username user){
+        MarkableAchievement.resetAll();
         if (inAUT()) {
             activeUser = user;
             activeAchievements.clear();
@@ -442,6 +444,7 @@ public class GameAchievement implements JsonConvertible {
         if (userAchievements == null) {
             throw new IllegalArgumentException("UserAchievements cannot be null");
         }
+        MarkableAchievement.resetAll();
         if (inAUT()) {
             activeUser = userAchievements.getUser();
             activeAchievements.clear();
@@ -465,6 +468,7 @@ public class GameAchievement implements JsonConvertible {
      * The method has the same effect as calling {@code setActiveUser(null)}.
      */
     public static void unloadActive(){
+        MarkableAchievement.resetAll();
         if (inAUT()) {
             activeUser = null;
             activeAchievements.clear();
