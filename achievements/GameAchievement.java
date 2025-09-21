@@ -116,7 +116,7 @@ public class GameAchievement implements JsonConvertible {
     private static volatile boolean gameStateDisableFlag = false;
     private static volatile boolean autRunning = false;
     private static Username activeUser = null;
-    private static final int AUT_DELAY = 120;
+    private static final int AUT_DELAY = 300;
     private static final ExecutorService autExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r);
         t.setName("Achievement-Update-Thread");
@@ -228,6 +228,13 @@ public class GameAchievement implements JsonConvertible {
     @Override
     public int hashCode() {
         return Objects.hash(template, user);
+    }
+    /**
+     * Returns the String representation of the achievement.
+     * @return a String representing the achievement
+     */
+    public String toString(){
+        return "GameAchievement{template=" + template.name() + ", user=" + user + ", achieved=" + achieved + "}";
     }
 
     // Getters
