@@ -560,13 +560,17 @@ public final class GameEssentials implements GameGUIInterface {
             @Override
             public HexEngine getEngine() {
                 synchronized (moveLock) {
-                    return engine().clone();
+                    HexEngine engine = engine();
+                    if (engine == null) return null; // Propagate null engine
+                    return engine.clone();
                 }
             }
             @Override
             public Piece[] getQueue() {
                 synchronized (moveLock) {
-                    return queue().getPieces().clone();
+                    Queue queue = queue();
+                    if (queue == null) return null; // Propagate null queue
+                    return queue.getPieces().clone();
                 }
             }
             @Override
