@@ -220,6 +220,21 @@
       }
     },
     {
+      "type": "JavaBuildIn",
+      "name": "Go Automatic",
+      "description": "Activate autoplay feature in any game mode",
+      "icon": [
+        {
+          "color": "#00FF00",
+          "shape": [
+            {"x":-0.52,"y":0.74,"cx":0.11,"cy":0.37},
+            {"x":0.75,"y":0.0,"cx":0.11,"cy":-0.37},
+            {"x":-0.52,"y":-0.74,"cx":-0.4,"cy":0.0}
+          ]
+        }
+      ]
+    },
+    {
       "type": "NumberBasedAchievement",
       "name": "I've got something",
       "description": "Achieve 10 turns and score of 36 in any game in any game mode",
