@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for autoplay and [ML](#develop--machine-learning))  
-<b>Last edited:</b> 10/09/2025  
-<b>Latest release:</b> [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.0)
+<b>Last edited:</b> 21/09/2025  
+<b>Latest release:</b> [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.1)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -195,6 +195,51 @@ The page contains the following elements:
 
   A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](#Main-Page).  
 
+#### Trophies Page
+
+This page displays the trophies and achievements the player has unlocked. Trophies are purely for fun and do not affect game play.
+
+The page contains the following elements:
+
+- <b>Game Title</b>
+
+  This is the exact same element as that in [Main Page](#Main-Page), with the only difference being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation.
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Achievements Title</b>
+  Under the Game Title, there is a text "Achievements", which indicates that this is the trophies page used to display achievements.
+  The font of this title will be the exact same font as that used in the [Settings Page](#Settings-Page).
+
+- <b>Close Button</b>
+
+  Unlike other close buttons with a "QUIT" text, this is a small button with an "X" text on it, located in the top right corner of the page.
+  When clicked, this button redirects to the [Main Page](#Main-Page) unconditionally. The button is automatically resized to the same size as
+  the height of the achievements title and is on the exact same horizontal line as the title.
+
+- <b>Trophies Display Area</b>
+
+  This is an area that displays all the trophies and achievements the player has unlocked.
+  Each trophy is represented by an icon, its name, and a description of how to unlock it.
+  If the player has not unlocked any trophies, this area will be blank.
+  Underneath all the achievement items there is a small area with a text and four buttons, used to navigate through the pages of trophies.
+  The text displays the current page number, in the format "Page X", and the buttons function as follows:
+  - `<<`: Go to the first page of trophies.
+  - `<`: Go to the previous page of trophies.
+  - `>`: Go to the next page of trophies.
+  - `>>`: Go to the last page of trophies.
+  Displayed content and the page number will change accordingly when the buttons are clicked.
+
+  It is important to mention that the number of items in a page is dynamically determined by the size of the game window. When the window is resized,
+  the number of items that can be displayed in a single page will change accordingly. The minimum number of items that will be displayed on a page is 1,
+  and the minimum number of item slots on a page is 3. If the page number is big and resizing changes the number of items displayed dramatically,
+  the indicated page number may change, but the content is preserved as much as possible.
+
+- <b>Game Credits</b>
+
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](#Main-Page).
+
 #### Settings Page
 
 The settings page allows the player to control over key game parameters, enhancing the game functionality while make HappyHex more fun.  
@@ -203,7 +248,7 @@ The page contains the following elements:
 
 - <b>Game Title</b>  
   
-  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  This is the exact same element as that in [Main Page](#Main-Page), with the only difference being the elimination of the space above this title.
   The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
   which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
   The sequencing of the colors is randomized every time the page is refreshed.
@@ -755,18 +800,13 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.0)
+- Latest Release: [2.0.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.1)
 
 > Version 2 will be fundamentally different from all of Version 1 and be incompatible.
 > - Add user achievements
 > - Add completed achievements and unlockable system
 > - Make themes and shinning font unlock-able
 > - Use machine learning to train AI for advanced autoplay
-  
-- Version 2.0.1
-  - Improve autoplay ml efficiency through asynchronous programming and optimization
-  - Add button to disable machine learning models
-  - Add the achievement system
 
 ## Code packages
 The packages in the source code, their dependencies, and their functions.
@@ -860,9 +900,17 @@ None
 To establish an interface to execute commands and enable callbacks between controllers and runners. This facilitates thus
 the communication between different processes by streamlining the command execution service.
 
+### Achievement System
+package `achievements`
+**Dependencies**:
+`io`, `GUI`, `util.geom`, `javax.json`, and `java.awt`
+**Function**:
+To manage the achievement system, including serializing and deserializing achievement data, tracking player progress, and displaying achievements in the GUI.
+It also spawns and manages its own threading system to handle achievement updates.
+
 ### Utility
 package `util`  
 **Dependencies**:  
-None  
+Various, depending on the utility  
 **Function**:  
 A bunch of utilities used by the game, mostly generated by artificial intelligence and modified by me.  
