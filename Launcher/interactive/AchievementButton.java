@@ -24,34 +24,19 @@
 
 package Launcher.interactive;
 
-import GUI.ColorAnimator;
-import GUI.GameEssentials;
-import Launcher.LaunchEssentials;
-
 import java.awt.*;
 
-public class StartButton extends LaunchButton {
-    private static ColorAnimator dynamicColor;
-    public StartButton() {
-        super(" START ");
-        if (dynamicColor != null) dynamicColor.stop();
-        dynamicColor = new ColorAnimator(new Color[]{Launcher.LaunchEssentials.launchStartButtonBackgroundColor,
-                    GameEssentials.interpolate(Launcher.LaunchEssentials.launchStartButtonBackgroundColor,
-                    LaunchEssentials.launchBackgroundColor, 1)}, 1000, this::repaint);
-        dynamicColor.start();
+public class AchievementButton extends LaunchButton {
+    public AchievementButton() {
+        super("TROPHY");
+    }
+    @Override
+    protected void clicked() {
+        Launcher.LauncherGUI.toAchievements();
     }
 
     @Override
-    protected void clicked() {
-        Launcher.LauncherGUI.startGame("");
-    }
-
     protected Color fetchColor() {
-        if (dynamicColor == null) {
-            return Launcher.LaunchEssentials.launchStartButtonBackgroundColor;
-        } else return dynamicColor.get();
-    }
-    public Color getBackground(){
-        return fetchColor();
+        return Launcher.LaunchEssentials.launchStartButtonBackgroundColor;
     }
 }

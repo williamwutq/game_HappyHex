@@ -108,7 +108,7 @@ import java.util.stream.Collectors;
  * @since 2.0
  */
 public class GameAchievement implements JsonConvertible {
-    private static final String TEMPLATES_FILE = "achievements/buildin.hpyhexach.json";
+    private static final String TEMPLATES_FILE = "buildin.hpyhexach.json";
     private static final String USER_DIRECTORY = "users/achievements/";
     private static final Set<GameAchievementTemplate> TEMPLATES = new HashSet<GameAchievementTemplate>();
     private static final Set<GameAchievement> activeAchievements = new HashSet<GameAchievement>();
@@ -162,6 +162,9 @@ public class GameAchievement implements JsonConvertible {
      * It is recommended to call this method when the application is closing to ensure a clean shutdown.
      */
     public static void shutdownAchievementSystem(){
+        if (!autRunning) {
+            return;
+        }
         autRunning = false;
         autExecutor.shutdownNow();
         autClockThread.interrupt();
@@ -258,10 +261,18 @@ public class GameAchievement implements JsonConvertible {
      * @param state the current game state to test against the achievement criteria
      */
     protected void updateAchieved(GameState state) {
-        if (!achieved && template.test(state)){
-            // Update only if not already achieved and the template test passes
+        boolean isPhantom = template.name().startsWith("_PHANTOM_");
+        boolean isHidden = template.name().startsWith("_HIDDEN_");
+        if (isPhantom){
+            // Phantom achievements always update
+            achieved = template.test(state);
+        } else if (!achieved && template.test(state)){
+            // Only update if not already achieved, or if it's a phantom achievement
             achieved = true;
-            System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
+            if (!isHidden) {
+                // Only announce if not phantom or hidden
+                System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
+            }
         }
     }
 
@@ -339,7 +350,7 @@ public class GameAchievement implements JsonConvertible {
      * @throws IOException if an I/O error occurs while reading the file
      */
     public static void loadTemplate() throws IOException {
-        GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateFile(TEMPLATES_FILE);
+        GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateResource(TEMPLATES_FILE);
         synchronized (TEMPLATES) {
             for (GameAchievementTemplate template : templateArr) {
                 registerTemplate(template);

@@ -22,20 +22,20 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.staticimpl;
 
-import GUI.GameEssentials;
+import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
+import game.Queue;
 import hex.GameState;
 
 /**
- * The {@code AccumulatedEliminationAchievement} class represents a game achievement that is achieved when the player
- * eliminates a total of 1000 blocks in the same game without quitting it. It implements the
- * {@link GameAchievementTemplate} interface and provides functionality to check if the achievement has been
- * achieved based on the current {@link GameState}.
+ * The {@code DevilModeBaseAchievement} class represents a game achievement that is achieved when the player
+ * activates Devil Mode. It extends the {@link StaticAchievement} class and provides functionality
+ * to check if the achievement has been achieved by directly querying the piece processor ID from the {@link Queue}.
  * <p>
- * This class checks if the player has eliminated at least 1000 blocks in total during the game session. The achievement
- * is considered achieved if this condition is met.
- * This class is dependent on the {@link GameEssentials} class to retrieve the total number of eliminated blocks.
+ * This class checks if the current piece processor ID corresponds to Devil Mode (ID 2). The achievement is considered
+ * achieved if this condition is met.
  * <p>
  * Instances of this class are immutable, meaning that once created, their state cannot be changed. This ensures
  * that the achievement criteria remain consistent throughout its lifecycle.
@@ -48,22 +48,15 @@ import hex.GameState;
  * @version 2.0
  * @since 2.0
  */
-public class AccumulatedEliminationAchievement implements GameAchievementTemplate{
-    /**
-     * Creates a new AccumulatedEliminationAchievement.
-     * The achievement is achieved if the player eliminates a total of 1000 blocks in the same game without quitting it.
-     */
-    public AccumulatedEliminationAchievement() {}
-    @Override
-    public String name() {
-        return "Thousand Cuts";
+public final class DevilModeBaseAchievement extends StaticAchievement {
+    public static void load(){
+        register("Devil's Invite", DevilModeBaseAchievement.class);
     }
+    public DevilModeBaseAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
-    public String description() {
-        return "Eliminate a total of 1000 blocks in the same game without quitting it";
-    }
-    @Override
-    public boolean test(GameState state) {
-        return GameEssentials.getTotalEliminatedBlocks() >= 1000;
+    public boolean test(GameState state){
+        int id = Queue.getPieceProcessorID();
+        // ID for the Devil Mode piece processor is 2
+        return id == 2;
     }
 }

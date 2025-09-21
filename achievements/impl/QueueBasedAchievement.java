@@ -22,8 +22,13 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.impl;
 
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
+import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
+import achievements.icon.AchievementIconSerialHelper;
 import hex.GameState;
 import hex.Piece;
 import io.JsonConvertible;
@@ -60,7 +65,8 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
     private final int requiredMostLength;
     private final String name;
     private final String description;
-    static void load()  {
+    private final AchievementIcon icon;
+    public static void load() {
         AchievementJsonSerializer.registerAchievementClass("QueueBasedAchievement", json -> {
             try {
                 return fromJsonObject(json);
@@ -79,12 +85,13 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
      * @param name the name of the achievement
      * @param description the description of the achievement
      */
-    public QueueBasedAchievement(List<Piece> requiredPieces, int requiredLeastLength, int requiredMostLength, String name, String description) {
+    public QueueBasedAchievement(List<Piece> requiredPieces, int requiredLeastLength, int requiredMostLength, String name, String description, AchievementIcon icon) {
         this.requiredPieces = List.copyOf(requiredPieces);
         this.requiredLeastLength = requiredLeastLength;
         this.requiredMostLength = requiredMostLength;
         this.name = name;
         this.description = description;
+        this.icon = icon;
     }
     /**
      * Creates a new QueueBasedAchievement with the specified requirements, name, and description.
@@ -95,8 +102,8 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
      * @param name the name of the achievement
      * @param description the description of the achievement
      */
-    public QueueBasedAchievement(List<Piece> requiredPieces, int requiredLength, String name, String description) {
-        this(requiredPieces, requiredLength, requiredLength, name, description);
+    public QueueBasedAchievement(List<Piece> requiredPieces, int requiredLength, String name, String description, AchievementIcon icon) {
+        this(requiredPieces, requiredLength, requiredLength, name, description, icon);
     }
     /**
      * {@inheritDoc}
@@ -113,6 +120,14 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
     @Override
     public String description() {
         return description;
+    }
+    /**
+     * {@inheritDoc}
+     * @return the icon of the achievement
+     */
+    @Override
+    public AchievementIcon icon() {
+        return icon;
     }
 
     /**
@@ -185,6 +200,7 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
         job.add("type", "QueueBasedAchievement");
         job.add("name", name);
         job.add("description", description);
+        job.add("icon", AchievementIconSerialHelper.serialize(icon));
         job.add("requiredLeastLength", requiredLeastLength);
         job.add("requiredMostLength", requiredMostLength);
         javax.json.JsonArrayBuilder jab = javax.json.Json.createArrayBuilder();
@@ -210,10 +226,11 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
             int requiredMostLength = obj.getInt("requiredMostLength");
             javax.json.JsonArray pieceArray = obj.getJsonArray("requiredPieces");
             List<Piece> requiredPieces = new java.util.ArrayList<>();
+            AchievementIcon icon = AchievementIconSerialHelper.deserialize(obj);
             for (javax.json.JsonValue v : pieceArray) {
                 requiredPieces.add(Piece.pieceFromByte((byte) ((javax.json.JsonNumber) v).intValue(), -2));
             }
-            return new QueueBasedAchievement(requiredPieces, requiredLeastLength, requiredMostLength, name, description);
+            return new QueueBasedAchievement(requiredPieces, requiredLeastLength, requiredMostLength, name, description, icon);
         } catch (Exception e) {
             throw new DataSerializationException("Invalid JSON object for QueueBasedAchievement", e);
         }

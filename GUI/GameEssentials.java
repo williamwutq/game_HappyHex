@@ -186,6 +186,14 @@ public final class GameEssentials implements GameGUIInterface {
         gameQuitFontColor = processColor(new Color(136, 7, 7), "GameQuitFontColor");
     }
     /**
+     * Get the feature ID of the current color processor.
+     * @return the feature ID of the current color processor, -1 if no color processor is used.
+     */
+    public static int getColorProcessorID(){
+        if (colorProcessor == null) return -1;
+        return colorProcessor.getFeatureID();
+    }
+    /**
      * Process a font with special font processor providing hints to the processor.
      * @param origin the original font.
      * @return the processed font.

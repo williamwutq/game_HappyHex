@@ -22,21 +22,21 @@
   SOFTWARE.
  */
 
-package achievements;
+package achievements.staticimpl;
 
+import GUI.GameEssentials;
+import achievements.GameAchievementTemplate;
+import achievements.icon.AchievementIcon;
 import hex.GameState;
-import hex.Hex;
-import hex.HexEngine;
-import hex.Piece;
 
 /**
- * The {@code EnginePerfectFitAchievement} class represents a game achievement that is achieved when the player
- * has a piece in the queue that perfectly fits an empty slot in the game board. It implements the
- * {@link GameAchievementTemplate} interface and provides functionality to check if the achievement has been
- * achieved based on the current {@link GameState}.
+ * The {@code AccumulatedEliminationAchievement} class represents a game achievement that is achieved when the player
+ * eliminates a total of 1000 blocks in the same game without quitting it. It extends the {@link StaticAchievement}
+ * class and provides functionality to check if the achievement has been achieved based on the current {@link GameState}.
  * <p>
- * This class checks if there is at least one piece in the queue that can fit perfectly into any empty slot on the game board.
- * The achievement is considered achieved if this condition is met.
+ * This class checks if the player has eliminated at least 1000 blocks in total during the game session. The achievement
+ * is considered achieved if this condition is met.
+ * This class is dependent on the {@link GameEssentials} class to retrieve the total number of eliminated blocks.
  * <p>
  * Instances of this class are immutable, meaning that once created, their state cannot be changed. This ensures
  * that the achievement criteria remain consistent throughout its lifecycle.
@@ -49,26 +49,13 @@ import hex.Piece;
  * @version 2.0
  * @since 2.0
  */
-public class EnginePerfectFitAchievement implements GameAchievementTemplate {
-    @Override
-    public String name() {
-        return "Perfect Fit";
+public final class AccumulatedEliminationAchievement extends StaticAchievement {
+    public static void load(){
+        register("Thousand Cuts", AccumulatedEliminationAchievement.class);
     }
-    @Override
-    public String description() {
-        return "Have a piece in queue that perfectly fits an empty slot in the game board";
-    }
+    public AccumulatedEliminationAchievement(String n, String d, AchievementIcon i) {super(n, d, i);}
     @Override
     public boolean test(GameState state) {
-        HexEngine engine = state.getEngine();
-        Piece[] queue = state.getQueue();
-        for (Hex position : engine.blocks()) {
-            for (Piece piece : queue) {
-                if (engine.computeDenseIndex(position, piece) == 1) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return GameEssentials.getTotalEliminatedBlocks() >= 1000;
     }
 }
