@@ -555,7 +555,11 @@ public class GameAchievement implements JsonConvertible {
      * @throws IOException if an I/O error occurs during loading
      */
     public static void loadAndCompleteActiveUserAchievements() throws IOException {
-        loadActiveUserAchievements();
+        try {
+            loadActiveUserAchievements();
+        } catch (IOException ignored) {
+            // New user, no achievement file saved
+        }
         completeActiveAchievement();
     }
     /**
