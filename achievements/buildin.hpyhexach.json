@@ -379,7 +379,7 @@
     {
       "type": "NumberBasedAchievement",
       "name": "I've got something",
-      "description": "Achieve 10 turns and score of 36 in any game in any game mode",
+      "description": "Achieve 10 turns and score of 36 in any game",
       "turnRequirement": [10, 10, 10],
       "scoreRequirement": [36, 36, 36],
       "icon": {
@@ -390,13 +390,133 @@
     {
       "type": "NumberBasedAchievement",
       "name": "In my 20s",
-      "description": "Achieve 20 turns and score of 72 in any game in any game mode",
+      "description": "Achieve 20 turns and score of 72 in any game",
       "turnRequirement": [20, 20, 20],
       "scoreRequirement": [72, 72, 72],
       "icon":
       {
         "color": "#FFFF00",
         "text": "20"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "One Hundred",
+      "description": "Achieve 100 turns and score of 400 in any game",
+      "turnRequirement": [100, 100, 100],
+      "scoreRequirement": [400, 400, 400],
+      "icon":
+      {
+        "color": "#BBFF00",
+        "text": "100"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "Four Digits",
+      "description": "Achieve 270 turns and score of 1000 in any game",
+      "turnRequirement": [270, 270, 270],
+      "scoreRequirement": [1000, 1000, 1000],
+      "icon":
+      {
+        "color": "#BBFF00",
+        "text": "270"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "One Thousand",
+      "description": "Achieve 1000 turns and score of 4000 in any game",
+      "turnRequirement": [1000, 1000, 1000],
+      "scoreRequirement": [4000, 4000, 4000],
+      "icon":
+      {
+        "color": "#77FF00",
+        "text": "1K"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "Let's go for 10K",
+      "description": "Achieve 10000 turns and score of 40000 in any game",
+      "turnRequirement": [10000, 10000, 10000],
+      "scoreRequirement": [40000, 40000, 40000],
+      "icon":
+      {
+        "color": "#00FF33",
+        "text": "10K"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "I Am Legend",
+      "description": "Achieve 100000 turns and score of 400000 in any game",
+      "turnRequirement": [100000, 100000, 100000],
+      "scoreRequirement": [400000, 400000, 400000],
+      "icon":
+      {
+        "color": "#00FFFF",
+        "text": "100K"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "Millionaire",
+      "description": "Achieve 1 million turns and score of 4 million in any game",
+      "turnRequirement": [1000000, 1000000, 1000000],
+      "scoreRequirement": [4000000, 4000000, 4000000],
+      "icon":
+      {
+        "color": "#0088FF",
+        "text": "1M"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "The Prophesy",
+      "description": "Achieve 10 million turns and score of 40 million in any game",
+      "turnRequirement": [10000000, 10000000, 10000000],
+      "scoreRequirement": [40000000, 40000000, 40000000],
+      "icon":
+      {
+        "color": "#AA00FF",
+        "text": "10M"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "The HexaGod",
+      "description": "Achieve 100 million turns and score of 400 million in any game",
+      "turnRequirement": [100000000, 100000000, 100000000],
+      "scoreRequirement": [400000000, 400000000, 400000000],
+      "icon":
+      {
+        "color": "#AA00FF",
+        "text": "100M"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "Overflow Risk",
+      "description": "Achieve 400 million turns and score of 1.6 billion in any game",
+      "turnRequirement": [400000000, 400000000, 400000000],
+      "scoreRequirement": [1600000000, 1600000000, 1600000000],
+      "icon":
+      {
+        "color": "#FF0088",
+        "text": "400M"
+      }
+    },
+    {
+      "type": "NumberBasedAchievement",
+      "name": "Billionaire",
+      "description": "Achieve a billion turns and score of a billion in any game",
+      "turnRequirement": [1000000000, 1000000000, 1000000000],
+      "scoreRequirement": [1000000000, 1000000000, 1000000000],
+      "icon":
+      {
+        "color": "#FF0000",
+        "text": "1B"
       }
     },
     {
