@@ -583,6 +583,116 @@
           ]
         }
       ]
+    },
+    {
+      "type": "EliminationAchievement",
+      "name": "Eliminate!",
+      "description": "Eliminate at least one line in a game",
+      "requiredMinEliminationBlock": 1,
+      "requiredMinEliminationLine": 1,
+      "requiredMinEliminationDirection": 0,
+      "icon": [
+        {
+          "color": "#E55DDD",
+          "shape": [
+            {"x":0.0,"y":0.8,"cx":0.0,"cy":0.8},
+            {"x":0.7,"y":0.4,"cx":0.7,"cy":0.4},
+            {"x":0.7,"y":-0.4,"cx":0.7,"cy":-0.4},
+            {"x":0.0,"y":-0.8,"cx":0.0,"cy":-0.8},
+            {"x":-0.7,"y":-0.4,"cx":-0.7,"cy":-0.4},
+            {"x":-0.7,"y":0.4,"cx":-0.7,"cy":0.4}
+          ]
+        },
+        {
+          "color": "#444444",
+          "shape": [
+            {"x":0.76,"y":0.65,"cx":0.06,"cy":-0.06},
+            {"x":-0.65,"y":-0.76,"cx":-0.71,"cy":-0.71},
+            {"x":-0.76,"y":-0.65,"cx":-0.06,"cy":0.06},
+            {"x":0.65,"y":0.76,"cx":0.71,"cy":0.71}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EliminationAchievement",
+      "name": "It's All Gone",
+      "description": "Eliminate more than 10 blocks in a game",
+      "requiredMinEliminationBlock": 10,
+      "requiredMinEliminationLine": 0,
+      "requiredMinEliminationDirection": 0,
+      "icon": [
+        {
+          "color": "#5BBEEE",
+          "shape": [
+            {"x":0.0,"y":0.8,"cx":0.0,"cy":0.8},
+            {"x":0.7,"y":0.4,"cx":0.7,"cy":0.4},
+            {"x":0.7,"y":-0.4,"cx":0.7,"cy":-0.4},
+            {"x":0.0,"y":-0.8,"cx":0.0,"cy":-0.8},
+            {"x":-0.7,"y":-0.4,"cx":-0.7,"cy":-0.4},
+            {"x":-0.7,"y":0.4,"cx":-0.7,"cy":0.4}
+          ]
+        },
+        {
+          "color": "#FFFFFF",
+          "shape": [
+            {"x":0.76,"y":-0.65,"cx":0.06,"cy":0.06},
+            {"x":-0.65,"y":0.76,"cx":-0.71,"cy":0.71},
+            {"x":-0.76,"y":0.65,"cx":-0.06,"cy":-0.06},
+            {"x":0.65,"y":-0.76,"cx":0.71,"cy":-0.71}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EliminationAchievement",
+      "name": "Power Cross",
+      "description": "Eliminate the same block in two directions in a single move",
+      "requiredMinEliminationBlock": 1,
+      "requiredMinEliminationLine": 2,
+      "requiredMinEliminationDirection": 2,
+      "icon": [
+        {
+          "color": "#5BBEEE",
+          "shape": [
+            {"x":0.0,"y":0.8,"cx":0.0,"cy":0.8},
+            {"x":0.7,"y":0.4,"cx":0.7,"cy":0.4},
+            {"x":0.7,"y":-0.4,"cx":0.7,"cy":-0.4},
+            {"x":0.0,"y":-0.8,"cx":0.0,"cy":-0.8},
+            {"x":-0.7,"y":-0.4,"cx":-0.7,"cy":-0.4},
+            {"x":-0.7,"y":0.4,"cx":-0.7,"cy":0.4}
+          ]
+        },
+        {
+          "color": "#000000",
+          "shape": [
+            {"x":0.0,"y":0.64,"cx":0.0,"cy":0.64},
+            {"x":0.56,"y":0.32,"cx":0.56,"cy":0.32},
+            {"x":0.56,"y":-0.32,"cx":0.56,"cy":-0.32},
+            {"x":0.0,"y":-0.64,"cx":0.0,"cy":-0.64},
+            {"x":-0.56,"y":-0.32,"cx":-0.56,"cy":-0.32},
+            {"x":-0.56,"y":0.32,"cx":-0.56,"cy":0.32}
+          ]
+        },
+        {
+          "color": "#FFFFFF",
+          "shape": [
+            {"x":0.76,"y":-0.65,"cx":0.06,"cy":0.06},
+            {"x":-0.65,"y":0.76,"cx":-0.71,"cy":0.71},
+            {"x":-0.76,"y":0.65,"cx":-0.06,"cy":-0.06},
+            {"x":0.65,"y":-0.76,"cx":0.71,"cy":-0.71}
+          ]
+        },
+        {
+          "color": "#FFFFFF",
+          "shape": [
+            {"x":0.76,"y":0.65,"cx":0.06,"cy":-0.06},
+            {"x":-0.65,"y":-0.76,"cx":-0.71,"cy":-0.71},
+            {"x":-0.76,"y":-0.65,"cx":-0.06,"cy":0.06},
+            {"x":0.65,"y":0.76,"cx":0.71,"cy":0.71}
+          ]
+        }
+      ]
     }
   ]
 }
