@@ -142,7 +142,7 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
     @Override
     public boolean test(GameState state) {
         Piece[] queue = state.getQueue();
-        if (queue.length < requiredLeastLength || queue.length > requiredMostLength) {
+        if (queue == null || queue.length < requiredLeastLength || queue.length > requiredMostLength) {
             return false;
         }
         // Make a copy of the required pieces to track which have been found. This allows for duplicates.

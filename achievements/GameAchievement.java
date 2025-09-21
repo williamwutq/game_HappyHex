@@ -24,6 +24,7 @@
 
 package achievements;
 
+import achievements.abstractimpl.MarkableAchievement;
 import hex.GameState;
 import io.GameTime;
 import io.JsonConvertible;
@@ -116,7 +117,7 @@ public class GameAchievement implements JsonConvertible {
     private static volatile boolean gameStateDisableFlag = false;
     private static volatile boolean autRunning = false;
     private static Username activeUser = null;
-    private static final int AUT_DELAY = 120;
+    private static final int AUT_DELAY = 300;
     private static final ExecutorService autExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r);
         t.setName("Achievement-Update-Thread");
@@ -229,6 +230,13 @@ public class GameAchievement implements JsonConvertible {
     public int hashCode() {
         return Objects.hash(template, user);
     }
+    /**
+     * Returns the String representation of the achievement.
+     * @return a String representing the achievement
+     */
+    public String toString(){
+        return "GameAchievement{template=" + template.name() + ", user=" + user + ", achieved=" + achieved + "}";
+    }
 
     // Getters
     /**
@@ -265,13 +273,25 @@ public class GameAchievement implements JsonConvertible {
         boolean isHidden = template.name().startsWith("_HIDDEN_");
         if (isPhantom){
             // Phantom achievements always update
-            achieved = template.test(state);
-        } else if (!achieved && template.test(state)){
+            try {
+                achieved = template.test(state);
+            } catch (Exception ignored) {
+                // Ideally, no exception should be thrown here, but this deals with poorly written templates
+            }
+        } else if (!achieved){
+            boolean newValue = false;
+            try {
+                newValue = template.test(state);
+            } catch (Exception ignored) {
+                // Ideally, no exception should be thrown here, but this deals with poorly written templates
+            }
             // Only update if not already achieved, or if it's a phantom achievement
-            achieved = true;
-            if (!isHidden) {
-                // Only announce if not phantom or hidden
-                System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
+            if (newValue) {
+                achieved = true;
+                if (!isHidden) {
+                    // Only announce if not phantom or hidden
+                    System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
+                }
             }
         }
     }
@@ -307,7 +327,7 @@ public class GameAchievement implements JsonConvertible {
         }
         GameAchievementTemplate template = getTemplateByName(name);
         if (template == null) {
-            throw new DataSerializationException("No template found for name: " + name + " potentially due to unloaded templates");
+            template = new UnknownAchievement(name);
         }
         return new GameAchievement(template, user, achieved);
     }
@@ -401,6 +421,7 @@ public class GameAchievement implements JsonConvertible {
      * @param user the Username of the active user, or null to clear the active user
      */
     public static void setActiveUser(Username user){
+        MarkableAchievement.resetAll();
         if (inAUT()) {
             activeUser = user;
             activeAchievements.clear();
@@ -423,6 +444,7 @@ public class GameAchievement implements JsonConvertible {
         if (userAchievements == null) {
             throw new IllegalArgumentException("UserAchievements cannot be null");
         }
+        MarkableAchievement.resetAll();
         if (inAUT()) {
             activeUser = userAchievements.getUser();
             activeAchievements.clear();
@@ -446,6 +468,7 @@ public class GameAchievement implements JsonConvertible {
      * The method has the same effect as calling {@code setActiveUser(null)}.
      */
     public static void unloadActive(){
+        MarkableAchievement.resetAll();
         if (inAUT()) {
             activeUser = null;
             activeAchievements.clear();
@@ -536,7 +559,11 @@ public class GameAchievement implements JsonConvertible {
      * @throws IOException if an I/O error occurs during loading
      */
     public static void loadAndCompleteActiveUserAchievements() throws IOException {
-        loadActiveUserAchievements();
+        try {
+            loadActiveUserAchievements();
+        } catch (IOException ignored) {
+            // New user, no achievement file saved
+        }
         completeActiveAchievement();
     }
     /**

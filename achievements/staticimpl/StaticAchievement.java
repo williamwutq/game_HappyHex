@@ -66,10 +66,16 @@ public abstract class StaticAchievement implements GameAchievementTemplate, Json
             }
         });
         // Load all built-in achievements
+        LoggedInAchievement.load();
         IdenticalQueueAchievement.load();
         AccumulatedEliminationAchievement.load();
         EnginePerfectFitAchievement.load();
         EngineAllPerfectFitAchievement.load();
+        DarkThemeAchievement.load();
+        WhiteThemeAchievement.load();
+        GodModeBaseAchievement.load();
+        DevilModeBaseAchievement.load();
+        AutoplayBaseAchievement.load();
     }
     /**
      * Creates a new StaticAchievement with the specified name

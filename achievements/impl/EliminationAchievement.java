@@ -155,9 +155,9 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
      */
     @Override
     public boolean test(GameState state) {
-        return GameEssentials.getEliminateBlockCount() > requiredMinEliminationBlock &&
-                GameEssentials.getEliminateLineCount() > requiredMinEliminationLine &&
-                GameEssentials.getEliminateDirectionCount() > requiredMinEliminationDirection;
+        return GameEssentials.getEliminateBlockCount() >= requiredMinEliminationBlock &&
+                GameEssentials.getEliminateLineCount() >= requiredMinEliminationLine &&
+                GameEssentials.getEliminateDirectionCount() >= requiredMinEliminationDirection;
     }
     /**
      * {@inheritDoc}

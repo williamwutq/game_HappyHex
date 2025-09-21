@@ -26,6 +26,7 @@ package GUI;
 
 import GUI.animation.*;
 import Launcher.LaunchEssentials;
+import static achievements.abstractimpl.MarkableAchievement.markIfExists;
 import game.AutoplayHandler;
 import game.GameGUIInterface;
 import hex.GameState;
@@ -77,6 +78,7 @@ public final class GameEssentials implements GameGUIInterface {
     private static int eliminationBlockCount = 0;
     private static int eliminationLineCount = 0;
     private static int eliminationDirectionCount = 0;
+    private static boolean isAutoRunning = false;
 
     // Special Features
     private static special.SpecialFeature colorProcessor = special.FeatureFactory.createFeature(Color.class.getName());
@@ -298,16 +300,20 @@ public final class GameEssentials implements GameGUIInterface {
     }
     public static void startAutoplay(){
         autoplayHandler.run();
+        isAutoRunning = true;
     }
     public static void interruptAutoplayExternal(){
         autoplayHandler.genericClose();
         gamePanel.quitAuto();
+        isAutoRunning = false;
     }
     public static void interruptAutoplay(){
+        isAutoRunning = false;
         CompletableFuture.runAsync(autoplayHandler::genericClose);
     }
     public static void terminateAutoplay(){
         autoplayHandler.hardClose();
+        isAutoRunning = false;
         if (gamePanel!= null) gamePanel.quitAutoImmediately();
     }
     public static Void setFastAutoplay(){
@@ -321,6 +327,9 @@ public final class GameEssentials implements GameGUIInterface {
             throw new IllegalStateException("Autoplay setting could not be performed");
         }
         return null;
+    }
+    public static boolean isAutoRunning(){
+        return isAutoRunning;
     }
     public static Animation createCenterEffect(hex.Block block){
         Animation animation = (Animation) effectProcessor.process(new Object[]{new CenteringEffect(block), block})[0];
@@ -365,7 +374,10 @@ public final class GameEssentials implements GameGUIInterface {
         if(gameEnds()){
             System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends peacefully.");
             CompletableFuture.runAsync(autoplayHandler::genericClose);
-            if (GameEssentials.getTurn() != 0) logGame();
+            if (GameEssentials.getTurn() != 0) {
+                logGame();
+                markIfExists("Game On");
+            }
             resetGame();
             Launcher.LauncherGUI.toGameOver();
         }
@@ -560,13 +572,17 @@ public final class GameEssentials implements GameGUIInterface {
             @Override
             public HexEngine getEngine() {
                 synchronized (moveLock) {
-                    return engine().clone();
+                    HexEngine engine = engine();
+                    if (engine == null) return null; // Propagate null engine
+                    return engine.clone();
                 }
             }
             @Override
             public Piece[] getQueue() {
                 synchronized (moveLock) {
-                    return queue().getPieces().clone();
+                    Queue queue = queue();
+                    if (queue == null) return null; // Propagate null queue
+                    return queue.getPieces().clone();
                 }
             }
             @Override

@@ -61,6 +61,6 @@ public final class AutoplayBaseAchievement extends StaticAchievement {
         if (GameEssentials.getAutoplayHandler() == null) {
             return false;
         }
-        return GameEssentials.getAutoplayHandler().isRunning() && LaunchEssentials.isGameStarted();
+        return GameEssentials.isAutoRunning() && LaunchEssentials.isGameStarted();
     }
 }

@@ -226,6 +226,38 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
         }
     }
     /**
+     * Marks the achievement with the specified name as achieved if it exists.
+     * This static method looks up the achievement in the global registry and calls its
+     * {@link #mark()} method to set it as achieved if found.
+     * <p>
+     * Note: This method is synchronized to ensure thread safety when accessing the global registry.
+     * @param name the name of the achievement to mark as achieved
+     */
+    public static void markIfExists(String name){
+        synchronized (globalRegistry) {
+            MarkableAchievement achievement = globalRegistry.get(name);
+            if (achievement != null) {
+                achievement.mark();
+            }
+        }
+    }
+    /**
+     * Resets the achievement with the specified name to not achieved state if it exists.
+     * This static method looks up the achievement in the global registry and calls its
+     * {@link #reset()} method to set it as not achieved if found.
+     * <p>
+     * Note: This method is synchronized to ensure thread safety when accessing the global registry.
+     * @param name the name of the achievement to reset
+     */
+    public static void resetIfExists(String name){
+        synchronized (globalRegistry) {
+            MarkableAchievement achievement = globalRegistry.get(name);
+            if (achievement != null) {
+                achievement.reset();
+            }
+        }
+    }
+    /**
      * Resets all registered achievements to not achieved state.
      * This static method iterates through all achievements in the global registry
      * and calls their {@link #reset()} method to set them as not achieved.
