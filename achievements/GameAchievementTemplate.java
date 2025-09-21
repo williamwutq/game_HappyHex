@@ -57,16 +57,22 @@ import java.util.function.Predicate;
 public interface GameAchievementTemplate extends Predicate<GameState> {
     /**
      * The name of the achievement. This should be unique among all achievements.
+     * <p>
+     * The name must be unique, non-null, and non-empty.
      * @return the name of the achievement
      */
     String name();
     /**
      * The description of the achievement. This should provide a brief summary of what the achievement is about.
+     * <p>
+     * The description may not be null or empty.
      * @return the description of the achievement
      */
     String description();
     /**
      * The icon representing the achievement. This icon will be displayed in the game's UI.
+     * <p>
+     * The icon may not be null. If no icon should be displayed, return {@link AchievementEmptyIcon#INSTANCE}.
      * @implNote This default implementation generates a simple icon based on the name of the achievement.
      * If the name starts with digits, those digits are used to create a text icon.
      * If the name starts with a letter, that letter is used to create a text icon.
@@ -102,6 +108,11 @@ public interface GameAchievementTemplate extends Predicate<GameState> {
     }
     /**
      * Tests whether the achievement has been achieved based on the provided game state.
+     * @implSpec Implementing classes must provide the logic to determine if the achievement
+     * has been achieved based on the provided {@link GameState}. This method may call external resources
+     * or services to determine the achievement status, but it should do so in a thread-safe manner and do
+     * not modify the game state. The method should be able to handle null values in game state and negative
+     * integer values gracefully.
      * @param state the current game state
      * @return {@code true} if the achievement has been achieved, {@code false} otherwise
      */
