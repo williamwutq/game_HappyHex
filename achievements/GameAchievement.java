@@ -272,13 +272,25 @@ public class GameAchievement implements JsonConvertible {
         boolean isHidden = template.name().startsWith("_HIDDEN_");
         if (isPhantom){
             // Phantom achievements always update
-            achieved = template.test(state);
-        } else if (!achieved && template.test(state)){
+            try {
+                achieved = template.test(state);
+            } catch (Exception ignored) {
+                // Ideally, no exception should be thrown here, but this deals with poorly written templates
+            }
+        } else if (!achieved){
+            boolean newValue = false;
+            try {
+                newValue = template.test(state);
+            } catch (Exception ignored) {
+                // Ideally, no exception should be thrown here, but this deals with poorly written templates
+            }
             // Only update if not already achieved, or if it's a phantom achievement
-            achieved = true;
-            if (!isHidden) {
-                // Only announce if not phantom or hidden
-                System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
+            if (newValue) {
+                achieved = true;
+                if (!isHidden) {
+                    // Only announce if not phantom or hidden
+                    System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
+                }
             }
         }
     }
