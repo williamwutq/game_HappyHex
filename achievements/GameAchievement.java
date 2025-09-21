@@ -326,7 +326,7 @@ public class GameAchievement implements JsonConvertible {
         }
         GameAchievementTemplate template = getTemplateByName(name);
         if (template == null) {
-            throw new DataSerializationException("No template found for name: " + name + " potentially due to unloaded templates");
+            template = new UnknownAchievement(name);
         }
         return new GameAchievement(template, user, achieved);
     }
