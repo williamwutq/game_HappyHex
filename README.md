@@ -587,6 +587,65 @@ generate the single-block piece but may generate the full 7-block piece.
   if machine learning models are enabled and available, and python evironment supporting that model is detected, the machine learning model will be used instead.
   When using a machine learning model, the autoplay will be smarter, but it will need time to load during startup.
 
+### Achievement System
+
+The **Achievement System** lets players earn and track achievements in a game. It's easy to use, saves progress,
+and works smoothly in the background.
+
+#### What It Does
+- **Defines Achievements**: Set up achievements with names, descriptions, and icons using simple templates.
+- **Tracks Player Progress**: Keeps a record of each player's achievements.
+- **Runs in the Background**: Updates achievements automatically without slowing down the game. This is achieved
+through a dedicated thread that handles achievement checks and a clock thread that triggers periodic updates.
+- **Saves Data**: Stores achievements as JSON files for easy loading and saving.
+
+#### Key Features
+**Achievement Templates (`GameAchievementTemplate`)**
+- **What They Are**: Blueprints for achievements with a name, description, and icon.
+- **How They Work**:
+    - Provide an unique name for identification and brief description.
+    - Define what players need to do to unlock the achievement.
+    - Can be configured with implementation specific JSON fields for variable criteria.
+    - Automatically generate a unique icon based on the achievement’s name (or use a custom one).
+    - Stay consistent and can’t be changed once set.
+
+**Player Achievements (`UserAchievements`)**
+- **What They Are**: A collection of achievements tied to a specific player.
+- **How They Work**:
+    - Save all achievements a player has earned.
+    - Each saved achievement is tied to its template for reference.
+    - Only the game system can update them to keep things safe and consistent.
+    - Can be saved to or loaded from JSON.
+
+**Special Achievements**
+- **Hidden Achievements**:
+    - Secret achievements players don’t see in the game interface.
+    - Used for tracking internal goals (e.g., game mechanics).
+    - Saved and loaded like regular achievements but hidden from view.
+- **Phantom Achievements**:
+    - Special achievements that always check conditions, even if already earned.
+    - Can be "unachieved" if conditions change.
+    - Never shown to players and used for ongoing system checks.
+- **Markable Achievements**:
+    - Achievements that can be triggered by things like button clicks or external events.
+    - Safe to use across different parts of the game.
+    - Must be reset when switching players to avoid mix-ups.
+
+#### How The System Works
+1. **Setup**: Load achievement templates from a JSON file included in the game.
+2. **Playing**: When a player is logged in, the system checks their progress in the background every 120ms (adjustable).
+3. **Saving**: Achievements are saved as JSON to keep progress safe.
+4. **Shutdown**: Stop the system cleanly to free up resources when the game is closed.
+
+#### JSON Setup
+Achievements are set up using JSON with these fields:
+- `name`: A unique name for the achievement (required).
+- `description`: What the achievement is about (required).
+- `icon`: The achievement’s visual (optional, auto-generated if not provided).
+- `type`: The kind of achievement (links to its specific rules).
+
+The setup is automatically loaded when the game starts, and its contents are fixed.
+
 ### Easter Eggs  
 #### Prohibited Usernames  
 The following usernames are prohibited from inputting into the log-in field in the log-in page. This includes the capitalized and lowercase
