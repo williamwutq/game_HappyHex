@@ -26,7 +26,6 @@ package Launcher;
 
 import GUI.GameEssentials;
 import achievements.GameAchievement;
-import achievements.GameAchievementTemplate;
 import hexio.HexLogger;
 import io.*;
 
@@ -35,7 +34,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -46,7 +44,7 @@ public final class LaunchEssentials {
         // Prevent instantiation
     }
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(2, 0, 0);
+    public static final GameVersion currentGameVersion = new GameVersion(2, 0, 1);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
