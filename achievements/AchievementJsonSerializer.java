@@ -236,9 +236,8 @@ public class AchievementJsonSerializer {
      * @throws DataSerializationException if the JSON is invalid or if deserialization fails
      */
     public static GameAchievementTemplate[] deserializeAchievementTemplateFile(String filePath) throws IOException, DataSerializationException {
-        AchievementJsonSerializer serializer = new AchievementJsonSerializer();
-        String fileContent = serializer.readFile(filePath);
-        JsonObject jsonObject = serializer.parseJsonString(fileContent);
+        String fileContent = readFile(filePath);
+        JsonObject jsonObject = parseJsonString(fileContent);
         return deserializeAchievementTemplateArray(jsonObject);
     }
     /**
@@ -251,9 +250,8 @@ public class AchievementJsonSerializer {
      * @throws DataSerializationException if the JSON is invalid or if deserialization fails
      */
     public static GameAchievementTemplate[] deserializeAchievementTemplateResource(String resourcePath) throws IOException, DataSerializationException {
-        AchievementJsonSerializer serializer = new AchievementJsonSerializer();
-        String resourceContent = serializer.readResource(resourcePath);
-        JsonObject jsonObject = serializer.parseJsonString(resourceContent);
+        String resourceContent = readResource(resourcePath);
+        JsonObject jsonObject = parseJsonString(resourceContent);
         return deserializeAchievementTemplateArray(jsonObject);
     }
 
