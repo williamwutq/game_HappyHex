@@ -13,7 +13,7 @@ public class CurveGenerator {
         final Color pointColor = new Color(255, 51, 51);
         final Color backgroundColor = new Color(255, 255, 0,128);
         final String[] commands = new String[]{
-                "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
+                "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc", "sm", "st",
                 "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc",
                 "rd", "rm", "rml", "rmf", "rma", "r",
                 "circle", "square", "make",
@@ -488,6 +488,94 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: mc index dx dy");
+                    }
+                } else if (line.equals("sma")){
+                    s.get().smoothenAll();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
+                } else if (line.startsWith("sm")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 1) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            s.get().smoothen(index, 0.5);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else if (parts.length == 2) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            double pos = Double.parseDouble(parts[1]);
+                            s.get().smoothen(index, pos);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: sm index or sm idx pos");
+                    }
+                } else if (line.equals("sta")){
+                    s.get().straightenAll();
+                    // Break the undo chain
+                    if (undoIndex.get() > 0) {
+                        pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                    }
+                    pastShapes.add(s.get().clone());
+                    p.repaint();
+                } else if (line.startsWith("st")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 1) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            s.get().straighten(index);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else if (parts.length == 2) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            double factor = Double.parseDouble(parts[1]);
+                            s.get().straighten(index, factor);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: st index or st idx factor");
                     }
                 } else if (line.startsWith("sp")) {
                     String[] parts = splitArgs(line, 2);

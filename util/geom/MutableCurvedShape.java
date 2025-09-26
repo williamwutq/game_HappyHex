@@ -221,6 +221,85 @@ public class MutableCurvedShape implements Cloneable {
         }
     }
     /**
+     * Straightens the curve at the specified index by setting the control point to be the midpoint between
+     * the current point and the next point.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point whose control point is to be straightened
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void straighten(int index){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        // Set the control point of the current index to be the midpoint between the current and next points
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        current[2] = (current[0] + next[0]) / 2;
+        current[3] = (current[1] + next[1]) / 2;
+    }
+    /**
+     * Straightens the curve at the specified index by moving the control point towards the midpoint between
+     * the current point and the next point by a given factor.
+     * A factor of 0 leaves the control point unchanged, while a factor of 1 sets it to the midpoint.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point whose control point is to be straightened
+     * @param factor a value between 0 and 1 indicating how much to move the control point towards the midpoint
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     * @throws IllegalArgumentException if the factor is not between 0 and 1
+     */
+    public void straighten(int index, double factor){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        if(factor < 0 || factor > 1){
+            throw new IllegalArgumentException("Factor must be between 0 and 1");
+        }
+        // Try to set the control point of the current index to be the midpoint of the current and next points
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        current[2] = current[2] + ((current[0] + next[0]) / 2 - current[2]) * factor;
+        current[3] = current[3] + ((current[1] + next[1]) / 2 - current[3]) * factor;
+    }
+    /**
+     * Straightens the curves at all points in the MutableCurvedShape by setting each control point to be the
+     * midpoint between its corresponding point and the next point.
+     * This effectively makes all segments of the shape straight lines and is useful for making polygons.
+     */
+    public void straightenAll(){
+        for(int i = 0; i < points.size(); i++){
+            straighten(i);
+        }
+    }
+    /**
+     * Smoothens the curve at the specified index by setting the current point on the line between the previous
+     * control point and the current control point.
+     * If the index is the first point, it connects back to the last point.
+     * @param index the index of the point to be smoothened
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void smoothen(int index, double position){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        // Try to set the current point on the line between the previous control point and the current control point
+        double[] current = points.get(index);
+        double[] previous = points.get((index - 1 + points.size()) % points.size());
+        current[0] = previous[2] + (current[2] - previous[2]) * position;
+        current[1] = previous[3] + (current[3] - previous[3]) * position;
+    }
+    /**
+     * Smoothens the curves at all points in the MutableCurvedShape by setting each point on the line between
+     * the previous control point and the current control point.
+     * This effectively makes all segments of the shape smoother and is useful for creating rounded shapes.
+     * <p>
+     * Unnecessary use of this method is discouraged as it can lead to loss of detail in the shape. Not everything need to be perfectly smooth!
+     */
+    public void smoothenAll(){
+        for(int i = 0; i < points.size(); i++){
+            smoothen(i, 0.5);
+        }
+    }
+    /**
      * Returns the number of points in the MutableCurvedShape.
      * @return the number of points
      */
