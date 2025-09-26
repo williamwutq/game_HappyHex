@@ -26,6 +26,10 @@ package hex;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.function.BiPredicate;
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * The {@code HexEngine} class implements the {@link HexGrid} interface and provides a
@@ -262,6 +266,57 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
             }
         }
         return null;
+    }
+    /**
+     * Returns a predicate that tests whether a block at a given hex coordinate is within the grid's range.
+     * This predicate can be used to filter or evaluate blocks based on their position.
+     *
+     * @return a predicate that returns true if the block at the given hex coordinate is within range
+     * @since 2.0
+     */
+    public Predicate<Hex> inRangePredicate(){
+        return hex -> hex.inRange(radius);
+    }
+    /**
+     * Returns a predicate that tests whether a block at a given hex coordinate is occupied.
+     * This predicate can be used to filter or evaluate blocks based on their state.
+     *
+     * @return a predicate that returns true if the block at the given hex coordinate is occupied
+     * @since 2.0
+     */
+    public Predicate<Hex> statePredicate(){
+        return this::getState;
+    }
+    /**
+     * Retrieves the state of a {@link Block} at a specific grid coordinate.
+     * This performs a {@link #search binary search} to obtain the targeting block.
+     *
+     * @param i I coordinate
+     * @param k K coordinate
+     * @return the state of the block (true = occupied), or false if out of range
+     * @since 2.0
+     */
+    public boolean getState(int i, int k){
+        Block block = getBlock(i, k);
+        if(block != null){
+            return block.getState();
+        }
+        return false;
+    }
+    /**
+     * Retrieves the state of a {@link Block} at the given hex coordinate.
+     * This performs a {@link #search binary search} to obtain the targeting block.
+     *
+     * @param hex the hex coordinate
+     * @return the state of the block (true = occupied), or false if out of range
+     * @since 2.0
+     */
+    public boolean getState(Hex hex){
+        Block block = getBlock(hex);
+        if(block != null){
+            return block.getState();
+        }
+        return false;
     }
     /**
      * Retrieves the {@link Block} at the specified array index.
@@ -653,6 +708,18 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
         };
     }
 
+    /**
+     * Returns a predicate that tests whether the {@code other} grid can be added to this grid
+     * at a given origin without overlap or out-of-bounds errors.
+     *
+     * @return a predicate that returns true if placement is valid
+     * @see #checkAdd
+     * @see #add
+     * @since 2.0
+     */
+    public BiPredicate<Hex, HexGrid> canAddPredicate(){
+        return this::checkAdd;
+    }
     /**
      * Checks whether the {@code other} grid can be added to this grid
      * at the given {@code origin} without overlap or out-of-bounds errors.
@@ -1123,6 +1190,16 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
         return counter;
     }
     /**
+     * Returns a {@link BooleanSupplier} that checks if any lines can be eliminated.
+     * This is useful for passing as a callback or condition in other parts of the program.
+     * @return a BooleanSupplier that returns true if any lines can be eliminated
+     * @see #checkEliminate()
+     * @since 2.0
+     */
+    public BooleanSupplier eliminateSupplier(){
+        return this::checkEliminate;
+    }
+    /**
      * Checks whether any full line can be eliminated in the hex grid.
      * <p>
      * Refactored with new algorithm since version 1.3.4 to reduce time complexity from O(radius^3)
@@ -1490,6 +1567,17 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
             if (getBlock(i + 1, k + 1).getState()) pattern ++;
         } else if (includeNull) pattern ++;
         return pattern;
+    }
+    /**
+     * Returns a {@link Supplier} that provides the pattern of the specified {@link Hex} position in the grid.
+     *
+     * @param hex the {@link Hex} position to get the pattern for
+     * @return a Supplier that returns the pattern of the specified {@link Hex} position
+     * @see #getPattern(int, int, boolean)
+     * @since 2.0
+     */
+    public Supplier<Integer> patternSupplier(Hex hex){
+        return () -> getPattern(hex.getLineI(), hex.getLineK(), false);
     }
     /**
      * Computes the entropy of the hexagonal grid based on the distribution of 7-block patterns.
