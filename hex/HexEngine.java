@@ -25,6 +25,8 @@
 package hex;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * The {@code HexEngine} class implements the {@link HexGrid} interface and provides a
@@ -97,7 +99,7 @@ import java.util.ArrayList;
  * @author William Wu
  * @version 2.0
  */
-public class HexEngine implements HexGrid{
+public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
     private static final double logBaseEOf2 = Math.log(2);
     private int radius;
     private Block[] blocks;
@@ -388,6 +390,40 @@ public class HexEngine implements HexGrid{
             return search(i, k, start, middleIndex-1);
         }
     }
+    /**
+     * Return an iterator over all blocks in the grid. This is optimized for performance.
+     * <p>
+     * The iterator traverses the blocks in the order they are stored in the internal array, as sorted by
+     * increasing I coordinate and then K coordinate.
+     * @return an iterator over the blocks in the grid
+     * @since 2.0
+     * @see #blockIterator()
+     */
+    public Iterator<Block> iterator() {
+        return new Iterator<Block>() {
+            int currentIndex = 0;
+            @Override
+            public boolean hasNext() {
+                return currentIndex < length();
+            }
+            @Override
+            public Block next() {
+                return blocks[currentIndex++];
+            }
+        };
+    }
+    /**
+     * Return an iterator over all blocks in the grid. This is optimized for performance.
+     * <p>
+     * The iterator traverses the blocks in the order they are stored in the internal array, as sorted by
+     * increasing I coordinate and then K coordinate.
+     * @return an iterator over the blocks in the grid
+     * @since 2.0
+     */
+    public Iterator<Block> blockIterator() {
+        return iterator();
+    }
+
     /**
      * Checks whether the {@code other} grid can be added to this grid
      * at the given {@code origin} without overlap or out-of-bounds errors.
