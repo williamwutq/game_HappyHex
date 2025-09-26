@@ -13,7 +13,7 @@ public class CurveGenerator {
         final Color pointColor = new Color(255, 51, 51);
         final Color backgroundColor = new Color(255, 255, 0,128);
         final String[] commands = new String[]{
-                "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc", "sm", "st",
+                "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc", "sm", "st", "div", "dva",
                 "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc",
                 "rd", "rm", "rml", "rmf", "rma", "r",
                 "circle", "square", "make",
@@ -149,6 +149,15 @@ public class CurveGenerator {
                     System.out.println("  my dy - Moves all points by (0, dy)");
                     System.out.println("  mp index dx dy - Moves the point at index by (dx, dy)");
                     System.out.println("  mc index dx dy - Moves the control point at index by (dx, dy)");
+                    System.out.println("  sm index - Smoothens the point at index with default position 0.5");
+                    System.out.println("  sm index pos - Smoothens the point at index with position pos (0 = straight, 1 = full curve)");
+                    System.out.println("  sma - Smoothens all points with default position 0.5");
+                    System.out.println("  st index - Straightens the point at index with default factor 0.5");
+                    System.out.println("  st index factor - Straightens the point at index with factor (0 = no change, 1 = fully straight)");
+                    System.out.println("  sta - Straightens all points with default factor 0.5");
+                    System.out.println("  div index - Divides the segment starting at index by adding a point in the middle");
+                    System.out.println("  div index pos | seg - Divides the segment starting at index at position pos (0 to 1) or into seg segments (>1)");
+                    System.out.println("  dva seg - Divides all segments into seg segments (>1)");
                     System.out.println("  scl factor - Scales the entire shape by the given factor");
                     System.out.println("  sxy fx fy - Scales the entire shape by the given x and y factor (fx, fy)");
                     System.out.println("  scb factor - Scales the viewing box by the given factor");
@@ -204,6 +213,12 @@ public class CurveGenerator {
                             case "my"   -> "my dy - Moves all points by (0, dy)";
                             case "mp"   -> "mp index dx dy - Moves the point at index by (dx, dy)";
                             case "mc"   -> "mc index dx dy - Moves the control point at index by (dx, dy)";
+                            case "sm"   -> "sm index - Smoothens the point at index with default position 0.5\nsm index pos - Smoothens the point at index with position pos (0 = straight, 1 = full curve)";
+                            case "sma"  -> "sma - Smoothens all points with default position 0.5";
+                            case "st"   -> "st index - Straightens the point at index with default factor 0.5\nst index factor - Straightens the point at index with factor (0 = no change, 1 = fully straight)";
+                            case "sta"  -> "sta - Straightens all points with default factor 0.5";
+                            case "div"  -> "div index - Divides the segment starting at index by adding a point in the middle\ndiv index pos | seg - Divides the segment starting at index at position pos (0 to 1) or into seg segments (>1)";
+                            case "dva"  -> "dva seg - Divides all segments into seg segments (>1)";
                             case "scl"  -> "scl factor - Scales the entire shape by the given factor";
                             case "sxy"  -> "sxy fx fy - Scales the entire shape by the given x and y factor (fx, fy)";
                             case "scb"  -> "scb factor - Scales the viewing box by the given factor";
@@ -578,6 +593,70 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: st index or st idx factor");
+                    }
+                } else if (line.startsWith("dva")){
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 1) {
+                        try {
+                            int pts = Integer.parseInt(parts[0]);
+                            s.get().subdivideAll(pts);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Parts must be greater than 1.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: dva seg");
+                    }
+                } else if (line.startsWith("div")){
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 1) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            s.get().subdivide(index);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else if (parts.length == 2) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            double pos = Double.parseDouble(parts[1]);
+                            if (pos > 1){
+                                // Suspect that this is number of parts
+                                int pts = Integer.parseInt(parts[1]);
+                                s.get().subdivide(index, pts);
+                            } else {
+                                s.get().subdivide(index, pos);
+                            }
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Position must be between 0 and 1 as a decimal, or greater than 1 as number of segments.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: div index or div idx pos | seg");
                     }
                 } else if (line.startsWith("sp")) {
                     String[] parts = splitArgs(line, 2);

@@ -300,6 +300,113 @@ public class MutableCurvedShape implements Cloneable {
         }
     }
     /**
+     * Subdivides the curve at the specified index by adding a new point between the current point and the next point.
+     * The new point is placed at the midpoint of the curve segment, and the control points are adjusted accordingly
+     * to maintain the shape of the curve.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point where the curve should be subdivided
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void subdivide(int index){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        double x1 = current[0];
+        double y1 = current[1];
+        double cx = current[2];
+        double cy = current[3];
+        double x2 = next[0];
+        double y2 = next[1];
+        double cx1 = (x1 + cx) * 0.5;
+        double cy1 = (y1 + cy) * 0.5;
+        double cx2 = (cx + x2) * 0.5;
+        double cy2 = (cy + y2) * 0.5;
+        cx = (cx1 + cx2) * 0.5;
+        cy = (cy1 + cy2) * 0.5;
+        addPoint(index + 1, cx, cy, cx2, cy2);
+        current[2] = cx1;
+        current[3] = cy1;
+    }
+    /**
+     * Subdivides the curve at the specified index by inserting a new point along the segment
+     * between the current point and the next point, at the given position [0,1].
+     * <ul>
+     *   <li>position = 0 corresponds to the current point</li>
+     *   <li>position = 1 corresponds to the next point</li>
+     * </ul>
+     * If index is the last point, it connects back to the first point.
+     *
+     * @param index the index of the point where the curve should be subdivided
+     * @param position the normalized position along the curve segment (0 = at current, 1 = at next)
+     * @throws IndexOutOfBoundsException if index is invalid
+     * @throws IllegalArgumentException if position is out of bounds (<0 or >1)
+     */
+    public void subdivide(int index, double position) {
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        if (position <= 0.0 || position >= 1.0) {
+            // do nothing if exactly 0 or 1
+            if (position == 0.0 || position == 1.0) return;
+            throw new IllegalArgumentException("Position must be in range [0,1], got: " + position);
+        }
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        double x1 = current[0];
+        double y1 = current[1];
+        double cx = current[2];
+        double cy = current[3];
+        double x2 = next[0];
+        double y2 = next[1];
+        // De Casteljau subdivision for quadratic Bézier at arbitrary t
+        double t = position;
+        double x12 = (1 - t) * x1 + t * cx;
+        double y12 = (1 - t) * y1 + t * cy;
+        double x23 = (1 - t) * cx + t * x2;
+        double y23 = (1 - t) * cy + t * y2;
+        double xMid = (1 - t) * x12 + t * x23;
+        double yMid = (1 - t) * y12 + t * y23;
+        addPoint(index + 1, xMid, yMid, x23, y23);
+        current[2] = x12;
+        current[3] = y12;
+    }
+    /**
+     * Subdivides the curve at the specified index into a given number of equal parts by adding multiple new points.
+     * Each new point is placed at equal intervals along the curve segment, and the control points are adjusted accordingly
+     * to maintain the shape of the curve.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point where the curve should be subdivided
+     * @param parts the number of equal parts to subdivide the curve into (must be at least 1)
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     * @throws IllegalArgumentException if parts is less than 1
+     */
+    public void subdivide(int index, int parts){
+        if(parts < 1){
+            throw new IllegalArgumentException("Parts must be at least 1");
+        }
+        for(int i = parts - 1; i > 0; i--){
+            subdivide(index, i / (double)(i + 1.0));
+        }
+    }
+    /**
+     * Subdivides all curves in the MutableCurvedShape into a given number of equal parts by adding multiple new points.
+     * Each curve segment is subdivided into the specified number of parts, and the control points are adjusted accordingly
+     * to maintain the shape of the curve.
+     * @param parts the number of equal parts to subdivide each curve into (must be at least 1)
+     * @throws IllegalArgumentException if parts is less than 1
+     */
+    public void subdivideAll(int parts){
+        if(parts < 1){
+            throw new IllegalArgumentException("Parts must be at least 1");
+        }
+        int originalSize = points.size();
+        for(int i = 0; i < originalSize; i++){
+            subdivide(i * parts, parts);
+        }
+    }
+    /**
      * Returns the number of points in the MutableCurvedShape.
      * @return the number of points
      */
