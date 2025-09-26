@@ -1,0 +1,215 @@
+# STML: Simple Typed Markup Language (Not "Short Term Memory Loss")
+# Version: 1.0
+# Designed and made by William Wu
+# Compatibility: Compatible with INI. All valid INI files are valid STML files.
+
+# Notes:
+# - This is an example configuration file demonstrating various features of the STML format.
+# - It includes sections, subsections, comments, data types, lists, and constants.
+# - The file defines colors, network settings, and some extra configurations.
+# - It showcases the use of type annotations, final values, and ordered fields.
+# - The configuration is structured to be human-readable and easy to modify.
+
+# Notes:
+# - At the top of the file it might be necessary to include any files required by the parser
+# - In this case, no dependencies are needed, so this section is empty
+# - If dependencies were needed, they would be listed here, one per line, with the #include directive
+# in the format #include "path/to/dependency.config"
+# - The path can be absolute or relative to the current file
+# - # include is not a valid directive, and will be treated as a comment. There must be no space between the # and include
+
+[STML]
+
+# Notes:
+# - This is a comment, it can be placed anywhere at end of lines or on its own line
+# - The file can start with a header [STML] but it's not required
+# - Sections are defined using square brackets, e.g., [SectionName]
+# - It is recommended to put all definitions and constants at the top of the file, because when parsed as a normal
+# INI file, they will be read first and the [STML] section is generally not used
+# - You do not need to reference this section when referencing values defined in it, since it is the global scope
+
+# Notes:
+# This is a inline comment, ##
+# - Inline comments can be placed after values or definitions, and ends with two # ## integerValue = 7
+# - This is a multi-line commend, and it is constructed with multiple single line comments
+# - Note that the above integerValue = 7 is parsed as int because it is not inside a commend
+
+#type Color #@closed, #@ordered
+R = int!
+G = int!
+B = int!
+A = int
+
+# Notes:
+# - The #@type annotation defines a custom type for the section or field
+# - By default, types are open, meaning objects of this type can have additional fields added to them later
+# - The #@closed annotation indicates that the section or field cannot be expanded later. This means objects of this
+# type cannot have additional fields added to them outside of this definition
+# - Types are final, meaning they cannot be redefined later in the same file in the same scope
+# - The #@ordered annotation indicates that the fields in this section should be kept in the order they are defined
+# This enables creating maps without obvious keys, such as lists of colors or matrices
+# - The ! after a type indicates that the field is required and must be provided
+# - Supported types include int, float, bool, string, and custom types defined
+# - Types can be nested, meaning a field can be of a custom type defined elsewhere
+# - #  type does not work, and will be treated as a comment. There must be no space between the # and type
+
+#define Color.RED {255, 0, 0, 255} #@type Color
+#define Color.GREEN {R = 0, G = 255, B = 0, A = 255} #@type Color
+#define Color.BLUE {0, 0, 255} #@type Color
+#define DEFAULT_HOST "127.0.0.1"
+#define DEFAULT_PORT 22 #@type int
+#define VALUE [Color.WHITE, Network.port, Color.GREEN, Color.BLUE]
+
+# Notes:
+# - Constants can be defined using the #define directive
+# - Constants can be used anywhere in the scope they are defined or in sub scopes
+# - Constants can reference other constants and values, including those defined in a sub scope if they are
+# referenced with the name of the sub scope they are defined in. However, they cannot reference values defined later in the same scope
+# or in a sub scope
+# - Name a constant the same name as a constant defined in a parent scope will shadow the parent constant. This is allowed but should
+# only be used intentionally
+# - Constants can be of any type, including custom types and lists
+# - Constants are final, closed and cannot be redefined or extended later in the same scope. However, if they contains an
+# extendable value, such as a list or an open type, that value can be modified later
+# - Constants can be defined in any section, but it is recommended to put them at the top of the file or top of section
+# - Like values, type annotation can be applied to constants to ensure they are of the correct type
+# - # define does not work and will be treated as a comment. There must be no space between the # and define
+
+Color.WHITE = {255, 255, 255} #@type Color, final
+
+# Notes:
+# - Values can be defined in sections and subsections
+# - Values can be of any supported type, including custom types and lists
+# - Values can reference constants and other values, including those defined later in the same section or in a sub/super section if
+# they are referenced with the name of the sub/super section they are defined in
+# - Values can be redefined or extended later in the same section or in a sub section, unless annotated with #@final
+# - Like constants, type annotation can be applied to values to ensure they are of the correct type
+# - To separate two annotations, use a comma , between them
+# - Recursion is allowed when referencing values and constants, and curricular references are allowed since ATML is lazily evaluated
+# However, this practice is discouraged as it can lead to infinite loops if not handled properly, and it may cause type errors
+
+[Color.YELLOW]
+R = 255
+G = 255
+B = 0
+A = 255
+
+# Notes:
+# - Subsections are defined using dot notation, e.g., [Section.Subsection]
+# - Subsections can be nested to any depth
+# - Subsections are values
+# - Subsections can have their own subsections
+# - Subsections can reference values and constants from parent sections, and subsections, if they are referenced with
+# the name of the parent section they are defined in
+# - Naming of subsection use the . character to indicate hierarchy, but the . character is not allowed in names of sections or subsections
+# - In this example, the declaration is equivalent to Color.YELLOW = {R = 255, G = 255, B = 0, A = 255}
+# - Subsections, like values (because they are values), can be annotated with type and other annotations
+# - By default, subsections are open and can be extended later, unless they are annotated with #@closed
+# - By default, subsections are not ordered, unless they are annotated with #@ordered
+# - By default, subsections are not final and can be redefined later, unless they are annotated with #@final
+
+[Network]
+#type ServerConfig
+host = string!
+port = int!
+
+host = DEFAULT_HOST
+port = DEFAULT_PORT
+
+# Notes:
+# - The above declaration use the ServerConfig type defined earlier to ensure that the host and port fields are of the correct type
+# - The host and port fields are required, as indicated by the ! after the type
+# - The host and port fields are assigned default values using the constants defined earlier
+# - The Network section can be extended later with additional fields and subsections
+# - The Network section can be annotated with type and other annotations, like any other section or subsection
+# - The DEFAULT_HOST and DEFAULT_PORT constants, which are defined earlier in the super section, are referenced using their names
+
+use_ssl = false
+timeout = 30.0 seconds
+retry_attempts = 3
+
+# Notes:
+# - The type of the fields are inferred from the values assigned to them, but only if they are not annotated with a type and they
+# are one of the basic supported types (int, float, bool, string)
+# - The use_ssl field is a boolean, the timeout field is a String, and the retry_attempts field is an integer
+# - This example demonstrates that String values can contain spaces and special characters, and do not need to be enclosed in quotes
+# - In fact, anything not properly understood as another type is treated as a String
+# - The use_ssl, timeout, and retry_attempts fields can be redefined or extended later in the same section or in a sub section
+
+[.Server1] #@type ServerConfig
+host = "127.3.0.1"
+port = 8080
+[Network.Server2]
+host = "127.52.0.0"
+port = 9090
+use_ssl = true
+
+# Notes:
+# - The above declarations define two subsections of the Network section, Server1 and Server2
+# - The Server1 subsection uses the ServerConfig type defined earlier to ensure that the host and port fields are of the correct type
+# - The Server2 subsection does not use the ServerConfig type, but it could if desired. In parsers, it could be converted to that type
+# - The Server2 subsection use the convenience of dot notation to define the subsection directly under the Network section. This is possible
+# because the Network section is already defined earlier in the file and there are no intermediate sections, so the parser can infer the hierarchy
+# - The host and port fields are assigned specific values for each server, and they are required, as per the ServerConfig type
+# - The use_ssl field is defined in the Server2 subsection, but not in the Server1 subsection. This is allowed since the ServerConfig type is open
+# - The Server1 and Server2 subsections can be extended later with additional fields and subsections
+# - The Server1 and Server2 subsections can reference values and constants from the parent Network section, and other subsections,
+# if they are referenced with the name of the parent section they are defined in
+
+[Extras.]
+complicatedList = [1, 2, {key = VALUE, key2 = 5}, [["c", 'd', true], "pi"], 5]
+
+# Notes:
+# - Lists are defined using square brackets, e.g., [value1, value2, value3]
+# - Lists can contain values of any supported type, including custom types, maps, and other lists
+# - Lists can be nested to any depth
+# - Lists can reference constants and values, including those defined later in the same section or in a sub/super section if
+# they are referenced with the name of the sub/super section they are defined in
+# - Lists can be empty, e.g., []
+# - Lists are closed, meaning they cannot be extended later
+# - Lists are ordered, meaning the order of elements is preserved
+# - Lists are by default not final, meaning they can be redefined later, unless annotated with #@final
+# - The . after the section name declares an anonymous subsection of the section Extras. When a section has multiple anonymous subsections,
+# they are treated as a list of subsections. This is equivalent to declaring Extras = [{...}, {...}, ...]
+# - The anonymous subsections can be referenced using the name of the parent section they are defined in, e.g., Extras[0], Extras[1], etc.
+# - The anonymous subsections can be annotated with type and other annotations, like any other section or subsection
+# - By default, anonymous subsections are not open and cannot be extended later
+# - By default, anonymous subsections are not ordered, unless they are annotated with #@ordered
+# - By default, anonymous subsections are final and cannot be redefined later
+# - This means that when another [Extras.] section is defined later, it is treated as a separate element in the list of anonymous subsections,
+# and does not modify or extend the previous anonymous subsection
+
+[Extras.]
+
+# Notes:
+# - This is another anonymous subsection of the Extras section, which is treated as a separate element in the list of anonymous subsections
+# - This subsection is a different scope compare to the previous Extras. subsection, so constants and values defined in one are not accessible in the other
+# - This subsection is empty, and is treated as an empty map
+# - This subsection, despite being empty, can be annotated with type and other annotations, like any other section or subsection
+
+[Network.Server1]
+use_ssl = false
+
+# Notes:
+# - This extends Network.Server1 subsection to provide a value for the use_ssl field, which was not defined in the previous declaration of that subsection
+# - This is allowed since the ServerConfig type is open, and the use_ssl field was not defined in that type
+# - This demonstrates that subsections can be extended later in the same section or in a sub section, unless they are annotated with #@closed
+# - This also demonstrates that values can be redefined or extended later in the same section or in a sub section
+
+[Extras.]
+#define ONE 1
+complicatedList = [-1, VALUE]
+anotherList = [Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.WHITE]
+MATRIX = [ { x = ONE, y = 2, z = 0 }, { x = 0, y = ONE, z = 0 }, { x = 0, y = 0, z = ONE } ] #@final
+
+# Notes:
+# - This extends the Extras section to provide additional anonymous subsections
+# - This is treated as a separate element in the list of anonymous subsections, and does not modify or extend the previous anonymous subsections
+# - The ONE constant is defined in this subsection, and is not accessible in the previous Extras. subsection
+# - The complicatedList field is defined in this subsection, and this is not the same as the complicatedList field defined in the previous Extras. subsection
+# - Color constants are accessible here because they are defined in the super section and referenced with their names
+# - The MATRIX is a list of maps. Because lists are by default ordered and closed, and this is annotated as final, the MATRIX cannot be modified later
+# - The MATRIX can be referenced using Extras.MATRIX, and individual elements can be accessed using indexing, e.g., Extras.MATRIX[0], Extras.MATRIX[1], etc.
+# - Because individual maps are not annotated, they are not ordered, closed, or final, and can be modified later if desired (To do so, something
+# like Extras.MATRIX[0].newField = value would be used)
+# - The fields in the maps are inferred to be integers based on the values assigned to them, but they could be annotated with types if desired
