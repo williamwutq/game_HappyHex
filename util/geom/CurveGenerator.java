@@ -573,6 +573,8 @@ public class CurveGenerator {
                             System.out.println("Invalid number format.");
                         } catch (IndexOutOfBoundsException e) {
                             System.out.println("Index out of bounds.");
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Factor must be between 0 and 1.");
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: st index or st idx factor");
