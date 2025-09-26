@@ -15,7 +15,7 @@ public class CurveGenerator {
         final String[] commands = new String[]{
                 "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc",
                 "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc",
-                "rd", "rm", "rml", "rmf", "rma",
+                "rd", "rm", "rml", "rmf", "rma", "r",
                 "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
                 "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb",
@@ -26,6 +26,7 @@ public class CurveGenerator {
         final AtomicInteger undoIndex = new AtomicInteger(0);
         JFrame f = new JFrame();
         final AtomicReference<MutableCurvedShape> s = new AtomicReference<MutableCurvedShape>(new MutableCurvedShape());
+        final AtomicReference<String> previousCommand = new AtomicReference<>("");
         AtomicReference<Double> boardScale = new AtomicReference<>(1.0);
         JPanel p = new JPanel(){
             @Override
@@ -123,8 +124,16 @@ public class CurveGenerator {
             while (true) {
                 assert s != null;
                 assert s.get() != null;
+                String prev = previousCommand.get();
                 System.out.print(">>> ");
                 String line = scanner.nextLine().trim();
+                if (line.isEmpty()) {
+                    continue;
+                } else if (line.equals("r")){
+                    line = prev; // We do not update previous command on repeat
+                } else {
+                    previousCommand.set(line);
+                }
                 if (line.equals("exit") || line.equals("quit")) {
                     System.exit(0);
                 } else if (line.equals("help")) {
@@ -165,6 +174,7 @@ public class CurveGenerator {
                     System.out.println("  info - Shows information about the current shape");
                     System.out.println("  undo - Undoes the last action");
                     System.out.println("  redo - Redoes the last undone action");
+                    System.out.println("  r - Repeat the last command, whether valid or not");
                     System.out.println("  psb - Pushes the current shape to the background shapes");
                     System.out.println("  pb index - Pulls the background shape at index to the first layer");
                     System.out.println("  pb i l - Pulls the background shape at index i to the layer l");
@@ -217,6 +227,7 @@ public class CurveGenerator {
                             case "info" -> "info - Shows information about the current shape";
                             case "undo" -> "undo - Undoes the last action";
                             case "redo" -> "redo - Redoes the last undone action";
+                            case "r"    -> "r - Repeat the last command, whether valid or not";
                             case "psb"  -> "psb - Pushes the current shape to the background shapes";
                             case "pb"   -> "pb index - Pulls the background shape at index to the first layer\npb i l - Pulls the background shape at index i to the layer l";
                             case "rmb"  -> "rmb - Removes the most recent background shape\nrmb index - Removes the background shape at index";
