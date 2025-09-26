@@ -25,7 +25,6 @@
 package hex;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -422,6 +421,236 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
      */
     public Iterator<Block> blockIterator() {
         return iterator();
+    }
+    /**
+     * Returns an iterable over lines of blocks along the I axis.
+     * Each iteration returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest I) to the bottommost line (largest I).
+     * <p>
+     * This iterable is useful for operations that need to process or analyze blocks line by line along the I axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterable over lines of blocks along the I axis
+     * @since 2.0
+     * @see #iteratorI()
+     * @see #eliminateI
+     * @see #countEliminateI
+     */
+    public Iterable<Block[]> lineIterableI() {
+        return this::iteratorI;
+    }
+    /**
+     * Return an iterator that iterates over lines of blocks along the I axis.
+     * Each call to {@code next()} returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest I) to the bottommost line (largest I).
+     * <p>
+     * This iterator is useful for operations that need to process or analyze blocks line by line along the I axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterator over lines of blocks along the I axis
+     * @since 2.0
+     * @see #eliminateI
+     * @see #countEliminateI
+     */
+    public Iterator<Block[]> iteratorI() {
+        return new Iterator<Block[]>() {
+            int currentLine = 0;
+            final int maxLines = radius * 2 - 1;
+            final int constTerm = radius * (radius * 3 - 1) / 2;
+            @Override
+            public boolean hasNext() {
+                return currentLine < maxLines;
+            }
+            @Override
+            public Block[] next() {
+                if (currentLine >= maxLines) {
+                    throw new IndexOutOfBoundsException("No more I lines");
+                }
+                Block[] line;
+                int index;
+                if (currentLine < radius) {
+                    // This is equals to the first loop in eliminateI
+                    line = new Block[radius + currentLine];
+                    index = currentLine * (radius * 2 + currentLine - 1) / 2;
+                    System.arraycopy(blocks, index, line, 0, radius + currentLine);
+                } else {
+                    // This is equals to the second loop in eliminateI
+                    int i = maxLines - currentLine - 1;
+                    line = new Block[radius + i];
+                    index = constTerm + (radius - i - 2) * (radius * 3 - 1 + i) / 2;
+                    System.arraycopy(blocks, index, line, 0, line.length);
+                }
+                currentLine++;
+                return line;
+            }
+        };
+    }
+    /**
+     * Returns an iterable over lines of blocks along the J axis.
+     * Each iteration returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest J) to the bottommost line (largest J).
+     * <p>
+     * This iterable is useful for operations that need to process or analyze blocks line by line along the J axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterable over lines of blocks along the J axis
+     * @since 2.0
+     * @see #iteratorJ()
+     * @see #eliminateJ
+     * @see #countEliminateJ
+     */
+    public Iterable<Block[]> lineIterableJ() {
+        return this::iteratorJ;
+    }
+    /**
+     * Return an iterator that iterates over lines of blocks along the J axis.
+     * Each call to {@code next()} returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest J) to the bottommost line (largest J).
+     * <p>
+     * This iterator is useful for operations that need to process or analyze blocks line by line along the J axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterator over lines of blocks along the J axis
+     * @since 2.0
+     * @see #eliminateJ
+     * @see #countEliminateJ
+     */
+    public Iterator<Block[]> iteratorJ() {
+        return new Iterator<Block[]>() {
+            int currentLine = 1 - radius;
+            @Override
+            public boolean hasNext() {
+                return currentLine < radius;
+            }
+            @Override
+            public Block[] next() {
+                if (currentLine >= radius) {
+                    throw new IndexOutOfBoundsException("No more J lines");
+                }
+                Block[] line;
+                int index = 0; int idx = 0;
+                if (currentLine > 0) {
+                    // This is equals to the first loop in eliminateJ
+                    line = new Block[radius * 2 - currentLine - 1];
+                    index = currentLine;
+                    for (int c = 1; c < radius; c++)
+                    {
+                        line[idx++] = blocks[index];
+                        index += radius + c;
+                    }
+                    for (int c = 0; c < radius - currentLine; c++)
+                    {
+                        line[idx++] = blocks[index];
+                        index += 2 * radius - c - 1;
+                    }
+                } else {
+                    // This is equals to the second loop in eliminateJ
+                    int r = -currentLine;
+                    index = radius * r + r * (r - 1) / 2;
+                    line = new Block[radius * 2 + currentLine - 1];
+                    for (int c = 1; c < radius - r; c++){
+                        line[idx++] = blocks[index];
+                        index += radius + c + r;
+                    }
+                    for (int c = 0; c < radius; c++){
+                        line[idx++] = blocks[index];
+                        index += 2 * radius - c - 1;
+                    }
+                }
+                currentLine++;
+                return line;
+            }
+        };
+    }
+    /**
+     * Returns an iterable over lines of blocks along the K axis.
+     * Each iteration returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest K) to the bottommost line (largest K).
+     * <p>
+     * This iterable is useful for operations that need to process or analyze blocks line by line along the K axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterable over lines of blocks along the K axis
+     * @since 2.0
+     * @see #iteratorK()
+     * @see #eliminateK
+     * @see #countEliminateK
+     */
+    public Iterable<Block[]> lineIterableK() {
+        return this::iteratorK;
+    }
+    /**
+     * Return an iterator that iterates over lines of blocks along the K axis.
+     * Each call to {@code next()} returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest K) to the bottommost line (largest K).
+     * <p>
+     * This iterator is useful for operations that need to process or analyze blocks line by line along the K axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterator over lines of blocks along the K axis
+     * @since 2.0
+     * @see #eliminateK
+     * @see #countEliminateK
+     */
+    public Iterator<Block[]> iteratorK() {
+        return new Iterator<Block[]>() {
+            int currentLine = 0;
+            final int maxLines = radius * 2 - 1;
+            @Override
+            public boolean hasNext() {
+                return currentLine < maxLines;
+            }
+
+            @Override
+            public Block[] next() {
+                if (currentLine >= maxLines) {
+                    throw new IndexOutOfBoundsException("No more K lines");
+                }
+                Block[] line;
+                int index = 0;
+                int idx = 0;
+                if (currentLine < radius) {
+                    // This is equals to the first loop in eliminateK
+                    line = new Block[radius + currentLine];
+                    index = currentLine;
+                    for (int c = 0; c < radius - 1; c++){
+                        line[idx++] = blocks[index];
+                        index += radius + c;
+                    }
+                    for (int c = 0; c <= currentLine; c++){
+                        line[idx++] = blocks[index];
+                        index += 2 * radius - c - 2;
+                    }
+                } else {
+                    // This is equals to the second loop in eliminateK
+                    int r = currentLine - radius + 2;
+                    index = radius * r + (r - 1) * r / 2 - 1;
+                    line = new Block[radius * 2 - r];
+                    for (int c = r; c < radius; c++) {
+                        line[idx++] = blocks[index];
+                        index += radius + c - 1;
+                    }
+                    for (int c = radius - 1; c >= 0; c--) {
+                        line[idx++] = blocks[index];
+                        index += radius + c - 1;
+                    }
+                }
+                currentLine++;
+                return line;
+            }
+        };
     }
 
     /**
