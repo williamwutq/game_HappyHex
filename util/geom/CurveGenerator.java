@@ -24,7 +24,7 @@ public class CurveGenerator {
                 "clear", "print", "pp", "json", "info", "undo", "redo",
                 "s", "oa", "ao", "o", "a",
                 "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb",
-                "exit", "quit", "help"
+                "sysinfo", "exit", "quit", "help"
         };
         final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
         final ArrayList<MutableCurvedShape> pastShapesA = new ArrayList<>();
@@ -304,6 +304,7 @@ public class CurveGenerator {
                     System.out.println("  reg - Show which register is currently active");
                     System.out.println("  exit - Exits the program");
                     System.out.println("  quit - Quits the program");
+                    System.out.println("  sysinfo - Display system information");
                     System.out.println("  help - Shows this help message");
                     System.out.println("  help command - Shows help message for specific command");
                 } else if (line.startsWith("help")) {
@@ -367,6 +368,7 @@ public class CurveGenerator {
                             case "reg"  -> "reg - Show which register is currently active";
                             case "exit" -> "exit - Exits the program";
                             case "quit" -> "quit - Quits the program";
+                            case "sysinfo" -> "sysinfo - Display system information";
                             case "help" -> "help - Shows this help message\nhelp command - Shows help message for specific command";
                             case "section" ->
                                     "Sections: move, modify, shape, transform, refine, background, flow, output, system\n" +
@@ -377,19 +379,40 @@ public class CurveGenerator {
                             // Sectional help
                             case "move" -> "move commands: mv, mx, my, mp, mc";
                             case "modify" -> "modify commands: set, add, sp, sc, ins, rm, rml, rmf, rma";
-                            case "shape" -> "shape commands: add, make, circle, square";
-                            case "transform" -> "transform commands: scl, sxy, scb, ssb, rot, mrx, mry, mrc";
-                            case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg";
-                            case "background" -> "background commands: psb, pb, rmb, clb, lsb, printb, ldb";
-                            case "flow" -> "undo/redo commands: undo, redo, repeat: r";
-                            case "output" -> "output commands: print, pp, json, info, printb, lsb";
-                            case "system" -> "system commands: exit, quit, help, clear";
+                            case "shape" -> "shape commands: add, ins, rm, make, circle, square, rma";
+                            case "transform" -> "transform commands: scl, sxy, scb, ssb, rot, mrx, mry, mrc, rd";
+                            case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg, rd";
+                            case "background" -> "background commands: psb, pb, rmb, clb, lsb, printb, ldb, scb, ssb";
+                            case "flow" -> "undo/redo commands: undo, redo; repeat: r";
+                            case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb";
+                            case "system" -> "system commands: sysinfo, exit, quit, help, clear";
                             case "register" -> "register commands: reg, o, a, oa, ao, s";
                             default -> "Unknown command";
                         });
                     } else {
                         System.out.println("Invalid number of arguments. Usage: help command");
                     }
+                } else if (line.equals("sysinfo")){
+                    System.out.println("System Information:");
+                    System.out.println("  Software:     \u001B[1mCurve Generator\u001B[0m (Standalone)");
+                    System.out.println("  Package:      \u001B[1mHappyHex\u001B[0m (since v2.0.0) - util.geom - CurveGenerator");
+                    System.out.println("  Authors:      William Wu, Github Copilot");
+                    System.out.println("  OS:           " + System.getProperty("os.name") + " " + System.getProperty("os.version"));
+                    System.out.println("  Java Version: " + System.getProperty("java.version"));
+                    System.out.println("  Dependencies: JavaX Swing, AWT, JSON");
+                    System.out.println("  Window Size:  \u001B[4m" + f.getWidth() + "x" + f.getHeight() + "\u001B[0m");
+                    System.out.println("  Window Scale: \u001B[4m" + String.format("%.2f", boardScale.get()) + "x\u001B[0m");
+                    System.out.println("  Processing:   Single Shape-Processing Thread, Event Dispatch Thread for UI");
+                    System.out.println("  Terminal:     Standard Input/Output \u001B[1mEnabled\u001B[0m");
+                    System.out.println("  Registers:    \u001B[4m2\u001B[0m/2 (\u001B[1m\u001B[4mO\u001B[0mrdinary and \u001B[1m\u001B[4mA\u001B[0muxiliary)");
+                    System.out.println("                These are independent shape registers that can be switched between with commands.");
+                    System.out.println("                Each have their individual undo/redo history, and can handle read and modification operations.");
+                    System.out.println("                O register: \u001B[4m" + s.get().size() + "\u001B[0m points \u001B[4m" + (pastShapes.size() - undoIndex.get() - 1) + "\u001B[0m history \u001B[4m" + undoIndex.get() + "\u001B[0m undone");
+                    System.out.println("                A register: \u001B[4m" + a.get().size() + "\u001B[0m points \u001B[4m" + (pastShapesA.size() - undoIndexA.get()-1) + "\u001B[0m history \u001B[4m" + undoIndexA.get()+ "\u001B[0m undone");
+                    System.out.println("  Background:   \u001B[4m" + backgroundShapes.size() + "\u001B[0m/Unlimited (Stack, readonly when in stack)");
+                    System.out.println("                This is a stack of background shapes that can be pushed to and pulled from.");
+                    System.out.println("                These shapes are drawn behind the current shape, and do not affect the current shape.");
+                    System.out.println("                The background stack is shared between both the shape registers.");
                 } else if (line.equals("circle")){
                     shapeRef.set(new MutableCurvedShape(CurvedShape.CIRCLE));
                     addAndBreakUndoChain(shapeObj, undoRef, pastRef);
