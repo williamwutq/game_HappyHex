@@ -255,6 +255,22 @@ public class CurveGenerator {
                             case "exit" -> "exit - Exits the program";
                             case "quit" -> "quit - Quits the program";
                             case "help" -> "help - Shows this help message\nhelp command - Shows help message for specific command";
+                            case "section" ->
+                                    "Sections: move, modify, shape, transform, refine, background, flow, output, system\n" +
+                                    "Use 'help section' to see commands in each section";
+                            case "sec" ->
+                                    "Use 'help section' to see commands in each section\n" +
+                                    "Sections: move, modify, shape, transform, refine, background, flow, output, system";
+                            // Sectional help
+                            case "move" -> "move commands: mv, mx, my, mp, mc";
+                            case "modify" -> "modify commands: set, add, sp, sc, ins, rm, rml, rmf, rma";
+                            case "shape" -> "shape commands: add, make, circle, square";
+                            case "transform" -> "transform commands: scl, sxy, scb, ssb, rot, mrx, mry, mrc";
+                            case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg";
+                            case "background" -> "background commands: psb, pb, rmb, clb, lsb, printb, ldb";
+                            case "flow" -> "undo/redo commands: undo, redo, repeat: r";
+                            case "output" -> "output commands: print, pp, json, info";
+                            case "system" -> "system commands: exit, quit, help, clear";
                             default -> "Unknown command";
                         });
                     } else {
