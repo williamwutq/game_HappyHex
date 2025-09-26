@@ -158,6 +158,7 @@ public class CurveGenerator {
                     System.out.println("  div index - Divides the segment starting at index by adding a point in the middle");
                     System.out.println("  div index pos | seg - Divides the segment starting at index at position pos (0 to 1) or into seg segments (>1)");
                     System.out.println("  dva seg - Divides all segments into seg segments (>1)");
+                    System.out.println("  mg index - Merges the point at index with the next point, removing the point at index");
                     System.out.println("  scl factor - Scales the entire shape by the given factor");
                     System.out.println("  sxy fx fy - Scales the entire shape by the given x and y factor (fx, fy)");
                     System.out.println("  scb factor - Scales the viewing box by the given factor");
@@ -219,6 +220,7 @@ public class CurveGenerator {
                             case "sta"  -> "sta - Straightens all points with default factor 0.5";
                             case "div"  -> "div index - Divides the segment starting at index by adding a point in the middle\ndiv index pos | seg - Divides the segment starting at index at position pos (0 to 1) or into seg segments (>1)";
                             case "dva"  -> "dva seg - Divides all segments into seg segments (>1)";
+                            case "mg"   -> "mg index - Merges the point at index with the next point, removing the point at index";
                             case "scl"  -> "scl factor - Scales the entire shape by the given factor";
                             case "sxy"  -> "sxy fx fy - Scales the entire shape by the given x and y factor (fx, fy)";
                             case "scb"  -> "scb factor - Scales the viewing box by the given factor";
@@ -613,6 +615,26 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: dva seg");
+                    }
+                } else if (line.startsWith("mg")){
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 1) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            s.get().merge(index);
+                            // Break the undo chain
+                            if (undoIndex.get() > 0) {
+                                pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
+                            }
+                            pastShapes.add(s.get().clone());
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: mg index");
                     }
                 } else if (line.startsWith("div")){
                     String[] parts = splitArgs(line, 3);

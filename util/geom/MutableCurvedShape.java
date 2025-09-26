@@ -407,6 +407,45 @@ public class MutableCurvedShape implements Cloneable {
         }
     }
     /**
+     * Merges the point at the specified index with its neighboring points by removing it and recalculating
+     * the control point of the previous point to maintain a smooth curve.
+     * The new control point is calculated as the intersection of the lines formed by the control lines
+     * of the previous and next points.
+     * If the index is the first or last point, it connects back to the last or first point respectively.
+     * <p>
+     * Information loss occurs when using this method, as one point is removed from the shape. Use with caution!
+     * @param index the index of the point to be merged
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void merge(int index){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        // Merge and recalculate control point. The new control point is the intersection of the lines formed by the control lines
+        double[] previous = points.get((index - 1 + points.size()) % points.size());
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        // Direction of previous control line
+        double dir1X = previous[0] - previous[2];
+        double dir1Y = previous[1] - previous[3];
+        // Direction of current control line
+        double dir2X = current[2] - next[0];
+        double dir2Y = current[3] - next[1];
+        // Solve for intersection using determinants
+        double det = dir1X * dir2Y - dir1Y * dir2X;
+        if (Math.abs(det) < 1e-10) {
+            // Lines are parallel, set control point to midpoint between previous and next points
+            previous[2] = (previous[0] + next[0]) / 2;
+            previous[3] = (previous[1] + next[1]) / 2;
+        } else {
+            double t = ((previous[2] - current[2]) * dir2Y - (previous[3] - current[3]) * dir2X) / det;
+            previous[2] -= t * dir1X;
+            previous[3] -= t * dir1Y;
+        }
+        // Remove current point
+        removePoint(index);
+    }
+    /**
      * Returns the number of points in the MutableCurvedShape.
      * @return the number of points
      */
