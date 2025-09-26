@@ -3,6 +3,7 @@ package util.geom;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -413,6 +414,7 @@ public class CurveGenerator {
                     System.out.println("                This is a stack of background shapes that can be pushed to and pulled from.");
                     System.out.println("                These shapes are drawn behind the current shape, and do not affect the current shape.");
                     System.out.println("                The background stack is shared between both the shape registers.");
+                    System.out.println("  Commands:     \u001B[4m" + commands.length + "\u001B[0m commands available. Use \u001B[1mhelp\u001B[0m to see the list of commands.");
                 } else if (line.equals("circle")){
                     shapeRef.set(new MutableCurvedShape(CurvedShape.CIRCLE));
                     addAndBreakUndoChain(shapeObj, undoRef, pastRef);
