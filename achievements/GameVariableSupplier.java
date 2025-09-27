@@ -25,8 +25,11 @@
 package achievements;
 
 import hex.GameState;
+import hex.HexEngine;
 import hex.Piece;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -87,7 +90,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * @throws IllegalArgumentException if the name is not recognized
      */
     static GameVariableSupplier<?> of(String name) {
-        return switch (name.toLowerCase()) {
+        return switch (name.trim().toLowerCase()) {
             case "zero", "0" -> ZERO;
             case "one", "1" -> ONE;
             case "pi", "π" -> PI;
@@ -171,6 +174,10 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                 Integer val = x.apply(s);
                 return (val == null) ? null : (val != 0 ? 1 : 0);
             };
+            case "not", "!" -> s -> {
+                Integer val = x.apply(s);
+                return (val == null) ? null : (val == 0 ? 1 : 0);
+            };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
         };
     }
@@ -218,6 +225,8 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>min</b>, <b>minimum</b> - minimum of the two values</li>
      *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of the two values (integer division)</li>
      *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - equality check (returns 1 if equal, 0 otherwise)</li>
+     *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - inequality check
+     *         (returns 1 if not equal, 0 otherwise)</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
      * @param v1 the first GameVariableSupplier<Integer>
@@ -288,6 +297,12 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                 if (val1 == null || val2 == null) return null;
                 return (val1.equals(val2)) ? 1 : 0;
             };
+            case "not_equals", "not_equal", "!=", "not", "is_not", "not_same" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (!val1.equals(val2)) ? 1 : 0;
+            };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
         };
     }
@@ -305,6 +320,10 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>min</b>, <b>minimum</b> - minimum of the two values</li>
      *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of the two values (integer division)</li>
      *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - equality check (returns 1 if equal, 0 otherwise)</li>
+     *     <li><b>equals_exact</b>, <b>equal_exact</b>, <b>===</b>, <b>is_exact</b>, <b>same_exact</b> - exact equality check
+     *         (returns 1 if exactly equal, 0 otherwise)</li>
+     *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - inequality check
+     *         (returns 1 if not equal, 0 otherwise)</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
      * @param v1 the first GameVariableSupplier<Double>
@@ -375,6 +394,18 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                 if (val1 == null || val2 == null) return null;
                 return (Math.abs(val1 - val2) < Math.ulp(Math.max(Math.abs(val1), Math.abs(val2)))) ? 1.0 : 0;
             };
+            case "equals_exact", "equal_exact", "===", "is_exact", "same_exact" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (val1.equals(val2)) ? 1.0 : 0;
+            };
+            case "not_equals", "not_equal", "!=", "not", "is_not", "not_same" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (Math.abs(val1 - val2) >= Math.ulp(Math.max(Math.abs(val1), Math.abs(val2)))) ? 1.0 : 0;
+            };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
         };
     }
@@ -408,6 +439,152 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * @param <T> the type of the value supplied
      */
     static <T> GameVariableSupplier<T> constant(T value) { return s -> value; }
+
+    private static GameVariableSupplier<?> parse(String str) {
+        // Trim
+        str = str.trim().toLowerCase();
+        // Is this a predefined supplier?
+        try {
+            return of(str);
+        } catch (IllegalArgumentException ignored) {}
+        // Is this casting?
+        if (str.startsWith("int")) {
+            try {
+                GameVariableSupplier<?> var = parse(str.substring(3));
+                return castInt(
+                        (GameVariableSupplier<Double>)var);
+            } catch (IllegalArgumentException | ClassCastException ex) {
+                System.out.println(ex.getMessage());
+                throw new IllegalArgumentException("Failed to cast int because of " + ex.getMessage());
+            }
+        } else if (str.startsWith("double")) {
+            try {
+                System.out.println(str.substring(7));
+                GameVariableSupplier<Integer> var = (GameVariableSupplier<Integer>) parse(str.substring(6));
+                return castDouble(var);
+            } catch (IllegalArgumentException | ClassCastException ex) {
+                throw new IllegalArgumentException("Failed to cast double because of " + ex.getMessage());
+            }
+        } else if (str.startsWith("patternof")) {
+            try {
+                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parse(str.substring(9));
+                return patternOf(pieceVar);
+            } catch (IllegalArgumentException | ClassCastException ex) {
+                throw new IllegalArgumentException("Failed to get patternOf because of " + ex.getMessage());
+            }
+        } else if (str.startsWith("pattern")) {
+            try {
+                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parse(str.substring(7));
+                return patternOf(pieceVar);
+            } catch (IllegalArgumentException | ClassCastException ex) {
+                throw new IllegalArgumentException("Failed to get patternOf because of " + ex.getMessage());
+            }
+        } else if (str.startsWith("pieceof")) {
+            try {
+                GameVariableSupplier<Integer> patternVar = (GameVariableSupplier<Integer>) parse(str.substring(7));
+                return pieceOf(patternVar);
+            } catch (IllegalArgumentException | ClassCastException ex) {
+                throw new IllegalArgumentException("Failed to get pieceOf because of " + ex.getMessage());
+            }
+        } else if (str.startsWith("piece")) {
+            try {
+                GameVariableSupplier<Integer> patternVar = (GameVariableSupplier<Integer>) parse(str.substring(5));
+                return pieceOf(patternVar);
+            } catch (IllegalArgumentException | ClassCastException  ex) {
+                throw new IllegalArgumentException("Failed to get pieceOf because of " + ex.getMessage());
+            }
+        }
+        // Is this a unary operation?
+        String[] parts = split(str, 2);
+        if (parts.length == 2) {
+            try {
+                GameVariableSupplier<Integer> intVar = (GameVariableSupplier<Integer>) parse(parts[1]);
+                return integerOperation(intVar, parts[0]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
+            try {
+                GameVariableSupplier<Double> doubleVar = (GameVariableSupplier<Double>) parse(parts[1]);
+                return doubleOperation(doubleVar, parts[0]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
+        }
+        // Is this a binary operation?
+        parts = split(str, 3);
+        if (parts.length == 3) {
+            try {
+                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parse(parts[0]);
+                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parse(parts[2]);
+                return integerOperation(intVar1, intVar2, parts[1]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
+            try {
+                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parse(parts[0]);
+                GameVariableSupplier<Double> intVar2 = (GameVariableSupplier<Double>) parse(parts[2]);
+                return doubleOperation(castDouble(intVar1), intVar2, parts[1]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
+            try {
+                GameVariableSupplier<Double> intVar1 = (GameVariableSupplier<Double>) parse(parts[0]);
+                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parse(parts[2]);
+                return doubleOperation(intVar1, castDouble(intVar2), parts[1]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
+            try {
+                GameVariableSupplier<Double> doubleVar1 = (GameVariableSupplier<Double>) parse(parts[0]);
+                GameVariableSupplier<Double> doubleVar2 = (GameVariableSupplier<Double>) parse(parts[2]);
+                return doubleOperation(doubleVar1, doubleVar2, parts[1]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
+        }
+        // Try strip parentheses
+        if (str.startsWith("(") && str.endsWith(")")) {
+            try {
+                return parse(str.substring(1, str.length() - 1));
+            } catch (IllegalArgumentException ignored) {}
+        }
+        // Nothing worked
+        throw new IllegalArgumentException("Could not parse GameVariableSupplier: " + str);
+    }
+    /**
+     * Splits the input string into tokens based on whitespace, ignoring whitespace within parentheses.
+     * The splitting respects nested parentheses and only splits at the top level.
+     * If a limit is provided and reached, the rest of the string is included in the last token.
+     * @param input the input string to split
+     * @param limit the maximum number of tokens to return; if 0 or negative, no limit is applied
+     * @return an array of tokens
+     */
+    static String[] split(String input, int limit) {
+        ArrayList<String> result = new ArrayList<>();
+        StringBuilder token = new StringBuilder();
+        int depth = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (c == '(') {
+                if (limit > 0 && result.size() == limit - 1 || depth > 0) {
+                    token.append(c);
+                }
+                depth++;
+            } else if (c == ')') {
+                depth--;
+                if (limit > 0 && result.size() == limit - 1 || depth > 0) {
+                    token.append(c);
+                }
+            } else if (Character.isWhitespace(c) && depth == 0) {
+                if (!token.isEmpty()) {
+                    // Check if adding this token would hit the limit
+                    if (limit > 0 && result.size() == limit - 1) {
+                        // Put the rest of the string into the last token
+                        token.append(input.substring(i));
+                        result.add(token.toString().trim());
+                        return result.toArray(new String[0]);
+                    }
+                    result.add(token.toString());
+                    token.setLength(0);
+                }
+            } else {
+                token.append(c);
+            }
+        }
+        if (!token.isEmpty()) {
+            result.add(token.toString());
+        }
+        return result.toArray(new String[0]);
+    }
+
     /** A constant supplier that always returns 0. */
     GameVariableSupplier<Integer> ZERO = constant(0);
     /** A constant supplier that always returns 1. */
@@ -425,9 +602,9 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     /** A supplier that returns the size of the piece queue. */
     GameVariableSupplier<Integer> SIZE = s -> (s == null || s.getQueue() == null) ? 0 : s.getQueue().length;
     /** A supplier that returns the first piece in the piece queue, or null if the queue is empty. */
-    GameVariableSupplier<Piece> FIRST = s -> (s == null || s.getQueue() == null) ? null : s.getQueue()[0];
+    GameVariableSupplier<Piece> FIRST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : s.getQueue()[0];
     /** A supplier that returns the last piece in the piece queue, or null if the queue is empty. */
-    GameVariableSupplier<Piece> LAST = s -> (s == null || s.getQueue() == null) ? null : s.getQueue()[s.getQueue().length - 1];
+    GameVariableSupplier<Piece> LAST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : s.getQueue()[s.getQueue().length - 1];
     /** A supplier that returns the current score of the game. */
     GameVariableSupplier<Integer> SCORE = s -> (s == null) ? 0 : s.getScore();
     /** A supplier that returns the current turn number of the game. */
