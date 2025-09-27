@@ -33,6 +33,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A functional interface that represents a supplier of game-related variables based on the current GameState.
@@ -594,8 +596,68 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     static String autoFormat(String input) {
         // Add spaces around operators
         String spaced = input.replaceAll("([+\\-*/%^()])", " $1 ");
+        // Add space in between numbers and strings
+        spaced = spaced.replaceAll("(\\d)([a-zA-Z])", "$1 $2");
+        spaced = spaced.replaceAll("([a-zA-Z])(\\d)", "$1 $2");
         // Replace multiple spaces with a single space
         return spaced.replaceAll("\\s+", " ").trim();
+    }
+    /**
+     * Automatically adds parentheses to an expression string based on operator precedence.
+     * This helps in ensuring that the expression is evaluated in the correct order.
+     * Supported operators include:
+     * <ul>
+     *     <li>Unary casting operators: int, double, patternof, pattern, pieceof, piece</li>
+     *     <li>Binary operators with precedence (from highest to lowest):
+     *         <ul>
+     *             <li>^, pow, power, exp, exponent</li>
+     *             <li>*, multiplies, multiply, times, time, multiplication,
+     *                 /, divides, divide, division,
+     *                 %, mod, modulo, modulos, remainder</li>
+     *             <li>+, adds, add, plus, addition,
+     *                 -, subtracts, subtract, minus, subtraction</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     * Parentheses are added to ensure that operations are grouped correctly according to their precedence.
+     * @param str the input expression string
+     * @return the expression string with added parentheses based on operator precedence
+     */
+    public static String autoParen(String str) {
+        final String[][] BINARY_PRECEDENCE = {
+                {"\\^", "pow", "power", "exp", "exponent"}, // Highest
+                {"\\*", "multiplies", "multiply", "times", "time", "multiplication",
+                        "/", "divides", "divide", "division", "%", "mod", "modulo", "modulos", "remainder"},
+                {"\\+", "adds", "add", "plus", "addition", "-", "subtracts", "subtract", "minus", "subtraction"} // Lowest
+        };
+        final String[] CAST_OPS = {
+                "int", "double", "patternof", "pattern", "pieceof", "piece"
+        };
+        String result = " " + str.trim() + " ";
+        // Handle unary casting first: opname operand
+        for (String op : CAST_OPS) {
+            result = result.replaceAll("(?<![\\w)])\\s*" + op + "\\s+([^()\\s]+)", "(" + op + " $1)");
+        }
+        // Handle binary operators by precedence
+        for (String[] ops : BINARY_PRECEDENCE) {
+            boolean changed;
+            do {
+                changed = false;
+                for (String op : ops) {
+                    String regex = "(?<!\\()([^()\\s]+)\\s+" + op + "\\s+([^()\\s]+)(?!\\))";
+                    Pattern p = Pattern.compile(regex);
+                    Matcher m = p.matcher(result);
+                    StringBuffer sb = new StringBuffer();
+                    while (m.find()) {
+                        m.appendReplacement(sb, "(" + m.group(1) + " " + op + " " + m.group(2) + ")");
+                        changed = true;
+                    }
+                    m.appendTail(sb);
+                    result = sb.toString();
+                }
+            } while (changed); // keep tightening at same precedence until stable
+        }
+        return result.trim();
     }
 
     /** A constant supplier that always returns 0. */
