@@ -27,6 +27,7 @@ package achievements;
 import hex.GameState;
 import hex.Piece;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -59,6 +60,348 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      */
     static <T> GameVariableSupplier<T> of(Supplier<T> supplier) { return s -> supplier.get(); }
     /**
+     * Returns a predefined GameVariableSupplier based on the given name.
+     * Recognized names (case-insensitive) include:
+     * <ul>
+     *     <li><b>zero or 0</b> - returns a supplier that always returns 0</li>
+     *     <li><b>one or 1</b> - returns a supplier that always returns 1</li>
+     *     <li><b>pi or π</b> - returns a supplier that always returns the mathematical constant π (pi)</li>
+     *     <li><b>hex or 6</b> - returns a supplier that always returns 6, representing the number of sides on a hexagon</li>
+     *     <li><b>length or len</b> - returns a supplier that provides the length of the engine</li>
+     *     <li><b>radius or r</b> - returns a supplier that provides the radius of the engine</li>
+     *     <li><b>lines or l</b> - returns a supplier that provides the number of lines in the engine</li>
+     *     <li><b>size or s</b> - returns a supplier that provides the size of the piece queue</li>
+     *     <li><b>first</b> - returns a supplier that provides the first piece in the piece queue</li>
+     *     <li><b>last</b> - returns a supplier that provides the last piece in the piece queue</li>
+     *     <li><b>score</b> - returns a supplier that provides the current score of the game</li>
+     *     <li><b>turn or turns</b> - returns a supplier that provides the current turn number of the game</li>
+     *     <li><b>fill, filled, percentfilled, percent_filled, or percent-filled</b> - returns a supplier
+     *         that provides the percentage of the engine that is filled</li>
+     *     <li><b>entropy</b> - returns a supplier that provides the entropy of the engine</li>
+     *     <li>Any valid integer string (e.g., "42") - returns a supplier that always returns that integer</li>
+     *     <li>Any valid double string (e.g., "3.14") - returns a supplier that always returns that double</li>
+     * </ul>
+     * If the name is not recognized, an IllegalArgumentException is thrown.
+     * @param name the name of the predefined GameVariableSupplier
+     * @return the corresponding GameVariableSupplier
+     * @throws IllegalArgumentException if the name is not recognized
+     */
+    static GameVariableSupplier<?> of(String name) {
+        return switch (name.toLowerCase()) {
+            case "zero", "0" -> ZERO;
+            case "one", "1" -> ONE;
+            case "pi", "π" -> PI;
+            case "hex", "6" -> HEX;
+            case "length", "len" -> LENGTH;
+            case "radius", "r" -> RADIUS;
+            case "lines", "l" -> LINES;
+            case "size", "s" -> SIZE;
+            case "first" -> FIRST;
+            case "last" -> LAST;
+            case "score" -> SCORE;
+            case "turn", "turns" -> TURN;
+            case "fill", "filled", "percentfilled", "percent_filled", "percent-filled" -> FILL;
+            case "entropy" -> ENTROPY;
+            default -> {
+                // Is this an integer?
+                try {
+                    int val = Integer.parseInt(name);
+                    yield constant(val);
+                } catch (NumberFormatException ignored) {}
+                // Is this a double?
+                try {
+                    double val = Double.parseDouble(name);
+                    yield constant(val);
+                } catch (NumberFormatException ignored) {}
+                throw new IllegalArgumentException("Unknown GameVariableSupplier: " + name);
+            }
+        };
+    }
+    /**
+     * Casts a GameVariableSupplier of a Number type to a GameVariableSupplier of Integer.
+     * If the input supplier is null, null is returned.
+     * The resulting supplier will convert the Number to an Integer using intValue().
+     * @param supplier the GameVariableSupplier to cast
+     * @return a GameVariableSupplier<Integer> that converts the result of the input supplier to Integer, or null if the input is null
+     * @param <N> the type of Number supplied by the input supplier
+     */
+    static <N extends Number> GameVariableSupplier<Integer> castInt(GameVariableSupplier<N> supplier){
+        return (GameVariableSupplier<Integer>) Optional.ofNullable(supplier).map(s -> s.andThen(Number::intValue)).orElse(null);
+    }
+    /**
+     * Casts a GameVariableSupplier of a Number type to a GameVariableSupplier of Double.
+     * If the input supplier is null, null is returned.
+     * The resulting supplier will convert the Number to a Double using doubleValue().
+     * @param supplier the GameVariableSupplier to cast
+     * @return a GameVariableSupplier<Double> that converts the result of the input supplier to Double, or null if the input is null
+     * @param <N> the type of Number supplied by the input supplier
+     */
+    static <N extends Number> GameVariableSupplier<Double> castDouble(GameVariableSupplier<N> supplier){
+        return (GameVariableSupplier<Double>) Optional.ofNullable(supplier).map(s -> s.andThen(Number::doubleValue)).orElse(null);
+    }
+    /**
+     * Applies a unary operation to the result of a GameVariableSupplier<Integer>.
+     * Supported operations (case-insensitive) include:
+     * <ul>
+     *     <li><b>-</b>, <b>neg</b>, <b>negate</b>, <b>negative</b> - negation</li>
+     *     <li><b>abs</b>, <b>absolute</b> - absolute value</li>
+     *     <li><b>sq</b>, <b>sqr</b>, <b>square</b>, <b>squared</b> - square the value</li>
+     *     <li><b>sqrt</b>, <b>squareroot</b>, <b>square_root</b>, <b>square-root</b> - square root of the value</li>
+     *     <li><b>bool</b>, <b>boolean</b> - converts the integer to a boolean (0 becomes 0, non-zero becomes 1)</li>
+     * </ul>
+     * If the operation is not recognized, an IllegalArgumentException is thrown.
+     * @param x the GameVariableSupplier<Integer> to apply the operation to
+     * @param name the name of the operation
+     * @return a new GameVariableSupplier<Integer> that applies the operation
+     * @throws IllegalArgumentException if the operation is not recognized
+     */
+    static GameVariableSupplier<Integer> integerOperation(GameVariableSupplier<Integer> x, String name){
+        return switch (name) {
+            case "-", "neg", "negate", "negative" -> s -> -x.apply(s);
+            case "abs", "absolute" -> s -> Math.abs(x.apply(s));
+            case "sq", "sqr", "square", "squared" -> s -> {
+                Integer val = x.apply(s);
+                return val == null ? null : val * val;
+            };
+            case "sqrt", "squareroot", "square_root", "square-root" -> s -> {
+                Integer val = x.apply(s);
+                return val == null ? null : (int) Math.sqrt(val);
+            };
+            case "bool", "boolean" -> s -> {
+                Integer val = x.apply(s);
+                return (val == null) ? null : (val != 0 ? 1 : 0);
+            };
+            default -> throw new IllegalArgumentException("Unknown operation: " + name);
+        };
+    }
+    /**
+     * Applies a unary operation to the result of a GameVariableSupplier<Double>.
+     * Supported operations (case-insensitive) include:
+     * <ul>
+     *     <li><b>-</b>, <b>neg</b>, <b>negate</b>, <b>negative</b> - negation</li>
+     *     <li><b>abs</b>, <b>absolute</b> - absolute value</li>
+     *     <li><b>sq</b>, <b>sqr</b>, <b>square</b>, <b>squared</b> - square the value</li>
+     *     <li><b>sqrt</b>, <b>squareroot</b>, <b>square_root</b>, <b>square-root</b> - square root of the value</li>
+     * </ul>
+     * If the operation is not recognized, an IllegalArgumentException is thrown.
+     * @param x the GameVariableSupplier<Double> to apply the operation to
+     * @param name the name of the operation
+     * @return a new GameVariableSupplier<Double> that applies the operation
+     * @throws IllegalArgumentException if the operation is not recognized
+     */
+    static GameVariableSupplier<Double> doubleOperation(GameVariableSupplier<Double> x, String name){
+        return switch (name) {
+            case "-", "neg", "negate", "negative" -> s -> -x.apply(s);
+            case "abs", "absolute" -> s -> Math.abs(x.apply(s));
+            case "sq", "sqr", "square", "squared" -> s -> {
+                Double val = x.apply(s);
+                return val == null ? null : val * val;
+            };
+            case "sqrt", "squareroot", "square_root", "square-root" -> s -> {
+                Double val = x.apply(s);
+                return val == null ? null : Math.sqrt(val);
+            };
+            default -> throw new IllegalArgumentException("Unknown operation: " + name);
+        };
+    }
+    /**
+     * Applies a binary operation to the results of two GameVariableSupplier<Integer> instances.
+     * Supported operations (case-insensitive) include:
+     * <ul>
+     *     <li><b>+</b>, <b>adds</b>, <b>add</b>, <b>plus</b>, <b>addition</b> - addition</li>
+     *     <li><b>-</b>, <b>subtracts</b>, <b>subtract</b>, <b>minus</b>, <b>subtraction</b> - subtraction</li>
+     *     <li><b>*</b>, <b>multiplies</b>, <b>multiply</b>, <b>times</b>, <b>time</b>, <b>multiplication</b> - multiplication</li>
+     *     <li><b>/</b>, <b>divides</b>, <b>divide</b>, <b>division</b> - division (returns null if dividing by zero)</li>
+     *     <li><b>%</b>, <b>mod</b>, <b>modulo</b>, <b>modulos</b>, <b>remainder</b> - modulo (returns null if modulo by zero)</li>
+     *     <li><b>^</b>, <b>pow</b>, <b>power</b>, <b>exp</b>, <b>exponent</b> - exponentiation (val1 raised to the power of val2)</li>
+     *     <li><b>max</b>, <b>maximum</b> - maximum of the two values</li>
+     *     <li><b>min</b>, <b>minimum</b> - minimum of the two values</li>
+     *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of the two values (integer division)</li>
+     *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - equality check (returns 1 if equal, 0 otherwise)</li>
+     * </ul>
+     * If the operation is not recognized, an IllegalArgumentException is thrown.
+     * @param v1 the first GameVariableSupplier<Integer>
+     * @param v2 the second GameVariableSupplier<Integer>
+     * @param name the name of the operation
+     * @return a new GameVariableSupplier<Integer> that applies the operation
+     * @throws IllegalArgumentException if the operation is not recognized
+     */
+    static GameVariableSupplier<Integer> integerOperation(GameVariableSupplier<Integer> v1, GameVariableSupplier<Integer> v2, String name) {
+        return switch (name) {
+            case "+", "adds", "add", "plus", "addition" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return val1 + val2;
+            };
+            case "-", "subtracts", "subtract", "minus", "subtraction" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return val1 - val2;
+            };
+            case "*", "multiplies ","multiply", "times", "time", "multiplication" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return val1 * val2;
+            };
+            case "/", "divides", "divide", "division" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null || val2 == 0) return null;
+                return val1 / val2;
+            };
+            case "%", "mod", "modulo", "modulos", "remainder" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null || val2 == 0) return null;
+                return val1 % val2;
+            };
+            case "^", "pow", "power", "exp", "exponent" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (int) Math.pow(val1, val2);
+            };
+            case "max", "maximum" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return Math.max(val1, val2);
+            };
+            case "min", "minimum" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return Math.min(val1, val2);
+            };
+            case "avg", "average", "mean" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (val1 + val2) / 2;
+            };
+            case "equals", "equal", "==", "is", "same" -> s -> {
+                Integer val1 = v1.apply(s);
+                Integer val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (val1.equals(val2)) ? 1 : 0;
+            };
+            default -> throw new IllegalArgumentException("Unknown operation: " + name);
+        };
+    }
+    /**
+     * Applies a binary operation to the results of two GameVariableSupplier<Double> instances.
+     * Supported operations (case-insensitive) include:
+     * <ul>
+     *     <li><b>+</b>, <b>adds</b>, <b>add</b>, <b>plus</b>, <b>addition</b> - addition</li>
+     *     <li><b>-</b>, <b>subtracts</b>, <b>subtract</b>, <b>minus</b>, <b>subtraction</b> - subtraction</li>
+     *     <li><b>*</b>, <b>multiplies</b>, <b>multiply</b>, <b>times</b>, <b>time</b>, <b>multiplication</b> - multiplication</li>
+     *     <li><b>/</b>, <b>divides</b>, <b>divide</b>, <b>division</b> - division (returns null if dividing by zero)</li>
+     *     <li><b>%</b>, <b>mod</b>, <b>modulo</b>, <b>modulos</b>, <b>remainder</b> - modulo (returns null if modulo by zero)</li>
+     *     <li><b>^</b>, <b>pow</b>, <b>power</b>, <b>exp</b>, <b>exponent</b> - exponentiation (val1 raised to the power of val2)</li>
+     *     <li><b>max</b>, <b>maximum</b> - maximum of the two values</li>
+     *     <li><b>min</b>, <b>minimum</b> - minimum of the two values</li>
+     *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of the two values (integer division)</li>
+     *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - equality check (returns 1 if equal, 0 otherwise)</li>
+     * </ul>
+     * If the operation is not recognized, an IllegalArgumentException is thrown.
+     * @param v1 the first GameVariableSupplier<Double>
+     * @param v2 the second GameVariableSupplier<Double>
+     * @param name the name of the operation
+     * @return a new GameVariableSupplier<Double> that applies the operation
+     * @throws IllegalArgumentException if the operation is not recognized
+     */
+    static GameVariableSupplier<Double> doubleOperation(GameVariableSupplier<Double> v1, GameVariableSupplier<Double> v2, String name) {
+        return switch (name) {
+            case "+", "adds", "add", "plus", "addition" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return val1 + val2;
+            };
+            case "-", "subtracts", "subtract", "minus", "subtraction" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return val1 - val2;
+            };
+            case "*", "multiplies ","multiply", "times", "time", "multiplication" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return val1 * val2;
+            };
+            case "/", "divides", "divide", "division" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null || val2 == 0) return null;
+                return val1 / val2;
+            };
+            case "%", "mod", "modulo", "modulos", "remainder" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null || val2 == 0) return null;
+                return val1 % val2;
+            };
+            case "^", "pow", "power", "exp", "exponent" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return Math.pow(val1, val2);
+            };
+            case "max", "maximum" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return Math.max(val1, val2);
+            };
+            case "min", "minimum" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return Math.min(val1, val2);
+            };
+            case "avg", "average", "mean" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (val1 + val2) / 2;
+            };
+            case "equals", "equal", "==", "is", "same" -> s -> {
+                Double val1 = v1.apply(s);
+                Double val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                return (Math.abs(val1 - val2) < Math.ulp(Math.max(Math.abs(val1), Math.abs(val2)))) ? 1.0 : 0;
+            };
+            default -> throw new IllegalArgumentException("Unknown operation: " + name);
+        };
+    }
+    /**
+     * Converts a GameVariableSupplier that supplies Piece objects into one that supplies their corresponding pattern integers.
+     * If the input supplier returns null, the resulting supplier will return -1.
+     * @param pieceSupplier the GameVariableSupplier that supplies Piece objects
+     * @return a GameVariableSupplier<Integer> that supplies the pattern integer of the Piece, or -1 if the Piece is null
+     */
+    static GameVariableSupplier<Integer> patternOf(GameVariableSupplier<Piece> pieceSupplier) {
+        return t -> Optional.ofNullable(pieceSupplier.apply(t))
+                .map(p -> (int)p.toByte())
+                .orElse(-1);
+    }
+    /**
+     * Converts a GameVariableSupplier that supplies pattern integers into one that supplies their corresponding Piece objects.
+     * If the input supplier returns a value outside the range 0-127, the resulting supplier will return null to prevent exception being thrown.
+     * @param patternSupplier the GameVariableSupplier that supplies pattern integers
+     * @return a GameVariableSupplier<Piece> that supplies the Piece corresponding to the pattern integer, or null if out of range
+     */
+    static GameVariableSupplier<Piece> pieceOf(GameVariableSupplier<Integer> patternSupplier) {
+        return t -> Optional.ofNullable(patternSupplier.apply(t))
+                .filter(n -> n >= 0 && n <= 127)
+                .map(n -> Piece.pieceFromByte((byte)(int)n, -2))
+                .orElse(null);
+    }
+    /**
      * Creates a GameVariableSupplier that always returns the given constant value.
      * @param value the constant value to return
      * @return a GameVariableSupplier that always returns the given value
@@ -69,6 +412,10 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     GameVariableSupplier<Integer> ZERO = constant(0);
     /** A constant supplier that always returns 1. */
     GameVariableSupplier<Integer> ONE = constant(1);
+    /** A constant supplier that always returns the mathematical constant π (pi). */
+    GameVariableSupplier<Double> PI = constant(Math.PI);
+    /** A constant supplier that always returns the number 6, representing the number of sides on a hexagon. */
+    GameVariableSupplier<Integer> HEX = constant(6);
     /** A supplier that returns the length of the engine, which is the total number of blocks in the engine. */
     GameVariableSupplier<Integer> LENGTH = s -> (s == null || s.getEngine() == null) ? 0 : s.getEngine().length();
     /** A supplier that returns the radius of the engine. */
