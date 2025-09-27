@@ -181,76 +181,65 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         };
     }
     /**
-     * Applies a unary operation to the result of a GameVariableSupplier<Integer>.
+     * Applies a unary operation to the result of a GameVariableSupplier<Number>.
      * Supported operations (case-insensitive) include:
      * <ul>
      *     <li><b>-</b>, <b>neg</b>, <b>negate</b>, <b>negative</b> - negation</li>
      *     <li><b>abs</b>, <b>absolute</b> - absolute value</li>
      *     <li><b>sq</b>, <b>sqr</b>, <b>square</b>, <b>squared</b> - square the value</li>
      *     <li><b>sqrt</b>, <b>squareroot</b>, <b>square_root</b>, <b>square-root</b> - square root of the value</li>
-     *     <li><b>bool</b>, <b>boolean</b> - converts the integer to a boolean (0 becomes 0, non-zero becomes 1)</li>
+     *     <li><b>bool</b>, <b>boolean</b> - converts the number to a boolean (0 or 0.0 becomes 0, non-zero becomes 1)</li>
+     *     <li><b>not</b>, <b>!</b> - logical NOT operation (0 or 0.0 becomes 1, non-zero becomes 0)</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
-     * @param x the GameVariableSupplier<Integer> to apply the operation to
+     * @param x the GameVariableSupplier<Number> to apply the operation to
      * @param name the name of the operation
-     * @return a new GameVariableSupplier<Integer> that applies the operation
+     * @return a new GameVariableSupplier<Number> that applies the operation
      * @throws IllegalArgumentException if the operation is not recognized
      */
-    static GameVariableSupplier<Integer> integerOperation(GameVariableSupplier<Integer> x, String name){
+    static GameVariableSupplier<Number> numberOperation(GameVariableSupplier<?> x, String name){
         return switch (name) {
-            case "-", "neg", "negate", "negative" -> s -> -x.apply(s);
-            case "abs", "absolute" -> s -> Math.abs(x.apply(s));
+            case "-", "neg", "negate", "negative" -> s -> {
+                Object val = x.apply(s);
+                if (val instanceof Integer i) return -i;
+                else if (val instanceof Double d) return -d;
+                else return null;
+            };
+            case "abs", "absolute" -> s -> {
+                Object val = x.apply(s);
+                if (val instanceof Integer i) return Math.abs(i);
+                else if (val instanceof Double d) return Math.abs(d);
+                else return null;
+            };
             case "sq", "sqr", "square", "squared" -> s -> {
-                Integer val = x.apply(s);
-                return val == null ? null : val * val;
+                Object val = x.apply(s);
+                if (val instanceof Integer i) return i * i;
+                else if (val instanceof Double d) return d * d;
+                else return null;
             };
             case "sqrt", "squareroot", "square_root", "square-root" -> s -> {
-                Integer val = x.apply(s);
-                return val == null ? null : (int) Math.sqrt(val);
+                Object val = x.apply(s);
+                if (val instanceof Integer i) return (int) Math.sqrt(i);
+                else if (val instanceof Double d) return Math.sqrt(d);
+                else return null;
             };
             case "bool", "boolean" -> s -> {
-                Integer val = x.apply(s);
-                return (val == null) ? null : (val != 0 ? 1 : 0);
+                Object val = x.apply(s);
+                if (val instanceof Integer i) return (i != 0 ? 1 : 0);
+                else if (val instanceof Double d) return (d != 0.0 ? 1 : 0);
+                else return null;
             };
             case "not", "!" -> s -> {
-                Integer val = x.apply(s);
-                return (val == null) ? null : (val == 0 ? 1 : 0);
+                Object val = x.apply(s);
+                if (val instanceof Integer i) return (i == 0 ? 1 : 0);
+                else if (val instanceof Double d) return (d == 0.0 ? 1 : 0);
+                else return null;
             };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
         };
     }
     /**
-     * Applies a unary operation to the result of a GameVariableSupplier<Double>.
-     * Supported operations (case-insensitive) include:
-     * <ul>
-     *     <li><b>-</b>, <b>neg</b>, <b>negate</b>, <b>negative</b> - negation</li>
-     *     <li><b>abs</b>, <b>absolute</b> - absolute value</li>
-     *     <li><b>sq</b>, <b>sqr</b>, <b>square</b>, <b>squared</b> - square the value</li>
-     *     <li><b>sqrt</b>, <b>squareroot</b>, <b>square_root</b>, <b>square-root</b> - square root of the value</li>
-     * </ul>
-     * If the operation is not recognized, an IllegalArgumentException is thrown.
-     * @param x the GameVariableSupplier<Double> to apply the operation to
-     * @param name the name of the operation
-     * @return a new GameVariableSupplier<Double> that applies the operation
-     * @throws IllegalArgumentException if the operation is not recognized
-     */
-    static GameVariableSupplier<Double> doubleOperation(GameVariableSupplier<Double> x, String name){
-        return switch (name) {
-            case "-", "neg", "negate", "negative" -> s -> -x.apply(s);
-            case "abs", "absolute" -> s -> Math.abs(x.apply(s));
-            case "sq", "sqr", "square", "squared" -> s -> {
-                Double val = x.apply(s);
-                return val == null ? null : val * val;
-            };
-            case "sqrt", "squareroot", "square_root", "square-root" -> s -> {
-                Double val = x.apply(s);
-                return val == null ? null : Math.sqrt(val);
-            };
-            default -> throw new IllegalArgumentException("Unknown operation: " + name);
-        };
-    }
-    /**
-     * Applies a binary operation to the results of two GameVariableSupplier<Integer> instances.
+     * Applies a binary operation to the results of two GameVariableSupplier<Number> instances.
      * Supported operations (case-insensitive) include:
      * <ul>
      *     <li><b>+</b>, <b>adds</b>, <b>add</b>, <b>plus</b>, <b>addition</b> - addition</li>
@@ -262,187 +251,139 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>max</b>, <b>maximum</b> - maximum of the two values</li>
      *     <li><b>min</b>, <b>minimum</b> - minimum of the two values</li>
      *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of the two values (integer division)</li>
-     *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - equality check (returns 1 if equal, 0 otherwise)</li>
-     *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - inequality check
-     *         (returns 1 if not equal, 0 otherwise)</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
-     * @param v1 the first GameVariableSupplier<Integer>
-     * @param v2 the second GameVariableSupplier<Integer>
+     * @param v1 the first GameVariableSupplier<Number>
+     * @param v2 the second GameVariableSupplier<Number>
      * @param name the name of the operation
-     * @return a new GameVariableSupplier<Integer> that applies the operation
+     * @return a new GameVariableSupplier<Number> that applies the operation
      * @throws IllegalArgumentException if the operation is not recognized
      */
-    static GameVariableSupplier<Integer> integerOperation(GameVariableSupplier<Integer> v1, GameVariableSupplier<Integer> v2, String name) {
+    static GameVariableSupplier<Number> numberOperation(GameVariableSupplier<?> v1, GameVariableSupplier<?> v2, String name) {
         return switch (name) {
             case "+", "adds", "add", "plus", "addition" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return val1 + val2;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return i1 + i2;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return n1.doubleValue() + n2.doubleValue();
+                } else return null;
             };
             case "-", "subtracts", "subtract", "minus", "subtraction" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return val1 - val2;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return i1 - i2;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return n1.doubleValue() - n2.doubleValue();
+                } else return null;
             };
             case "*", "multiplies ","multiply", "times", "time", "multiplication" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return val1 * val2;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return i1 * i2;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return n1.doubleValue() * n2.doubleValue();
+                } else return null;
             };
             case "/", "divides", "divide", "division" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
-                if (val1 == null || val2 == null || val2 == 0) return null;
-                return val1 / val2;
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    if (i2 == 0) return null;
+                    return i1 / i2;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    if (n2.doubleValue() == 0) return null;
+                    return n1.doubleValue() / n2.doubleValue();
+                } else return null;
             };
             case "%", "mod", "modulo", "modulos", "remainder" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
-                if (val1 == null || val2 == null || val2 == 0) return null;
-                return val1 % val2;
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    if (i2 == 0) return null;
+                    return i1 % i2;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    if (n2.doubleValue() == 0) return null;
+                    return n1.doubleValue() % n2.doubleValue();
+                } else return null;
             };
             case "^", "pow", "power", "exp", "exponent" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return (int) Math.pow(val1, val2);
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return (int)Math.pow(i1, i2);
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return Math.pow(n1.doubleValue(), n2.doubleValue());
+                } else return null;
             };
             case "max", "maximum" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return Math.max(val1, val2);
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return Math.max(i1, i2);
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return Math.max(n1.doubleValue(), n2.doubleValue());
+                } else return null;
             };
             case "min", "minimum" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return Math.min(val1, val2);
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return Math.min(i1, i2);
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return Math.min(n1.doubleValue(), n2.doubleValue());
+                } else return null;
             };
             case "avg", "average", "mean" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return (val1 + val2) / 2;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return (i1 + i2) / 2;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return (n1.doubleValue() + n2.doubleValue()) / 2;
+                } else return null;
             };
             case "equals", "equal", "==", "is", "same" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return (val1.equals(val2)) ? 1 : 0;
-            };
-            case "not_equals", "not_equal", "!=", "not", "is_not", "not_same" -> s -> {
-                Integer val1 = v1.apply(s);
-                Integer val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return (!val1.equals(val2)) ? 1 : 0;
-            };
-            default -> throw new IllegalArgumentException("Unknown operation: " + name);
-        };
-    }
-    /**
-     * Applies a binary operation to the results of two GameVariableSupplier<Double> instances.
-     * Supported operations (case-insensitive) include:
-     * <ul>
-     *     <li><b>+</b>, <b>adds</b>, <b>add</b>, <b>plus</b>, <b>addition</b> - addition</li>
-     *     <li><b>-</b>, <b>subtracts</b>, <b>subtract</b>, <b>minus</b>, <b>subtraction</b> - subtraction</li>
-     *     <li><b>*</b>, <b>multiplies</b>, <b>multiply</b>, <b>times</b>, <b>time</b>, <b>multiplication</b> - multiplication</li>
-     *     <li><b>/</b>, <b>divides</b>, <b>divide</b>, <b>division</b> - division (returns null if dividing by zero)</li>
-     *     <li><b>%</b>, <b>mod</b>, <b>modulo</b>, <b>modulos</b>, <b>remainder</b> - modulo (returns null if modulo by zero)</li>
-     *     <li><b>^</b>, <b>pow</b>, <b>power</b>, <b>exp</b>, <b>exponent</b> - exponentiation (val1 raised to the power of val2)</li>
-     *     <li><b>max</b>, <b>maximum</b> - maximum of the two values</li>
-     *     <li><b>min</b>, <b>minimum</b> - minimum of the two values</li>
-     *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of the two values (integer division)</li>
-     *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - equality check (returns 1 if equal, 0 otherwise)</li>
-     *     <li><b>equals_exact</b>, <b>equal_exact</b>, <b>===</b>, <b>is_exact</b>, <b>same_exact</b> - exact equality check
-     *         (returns 1 if exactly equal, 0 otherwise)</li>
-     *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - inequality check
-     *         (returns 1 if not equal, 0 otherwise)</li>
-     * </ul>
-     * If the operation is not recognized, an IllegalArgumentException is thrown.
-     * @param v1 the first GameVariableSupplier<Double>
-     * @param v2 the second GameVariableSupplier<Double>
-     * @param name the name of the operation
-     * @return a new GameVariableSupplier<Double> that applies the operation
-     * @throws IllegalArgumentException if the operation is not recognized
-     */
-    static GameVariableSupplier<Double> doubleOperation(GameVariableSupplier<Double> v1, GameVariableSupplier<Double> v2, String name) {
-        return switch (name) {
-            case "+", "adds", "add", "plus", "addition" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return val1 + val2;
-            };
-            case "-", "subtracts", "subtract", "minus", "subtraction" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return val1 - val2;
-            };
-            case "*", "multiplies ","multiply", "times", "time", "multiplication" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return val1 * val2;
-            };
-            case "/", "divides", "divide", "division" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null || val2 == 0) return null;
-                return val1 / val2;
-            };
-            case "%", "mod", "modulo", "modulos", "remainder" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null || val2 == 0) return null;
-                return val1 % val2;
-            };
-            case "^", "pow", "power", "exp", "exponent" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return Math.pow(val1, val2);
-            };
-            case "max", "maximum" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return Math.max(val1, val2);
-            };
-            case "min", "minimum" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return Math.min(val1, val2);
-            };
-            case "avg", "average", "mean" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return (val1 + val2) / 2;
-            };
-            case "equals", "equal", "==", "is", "same" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
-                if (val1 == null || val2 == null) return null;
-                return (Math.abs(val1 - val2) < Math.ulp(Math.max(Math.abs(val1), Math.abs(val2)))) ? 1.0 : 0;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return (i1.equals(i2)) ? 1 : 0;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return (Math.abs(n1.doubleValue() - n2.doubleValue()) < Math.ulp(Math.max(Math.abs(n1.doubleValue()), Math.abs(n2.doubleValue())))) ? 1.0 : 0;
+                } else return null;
             };
             case "equals_exact", "equal_exact", "===", "is_exact", "same_exact" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return (val1.equals(val2)) ? 1.0 : 0;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return (i1.equals(i2)) ? 1 : 0;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return (n1.equals(n2)) ? 1.0 : 0;
+                } else return null;
             };
             case "not_equals", "not_equal", "!=", "not", "is_not", "not_same" -> s -> {
-                Double val1 = v1.apply(s);
-                Double val2 = v2.apply(s);
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
                 if (val1 == null || val2 == null) return null;
-                return (Math.abs(val1 - val2) >= Math.ulp(Math.max(Math.abs(val1), Math.abs(val2)))) ? 1.0 : 0;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return (!i1.equals(i2)) ? 1 : 0;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return (Math.abs(n1.doubleValue() - n2.doubleValue()) >= Math.ulp(Math.max(Math.abs(n1.doubleValue()), Math.abs(n2.doubleValue())))) ? 1.0 : 0;
+                } else return null;
             };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
         };
@@ -542,36 +483,17 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         String[] parts = split(str, 2);
         if (parts.length == 2) {
             try {
-                GameVariableSupplier<Integer> intVar = (GameVariableSupplier<Integer>) parseRec(parts[1]);
-                return integerOperation(intVar, parts[0]);
-            } catch (IllegalArgumentException | ClassCastException ignored) {}
-            try {
-                GameVariableSupplier<Double> doubleVar = (GameVariableSupplier<Double>) parseRec(parts[1]);
-                return doubleOperation(doubleVar, parts[0]);
+                GameVariableSupplier<Number> numVar = (GameVariableSupplier<Number>) parseRec(parts[1]);
+                return numberOperation(numVar, parts[0]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
         }
         // Is this a binary operation?
         parts = split(str, 3);
         if (parts.length == 3) {
             try {
-                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parseRec(parts[0]);
-                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parseRec(parts[2]);
-                return integerOperation(intVar1, intVar2, parts[1]);
-            } catch (IllegalArgumentException | ClassCastException ignored) {}
-            try {
-                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parseRec(parts[0]);
-                GameVariableSupplier<Double> intVar2 = (GameVariableSupplier<Double>) parseRec(parts[2]);
-                return doubleOperation(castDoubleUnknown(intVar1), intVar2, parts[1]);
-            } catch (IllegalArgumentException | ClassCastException ignored) {}
-            try {
-                GameVariableSupplier<Double> intVar1 = (GameVariableSupplier<Double>) parseRec(parts[0]);
-                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parseRec(parts[2]);
-                return doubleOperation(intVar1, castDoubleUnknown(intVar2), parts[1]);
-            } catch (IllegalArgumentException | ClassCastException ignored) {}
-            try {
-                GameVariableSupplier<Double> doubleVar1 = (GameVariableSupplier<Double>) parseRec(parts[0]);
-                GameVariableSupplier<Double> doubleVar2 = (GameVariableSupplier<Double>) parseRec(parts[2]);
-                return doubleOperation(doubleVar1, doubleVar2, parts[1]);
+                GameVariableSupplier<Number> numVar1 = (GameVariableSupplier<Number>) parseRec(parts[0]);
+                GameVariableSupplier<Number> numVar2 = (GameVariableSupplier<Number>) parseRec(parts[2]);
+                return numberOperation(numVar1, numVar2, parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
         }
         // Try strip parentheses
