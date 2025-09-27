@@ -1770,4 +1770,39 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
         }
         return newEngine;
     }
+    /**
+     * Compares this {@code HexEngine} to another object for equality.
+     * Two {@code HexEngine} objects are considered equal if they have the same radius
+     * and all corresponding {@link Block} objects are equal in state and color.
+     * @param obj the object to compare with this {@code HexEngine}.
+     * @return true if the specified object is a {@code HexEngine} with the same radius and identical blocks; false otherwise.
+     * @since 2.0
+     */
+    @Override
+    public boolean equals(Object obj){
+        if (this == obj) return true;
+        if (!(obj instanceof HexEngine other)) return false;
+        if (this.radius != other.radius) return false;
+        for (int i = 0; i < this.length(); i ++){
+            if (!this.blocks[i].equals(other.blocks[i])) return false;
+        }
+        return true;
+    }
+    /**
+     * Compares this {@code HexEngine} to another object for equality, ignoring block colors.
+     * Two {@code HexEngine} objects are considered equal if they have the same radius
+     * and all corresponding {@link Block} objects are equal in state, regardless of color.
+     * @param obj the object to compare with this {@code HexEngine}.
+     * @return true if the specified object is a {@code HexEngine} with the same radius and identical block states; false otherwise.
+     * @since 2.0
+     */
+    public boolean equalsIgnoreColor(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof HexEngine other)) return false;
+        if (this.radius != other.radius) return false;
+        for (int i = 0; i < this.length(); i++) {
+            if (this.blocks[i].getState() != other.blocks[i].getState()) return false;
+        }
+        return true;
+    }
 }
