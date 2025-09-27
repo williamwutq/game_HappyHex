@@ -131,6 +131,15 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     static <N extends Number> GameVariableSupplier<Integer> castInt(GameVariableSupplier<N> supplier){
         return (GameVariableSupplier<Integer>) Optional.ofNullable(supplier).map(s -> s.andThen(Number::intValue)).orElse(null);
     }
+    /**
+     * Casts a GameVariableSupplier of an unknown type to a GameVariableSupplier of Integer.
+     * The resulting supplier will attempt to convert the result of the input supplier to an Integer.
+     * If the result is a Number, it will use intValue().
+     * If the result is a Piece, it will use the byte value of the Piece.
+     * If the result is null or cannot be converted, null is returned.
+     * @param supplier the GameVariableSupplier to cast
+     * @return a GameVariableSupplier<Integer> that converts the result of the input supplier to Integer, or null if conversion is not possible
+     */
     static GameVariableSupplier<Integer> castIntUnknown(GameVariableSupplier<?> supplier){
         return t -> {
             Object result = supplier.apply(t);
@@ -152,6 +161,15 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     static <N extends Number> GameVariableSupplier<Double> castDouble(GameVariableSupplier<N> supplier){
         return (GameVariableSupplier<Double>) Optional.ofNullable(supplier).map(s -> s.andThen(Number::doubleValue)).orElse(null);
     }
+    /**
+     * Casts a GameVariableSupplier of unknown type to a GameVariableSupplier of Double.
+     * If the input supplier is null, null is returned.
+     * The resulting supplier will convert the result to a Double if it is a Number or a Piece.
+     * If the result is a Number, it uses doubleValue(); if it's a Piece, it uses toByte().
+     * If the result is neither, it returns null.
+     * @param supplier the GameVariableSupplier to cast
+     * @return a GameVariableSupplier<Double> that converts the result of the input supplier to Double, or null if the input is null
+     */
     static GameVariableSupplier<Double> castDoubleUnknown(GameVariableSupplier<?> supplier){
         return t -> {
             Object result = supplier.apply(t);
