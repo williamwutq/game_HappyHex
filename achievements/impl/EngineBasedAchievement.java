@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -83,9 +84,14 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
     // Predicates
     /**
      * A functional interface for block predicates.
-     * This wraps a {@link Predicate<Block>} to provide more readable code.
+     * This wraps a {@link Predicate<>} of {@link Block} to provide more readable code.
      */
     private interface BlockPredicate extends Predicate<Block>{}
+    /**
+     * A functional interface for block comparators.
+     * This wraps a {@link BiPredicate<>} of {@link Block} to provide more readable code.
+     */
+    private interface BlockComparator extends BiPredicate<Block, Block> {}
     /**
      * Creates a BlockPredicate based on the given operation and arguments.
      * The supported operations are:
@@ -149,6 +155,53 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
         return null;
     }
     /**
+     * Creates a BlockComparator based on the given operation.
+     * The supported operations are:
+     * <ul>
+     *     <li>"overlap": checks if two blocks occupy the same position</li>
+     *     <li>"is": checks if two blocks are identical in state and color</li>
+     *     <li>"not": checks if two blocks differ in state or color</li>
+     *     <li>"analogous": checks if two blocks have the same state</li>
+     *     <li>"divergent": checks if two blocks have different states</li>
+     *     <li>"color": checks if two blocks have the same color</li>
+     *     <li>"varied": checks if two blocks have different colors</li>
+     *     <li>"separate": checks if two blocks occupy different positions</li>
+     *     <li>"i-line": checks if two blocks are in the same I line</li>
+     *     <li>"j-line": checks if two blocks are in the same J line</li>
+     *     <li>"k-line": checks if two blocks are in the same K line</li>
+     *     <li>"i-adjacent": checks if two blocks are adjacent along the I axis</li>
+     *     <li>"j-adjacent": checks if two blocks are adjacent along the J axis</li>
+     *     <li>"k-adjacent": checks if two blocks are adjacent along the K axis</li>
+     *     <li>"adjacent": checks if two blocks are adjacent in any direction</li>
+     *     <li>"front": checks if one block is in front of another (lower I, J, or K value)</li>
+     *     <li>"back": checks if one block is behind another (higher I, J, or K value)</li>
+     * </ul>
+     * @param op the operation to perform
+     * @return a BlockComparator based on the operation, or null if the operation is not recognized
+     */
+    private static BlockComparator blockComparator(String op){
+        return switch (op) {
+            case "overlap" -> Hex::equals; // Note this use Hex equals, not Block equals, only check position
+            case "is" -> (b1, b2) -> b1.getState() == b2.getState() && b1.getColor() == b2.getColor();
+            case "not" -> (b1, b2) -> b1.getState() != b2.getState() || b1.getColor() != b2.getColor();
+            case "analogous" -> (b1, b2) -> b1.getState() == b2.getState();
+            case "divergent" -> (b1, b2) -> b1.getState() != b2.getState();
+            case "color" -> (b1, b2) -> b1.getColor() == b2.getColor();
+            case "separate" -> (b1, b2) -> !b1.equals(b2.thisHex()); // Note this only check position
+            case "varied" -> (b1, b2) -> b1.getColor() != b2.getColor();
+            case "i-line" -> Hex::inLineI;
+            case "j-line" -> Hex::inLineJ;
+            case "k-line" -> Hex::inLineK;
+            case "i-adjacent" -> Hex::adjacentI;
+            case "j-adjacent" -> Hex::adjacentJ;
+            case "k-adjacent" -> Hex::adjacentK;
+            case "adjacent" -> Hex::adjacent;
+            case "front" -> Hex::front;
+            case "back" -> Hex::back;
+            default -> null;
+        };
+    }
+    /**
      * A functional interface for line predicates.
      * This wraps a {@link Predicate<>} of {@link Block} arrays to provide more readable code.
      */
@@ -159,12 +212,19 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
      * <ul>
      *     <li>"false": always returns false</li>
      *     <li>"true": always returns true</li>
+     *     <li>"length": checks if the line length is within the given bounds (args[0], args[1])</li>
      *     <li>"any": checks if any block in the line satisfies the given block predicate (args[0])</li>
      *     <li>"none": checks if no blocks in the line satisfy the given block predicate (args[0])</li>
      *     <li>"all": checks if all blocks in the line satisfy the given block predicate (args[0])</li>
      *     <li>"ratio": checks if the ratio of blocks satisfying the given block predicate (args[0]) is within the given bounds (args[1], args[2])</li>
      *     <li>"sequence": checks if there is a sequence of at least a given length (args[1]) of blocks satisfying the given block predicate (args[0])</li>
      *     <li>"checker": checks if blocks in even positions satisfy one block predicate (args[0]) and blocks in odd positions satisfy another block predicate (args[1])</li>
+     *     <li>"anypair": checks if any adjacent pair of blocks in the line satisfy the given block comparator (args[0])</li>
+     *     <li>"nopair": checks if no adjacent pairs of blocks in the line satisfy the given block comparator (args[0])</li>
+     *     <li>"allpairs": checks if all adjacent pairs of blocks in the line satisfy the given block comparator (args[0])</li>
+     *     <li>"parts": checks if the ratio of adjacent pairs of blocks satisfying the given block comparator (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li>"pairs": checks if there is a sequence of at least a given length (args[1]) of adjacent pairs of blocks satisfying the given block comparator (args[0])</li>
+     *     <li>"xor": logical XOR of two line predicates (args[0], args[1])</li>
      *     <li>"or": logical OR of two line predicates (args[0], args[1])</li>
      *     <li>"and": logical AND of two line predicates (args[0], args[1])</li>
      *     <li>"not": logical NOT of a line predicate (args[0])</li>
@@ -180,6 +240,11 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "true" -> {
                 return l -> true;
+            }
+            case "length" -> {
+                if (args.length == 2 && args[0] instanceof Integer lower && args[1] instanceof Integer upper){
+                    return l -> lower <= l.length && l.length <= upper;
+                }
             }
             case "any" -> {
                 if (args.length == 1 && args[0] instanceof BlockPredicate p){
@@ -252,6 +317,73 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                         }
                         return true;
                     };
+                }
+            }
+            case "anypair" -> {
+                if (args.length == 2 && args[0] instanceof BlockComparator c){
+                    return l -> {
+                        for (int i = 0; i < l.length - 1; i++){
+                            if (c.test(l[i], l[i+1])) return true;
+                        }
+                        return false;
+                    };
+                }
+            }
+            case "nopair" -> {
+                if (args.length == 2 && args[0] instanceof BlockComparator c){
+                    return l -> {
+                        for (int i = 0; i < l.length - 1; i++){
+                            if (c.test(l[i], l[i+1])) return false;
+                        }
+                        return true;
+                    };
+                }
+            }
+            case "allpairs" -> {
+                if (args.length == 2 && args[0] instanceof BlockComparator c){
+                    return l -> {
+                        for (int i = 0; i < l.length - 1; i++){
+                            if (!c.test(l[i], l[i+1])) return false;
+                        }
+                        return true;
+                    };
+                }
+            }
+            case "parts" ->{
+                if (args.length == 3 && args[0] instanceof BlockComparator p && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                    return l -> {
+                        int c = 0; double r;
+                        for (int i = 0; i < l.length - 1; i++){
+                            if (p.test(l[i], l[i+1])) c++;
+                        }
+                        if (l.length > 1){
+                            r = (double) c / (l.length - 1);
+                        } else {
+                            r = 0.0;
+                        }
+                        return lower <= r && r <= upper;
+                    };
+                }
+            }
+            case "pairs" -> {
+                if (args.length == 3 && args[0] instanceof BlockComparator c && args[1] instanceof Integer len){
+                    return l -> {
+                        if (l.length >= len) {
+                            int count = 0;
+                            for (int i = 0; i < l.length - 1; i++){
+                                if (c.test(l[i], l[i+1])) {
+                                    count++;
+                                    if (count >= len) return true;
+                                } else count = 0;
+                            }
+                        }
+                        return false;
+                    };
+                }
+            }
+            case "xor" -> {
+                if (args.length == 2 && args[0] instanceof LinePredicate p1 && args[1] instanceof LinePredicate p2) {
+                    return l -> p1.test(l) ^ p2.test(l);
                 }
             }
             case "not" -> {
