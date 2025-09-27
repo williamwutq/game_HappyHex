@@ -548,24 +548,35 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
      * Creates an EnginePredicate based on the given operation and arguments.
      * The supported operations are:
      * <ul>
-     *     <li>"filled": checks if the engine's filled percentage is within the given bounds (args[0], args[1])</li>
-     *     <li>"entropy": checks if the engine's entropy is within the given bounds (args[0], args[1])</li>
-     *     <li>"length": checks if the engine's length is within the given bounds (args[0], args[1])</li>
-     *     <li>"radius": checks if the engine's radius is within the given bounds (args[0], args[1])</li>
-     *     <li>"density-index": checks if the engine's mean density index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"densest-index": checks if the engine's highest density index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"sparsest-index": checks if the engine's lowest density index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"entropy-index": checks if the engine's mean entropy index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"most-entropic-index": checks if the engine's highest entropy index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"least-entropic-index": checks if the engine's lowest entropy index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"eliminate-index": checks if the engine's elimination index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"reduction-index": checks if the engine's mean elimination index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
-     *     <li>"is": checks if the engine is equal to another engine (args[0])</li>
-     *     <li>"matches": checks if the engine matches another engine ignoring color (args[0])</li>
-     *     <li>"not": logical NOT of an engine predicate (args[0])</li>
-     *     <li>"or": logical OR of two engine predicates (args[0], args[1])</li>
-     *     <li>"and": logical AND of two engine predicates (args[0], args[1])</li>
-     *     <li>"xor": logical XOR of two engine predicates (args[0], args[1])</li>
+     *     <li><b>all</b>: checks if all lines from a given BlocksIterableSupplier (args[0]) satisfy a given LinePredicate (args[1])</li>
+     *     <li><b>none</b>: checks if no lines from a given BlocksIterableSupplier (args[0]) satisfy a given LinePredicate (args[1])</li>
+     *     <li><b>any</b>: checks if any line from a given BlocksIterableSupplier (args[0]) satisfies a given LinePredicate (args[1])</li>
+     *     <li><b>ratio</b>: checks if the ratio of lines from a given BlocksIterableSupplier (args[0]) that satisfy
+     *         a given LinePredicate (args[1]) is within the given bounds (args[2], args[3])</li>
+     *     <li><b>sequence</b>: checks if there is a sequence of at least a given length (args[2]) of lines from a given BlocksIterableSupplier (args[0])
+     *         that satisfy a given LinePredicate (args[1])</li>
+     *     <li><b>checker</b>: checks if blocks in even positions of lines from a given BlocksIterableSupplier (args[0]) satisfy one BlockPredicate (args[1])
+     *         and blocks in odd positions satisfy another BlockPredicate (args[2])</li>
+     *     <li><b>filled</b>: checks if the engine's filled percentage is within the given bounds (args[0], args[1])</li>
+     *     <li><b>entropy</b>: checks if the engine's entropy is within the given bounds (args[0], args[1])</li>
+     *     <li><b>length</b>: checks if the engine's length is within the given bounds (args[0], args[1])</li>
+     *     <li><b>radius</b>: checks if the engine's radius is within the given bounds (args[0], args[1])</li>
+     *     <li><b>density-index</b>: checks if the engine's mean density index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>densest-index</b>: checks if the engine's highest density index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>sparsest-index</b>: checks if the engine's lowest density index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>entropy-index</b>: checks if the engine's mean entropy index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>most-entropic-index</b>: checks if the engine's highest entropy index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>least-entropic-index</b>: checks if the engine's lowest entropy index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>eliminate-index</b>: checks if the engine's elimination index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>reduction-index</b>: checks if the engine's mean elimination index for a given piece (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li><b>is</b>: checks if the engine is equal to another engine (args[0])</li>
+     *     <li><b>matches</b>: checks if the engine matches another engine ignoring color (args[0])</li>
+     *     <li><b>appears</b>: checks if a block with the given pattern (args[0]) appears in the engine</li>
+     *     <li><b>lacks</b>: checks if a block with the given pattern (args[0]) does not appear in the engine</li>
+     *     <li><b>not</b>: logical NOT of an engine predicate (args[0])</li>
+     *     <li><b>or</b>: logical OR of two engine predicates (args[0], args[1])</li>
+     *     <li><b>and</b>: logical AND of two engine predicates (args[0], args[1])</li>
+     *     <li><b>xor</b>: logical XOR of two engine predicates (args[0], args[1])</li>
      * </ul>
      * @param op the operation to perform
      * @param args the arguments for the operation. The expected types and number of arguments depend on the operation.
@@ -573,6 +584,85 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
      */
     private static EnginePredicate enginePredicate(String op, Object[] args){
         switch (op) {
+            // For
+            case "all" -> {
+                if (args.length == 2 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate) {
+                    return e -> {
+                        for (Block[] line : bis.apply(e)) {
+                            if (!predicate.test(line)) return false;
+                        }
+                        return true;
+                    };
+                }
+            }
+            case "none" -> {
+                if (args.length == 2 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate) {
+                    return e -> {
+                        for (Block[] line : bis.apply(e)) {
+                            if (predicate.test(line)) return false;
+                        }
+                        return true;
+                    };
+                }
+            }
+            case "any" -> {
+                if (args.length == 2 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate) {
+                    return e -> {
+                        for (Block[] line : bis.apply(e)) {
+                            if (predicate.test(line)) return true;
+                        }
+                        return false;
+                    };
+                }
+            }
+            case "ratio" -> {
+                if (args.length == 4 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate && args[2] instanceof Double upper && args[3] instanceof Double lower) {
+                    return e -> {
+                        int c = 0; int t = 0;
+                        for (Block[] line : bis.apply(e)) {
+                            if (predicate.test(line)){
+                                c++;
+                            }
+                            t++;
+                        }
+                        double r = (t == 0) ? 0.0 : (double) c / t;
+                        return lower <= r && r <= upper;
+                    };
+                }
+            }
+            case "sequence" -> {
+                if (args.length == 3 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate && args[2] instanceof Integer len) {
+                    return e -> {
+                        int c = 0;
+                        for (Block[] line : bis.apply(e)) {
+                            if (predicate.test(line)){
+                                c++;
+                                if (c >= len) return true;
+                            } else {
+                                c = 0;
+                            }
+                        }
+                        return false;
+                    };
+                }
+            }
+            case "checker" -> {
+                if (args.length == 3 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof BlockPredicate even && args[2] instanceof BlockPredicate odd) {
+                    return e -> {
+                        for (Block[] line : bis.apply(e)) {
+                            for (int i = 0; i < line.length; i++) {
+                                Block b = line[i];
+                                if (i % 2 == 0) {
+                                    if (!even.test(b)) return false;
+                                } else {
+                                    if (!odd.test(b)) return false;
+                                }
+                            }
+                        }
+                        return true;
+                    };
+                }
+            }
             // Native
             case "filled" -> {
                 if (args.length == 2 && args[0] instanceof Double lower && args[1] instanceof Double upper) {
@@ -688,6 +778,30 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             case "matches" -> {
                 if (args.length == 1 && args[0] instanceof HexEngine other) {
                     return e -> e.equalsIgnoreColor(other);
+                }
+            }
+            case "appears" -> {
+                if (args.length == 1 && args[0] instanceof Integer pattern) {
+                    return e -> {
+                        for (Block b : e.blocks()) {
+                            if ((int)pattern == e.patternSupplier(b).get()) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+                }
+            }
+            case "lacks" -> {
+                if (args.length == 1 && args[0] instanceof Integer pattern) {
+                    return e -> {
+                        for (Block b : e.blocks()) {
+                            if ((int)pattern == e.patternSupplier(b).get()) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    };
                 }
             }
             // Logical operations on engine predicates
