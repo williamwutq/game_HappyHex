@@ -40,6 +40,10 @@ import java.util.regex.Pattern;
  * It includes several predefined suppliers for common game variables such as score, turn, engine length, etc.
  * <p>
  * This is a functional auxiliary for {@link GameState}.
+ * <p>
+ * This includes a {@link #parse(String) parser} that can parse a string representation of a GameVariableSupplier.
+ * The parser supports predefined suppliers, casting, unary operations, binary operations, and nested expressions.
+ *
  * @param <T> the type of the value supplied
  * @see GameState
  * @see Function
@@ -419,6 +423,32 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      */
     static <T> GameVariableSupplier<T> constant(T value) { return s -> value; }
 
+    /**
+     * Parses a string representation of a GameVariableSupplier.
+     * The string can represent predefined suppliers, casting operations, unary operations, binary operations, or nested expressions.
+     * The parsing is case-insensitive and ignores extra whitespace.
+     * It automatically adds spaces around operators and parentheses based on operator precedence.
+     * The final result is wrapped around a GameVariableSupplier that does not throw exceptions, returning null instead.
+     * <p>
+     * Available commands:
+     * <ul>
+     *     <li>Predefined suppliers: zero, one, pi, hex, length, radius, lines, size, first, last, score, turn, fill, entropy</li>
+     *     <li>Integer and double constants (e.g., "42", "3.14")</li>
+     *     <li>Casting: int, double, patternof, pattern, pieceof, piece</li>
+     *     <li>Unary operations: neg, negate, negative (-), abs, absolute, sq, sqr, square, squared, sqrt, squareroot, square_root, square-root, bool, boolean, not (!)</li>
+     *     <li>Binary operations: +, adds, add, plus, addition; -, subtracts, subtract, minus, subtraction; *, multiplies, multiply, times, time, multiplication; /, divides, divide, division; %, mod, modulo, modulos, remainder; ^, pow, power, exp, exponent; max, maximum; min, minimum; avg, average, mean</li>
+     *     <li>Comparison operations: equals, equal, ==, is, same; equals_exact, equal_exact, ===, is_exact, same_exact; not_equals, not_equal, !=, not, is_not, not_same</li>
+     *     <li>Parentheses for grouping: ( and )</li>
+     *     <li>Whitespace is ignored and can be used freely for readability</li>
+     * </ul>
+     * @see #of(String)
+     * @see #castIntUnknown(GameVariableSupplier)
+     * @see #castDoubleUnknown(GameVariableSupplier)
+     * @see #numberOperation(GameVariableSupplier, String)
+     * @see #numberOperation(GameVariableSupplier, GameVariableSupplier, String)
+     * @param str the string to parse
+     * @return the corresponding GameVariableSupplier
+     */
     public static GameVariableSupplier<?> parse(String str) {
         return s -> {
             try {
@@ -428,6 +458,13 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
             }
         };
     }
+    /**
+     * Recursively parses a string representation of a GameVariableSupplier.
+     * The string can represent predefined suppliers, casting operations, unary operations, binary operations, or nested expressions.
+     * @param str the string to parse
+     * @return the corresponding GameVariableSupplier
+     * @see #parse(String)
+     */
     private static GameVariableSupplier<?> parseRec(String str) {
         // Trim
         str = str.trim().toLowerCase();
