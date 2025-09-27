@@ -442,7 +442,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
 
     private static GameVariableSupplier<?> parse(String str) {
         // Trim
-        str = str.trim().toLowerCase();
+        str = autoFormat(str.trim().toLowerCase());
         // Is this a predefined supplier?
         try {
             return of(str);
@@ -583,6 +583,19 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
             result.add(token.toString());
         }
         return result.toArray(new String[0]);
+    }
+    /**
+     * Automatically formats the input string by adding spaces around operators and removing extra spaces.
+     * This helps in parsing expressions by ensuring that operators are clearly separated from operands.
+     * Supported operators include: +, -, *, /, %, ^, (, and ).
+     * @param input the input string to format
+     * @return the formatted string with spaces around operators and no extra spaces
+     */
+    static String autoFormat(String input) {
+        // Add spaces around operators
+        String spaced = input.replaceAll("([+\\-*/%^()])", " $1 ");
+        // Replace multiple spaces with a single space
+        return spaced.replaceAll("\\s+", " ").trim();
     }
 
     /** A constant supplier that always returns 0. */
