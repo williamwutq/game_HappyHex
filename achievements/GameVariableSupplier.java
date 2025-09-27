@@ -442,9 +442,12 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      */
     static <T> GameVariableSupplier<T> constant(T value) { return s -> value; }
 
-    private static GameVariableSupplier<?> parse(String str) {
+    public static GameVariableSupplier<?> parse(String str) {
+        return parseRec(autoFormat(autoParen(str)));
+    }
+    private static GameVariableSupplier<?> parseRec(String str) {
         // Trim
-        str = autoFormat(str.trim().toLowerCase());
+        str = str.trim().toLowerCase();
         // Is this a predefined supplier?
         try {
             return of(str);
@@ -452,7 +455,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         // Is this casting?
         if (str.startsWith("int")) {
             try {
-                GameVariableSupplier<?> var = parse(str.substring(3));
+                GameVariableSupplier<?> var = parseRec(str.substring(3));
                 return castInt(
                         (GameVariableSupplier<Double>)var);
             } catch (IllegalArgumentException | ClassCastException ex) {
@@ -462,35 +465,35 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         } else if (str.startsWith("double")) {
             try {
                 System.out.println(str.substring(7));
-                GameVariableSupplier<Integer> var = (GameVariableSupplier<Integer>) parse(str.substring(6));
+                GameVariableSupplier<Integer> var = (GameVariableSupplier<Integer>) parseRec(str.substring(6));
                 return castDouble(var);
             } catch (IllegalArgumentException | ClassCastException ex) {
                 throw new IllegalArgumentException("Failed to cast double because of " + ex.getMessage());
             }
         } else if (str.startsWith("patternof")) {
             try {
-                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parse(str.substring(9));
+                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parseRec(str.substring(9));
                 return patternOf(pieceVar);
             } catch (IllegalArgumentException | ClassCastException ex) {
                 throw new IllegalArgumentException("Failed to get patternOf because of " + ex.getMessage());
             }
         } else if (str.startsWith("pattern")) {
             try {
-                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parse(str.substring(7));
+                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parseRec(str.substring(7));
                 return patternOf(pieceVar);
             } catch (IllegalArgumentException | ClassCastException ex) {
                 throw new IllegalArgumentException("Failed to get patternOf because of " + ex.getMessage());
             }
         } else if (str.startsWith("pieceof")) {
             try {
-                GameVariableSupplier<Integer> patternVar = (GameVariableSupplier<Integer>) parse(str.substring(7));
+                GameVariableSupplier<Integer> patternVar = (GameVariableSupplier<Integer>) parseRec(str.substring(7));
                 return pieceOf(patternVar);
             } catch (IllegalArgumentException | ClassCastException ex) {
                 throw new IllegalArgumentException("Failed to get pieceOf because of " + ex.getMessage());
             }
         } else if (str.startsWith("piece")) {
             try {
-                GameVariableSupplier<Integer> patternVar = (GameVariableSupplier<Integer>) parse(str.substring(5));
+                GameVariableSupplier<Integer> patternVar = (GameVariableSupplier<Integer>) parseRec(str.substring(5));
                 return pieceOf(patternVar);
             } catch (IllegalArgumentException | ClassCastException  ex) {
                 throw new IllegalArgumentException("Failed to get pieceOf because of " + ex.getMessage());
@@ -500,11 +503,11 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         String[] parts = split(str, 2);
         if (parts.length == 2) {
             try {
-                GameVariableSupplier<Integer> intVar = (GameVariableSupplier<Integer>) parse(parts[1]);
+                GameVariableSupplier<Integer> intVar = (GameVariableSupplier<Integer>) parseRec(parts[1]);
                 return integerOperation(intVar, parts[0]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
             try {
-                GameVariableSupplier<Double> doubleVar = (GameVariableSupplier<Double>) parse(parts[1]);
+                GameVariableSupplier<Double> doubleVar = (GameVariableSupplier<Double>) parseRec(parts[1]);
                 return doubleOperation(doubleVar, parts[0]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
         }
@@ -512,30 +515,30 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         parts = split(str, 3);
         if (parts.length == 3) {
             try {
-                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parse(parts[0]);
-                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parse(parts[2]);
+                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parseRec(parts[0]);
+                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parseRec(parts[2]);
                 return integerOperation(intVar1, intVar2, parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
             try {
-                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parse(parts[0]);
-                GameVariableSupplier<Double> intVar2 = (GameVariableSupplier<Double>) parse(parts[2]);
+                GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parseRec(parts[0]);
+                GameVariableSupplier<Double> intVar2 = (GameVariableSupplier<Double>) parseRec(parts[2]);
                 return doubleOperation(castDouble(intVar1), intVar2, parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
             try {
-                GameVariableSupplier<Double> intVar1 = (GameVariableSupplier<Double>) parse(parts[0]);
-                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parse(parts[2]);
+                GameVariableSupplier<Double> intVar1 = (GameVariableSupplier<Double>) parseRec(parts[0]);
+                GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parseRec(parts[2]);
                 return doubleOperation(intVar1, castDouble(intVar2), parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
             try {
-                GameVariableSupplier<Double> doubleVar1 = (GameVariableSupplier<Double>) parse(parts[0]);
-                GameVariableSupplier<Double> doubleVar2 = (GameVariableSupplier<Double>) parse(parts[2]);
+                GameVariableSupplier<Double> doubleVar1 = (GameVariableSupplier<Double>) parseRec(parts[0]);
+                GameVariableSupplier<Double> doubleVar2 = (GameVariableSupplier<Double>) parseRec(parts[2]);
                 return doubleOperation(doubleVar1, doubleVar2, parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
         }
         // Try strip parentheses
         if (str.startsWith("(") && str.endsWith(")")) {
             try {
-                return parse(str.substring(1, str.length() - 1));
+                return parseRec(str.substring(1, str.length() - 1));
             } catch (IllegalArgumentException ignored) {}
         }
         // Nothing worked
