@@ -807,6 +807,18 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
         return positions;
     }
     /**
+     * Returns a predicate that tests whether there is any valid position where {@code other} grid can be added.
+     * This predicate can be used to quickly determine if addition is possible without needing to find all positions.
+     *
+     * @return a predicate that returns true if there is at least one valid position for addition
+     * @see #checkPositions
+     * @see #checkAdd
+     * @since 2.0
+     */
+    public Predicate<HexGrid> anyAddablePredicate(){
+        return other -> !checkPositions(other).isEmpty();
+    }
+    /**
      * Eliminates fully occupied lines along I, J, or K axes then return the blocks that are being
      * eliminated.
      * <p>
