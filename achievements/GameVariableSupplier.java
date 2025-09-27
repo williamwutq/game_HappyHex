@@ -28,9 +28,7 @@ import hex.GameState;
 import hex.HexEngine;
 import hex.Piece;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -133,6 +131,16 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     static <N extends Number> GameVariableSupplier<Integer> castInt(GameVariableSupplier<N> supplier){
         return (GameVariableSupplier<Integer>) Optional.ofNullable(supplier).map(s -> s.andThen(Number::intValue)).orElse(null);
     }
+    static GameVariableSupplier<Integer> castIntUnknown(GameVariableSupplier<?> supplier){
+        return t -> {
+            Object result = supplier.apply(t);
+            if (result instanceof Number num){
+                return num.intValue();
+            } else if (result instanceof Piece p) {
+                return (int) p.toByte();
+            } else return null;
+        };
+    }
     /**
      * Casts a GameVariableSupplier of a Number type to a GameVariableSupplier of Double.
      * If the input supplier is null, null is returned.
@@ -143,6 +151,16 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      */
     static <N extends Number> GameVariableSupplier<Double> castDouble(GameVariableSupplier<N> supplier){
         return (GameVariableSupplier<Double>) Optional.ofNullable(supplier).map(s -> s.andThen(Number::doubleValue)).orElse(null);
+    }
+    static GameVariableSupplier<Double> castDoubleUnknown(GameVariableSupplier<?> supplier){
+        return t -> {
+            Object result = supplier.apply(t);
+            if (result instanceof Number num){
+                return num.doubleValue();
+            } else if (result instanceof Piece p) {
+                return (double) p.toByte();
+            } else return null;
+        };
     }
     /**
      * Applies a unary operation to the result of a GameVariableSupplier<Integer>.
@@ -443,7 +461,13 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     static <T> GameVariableSupplier<T> constant(T value) { return s -> value; }
 
     public static GameVariableSupplier<?> parse(String str) {
-        return parseRec(autoFormat(autoParen(str)));
+        return s -> {
+            try {
+                return parseRec(autoFormat(autoParen(str))).apply(s);
+            } catch (Exception e) {
+                return null;
+            }
+        };
     }
     private static GameVariableSupplier<?> parseRec(String str) {
         // Trim
@@ -456,17 +480,14 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         if (str.startsWith("int")) {
             try {
                 GameVariableSupplier<?> var = parseRec(str.substring(3));
-                return castInt(
-                        (GameVariableSupplier<Double>)var);
+                return castIntUnknown(var);
             } catch (IllegalArgumentException | ClassCastException ex) {
-                System.out.println(ex.getMessage());
                 throw new IllegalArgumentException("Failed to cast int because of " + ex.getMessage());
             }
         } else if (str.startsWith("double")) {
             try {
-                System.out.println(str.substring(7));
-                GameVariableSupplier<Integer> var = (GameVariableSupplier<Integer>) parseRec(str.substring(6));
-                return castDouble(var);
+                GameVariableSupplier<?> var = parseRec(str.substring(6));
+                return castDoubleUnknown(var);
             } catch (IllegalArgumentException | ClassCastException ex) {
                 throw new IllegalArgumentException("Failed to cast double because of " + ex.getMessage());
             }
@@ -522,12 +543,12 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
             try {
                 GameVariableSupplier<Integer> intVar1 = (GameVariableSupplier<Integer>) parseRec(parts[0]);
                 GameVariableSupplier<Double> intVar2 = (GameVariableSupplier<Double>) parseRec(parts[2]);
-                return doubleOperation(castDouble(intVar1), intVar2, parts[1]);
+                return doubleOperation(castDoubleUnknown(intVar1), intVar2, parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
             try {
                 GameVariableSupplier<Double> intVar1 = (GameVariableSupplier<Double>) parseRec(parts[0]);
                 GameVariableSupplier<Integer> intVar2 = (GameVariableSupplier<Integer>) parseRec(parts[2]);
-                return doubleOperation(intVar1, castDouble(intVar2), parts[1]);
+                return doubleOperation(intVar1, castDoubleUnknown(intVar2), parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
             try {
                 GameVariableSupplier<Double> doubleVar1 = (GameVariableSupplier<Double>) parseRec(parts[0]);
@@ -626,42 +647,67 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * @param str the input expression string
      * @return the expression string with added parentheses based on operator precedence
      */
-    public static String autoParen(String str) {
-        final String[][] BINARY_PRECEDENCE = {
-                {"\\^", "pow", "power", "exp", "exponent"}, // Highest
-                {"\\*", "multiplies", "multiply", "times", "time", "multiplication",
-                        "/", "divides", "divide", "division", "%", "mod", "modulo", "modulos", "remainder"},
-                {"\\+", "adds", "add", "plus", "addition", "-", "subtracts", "subtract", "minus", "subtraction"} // Lowest
-        };
-        final String[] CAST_OPS = {
+    static String autoParen(String str) {
+        final Map<String, Integer> PRECEDENCE = new HashMap<>();
+        for (String op : new String[]{"^", "pow", "power", "exp", "exponent"}) PRECEDENCE.put(op, 3);
+        for (String op : new String[]{"*", "multiplies", "multiply", "times", "time", "multiplication",
+                "/", "divides", "divide", "division",
+                "%", "mod", "modulo", "modulos", "remainder"})
+            PRECEDENCE.put(op, 2);
+        for (String op : new String[]{"+", "adds", "add", "plus", "addition",
+                "-", "subtracts", "subtract", "minus", "subtraction"})
+            PRECEDENCE.put(op, 1);
+        final Set<String> CAST_OPS = new HashSet<>(Arrays.asList(
                 "int", "double", "patternof", "pattern", "pieceof", "piece"
-        };
-        String result = " " + str.trim() + " ";
-        // Handle unary casting first: opname operand
-        for (String op : CAST_OPS) {
-            result = result.replaceAll("(?<![\\w)])\\s*" + op + "\\s+([^()\\s]+)", "(" + op + " $1)");
+        ));
+        List<String> tokens = new ArrayList<>();
+        Stack<String> values = new Stack<>();
+        Stack<String> ops = new Stack<>();
+        Pattern p = Pattern.compile(
+                "\\d+\\.\\d+|\\d+|[A-Za-z_][A-Za-z_0-9]*|[()+\\-*/%^]"
+        );
+        Matcher m = p.matcher(str);
+        while (m.find()) {
+            tokens.add(m.group());
         }
-        // Handle binary operators by precedence
-        for (String[] ops : BINARY_PRECEDENCE) {
-            boolean changed;
-            do {
-                changed = false;
-                for (String op : ops) {
-                    String regex = "(?<!\\()([^()\\s]+)\\s+" + op + "\\s+([^()\\s]+)(?!\\))";
-                    Pattern p = Pattern.compile(regex);
-                    Matcher m = p.matcher(result);
-                    StringBuffer sb = new StringBuffer();
-                    while (m.find()) {
-                        m.appendReplacement(sb, "(" + m.group(1) + " " + op + " " + m.group(2) + ")");
-                        changed = true;
-                    }
-                    m.appendTail(sb);
-                    result = sb.toString();
+        for (int i = 0; i < tokens.size(); i++) {
+            String t = tokens.get(i);
+            if (CAST_OPS.contains(t)) {
+                if (i + 1 < tokens.size()) {
+                    String next = tokens.get(++i);
+                    values.push("(" + t + " " + next + ")");
                 }
-            } while (changed); // keep tightening at same precedence until stable
+            } else if (PRECEDENCE.containsKey(t)) {
+                while (!ops.isEmpty() && PRECEDENCE.getOrDefault(ops.peek(), 0) >= PRECEDENCE.get(t)) {
+                    String op = ops.pop();
+                    String b = values.pop();
+                    String a = values.pop();
+                    values.push("(" + a + " " + op + " " + b + ")");
+                }
+                ops.push(t);
+            } else if (t.equals("(")) {
+                ops.push(t);
+            } else if (t.equals(")")) {
+                while (!ops.isEmpty() && !ops.peek().equals("(")) {
+                    String op = ops.pop();
+                    String b = values.pop();
+                    String a = values.pop();
+                    values.push("(" + a + " " + op + " " + b + ")");
+                }
+                if (!ops.isEmpty() && ops.peek().equals("(")) ops.pop();
+            } else {
+                values.push(t);
+            }
         }
-        return result.trim();
+        while (!ops.isEmpty()) {
+            String op = ops.pop();
+            String b = values.pop();
+            String a = values.pop();
+            values.push("(" + a + " " + op + " " + b + ")");
+        }
+        return values.isEmpty() ? "" : values.pop();
     }
+
 
     /** A constant supplier that always returns 0. */
     GameVariableSupplier<Integer> ZERO = constant(0);
