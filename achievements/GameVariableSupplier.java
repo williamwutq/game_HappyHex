@@ -652,7 +652,12 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
             if (CAST_OPS.contains(t)) {
                 if (i + 1 < tokens.size()) {
                     String next = tokens.get(++i);
-                    values.push("(" + t + " " + next + ")");
+                    if (next.equals("(")) {
+                        ops.push(t + "_CAST"); // mark cast to apply after subexpr
+                        ops.push("("); // process as normal parenthesis
+                    } else {
+                        values.push("(" + t + " " + next + ")");
+                    }
                 }
             } else if (PRECEDENCE.containsKey(t)) {
                 while (!ops.isEmpty() && PRECEDENCE.getOrDefault(ops.peek(), 0) >= PRECEDENCE.get(t)) {
@@ -672,7 +677,14 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                     values.push("(" + a + " " + op + " " + b + ")");
                 }
                 if (!ops.isEmpty() && ops.peek().equals("(")) ops.pop();
-            } else {
+
+                // check if cast operator was waiting
+                if (!ops.isEmpty() && ops.peek().endsWith("_CAST")) {
+                    String cast = ops.pop().replace("_CAST", "");
+                    String expr = values.pop();
+                    values.push("(" + cast + " " + expr + ")");
+                }
+            }else {
                 values.push(t);
             }
         }
