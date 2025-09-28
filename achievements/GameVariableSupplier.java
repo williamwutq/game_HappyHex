@@ -25,7 +25,6 @@
 package achievements;
 
 import hex.GameState;
-import hex.HexEngine;
 import hex.Piece;
 
 import java.util.*;
@@ -36,13 +35,75 @@ import java.util.regex.Pattern;
 
 /**
  * A functional interface that represents a supplier of game-related variables based on the current GameState.
+ * This is a functional auxiliary for {@link GameState}.
+ * <p>
+ * <h2>Description</h2>
  * This interface extends Function<GameState, T>, allowing it to take a GameState as input and produce a value of type T.
  * It includes several predefined suppliers for common game variables such as score, turn, engine length, etc.
  * <p>
- * This is a functional auxiliary for {@link GameState}.
- * <p>
  * This includes a {@link #parse(String) parser} that can parse a string representation of a GameVariableSupplier.
  * The parser supports predefined suppliers, casting, unary operations, binary operations, and nested expressions.
+ * <p>
+ * <h2>Predefined GameVariableSuppliers</h2>
+ * The following is a list of all predefined GameVariableSuppliers:
+ * <ul>
+ *     <li><b>ZERO</b> - always returns 0</li>
+ *     <li><b>ONE</b> - always returns 1</li>
+ *     <li><b>PI</b> - always returns the mathematical constant π (pi)</li>
+ *     <li><b>HEX</b> - always returns 6, representing the number of sides on a hexagon</li>
+ *     <li><b>LENGTH</b> - returns the length of the engine</li>
+ *     <li><b>RADIUS</b> - returns the radius of the engine</li>
+ *     <li><b>LINES</b> - returns the number of lines in the engine</li>
+ *     <li><b>SIZE</b> - returns the size of the piece queue</li>
+ *     <li><b>FIRST</b> - returns the first piece in the piece queue</li>
+ *     <li><b>LAST</b> - returns the last piece in the piece queue</li>
+ *     <li><b>SCORE</b> - returns the current score of the game</li>
+ *     <li><b>TURN</b> - returns the current turn number of the game</li>
+ *     <li><b>FILL</b> - returns the percentage of the engine that is filled</li>
+ *     <li><b>ENTROPY</b> - returns the entropy of the engine</li>
+ *     <li><b>UNO</b> - always returns the Piece {@code UNO}</li>
+ *     <li><b>BIG_BLOCK</b> - always returns the Piece {@code BIG_BLOCK}</li>
+ *     <li>Integer constants (e.g., "42") - always returns that integer</li>
+ *     <li>Double constants (e.g., "3.14") - always returns that double</li>
+ * </ul>
+ * <p>
+ * <h2>Unary Operations</h2>
+ * The following is a list of all keywords used in casting and unary operations:
+ * <ul>
+ *     <li><b>int</b>, <b>integer</b> - casts a Number or Piece to Integer</li>
+ *     <li><b>double</b>, <b>float</b> - casts a Number or Piece to Double</li>
+ *     <li><b>-</b>, <b>neg</b>, <b>negate</b>, <b>negative</b> - negation of a Number</li>
+ *     <li><b>abs</b>, <b>absolute</b> - absolute value of a Number</li>
+ *     <li><b>sq</b>, <b>sqr</b>, <b>square</b>, <b>squared</b> - square of a Number</li>
+ *     <li><b>sqrt</b>, <b>squareroot</b>, <b>square_root</b>, <b>square-root</b> - square root of a Number</li>
+ *     <li><b>bool</b>, <b>boolean</b> - converts a Number to a boolean (0 or 0.0 becomes 0, non-zero becomes 1)</li>
+ *     <li><b>not</b>, <b>!</b> - logical NOT operation on a Number (0 or 0.0 becomes 1, non-zero becomes 0)</li>
+ *     <li><b>sizeof</b> - returns the number of digits in the absolute value of an integer or the length of a Piece</li>
+ *     <li><b>colorof</b> - returns the color of a Piece as a color index</li>
+ *     <li><b>invert</b> - inverts a Piece pattern (flips all bits)</li>
+ *     <li><b>uncolor</b> - removes the color from a Piece (sets color to -2)</li>
+ * </ul>
+ * <p>
+ * <h2>Binary Operations</h2>
+ * The following is a list of all keywords used in binary operations:
+ * <ul>
+ *     <li><b>+</b>, <b>adds</b>, <b>add</b>, <b>plus</b>, <b>addition</b> - addition of two Numbers</li>
+ *     <li><b>-</b>, <b>subtracts</b>, <b>subtract</b>, <b>minus</b>, <b>subtraction</b> - subtraction of two Numbers</li>
+ *     <li><b>*</b>, <b>multiplies</b>, <b>multiply</b>, <b>times</b>, <b>time</b>, <b>multiplication</b> - multiplication of two Numbers</li>
+ *     <li><b>/</b>, <b>divides</b>, <b>divide</b>, <b>division</b> - division of two Numbers (returns null if dividing by zero)</li>
+ *     <li><b>%</b>, <b>mod</b>, <b>modulo</b>, <b>modulos</b>, <b>remainder</b> - modulo of two Numbers (returns null if modulo by zero)</li>
+ *     <li><b>^</b>, <b>pow</b>, <b>power</b>, <b>exp</b>, <b>exponent</b> - exponentiation of two Numbers (val1 raised to the power of val2)</li>
+ *     <li><b>max</b>, <b>maximum</b> - maximum of two Numbers</li>
+ *     <li><b>min</b>, <b>minimum</b> - minimum of two Numbers</li>
+ *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of two Numbers (integer division)</li>
+ *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - checks if two Numbers are approximately equal (within a small epsilon for doubles)</li>
+ *     <li><b>equals_exact</b>, <b>equal_exact</b>, <b>===</b>, <b>is_exact</b>, <b>same_exact</b> - checks if two Numbers are exactly equal</li>
+ *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - checks if two Numbers are not approximately equal (outside a small epsilon for doubles)</li>
+ *     <li><b>insert</b> - inserts a block into a Piece at the position specified by a Number (0-6)</li>
+ *     <li><b>remove</b> - removes a block from a Piece at the position specified by a Number (0-6)</li>
+ *     <li><b>alter</b> - toggles a block in a Piece at the position specified by a Number (0-6)</li>
+ *     <li><b>paint</b> - changes the color of a Piece to the color index specified by a Number</li>
+ * </ul>
  *
  * @param <T> the type of the value supplied
  * @see GameState
@@ -85,6 +146,8 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>fill, filled, percentfilled, percent_filled, or percent-filled</b> - returns a supplier
      *         that provides the percentage of the engine that is filled</li>
      *     <li><b>entropy</b> - returns a supplier that provides the entropy of the engine</li>
+     *     <li><b>uno</b> - returns a supplier that always return the Piece {@link #UNO}</li>
+     *     <li><b>big-block, big_block, or big</b> - returns a supplier that always return the Piece {@link #BIG_BLOCK}</li>
      *     <li>Any valid integer string (e.g., "42") - returns a supplier that always returns that integer</li>
      *     <li>Any valid double string (e.g., "3.14") - returns a supplier that always returns that double</li>
      * </ul>
@@ -109,6 +172,8 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
             case "turn", "turns" -> TURN;
             case "fill", "filled", "percentfilled", "percent_filled", "percent-filled" -> FILL;
             case "entropy" -> ENTROPY;
+            case "uno" -> UNO;
+            case "big-block", "big_block", "big" -> BIG_BLOCK;
             default -> {
                 // Is this an integer?
                 try {
@@ -194,6 +259,8 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>sqrt</b>, <b>squareroot</b>, <b>square_root</b>, <b>square-root</b> - square root of the value</li>
      *     <li><b>bool</b>, <b>boolean</b> - converts the number to a boolean (0 or 0.0 becomes 0, non-zero becomes 1)</li>
      *     <li><b>not</b>, <b>!</b> - logical NOT operation (0 or 0.0 becomes 1, non-zero becomes 0)</li>
+     *     <li><b>sizeof</b> - returns the number of digits in the absolute value of an integer or the length of a Piece</li>
+     *     <li><b>colorof</b> - returns the color of a Piece as a color index</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
      * @param x the GameVariableSupplier<Number> to apply the operation to
@@ -239,6 +306,65 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                 else if (val instanceof Double d) return (d == 0.0 ? 1 : 0);
                 else return null;
             };
+            case "sizeof" -> s -> {
+                Object val = x.apply(s);
+                if (val instanceof Number num) {
+                    return String.valueOf(Math.abs((Integer) num)).length();
+                } else if (val instanceof Piece p) {
+                    return p.length();
+                }
+                else return null;
+            };
+            case "colorof" -> s -> {
+                Object val = x.apply(s);
+                if (val instanceof Piece p) {
+                    return p.getColor();
+                }
+                else return null;
+            };
+            default -> throw new IllegalArgumentException("Unknown operation: " + name);
+        };
+    }
+    /**
+     * Applies a unary operation to the result of a GameVariableSupplier<Piece>.
+     * Supported operations (case-insensitive) include:
+     * <ul>
+     *     <li><b>invert</b> - inverts the piece pattern (flips all bits)</li>
+     *     <li><b>uncolor</b> - removes the color from the piece (sets color to -2)</li>
+     * </ul>
+     * If the operation is not recognized, an IllegalArgumentException is thrown.
+     * @param p the GameVariableSupplier<Piece> to apply the operation to
+     * @param name the name of the operation
+     * @return a new GameVariableSupplier<Piece> that applies the operation
+     * @throws IllegalArgumentException if the operation is not recognized
+     */
+    static GameVariableSupplier<Piece> pieceOperation(GameVariableSupplier<?> p, String name) {
+        return switch (name) {
+            case "invert" -> s -> {
+                Object valP = p.apply(s);
+                if (valP instanceof Piece piece) {
+                    try {
+                        return Piece.pieceFromByte((byte) (~piece.toByte() & 0x7F), piece.getColor());
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            };
+            case "uncolor" -> s -> {
+                Object valP = p.apply(s);
+                if (valP instanceof Piece piece) {
+                    try {
+                        piece.setColor(-2);
+                        return piece;
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
         };
     }
@@ -255,6 +381,9 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>max</b>, <b>maximum</b> - maximum of the two values</li>
      *     <li><b>min</b>, <b>minimum</b> - minimum of the two values</li>
      *     <li><b>avg</b>, <b>average</b>, <b>mean</b> - average of the two values (integer division)</li>
+     *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - checks if the two values are approximately equal (within a small epsilon for doubles)</li>
+     *     <li><b>equals_exact</b>, <b>equal_exact</b>, <b>===</b>, <b>is_exact</b>, <b>same_exact</b> - checks if the two values are exactly equal</li>
+     *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - checks if the two values are not approximately equal (outside a small epsilon for doubles)</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
      * @param v1 the first GameVariableSupplier<Number>
@@ -393,6 +522,90 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         };
     }
     /**
+     * Applies a piece operation to a GameVariableSupplier<Piece> using a GameVariableSupplier<Number> as an argument.
+     * Supported operations (case-insensitive) include:
+     * <ul>
+     *     <li><b>insert</b> - inserts a block at the position specified by the number (0-6)</li>
+     *     <li><b>remove</b> - removes a block at the position specified by the number (0-6)</li>
+     *     <li><b>alter</b> - toggles a block at the position specified by the number (0-6)</li>
+     *     <li><b>paint</b> - changes the color of the piece to the number specified (color index)</li>
+     * </ul>
+     * The position is determined by taking the number modulo 7.
+     * If the resulting piece pattern is invalid, null is returned.
+     * If the operation is not recognized, an IllegalArgumentException is thrown.
+     * @param n the GameVariableSupplier<Number> that specifies the position
+     * @param p the GameVariableSupplier<Piece> to apply the operation to
+     * @param name the name of the operation
+     * @return a new GameVariableSupplier<Piece> that applies the operation
+     * @throws IllegalArgumentException if the operation is not recognized
+     */
+    static GameVariableSupplier<Piece> pieceOperation(GameVariableSupplier<?> p, GameVariableSupplier<Number> n, String name) {
+        return switch (name) {
+            case "insert" -> s -> {
+                Object valP = p.apply(s);
+                Object valN = n.apply(s);
+                if (valP instanceof Piece piece && valN instanceof Number num) {
+                    int position = num.intValue() % 7;
+                    // Set the position th bit of piece to true and cast back to piece, preserve color
+                    try {
+                        return Piece.pieceFromByte((byte) (piece.toByte() | (1 << position)), piece.getColor());
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            };
+            case "remove" -> s -> {
+                Object valP = p.apply(s);
+                Object valN = n.apply(s);
+                if (valP instanceof Piece piece && valN instanceof Number num) {
+                    int position = num.intValue() % 7;
+                    // Set the position th bit of piece to false and cast back to piece, preserve color
+                    try {
+                        return Piece.pieceFromByte((byte) (piece.toByte() & ~(1 << position)), piece.getColor());
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            };
+            case "alter" -> s -> {
+                Object valP = p.apply(s);
+                Object valN = n.apply(s);
+                if (valP instanceof Piece piece && valN instanceof Number num) {
+                    int position = num.intValue() % 7;
+                    // Toggle the position th bit of piece and cast back to piece, preserve color
+                    try {
+                        return Piece.pieceFromByte((byte) (piece.toByte() ^ (1 << position)), piece.getColor());
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            };
+            case "paint" -> s -> {
+                Object valP = p.apply(s);
+                Object valN = n.apply(s);
+                if (valP instanceof Piece piece && valN instanceof Number num) {
+                    int color = num.intValue();
+                    // Set the color of the piece to the number
+                    try {
+                        piece.setColor(color);
+                        return piece;
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            };
+            default -> throw new IllegalArgumentException("Unknown operation: " + name);
+        };
+    }
+    /**
      * Converts a GameVariableSupplier that supplies Piece objects into one that supplies their corresponding pattern integers.
      * If the input supplier returns null, the resulting supplier will return -1.
      * @param pieceSupplier the GameVariableSupplier that supplies Piece objects
@@ -432,11 +645,13 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * <p>
      * Available commands:
      * <ul>
-     *     <li>Predefined suppliers: zero, one, pi, hex, length, radius, lines, size, first, last, score, turn, fill, entropy</li>
+     *     <li>Predefined suppliers: zero, one, pi, hex, length, radius, lines, size, first, last, score, turn, fill, entropy, uno, big-block</li>
      *     <li>Integer and double constants (e.g., "42", "3.14")</li>
      *     <li>Casting: int, double, patternof, pattern, pieceof, piece</li>
-     *     <li>Unary operations: neg, negate, negative (-), abs, absolute, sq, sqr, square, squared, sqrt, squareroot, square_root, square-root, bool, boolean, not (!)</li>
-     *     <li>Binary operations: +, adds, add, plus, addition; -, subtracts, subtract, minus, subtraction; *, multiplies, multiply, times, time, multiplication; /, divides, divide, division; %, mod, modulo, modulos, remainder; ^, pow, power, exp, exponent; max, maximum; min, minimum; avg, average, mean</li>
+     *     <li>Unary operations: neg, negate, negative (-), abs, absolute, sq, sqr, square, squared, sqrt, squareroot, square_root, square-root, bool, boolean, not (!); sizeof, colorof; invert, uncolor</li>
+     *     <li>Binary operations: +, adds, add, plus, addition; -, subtracts, subtract, minus, subtraction; *, multiplies, multiply, times, time, multiplication; /, divides, divide, division;
+     *         %, mod, modulo, modulos, remainder; ^, pow, power, exp, exponent; max, maximum; min, minimum; avg, average, mean; equals, equal, ==, is, same; equals_exact, equal_exact, ===, is_exact, same_exact;
+     *         not_equals, not_equal, !=, not, is_not, not_same; insert, remove, alter, paint</li>
      *     <li>Comparison operations: equals, equal, ==, is, same; equals_exact, equal_exact, ===, is_exact, same_exact; not_equals, not_equal, !=, not, is_not, not_same</li>
      *     <li>Parentheses for grouping: ( and )</li>
      *     <li>Whitespace is ignored and can be used freely for readability</li>
@@ -445,7 +660,11 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * @see #castIntUnknown(GameVariableSupplier)
      * @see #castDoubleUnknown(GameVariableSupplier)
      * @see #numberOperation(GameVariableSupplier, String)
+     * @see #pieceOperation(GameVariableSupplier, String)
      * @see #numberOperation(GameVariableSupplier, GameVariableSupplier, String)
+     * @see #pieceOperation(GameVariableSupplier, GameVariableSupplier, String)
+     * @see #patternOf(GameVariableSupplier)
+     * @see #pieceOf(GameVariableSupplier)
      * @param str the string to parse
      * @return the corresponding GameVariableSupplier
      */
@@ -523,6 +742,10 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                 GameVariableSupplier<Number> numVar = (GameVariableSupplier<Number>) parseRec(parts[1]);
                 return numberOperation(numVar, parts[0]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
+            try {
+                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parseRec(parts[1]);
+                return pieceOperation(pieceVar, parts[0]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
         }
         // Is this a binary operation?
         parts = split(str, 3);
@@ -531,6 +754,11 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                 GameVariableSupplier<Number> numVar1 = (GameVariableSupplier<Number>) parseRec(parts[0]);
                 GameVariableSupplier<Number> numVar2 = (GameVariableSupplier<Number>) parseRec(parts[2]);
                 return numberOperation(numVar1, numVar2, parts[1]);
+            } catch (IllegalArgumentException | ClassCastException ignored) {}
+            try {
+                GameVariableSupplier<Piece> pieceVar = (GameVariableSupplier<Piece>) parseRec(parts[0]);
+                GameVariableSupplier<Number> numVar = (GameVariableSupplier<Number>) parseRec(parts[2]);
+                return pieceOperation(pieceVar, numVar, parts[1]);
             } catch (IllegalArgumentException | ClassCastException ignored) {}
         }
         // Try strip parentheses
@@ -626,7 +854,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      */
     static String autoParen(String str) {
         final Map<String, Integer> PRECEDENCE = new HashMap<>();
-        for (String op : new String[]{"^", "pow", "power", "exp", "exponent"}) PRECEDENCE.put(op, 3);
+        for (String op : new String[]{"^", "pow", "power", "exp", "exponent", "insert", "remove", "alter", "paint"}) PRECEDENCE.put(op, 3);
         for (String op : new String[]{"*", "multiplies", "multiply", "times", "time", "multiplication",
                 "/", "divides", "divide", "division",
                 "%", "mod", "modulo", "modulos", "remainder"})
@@ -635,7 +863,9 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                 "-", "subtracts", "subtract", "minus", "subtraction"})
             PRECEDENCE.put(op, 1);
         final Set<String> CAST_OPS = new HashSet<>(Arrays.asList(
-                "int", "double", "patternof", "pattern", "pieceof", "piece"
+                "int", "double", "patternof", "pattern", "pieceof", "piece", "colorof", "sizeof", "invert", "uncolor",
+                "-", "neg", "negate", "negative", "abs", "absolute", "sq", "sqr", "square", "squared", "sqrt", "squareroot", "square_root", "square-root",
+                "bool", "boolean", "not", "!"
         ));
         List<String> tokens = new ArrayList<>();
         Stack<String> values = new Stack<>();
@@ -718,6 +948,10 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     GameVariableSupplier<Piece> FIRST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : s.getQueue()[0];
     /** A supplier that returns the last piece in the piece queue, or null if the queue is empty. */
     GameVariableSupplier<Piece> LAST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : s.getQueue()[s.getQueue().length - 1];
+    /** A supplier that returns a piece with only the 4th bit set (pattern byte 8), representing only the central block filled. */
+    GameVariableSupplier<Piece> UNO = s -> Piece.pieceFromByte((byte)8, -2);
+    /** A supplier that returns a piece with all bits set (pattern byte 127). */
+    GameVariableSupplier<Piece> BIG_BLOCK = s -> Piece.pieceFromByte((byte)127, -2);
     /** A supplier that returns the current score of the game. */
     GameVariableSupplier<Integer> SCORE = s -> (s == null) ? 0 : s.getScore();
     /** A supplier that returns the current turn number of the game. */
