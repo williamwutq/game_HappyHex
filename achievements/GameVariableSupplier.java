@@ -51,12 +51,14 @@ import java.util.regex.Pattern;
  *     <li><b>ONE</b> - always returns 1</li>
  *     <li><b>PI</b> - always returns the mathematical constant π (pi)</li>
  *     <li><b>HEX</b> - always returns 6, representing the number of sides on a hexagon</li>
+ *     <li><b>RANDOM</b> - returns a random double between 0.0 (inclusive) and 1.0 (exclusive)</li>
  *     <li><b>LENGTH</b> - returns the length of the engine</li>
  *     <li><b>RADIUS</b> - returns the radius of the engine</li>
  *     <li><b>LINES</b> - returns the number of lines in the engine</li>
  *     <li><b>SIZE</b> - returns the size of the piece queue</li>
  *     <li><b>FIRST</b> - returns the first piece in the piece queue</li>
  *     <li><b>LAST</b> - returns the last piece in the piece queue</li>
+ *     <li><b>ANY</b> - returns a random piece from the piece queue</li>
  *     <li><b>SCORE</b> - returns the current score of the game</li>
  *     <li><b>TURN</b> - returns the current turn number of the game</li>
  *     <li><b>FILL</b> - returns the percentage of the engine that is filled</li>
@@ -82,6 +84,7 @@ import java.util.regex.Pattern;
  *     <li><b>colorof</b> - returns the color of a Piece as a color index</li>
  *     <li><b>invert</b> - inverts a Piece pattern (flips all bits)</li>
  *     <li><b>uncolor</b> - removes the color from a Piece (sets color to -2)</li>
+ *     <li><b>select</b> - selects a random integer from 0 (inclusive) to the integer value (exclusive)</li>
  * </ul>
  * <p>
  * <h2>Binary Operations</h2>
@@ -135,12 +138,14 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>one or 1</b> - returns a supplier that always returns 1</li>
      *     <li><b>pi or π</b> - returns a supplier that always returns the mathematical constant π (pi)</li>
      *     <li><b>hex or 6</b> - returns a supplier that always returns 6, representing the number of sides on a hexagon</li>
+     *     <li><b>random, rand, or rnd</b> - returns a supplier that provides a random double between 0.0 (inclusive) and 1.0 (exclusive)</li>
      *     <li><b>length or len</b> - returns a supplier that provides the length of the engine</li>
      *     <li><b>radius or r</b> - returns a supplier that provides the radius of the engine</li>
      *     <li><b>lines or l</b> - returns a supplier that provides the number of lines in the engine</li>
      *     <li><b>size or s</b> - returns a supplier that provides the size of the piece queue</li>
      *     <li><b>first</b> - returns a supplier that provides the first piece in the piece queue</li>
      *     <li><b>last</b> - returns a supplier that provides the last piece in the piece queue</li>
+     *     <li><b>any</b> - returns a supplier that provides a random piece from the piece queue</li>
      *     <li><b>score</b> - returns a supplier that provides the current score of the game</li>
      *     <li><b>turn or turns</b> - returns a supplier that provides the current turn number of the game</li>
      *     <li><b>fill, filled, percentfilled, percent_filled, or percent-filled</b> - returns a supplier
@@ -162,12 +167,14 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
             case "one", "1" -> ONE;
             case "pi", "π" -> PI;
             case "hex", "6" -> HEX;
+            case "random", "rand", "rnd" -> RANDOM;
             case "length", "len" -> LENGTH;
             case "radius", "r" -> RADIUS;
             case "lines", "l" -> LINES;
             case "size", "s" -> SIZE;
             case "first" -> FIRST;
             case "last" -> LAST;
+            case "any" -> ANY;
             case "score" -> SCORE;
             case "turn", "turns" -> TURN;
             case "fill", "filled", "percentfilled", "percent_filled", "percent-filled" -> FILL;
@@ -261,6 +268,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>not</b>, <b>!</b> - logical NOT operation (0 or 0.0 becomes 1, non-zero becomes 0)</li>
      *     <li><b>sizeof</b> - returns the number of digits in the absolute value of an integer or the length of a Piece</li>
      *     <li><b>colorof</b> - returns the color of a Piece as a color index</li>
+     *     <li><b>select</b> - selects a random integer from 0 (inclusive) to the integer value (exclusive)</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
      * @param x the GameVariableSupplier<Number> to apply the operation to
@@ -321,6 +329,14 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                     return p.getColor();
                 }
                 else return null;
+            };
+            case "select" -> a -> {
+                Object val = x.apply(a);
+                if (val instanceof Integer i) {
+                    return (int)(i * Math.random());
+                } else {
+                    return null;
+                }
             };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
         };
@@ -865,7 +881,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
         final Set<String> CAST_OPS = new HashSet<>(Arrays.asList(
                 "int", "double", "patternof", "pattern", "pieceof", "piece", "colorof", "sizeof", "invert", "uncolor",
                 "-", "neg", "negate", "negative", "abs", "absolute", "sq", "sqr", "square", "squared", "sqrt", "squareroot", "square_root", "square-root",
-                "bool", "boolean", "not", "!"
+                "bool", "boolean", "not", "!", "select"
         ));
         List<String> tokens = new ArrayList<>();
         Stack<String> values = new Stack<>();
@@ -936,6 +952,8 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     GameVariableSupplier<Double> PI = constant(Math.PI);
     /** A constant supplier that always returns the number 6, representing the number of sides on a hexagon. */
     GameVariableSupplier<Integer> HEX = constant(6);
+    /** A supplier that returns a random double between 0.0 (inclusive) and 1.0 (exclusive) each time it is called. */
+    GameVariableSupplier<Double> RANDOM = s -> Math.random();
     /** A supplier that returns the length of the engine, which is the total number of blocks in the engine. */
     GameVariableSupplier<Integer> LENGTH = s -> (s == null || s.getEngine() == null) ? 0 : s.getEngine().length();
     /** A supplier that returns the radius of the engine. */
@@ -945,9 +963,15 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
     /** A supplier that returns the size of the piece queue. */
     GameVariableSupplier<Integer> SIZE = s -> (s == null || s.getQueue() == null) ? 0 : s.getQueue().length;
     /** A supplier that returns the first piece in the piece queue, or null if the queue is empty. */
-    GameVariableSupplier<Piece> FIRST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : s.getQueue()[0];
+    GameVariableSupplier<Piece> FIRST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : Piece.pieceFromByte(s.getQueue()[0].toByte(), s.getQueue()[0].getColor());
     /** A supplier that returns the last piece in the piece queue, or null if the queue is empty. */
-    GameVariableSupplier<Piece> LAST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : s.getQueue()[s.getQueue().length - 1];
+    GameVariableSupplier<Piece> LAST = s -> (s == null || s.getQueue() == null || s.getQueue().length == 0) ? null : Piece.pieceFromByte(s.getQueue()[s.getQueue().length - 1].toByte(), s.getQueue()[s.getQueue().length - 1].getColor());
+    /** A supplier that returns a random piece from the piece queue, or null if the queue is empty. */
+    GameVariableSupplier<Piece> ANY = s -> {
+        if (s == null || s.getQueue() == null || s.getQueue().length == 0) return null;
+        int index = (int)(Math.random() * s.getQueue().length);
+        return Piece.pieceFromByte(s.getQueue()[index].toByte(), s.getQueue()[index].getColor());
+    };
     /** A supplier that returns a piece with only the 4th bit set (pattern byte 8), representing only the central block filled. */
     GameVariableSupplier<Piece> UNO = s -> Piece.pieceFromByte((byte)8, -2);
     /** A supplier that returns a piece with all bits set (pattern byte 127). */
