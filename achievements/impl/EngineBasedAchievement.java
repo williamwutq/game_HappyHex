@@ -88,6 +88,85 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
     }
     // Vars
     /**
+     * Gets an IntegerProvider for the given variable name.
+     * @param varName the name of the variable
+     * @return an IntegerProvider that retrieves an Integer from the variable, or null if the variable does not exist or is not a Number
+     */
+    IntegerProvider getIntegerProvider(String varName) {
+        // Search in variables
+        VariableAchievement.AchievementVariable<?> var = variables.get(varName);
+        if (var != null) {
+            try {
+                // Try to cast to Number. This might not actually reflect the underlying type, but it's the best we can do.
+                // If there are internal errors, we simply return null in the provider
+                VariableAchievement.AchievementVariable<Number> casted = (VariableAchievement.AchievementVariable<Number>) var;
+                return s -> {
+                    Object obj = casted.get(s);
+                    if (obj instanceof Number n) {
+                        return n.intValue();
+                    } else return null;
+                };
+            } catch (ClassCastException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+    /**
+     * Gets a DoubleProvider for the given variable name.
+     * @param varName the name of the variable
+     * @return a DoubleProvider that retrieves a Double from the variable, or null if the variable does not exist or is not a Number
+     */
+    DoubleProvider getDoubleProvider(String varName) {
+        // Search in variables
+        VariableAchievement.AchievementVariable<?> var = variables.get(varName);
+        if (var != null) {
+            try {
+                // Try to cast to Number. This might not actually reflect the underlying type, but it's the best we can do.
+                // If there are internal errors, we simply return null in the provider
+                VariableAchievement.AchievementVariable<Number> casted = (VariableAchievement.AchievementVariable<Number>) var;
+                return s -> {
+                    Object obj = casted.get(s);
+                    if (obj instanceof Number n) {
+                        return n.doubleValue();
+                    } else return null;
+                };
+            } catch (ClassCastException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+    /**
+     * Gets a PieceProvider for the given variable name.
+     * @param varName the name of the variable
+     * @return a PieceProvider that retrieves a Piece from the variable, or null if the variable does not exist or is not a Piece
+     */
+    PieceProvider getPieceProvider(String varName) {
+        // Search in variables
+        VariableAchievement.AchievementVariable<?> var = variables.get(varName);
+        if (var != null) {
+            try {
+                // Try to cast to Piece. This might not actually reflect the underlying type, but it's the best we can do.
+                // If there are internal errors, we simply return null in the provider
+                VariableAchievement.AchievementVariable<Piece> casted = (VariableAchievement.AchievementVariable<Piece>) var;
+                return s -> {
+                    Object obj = casted.get(s);
+                    if (obj instanceof Piece p) {
+                        return p;
+                    } else return null;
+                };
+            } catch (ClassCastException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+    // We provide no function for Block because AchievementVariable does not support it, so we don't need to support it here either
+    /**
      * A functional interface for supplying integer values from a GameState.
      * This wraps a {@link Function<>} that takes in a {@link GameState} and returns an {@link Integer}
      * to provide more readable code.
@@ -103,7 +182,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
         }
         /**
          * Creates an IntegerProvider that retrieves a value from a GameVariableSupplier.
-         * If the value is a Number, it returns its integer value; otherwise, it returns -1.
+         * If the value is a Number, it returns its integer value; otherwise, it returns null.
          * @param var the GameVariableSupplier to retrieve the value from
          * @return an IntegerProvider that retrieves a value from the given GameVariableSupplier
          */
@@ -112,7 +191,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                 Object obj = var.apply(state);
                 if (obj instanceof Number n) {
                     return n.intValue();
-                } else return -1;
+                } else return null;
             };
         }
     }
@@ -132,7 +211,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
         }
         /**
          * Creates a DoubleProvider that retrieves a value from a GameVariableSupplier.
-         * If the value is a Number, it returns its double value; otherwise, it returns -1.0.
+         * If the value is a Number, it returns its double value; otherwise, it returns null.
          * @param var the GameVariableSupplier to retrieve the value from
          * @return a DoubleProvider that retrieves a value from the given GameVariableSupplier
          */
@@ -141,7 +220,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                 Object obj = var.apply(state);
                 if (obj instanceof Number n) {
                     return n.doubleValue();
-                } else return -1.0;
+                } else return null;
             };
         }
     }
