@@ -88,6 +88,19 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
     }
     // Vars
     /**
+     * Gets an IntegerProvider from a String representation of a constant integer.
+     * @param str the String representation of the integer
+     * @return an IntegerProvider that returns an integer constant, or null if the string is not a valid integer
+     */
+    IntegerProvider getIntegerConstant(String str) {
+        try {
+            int value = Integer.parseInt(str);
+            return IntegerProvider.constant(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    /**
      * Gets an IntegerProvider for the given variable name.
      * @param varName the name of the variable
      * @return an IntegerProvider that retrieves an Integer from the variable, or null if the variable does not exist or is not a Number
@@ -117,6 +130,19 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             } catch (NumberFormatException e) {
                 return null;
             }
+        }
+    }
+    /**
+     * Gets a DoubleProvider from a String representation of a constant double.
+     * @param str the String representation of the double
+     * @return a DoubleProvider that returns a double constant, or null if the string is not a valid double
+     */
+    DoubleProvider getDoubleConstant(String str) {
+        try {
+            double value = Double.parseDouble(str);
+            return DoubleProvider.constant(value);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
     /**
@@ -152,6 +178,38 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
         }
     }
     /**
+     * Gets a PieceProvider from a String representation of a constant Piece. Syntax: {@code <shape>p<color>} or {@code <byte>p}.
+     * @param str the String representation of the Piece
+     * @return a PieceProvider that returns a Piece constant, or null if the string is not a valid representation
+     */
+    PieceProvider getPieceConstant(String str) {
+        if (str.endsWith("p")) {
+            str = str.substring(0, str.length() - 1);
+            try {
+                byte byteRepr = Byte.parseByte(str);
+                Piece p = Piece.pieceFromByte(byteRepr, -2);
+                return PieceProvider.constant(p);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        } else if (str.contains("p")){
+            // Get index of P and split into two parts
+            int pIndex = str.indexOf('p');
+            String shapePart = str.substring(0, pIndex);
+            String colorPart = str.substring(pIndex + 1);
+            try {
+                byte shape = Byte.parseByte(shapePart);
+                int color = Integer.parseInt(colorPart);
+                Piece p = Piece.pieceFromByte(shape, color);
+                return PieceProvider.constant(p);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+    /**
      * Gets a PieceProvider for the given variable name.
      * @param varName the name of the variable
      * @return a PieceProvider that retrieves a Piece from the variable, or null if the variable does not exist or is not a Piece
@@ -175,7 +233,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
         } else {
             // If not found, try to parse as constant piece
-            if (varName.endsWith("P")) {
+            if (varName.endsWith("p")) {
                 varName = varName.substring(0, varName.length() - 1);
                 try {
                     byte byteRepr = Byte.parseByte(varName);
@@ -184,9 +242,9 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                 } catch (IllegalArgumentException e) {
                     return null;
                 }
-            } else if (varName.contains("P")){
+            } else if (varName.contains("p")){
                 // Get index of P and split into two parts
-                int pIndex = varName.indexOf('P');
+                int pIndex = varName.indexOf('p');
                 String shapePart = varName.substring(0, pIndex);
                 String colorPart = varName.substring(pIndex + 1);
                 try {
@@ -203,12 +261,12 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
         }
     }
     /**
-     * Gets a BlockProvider from a String representation. Syntax: {@code <i>|<k>B<color>}, state is inferred from color.
+     * Gets a BlockProvider from a String representation. Syntax: {@code <i>|<k>b<color>}, state is inferred from color.
      * @param str the String representation of the Block
      * @return a BlockProvider that returns a Block constant
      */
     BlockProvider getBlockProvider(String str){
-        String[] parts = str.split("B");
+        String[] parts = str.split("b");
         if (parts.length != 2) return null;
         String[] coords = parts[0].split("\\|");
         if (coords.length != 2) return null;
@@ -224,12 +282,12 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
         }
     }
     /**
-     * Gets a BlockProvider from a String representation. Syntax: {@code <binary>E}, state is inferred from color.
+     * Gets a BlockProvider from a String representation. Syntax: {@code <binary>e}, state is inferred from color.
      * @param str the String representation of the Block
      * @return a BlockProvider that returns a Block constant
      */
     EngineProvider getEngineProvider(String str){
-        if (str.endsWith("E")) {
+        if (str.endsWith("e")) {
             String binary = str.substring(0, str.length() - 1);
             try {
                 // Construct boolean array from binary string
