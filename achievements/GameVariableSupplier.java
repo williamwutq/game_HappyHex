@@ -102,6 +102,8 @@ import java.util.regex.Pattern;
  *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - checks if two Numbers are approximately equal (within a small epsilon for doubles)</li>
  *     <li><b>equals_exact</b>, <b>equal_exact</b>, <b>===</b>, <b>is_exact</b>, <b>same_exact</b> - checks if two Numbers are exactly equal</li>
  *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - checks if two Numbers are not approximately equal (outside a small epsilon for doubles)</li>
+ *     <li><b>greater</b>, <b>></b> - checks if the first Number is greater than the second Number</li>
+ *     <li><b>lesser</b>, <b><</b> - checks if the first Number is lesser than the second Number</li>
  *     <li><b>insert</b> - inserts a block into a Piece at the position specified by a Number (0-6)</li>
  *     <li><b>remove</b> - removes a block from a Piece at the position specified by a Number (0-6)</li>
  *     <li><b>alter</b> - toggles a block in a Piece at the position specified by a Number (0-6)</li>
@@ -400,6 +402,8 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      *     <li><b>equals</b>, <b>equal</b>, <b>==</b>, <b>is</b>, <b>same</b> - checks if the two values are approximately equal (within a small epsilon for doubles)</li>
      *     <li><b>equals_exact</b>, <b>equal_exact</b>, <b>===</b>, <b>is_exact</b>, <b>same_exact</b> - checks if the two values are exactly equal</li>
      *     <li><b>not_equals</b>, <b>not_equal</b>, <b>!=</b>, <b>not</b>, <b>is_not</b>, <b>not_same</b> - checks if the two values are not approximately equal (outside a small epsilon for doubles)</li>
+     *     <li><b>greater</b>, <b>></b> - checks if the first value is greater than the second value</li>
+     *     <li><b>lesser</b>, <b><</b> - checks if the first value is lesser than the second value</li>
      * </ul>
      * If the operation is not recognized, an IllegalArgumentException is thrown.
      * @param v1 the first GameVariableSupplier<Number>
@@ -532,6 +536,26 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
                     return (!i1.equals(i2)) ? 1 : 0;
                 } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
                     return (Math.abs(n1.doubleValue() - n2.doubleValue()) >= Math.ulp(Math.max(Math.abs(n1.doubleValue()), Math.abs(n2.doubleValue())))) ? 1.0 : 0;
+                } else return null;
+            };
+            case "greater", ">" -> s -> {
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return (i1 > i2) ? 1 : 0;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return (n1.doubleValue() > n2.doubleValue()) ? 1.0 : 0;
+                } else return null;
+            };
+            case "lesser", "<" -> s -> {
+                Object val1 = v1.apply(s);
+                Object val2 = v2.apply(s);
+                if (val1 == null || val2 == null) return null;
+                if (val1 instanceof Integer i1 && val2 instanceof Integer i2) {
+                    return (i1 < i2) ? 1 : 0;
+                } else if (val1 instanceof Number n1 && val2 instanceof Number n2) {
+                    return (n1.doubleValue() < n2.doubleValue()) ? 1.0 : 0;
                 } else return null;
             };
             default -> throw new IllegalArgumentException("Unknown operation: " + name);
@@ -873,6 +897,13 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      */
     static String autoParen(String str) {
         final Map<String, Integer> PRECEDENCE = new HashMap<>();
+        for (String op : new String[]{"max", "maximum", "min", "minimum", "avg", "average", "mean"})
+            PRECEDENCE.put(op, 5);
+        for (String op : new String[]{"equals", "equal", "==", "is", "same",
+                "equals_exact", "equal_exact", "===", "is_exact", "same_exact",
+                "not_equals", "not_equal", "!=", "not", "is_not", "not_same",
+                "greater", ">", "lesser", "<"})
+            PRECEDENCE.put(op, 4);
         for (String op : new String[]{"^", "pow", "power", "exp", "exponent", "insert", "remove", "alter", "paint"}) PRECEDENCE.put(op, 3);
         for (String op : new String[]{"*", "multiplies", "multiply", "times", "time", "multiplication",
                 "/", "divides", "divide", "division",
