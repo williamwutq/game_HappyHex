@@ -11,7 +11,7 @@ package util.tuple;
  *
  * @param <T> the type of the contained value
  */
-public class Mutable<T> {
+public class Mutable<T> implements Cloneable {
     public T value;
     /**
      * Constructs a Mutable object with the specified initial value.
@@ -68,5 +68,21 @@ public class Mutable<T> {
     @Override
     synchronized public int hashCode() {
         return value == null ? 0 : value.hashCode();
+    }
+    /**
+     * Creates and returns a copy of this Mutable object.
+     * The contained value is copied by reference.
+     * @return a clone of this Mutable object
+     */
+    synchronized public Mutable<T> clone() {
+        return new Mutable<>(value);
+    }
+    /**
+     * Compares the type of the contained value with another Mutable object's contained value.
+     * @param other the other Mutable object to compare with
+     * @return true if both contained values are of the same type or both are null, false otherwise
+     */
+    synchronized boolean typeEquals(Mutable<?> other) {
+        return (value == null && other.value == null) || (value != null && value.getClass() == other.value.getClass());
     }
 }
