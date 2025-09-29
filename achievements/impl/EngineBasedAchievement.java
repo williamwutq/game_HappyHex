@@ -25,33 +25,35 @@
 package achievements.impl;
 
 import achievements.GameAchievementTemplate;
+import achievements.GameVariableSupplier;
 import achievements.icon.AchievementIcon;
 import hex.*;
 import util.function.TriFunction;
+import util.function.TriPredicate;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Random;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class EngineBasedAchievement implements GameAchievementTemplate {
     private final String name;
     private final String description;
     private final AchievementIcon icon;
+    private final Map<String, VariableAchievement.AchievementVariable<?>> variables;
 
     public EngineBasedAchievement(String name, String description, AchievementIcon icon) {
         this.name = name;
         this.description = description;
         this.icon = icon;
+        this.variables = new HashMap<>();
     }
 
     /**
      * {@inheritDoc}
      * @return the name of the achievement
      */
+    @Override
     public String name() {
         return name;
     }
@@ -59,6 +61,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
      * {@inheritDoc}
      * @return the description of the achievement
      */
+    @Override
     public String description() {
         return description;
     }
@@ -73,25 +76,190 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
 
     @Override
     public boolean test(GameState state) {
+        // Update variables
+        for (Map.Entry<String, VariableAchievement.AchievementVariable<?>> entry : variables.entrySet()) {
+            entry.getValue().update(state);
+        }
         HexEngine engine = state.getEngine();
         if (engine == null) {
             return false;
         }
         return false;
     }
-
+    // Vars
+    /**
+     * A functional interface for supplying integer values from a GameState.
+     * This wraps a {@link Function<>} that takes in a {@link GameState} and returns an {@link Integer}
+     * to provide more readable code.
+     */
+    private interface IntegerProvider extends Function<GameState, Integer> {
+        /**
+         * Creates an IntegerProvider that always returns the given constant value.
+         * @param value the constant value to return
+         * @return an IntegerProvider that always returns the given constant value
+         */
+        static IntegerProvider constant(int value) {
+            return state -> value;
+        }
+        /**
+         * Creates an IntegerProvider that retrieves a value from a GameVariableSupplier.
+         * If the value is a Number, it returns its integer value; otherwise, it returns -1.
+         * @param var the GameVariableSupplier to retrieve the value from
+         * @return an IntegerProvider that retrieves a value from the given GameVariableSupplier
+         */
+        static IntegerProvider fromVariable(GameVariableSupplier<?> var){
+            return state -> {
+                Object obj = var.apply(state);
+                if (obj instanceof Number n) {
+                    return n.intValue();
+                } else return -1;
+            };
+        }
+    }
+    /**
+     * A functional interface for supplying double values from a GameState.
+     * This wraps a {@link Function<>} that takes in a {@link GameState} and returns a {@link Double}
+     * to provide more readable code.
+     */
+    private interface DoubleProvider extends Function<GameState, Double> {
+        /**
+         * Creates a DoubleProvider that always returns the given constant value.
+         * @param value the constant value to return
+         * @return a DoubleProvider that always returns the given constant value
+         */
+        static DoubleProvider constant(double value) {
+            return state -> value;
+        }
+        /**
+         * Creates a DoubleProvider that retrieves a value from a GameVariableSupplier.
+         * If the value is a Number, it returns its double value; otherwise, it returns -1.0.
+         * @param var the GameVariableSupplier to retrieve the value from
+         * @return a DoubleProvider that retrieves a value from the given GameVariableSupplier
+         */
+        static DoubleProvider fromVariable(GameVariableSupplier<?> var){
+            return state -> {
+                Object obj = var.apply(state);
+                if (obj instanceof Number n) {
+                    return n.doubleValue();
+                } else return -1.0;
+            };
+        }
+    }
+    /**
+     * A functional interface for supplying Block values from a GameState.
+     * This wraps a {@link Function<>} that takes in a {@link GameState} and returns a {@link Block} to provider more readable code.
+     */
+    private interface BlockProvider extends Function<GameState, Block> {
+        /**
+         * Creates a BlockProvider that always returns the given constant Block.
+         * @param block the constant Block to return
+         * @return a BlockProvider that always returns the given constant Block
+         */
+        static BlockProvider constant(Block block) {
+            return state -> block;
+        }
+        /**
+         * Creates a BlockProvider that constructs a Block based on the given IntegerProviders for line I, line K, color, and block state.
+         * If any of the line I, line K, or color providers return null, this provider returns null.
+         * The block state provider determines if the block is occupied (non-zero) or empty (zero).
+         * @param lineI the IntegerProvider for the line I coordinate
+         * @param lineK the IntegerProvider for the line K coordinate
+         * @param color the IntegerProvider for the color index
+         * @param blockState the IntegerProvider for the block state (0 for empty, non-zero for occupied)
+         * @return a BlockProvider that constructs a Block based on the provided IntegerProviders
+         */
+        static BlockProvider fromInteger(IntegerProvider lineI, IntegerProvider lineK, IntegerProvider color, IntegerProvider blockState) {
+            return state -> {
+                Integer i = lineI.apply(state);
+                Integer k = lineK.apply(state);
+                Integer c = color.apply(state);
+                Integer s = blockState.apply(state);
+                boolean occupied = s != null && s != 0;
+                if (i == null || k == null || c == null) return null;
+                return new Block(i, k, c, occupied);
+            };
+        }
+        /**
+         * Creates a BlockProvider that finds a Block in the current HexEngine based on the position of a Block provided by another BlockProvider.
+         * If the provided BlockProvider returns null or if there is no HexEngine in the GameState, this provider returns null.
+         * @param hexProvider the BlockProvider to get the target Block's position from
+         * @return a BlockProvider that finds a Block in the current HexEngine based on the position of the provided Block
+         */
+        static BlockProvider findInEngine(BlockProvider hexProvider) {
+            return state -> {
+                Block target = hexProvider.apply(state);
+                if (target == null) return null;
+                HexEngine engine = state.getEngine();
+                if (engine == null) return null;
+                return engine.getBlock(target.thisHex());
+            };
+        }
+    }
+    /**
+     * A functional interface for supplying Piece values from a GameState.
+     * This wraps a {@link Function<>} that takes in a {@link GameState} and returns a {@link Piece} to provide more readable code.
+     */
+    private interface PieceProvider extends Function<GameState, Piece> {
+        /**
+         * Creates a PieceProvider that always returns the given constant Piece.
+         * @param piece the constant Piece to return
+         * @return a PieceProvider that always returns the given constant Piece
+         */
+        static PieceProvider constant(Piece piece) {
+            return state -> piece;
+        }
+        /**
+         * Creates a PieceProvider that retrieves a Piece from a GameVariableSupplier.
+         * If the value is a Piece, it returns it;
+         * if the value is a Number, it treats it as an index into the game's piece queue and returns the corresponding Piece;
+         * otherwise, it returns null.
+         * @param var the GameVariableSupplier to retrieve the value from
+         * @return a PieceProvider that retrieves a Piece from the given GameVariableSupplier
+         */
+        static PieceProvider fromVariable(GameVariableSupplier<?> var){
+            return state -> {
+                Object obj = var.apply(state);
+                if (obj instanceof Piece p) {
+                    return p;
+                } else if (obj instanceof Number n){
+                    if (state == null) return null;
+                    try {
+                        return state.getQueue()[n.intValue()];
+                    } catch (IndexOutOfBoundsException e){
+                        return null;
+                    }
+                } else return null;
+            };
+        }
+    }
+    /**
+     * A functional interface for supplying HexEngine values from a GameState.
+     * This wraps a {@link Function<>} that takes in a {@link GameState} and returns a {@link HexEngine} to provide more readable code.
+     */
+    private interface EngineProvider extends Function<GameState, HexEngine> {
+        /**
+         * Creates an EngineProvider that always returns the given constant HexEngine.
+         * @param engine the constant HexEngine to return
+         * @return an EngineProvider that always returns the given constant HexEngine
+         */
+        static EngineProvider constant(HexEngine engine) {
+            return state -> engine;
+        }
+    }
 
     // Predicates
     /**
      * A functional interface for block predicates.
-     * This wraps a {@link Predicate<>} of {@link Block} to provide more readable code.
-     */
-    private interface BlockPredicate extends Predicate<Block>{}
-    /**
-     * A functional interface for block comparators.
+     * The first argument is {@link GameState} context, the next is the Block to test.
      * This wraps a {@link BiPredicate<>} of {@link Block} to provide more readable code.
      */
-    private interface BlockComparator extends BiPredicate<Block, Block> {}
+    private interface BlockPredicate extends BiPredicate<GameState, Block>{}
+    /**
+     * A functional interface for block comparators.
+     * The first argument is {@link GameState} context, the next two are the Blocks to compare.
+     * This wraps a {@link TriPredicate<>} of {@link Block} to provide more readable code.
+     */
+    private interface BlockComparator extends TriPredicate<GameState, Block, Block> {}
     /**
      * Creates a BlockPredicate based on the given operation and arguments.
      * The supported operations are:
@@ -113,42 +281,52 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
     private static BlockPredicate blockPredicates(String op, Object[] args){
         switch (op) {
             case "false" -> {
-                return b -> false;
+                return (c, b) -> false;
             }
             case "true" -> {
-                return b -> true;
+                return (c, b) -> true;
             }
             case "state" -> {
-                return Block::getState;
+                return (c, b) -> b.getState();
             }
             case "is" -> {
-                if (args.length == 1) {
-                    return b -> b.equals(args[0]);
+                if (args.length == 1 && args[0] instanceof BlockProvider bp) {
+                    return (c, b) -> {
+                        Block other = bp.apply(c);
+                        return other != null && b.equals(other) && b.getColor() == other.getColor() && b.getState() == other.getState();
+                    };
                 }
             }
             case "color" -> {
-                if (args.length == 1 && args[0] instanceof Integer) {
-                    return b -> b.getColor() == (int) args[0];
+                if (args.length == 1 && args[0] instanceof IntegerProvider ip) {
+                    return (c, b) -> {
+                        Integer color = ip.apply(c);
+                        return color != null && b.getColor() == color;
+                    };
                 }
             }
             case "at" -> {
-                if (args.length == 2 && args[0] instanceof Integer && args[1] instanceof Integer) {
-                    return b -> b.getLineI() == (int) args[0] && b.getLineK() == (int) args[1];
+                if (args.length == 2 && args[0] instanceof IntegerProvider ip && args[1] instanceof IntegerProvider kp) {
+                    return (c, b) -> {
+                        Integer i = ip.apply(c);
+                        Integer k = kp.apply(c);
+                        return i != null && k != null && b.getLineI() == i && b.getLineK() == k;
+                    };
                 }
             }
             case "or" -> {
                 if (args.length == 2 && args[0] instanceof BlockPredicate p1 && args[1] instanceof BlockPredicate p2) {
-                    return b -> p1.test(b) || p2.test(b);
+                    return (c, b) -> p1.test(c, b) || p2.test(c, b);
                 }
             }
             case "and" -> {
                 if (args.length == 2 && args[0] instanceof BlockPredicate p1 && args[1] instanceof BlockPredicate p2) {
-                    return b -> p1.test(b) && p2.test(b);
+                    return (c, b) -> p1.test(c, b) && p2.test(c, b);
                 }
             }
             case "not" -> {
                 if (args.length == 1 && args[0] instanceof BlockPredicate p) {
-                    return b -> !p.test(b);
+                    return (c, b) -> !p.test(c, b);
                 }
             }
         }
@@ -181,31 +359,32 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
      */
     private static BlockComparator blockComparator(String op){
         return switch (op) {
-            case "overlap" -> Hex::equals; // Note this use Hex equals, not Block equals, only check position
-            case "is" -> (b1, b2) -> b1.getState() == b2.getState() && b1.getColor() == b2.getColor();
-            case "not" -> (b1, b2) -> b1.getState() != b2.getState() || b1.getColor() != b2.getColor();
-            case "analogous" -> (b1, b2) -> b1.getState() == b2.getState();
-            case "divergent" -> (b1, b2) -> b1.getState() != b2.getState();
-            case "color" -> (b1, b2) -> b1.getColor() == b2.getColor();
-            case "separate" -> (b1, b2) -> !b1.equals(b2.thisHex()); // Note this only check position
-            case "varied" -> (b1, b2) -> b1.getColor() != b2.getColor();
-            case "i-line" -> Hex::inLineI;
-            case "j-line" -> Hex::inLineJ;
-            case "k-line" -> Hex::inLineK;
-            case "i-adjacent" -> Hex::adjacentI;
-            case "j-adjacent" -> Hex::adjacentJ;
-            case "k-adjacent" -> Hex::adjacentK;
-            case "adjacent" -> Hex::adjacent;
-            case "front" -> Hex::front;
-            case "back" -> Hex::back;
+            case "overlap" -> (c, b1, b2) -> b1.equals(b2.thisHex()); // Note this only check position
+            case "is" -> (c, b1, b2) -> b1.getState() == b2.getState() && b1.getColor() == b2.getColor();
+            case "not" -> (c, b1, b2) -> b1.getState() != b2.getState() || b1.getColor() != b2.getColor();
+            case "analogous" -> (c, b1, b2) -> b1.getState() == b2.getState();
+            case "divergent" -> (c, b1, b2) -> b1.getState() != b2.getState();
+            case "color" -> (c, b1, b2) -> b1.getColor() == b2.getColor();
+            case "separate" -> (c, b1, b2) -> !b1.equals(b2.thisHex()); // Note this only check position
+            case "varied" -> (c, b1, b2) -> b1.getColor() != b2.getColor();
+            case "i-line" -> (c, b1, b2) -> b1.inLineI(b2);
+            case "j-line" -> (c, b1, b2) -> b1.inLineJ(b2);
+            case "k-line" -> (c, b1, b2) -> b1.inLineK(b2);
+            case "i-adjacent" -> (c, b1, b2) -> b1.adjacentI(b2);
+            case "j-adjacent" -> (c, b1, b2) -> b1.adjacentJ(b2);
+            case "k-adjacent" -> (c, b1, b2) -> b1.adjacentK(b2);
+            case "adjacent" -> (c, b1, b2) -> b1.adjacent(b2);
+            case "front" -> (c, b1, b2) -> b1.front(b2);
+            case "back" -> (c, b1, b2) -> b1.back(b2);
             default -> null;
         };
     }
     /**
      * A functional interface for line predicates.
-     * This wraps a {@link Predicate<>} of {@link Block} arrays to provide more readable code.
+     * The first argument is {@link GameState} context, the next is the Block array (line) to test.
+     * This wraps a {@link BiPredicate<>} of {@link Block} arrays to provide more readable code.
      */
-    private interface LinePredicate extends Predicate<Block[]>{}
+    private interface LinePredicate extends BiPredicate<GameState, Block[]>{}
     /**
      * Creates a LinePredicate based on the given operation and arguments.
      * The supported operations are:
@@ -217,6 +396,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
      *     <li>"none": checks if no blocks in the line satisfy the given block predicate (args[0])</li>
      *     <li>"all": checks if all blocks in the line satisfy the given block predicate (args[0])</li>
      *     <li>"ratio": checks if the ratio of blocks satisfying the given block predicate (args[0]) is within the given bounds (args[1], args[2])</li>
+     *     <li>"count": checks if the count of blocks satisfying the given block predicate (args[0]) is within the given bounds (args[1], args[2])</li>
      *     <li>"sequence": checks if there is a sequence of at least a given length (args[1]) of blocks satisfying the given block predicate (args[0])</li>
      *     <li>"checker": checks if blocks in even positions satisfy one block predicate (args[0]) and blocks in odd positions satisfy another block predicate (args[1])</li>
      *     <li>"anypair": checks if any adjacent pair of blocks in the line satisfy the given block comparator (args[0])</li>
@@ -236,21 +416,27 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
     private static LinePredicate linePredicates(String op, Object[] args){
         switch (op) {
             case "false" -> {
-                return l -> false;
+                return (s, l) -> false;
             }
             case "true" -> {
-                return l -> true;
+                return (s, l) -> true;
             }
             case "length" -> {
-                if (args.length == 2 && args[0] instanceof Integer lower && args[1] instanceof Integer upper){
-                    return l -> lower <= l.length && l.length <= upper;
+                if (args.length == 2 && args[0] instanceof IntegerProvider lower && args[1] instanceof IntegerProvider upper){
+                    return (s, l) -> {
+                        Integer lo = lower.apply(s);
+                        Integer up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        int len = l.length;
+                        return lo <= len && len <= up;
+                    };
                 }
             }
             case "any" -> {
                 if (args.length == 1 && args[0] instanceof BlockPredicate p){
-                    return l -> {
+                    return (s, l) -> {
                         for (Block b : l){
-                            if (p.test(b)) return true;
+                            if (p.test(s, b)) return true;
                         }
                         return false;
                     };
@@ -258,9 +444,9 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "none" -> {
                 if (args.length == 1 && args[0] instanceof BlockPredicate p){
-                    return l -> {
+                    return (s, l) -> {
                         for (Block b : l){
-                            if (p.test(b)) return false;
+                            if (p.test(s, b)) return false;
                         }
                         return true;
                     };
@@ -268,37 +454,58 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "all" -> {
                 if (args.length == 1 && args[0] instanceof BlockPredicate p){
-                    return l -> {
+                    return (s, l) -> {
                         for (Block b : l){
-                            if (!p.test(b)) return false;
+                            if (!p.test(s, b)) return false;
                         }
                         return true;
                     };
                 }
             }
             case "ratio" -> {
-                if (args.length == 3 && args[0] instanceof BlockPredicate p && args[1] instanceof Double lower && args[2] instanceof Double upper){
-                    return l -> {
+                if (args.length == 3 && args[0] instanceof BlockPredicate p && args[1] instanceof DoubleProvider lower && args[2] instanceof DoubleProvider upper){
+                    return (s, l) -> {
                         int c = 0; double r;
                         for (Block b : l){
-                            if (p.test(b)) c++;
+                            if (p.test(s, b)) c++;
                         }
                         if (l.length > 0){
                             r = (double) c / l.length;
+                        } else {
+                            r = 0.0;
                         }
-                        return lower <= c && c <= upper;
+                        Double lo = lower.apply(s);
+                        Double up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        return lo <= r && r <= up;
+                    };
+                }
+            }
+            case "count" -> {
+                if (args.length == 3 && args[0] instanceof BlockPredicate p && args[1] instanceof IntegerProvider lower && args[2] instanceof IntegerProvider upper){
+                    return (s, l) -> {
+                        int c = 0;
+                        for (Block b : l){
+                            if (p.test(s, b)) c++;
+                        }
+                        Integer lo = lower.apply(s);
+                        Integer up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        return lo <= c && c <= up;
                     };
                 }
             }
             case "sequence" -> {
-                if (args.length == 3 && args[0] instanceof BlockPredicate p && args[1] instanceof Integer len){
-                    return l -> {
-                        if (l.length >= len) {
+                if (args.length == 3 && args[0] instanceof BlockPredicate p && args[1] instanceof IntegerProvider len){
+                    return (s, l) -> {
+                        Integer lenVal = len.apply(s);
+                        if (lenVal == null) return false;
+                        if (l.length >= lenVal) {
                             int c = 0;
                             for (Block b : l){
-                                if (p.test(b)) {
+                                if (p.test(s, b)) {
                                     c++;
-                                    if (c > len) return true;
+                                    if (c > lenVal) return true;
                                 } else c = 0;
                             }
                         }
@@ -308,12 +515,12 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "checker" -> {
                 if (args.length == 3 && args[0] instanceof BlockPredicate e && args[1] instanceof BlockPredicate o){
-                    return l -> {
+                    return (s, l) -> {
                         for (int i = 0; i < l.length; i++) {
                             Block b = l[i];
                             if (i % 2 == 0){
-                                if (!e.test(b)) return false;
-                            } else if (!o.test(b)) return false;
+                                if (!e.test(s, b)) return false;
+                            } else if (!o.test(s, b)) return false;
                         }
                         return true;
                     };
@@ -321,9 +528,9 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "anypair" -> {
                 if (args.length == 2 && args[0] instanceof BlockComparator c){
-                    return l -> {
+                    return (s, l) -> {
                         for (int i = 0; i < l.length - 1; i++){
-                            if (c.test(l[i], l[i+1])) return true;
+                            if (c.test(s, l[i], l[i+1])) return true;
                         }
                         return false;
                     };
@@ -331,9 +538,9 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "nopair" -> {
                 if (args.length == 2 && args[0] instanceof BlockComparator c){
-                    return l -> {
+                    return (s, l) -> {
                         for (int i = 0; i < l.length - 1; i++){
-                            if (c.test(l[i], l[i+1])) return false;
+                            if (c.test(s, l[i], l[i+1])) return false;
                         }
                         return true;
                     };
@@ -341,39 +548,44 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "allpairs" -> {
                 if (args.length == 2 && args[0] instanceof BlockComparator c){
-                    return l -> {
+                    return (s, l) -> {
                         for (int i = 0; i < l.length - 1; i++){
-                            if (!c.test(l[i], l[i+1])) return false;
+                            if (!c.test(s, l[i], l[i+1])) return false;
                         }
                         return true;
                     };
                 }
             }
             case "parts" ->{
-                if (args.length == 3 && args[0] instanceof BlockComparator p && args[1] instanceof Double lower && args[2] instanceof Double upper) {
-                    return l -> {
+                if (args.length == 3 && args[0] instanceof BlockComparator p && args[1] instanceof DoubleProvider lower && args[2] instanceof DoubleProvider upper) {
+                    return (s, l) -> {
                         int c = 0; double r;
                         for (int i = 0; i < l.length - 1; i++){
-                            if (p.test(l[i], l[i+1])) c++;
+                            if (p.test(s, l[i], l[i+1])) c++;
                         }
                         if (l.length > 1){
                             r = (double) c / (l.length - 1);
                         } else {
                             r = 0.0;
                         }
-                        return lower <= r && r <= upper;
+                        Double lo = lower.apply(s);
+                        Double up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        return lo <= r && r <= up;
                     };
                 }
             }
             case "pairs" -> {
-                if (args.length == 3 && args[0] instanceof BlockComparator c && args[1] instanceof Integer len){
-                    return l -> {
-                        if (l.length >= len) {
+                if (args.length == 3 && args[0] instanceof BlockComparator c && args[1] instanceof IntegerProvider len){
+                    return (s, l) -> {
+                        Integer lenVal = len.apply(s);
+                        if (lenVal == null) return false;
+                        if (l.length >= lenVal) {
                             int count = 0;
                             for (int i = 0; i < l.length - 1; i++){
-                                if (c.test(l[i], l[i+1])) {
+                                if (c.test(s, l[i], l[i+1])) {
                                     count++;
-                                    if (count >= len) return true;
+                                    if (count >= lenVal) return true;
                                 } else count = 0;
                             }
                         }
@@ -383,22 +595,22 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "xor" -> {
                 if (args.length == 2 && args[0] instanceof LinePredicate p1 && args[1] instanceof LinePredicate p2) {
-                    return l -> p1.test(l) ^ p2.test(l);
+                    return (s, l) -> p1.test(s, l) ^ p2.test(s, l);
                 }
             }
             case "not" -> {
                 if (args.length == 1 && args[0] instanceof LinePredicate p) {
-                    return l -> !p.test(l);
+                    return (s, l) -> !p.test(s, l);
                 }
             }
             case "or" -> {
                 if (args.length == 2 && args[0] instanceof LinePredicate p1 && args[1] instanceof LinePredicate p2) {
-                    return l -> p1.test(l) || p2.test(l);
+                    return (s, l) -> p1.test(s, l) || p2.test(s, l);
                 }
             }
             case "and" -> {
                 if (args.length == 2 && args[0] instanceof LinePredicate p1 && args[1] instanceof LinePredicate p2) {
-                    return l -> p1.test(l) && p2.test(l);
+                    return (s, l) -> p1.test(s, l) && p2.test(s, l);
                 }
             }
         }
@@ -648,9 +860,10 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
     }
     /**
      * A functional interface for engine predicates.
-     * This wraps a {@link Predicate<>} of {@link HexEngine engine} to provide more readable code.
+     * The first argument is {@link GameState} context, the next is the {@link HexEngine engine} to test.
+     * This wraps a {@link BiPredicate<>} of {@link HexEngine engine} to provide more readable code.
      */
-    private interface EnginePredicate extends Predicate<HexEngine>{}
+    private interface EnginePredicate extends BiPredicate<GameState, HexEngine>{}
     /**
      * Simulates adding a piece to the engine at the given position and counts the number of blocks that would be eliminated.
      * <p>
@@ -709,6 +922,8 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
      *     <li><b>or</b>: logical OR of two engine predicates (args[0], args[1])</li>
      *     <li><b>and</b>: logical AND of two engine predicates (args[0], args[1])</li>
      *     <li><b>xor</b>: logical XOR of two engine predicates (args[0], args[1])</li>
+     *     <li><b>equals</b>: checks whether argument variables equals to each other. This is not recommended, and {@link VariableAchievement} should
+     *     be used instead of this {@link EngineBasedAchievement}</li>
      * </ul>
      * @param op the operation to perform
      * @param args the arguments for the operation. The expected types and number of arguments depend on the operation.
@@ -719,9 +934,9 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             // For
             case "all" -> {
                 if (args.length == 2 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate) {
-                    return e -> {
+                    return (s, e) -> {
                         for (Block[] line : bis.apply(e)) {
-                            if (!predicate.test(line)) return false;
+                            if (!predicate.test(s, line)) return false;
                         }
                         return true;
                     };
@@ -729,9 +944,9 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "none" -> {
                 if (args.length == 2 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate) {
-                    return e -> {
+                    return (s, e) -> {
                         for (Block[] line : bis.apply(e)) {
-                            if (predicate.test(line)) return false;
+                            if (predicate.test(s, line)) return false;
                         }
                         return true;
                     };
@@ -739,37 +954,42 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "any" -> {
                 if (args.length == 2 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate) {
-                    return e -> {
+                    return (s, e) -> {
                         for (Block[] line : bis.apply(e)) {
-                            if (predicate.test(line)) return true;
+                            if (predicate.test(s, line)) return true;
                         }
                         return false;
                     };
                 }
             }
             case "ratio" -> {
-                if (args.length == 4 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate && args[2] instanceof Double upper && args[3] instanceof Double lower) {
-                    return e -> {
+                if (args.length == 4 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate && args[2] instanceof DoubleProvider upper && args[3] instanceof DoubleProvider lower) {
+                    return (s, e) -> {
                         int c = 0; int t = 0;
                         for (Block[] line : bis.apply(e)) {
-                            if (predicate.test(line)){
+                            if (predicate.test(s, line)){
                                 c++;
                             }
                             t++;
                         }
                         double r = (t == 0) ? 0.0 : (double) c / t;
-                        return lower <= r && r <= upper;
+                        Double lo = lower.apply(s);
+                        Double up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        return lo <= r && r <= up;
                     };
                 }
             }
             case "sequence" -> {
-                if (args.length == 3 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate && args[2] instanceof Integer len) {
-                    return e -> {
+                if (args.length == 3 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof LinePredicate predicate && args[2] instanceof IntegerProvider len) {
+                    return (s, e) -> {
+                        Integer lenVal = len.apply(s);
+                        if (lenVal == null) return false;
                         int c = 0;
                         for (Block[] line : bis.apply(e)) {
-                            if (predicate.test(line)){
+                            if (predicate.test(s, line)){
                                 c++;
-                                if (c >= len) return true;
+                                if (c >= lenVal) return true;
                             } else {
                                 c = 0;
                             }
@@ -780,14 +1000,14 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             case "checker" -> {
                 if (args.length == 3 && args[0] instanceof BlocksIterableSupplier bis && args[1] instanceof BlockPredicate even && args[2] instanceof BlockPredicate odd) {
-                    return e -> {
+                    return (s, e) -> {
                         for (Block[] line : bis.apply(e)) {
                             for (int i = 0; i < line.length; i++) {
                                 Block b = line[i];
                                 if (i % 2 == 0) {
-                                    if (!even.test(b)) return false;
+                                    if (!even.test(s, b)) return false;
                                 } else {
-                                    if (!odd.test(b)) return false;
+                                    if (!odd.test(s, b)) return false;
                                 }
                             }
                         }
@@ -797,124 +1017,166 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
             // Native
             case "filled" -> {
-                if (args.length == 2 && args[0] instanceof Double lower && args[1] instanceof Double upper) {
-                    return e -> {
+                if (args.length == 2 && args[0] instanceof DoubleProvider lower && args[1] instanceof DoubleProvider upper) {
+                    return (s, e) -> {
                         double filled = e.getPercentFilled();
-                        return lower <= filled && filled <= upper;
+                        Double lo = lower.apply(s);
+                        Double up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        return lo <= filled && filled <= up;
                     };
                 }
             }
             case "entropy" -> {
-                if (args.length == 2 && args[0] instanceof Double lower && args[1] instanceof Double upper) {
-                    return e -> {
+                if (args.length == 2 && args[0] instanceof DoubleProvider lower && args[1] instanceof DoubleProvider upper) {
+                    return (s, e) -> {
                         double ent = e.computeEntropy(); // We absolutely need to cache this costly operation
-                        return lower <= ent && ent <= upper;
+                        Double lo = lower.apply(s);
+                        Double up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        return lo <= ent && ent <= up;
                     };
                 }
             }
             case "length" -> {
-                if (args.length == 2 && args[0] instanceof Integer lower && args[1] instanceof Integer upper) {
-                    return e -> lower <= e.length() && e.length() <= upper;
+                if (args.length == 2 && args[0] instanceof IntegerProvider lower && args[1] instanceof IntegerProvider upper) {
+                    return (s, e) -> {
+                        Integer lo = lower.apply(s);
+                        Integer up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        int len = e.length();
+                        return lo <= len && len <= up;
+                    };
                 }
             }
             case "radius" -> {
-                if (args.length == 2 && args[0] instanceof Integer lower && args[1] instanceof Integer upper) {
-                    return e -> lower <= e.getRadius() && e.getRadius() <= upper;
+                if (args.length == 2 && args[0] instanceof IntegerProvider lower && args[1] instanceof IntegerProvider upper) {
+                    return (s, e) -> {
+                        Integer lo = lower.apply(s);
+                        Integer up = upper.apply(s);
+                        if (lo == null || up == null) return false;
+                        int radius = e.getRadius();
+                        return lo <= radius && radius <= up;
+                    };
                 }
             }
             case "density-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> densityIndexSupplier = constructIndexSupplier(HexEngine::computeDenseIndex, "avg");
                     if (densityIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = densityIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "densest-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> densestIndexSupplier = constructIndexSupplier(HexEngine::computeDenseIndex, "max");
                     if (densestIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = densestIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "sparsest-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> sparsestIndexSupplier = constructIndexSupplier(HexEngine::computeDenseIndex, "min");
                     if (sparsestIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = sparsestIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "entropy-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> entropyIndexSupplier = constructIndexSupplier(HexEngine::computeEntropyIndex, "avg");
                     if (entropyIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = entropyIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "most-entropic-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> mostEntropicIndexSupplier = constructIndexSupplier(HexEngine::computeEntropyIndex, "max");
                     if (mostEntropicIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = mostEntropicIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "least-entropic-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> leastEntropicIndexSupplier = constructIndexSupplier(HexEngine::computeEntropyIndex, "min");
                     if (leastEntropicIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = leastEntropicIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "eliminate-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> eliminateIndexSupplier = constructIndexSupplier(EngineBasedAchievement::eliminateIndex, "max");
                     if (eliminateIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = eliminateIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "reduction-index" -> {
-                if (args.length == 3 && args[0] instanceof Piece piece && args[1] instanceof Double lower && args[2] instanceof Double upper) {
+                if (args.length == 3 && args[0] instanceof PieceProvider pp && args[1] instanceof DoubleProvider lp && args[2] instanceof DoubleProvider up) {
                     final BiFunction<HexEngine, HexGrid, Double> eliminateIndexSupplier = constructIndexSupplier(EngineBasedAchievement::eliminateIndex, "avg");
                     if (eliminateIndexSupplier == null) return null;
-                    return (e) -> {
+                    return (s, e) -> {
+                        Piece piece = pp.apply(s); Double lower = lp.apply(s); Double upper = up.apply(s);
+                        if (piece == null || lower == null || upper == null) return false;
                         double index = eliminateIndexSupplier.apply(e, piece);
                         return lower <= index && index <= upper;
                     };
                 }
             }
             case "is" -> {
-                if (args.length == 1 && args[0] instanceof HexEngine other) {
-                    return e -> e.equals(other);
+                if (args.length == 1 && args[0] instanceof EngineProvider ep) {
+                    return (s, e) -> {
+                        HexEngine other = ep.apply(s);
+                        return e.equals(other);
+                    };
                 }
             }
             case "matches" -> {
-                if (args.length == 1 && args[0] instanceof HexEngine other) {
-                    return e -> e.equalsIgnoreColor(other);
+                if (args.length == 1 && args[0] instanceof EngineProvider ep) {
+                    return (s, e) -> {
+                        HexEngine other = ep.apply(s);
+                        return e.equalsIgnoreColor(other);
+                    };
                 }
             }
             case "appears" -> {
-                if (args.length == 1 && args[0] instanceof Integer pattern) {
-                    return e -> {
+                if (args.length == 1 && args[0] instanceof IntegerProvider pp) {
+                    return (s, e) -> {
+                        Integer pattern = pp.apply(s);
+                        if (pattern == null) return false;
                         for (Block b : e.blocks()) {
                             if ((int)pattern == e.patternSupplier(b).get()) {
                                 return true;
@@ -925,8 +1187,10 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                 }
             }
             case "lacks" -> {
-                if (args.length == 1 && args[0] instanceof Integer pattern) {
-                    return e -> {
+                if (args.length == 1 && args[0] instanceof IntegerProvider pp) {
+                    return (s, e) -> {
+                        Integer pattern = pp.apply(s);
+                        if (pattern == null) return false;
                         for (Block b : e.blocks()) {
                             if ((int)pattern == e.patternSupplier(b).get()) {
                                 return false;
@@ -939,22 +1203,56 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             // Logical operations on engine predicates
             case "not" -> {
                 if (args.length == 1 && args[0] instanceof EnginePredicate p) {
-                    return e -> !p.test(e);
+                    return (s, e) -> !p.test(s, e);
                 }
             }
             case "or" -> {
                 if (args.length == 2 && args[0] instanceof EnginePredicate p1 && args[1] instanceof EnginePredicate p2) {
-                    return e -> p1.test(e) || p2.test(e);
+                    return (s, e) -> p1.test(s, e) || p2.test(s, e);
                 }
             }
             case "and" -> {
                 if (args.length == 2 && args[0] instanceof EnginePredicate p1 && args[1] instanceof EnginePredicate p2) {
-                    return e -> p1.test(e) && p2.test(e);
+                    return (s, e) -> p1.test(s, e) && p2.test(s, e);
                 }
             }
             case "xor" -> {
                 if (args.length == 2 && args[0] instanceof EnginePredicate p1 && args[1] instanceof EnginePredicate p2) {
-                    return e -> p1.test(e) ^ p2.test(e);
+                    return (s, e) -> p1.test(s, e) ^ p2.test(s, e);
+                }
+            }
+            // Variable equals
+            case "equals" -> {
+                if (args.length == 2) {
+                    if (args[0] instanceof DoubleProvider d1 && args[1] instanceof DoubleProvider d2) {
+                        return (s, e) -> {
+                            Double v1 = d1.apply(s);
+                            Double v2 = d2.apply(s);
+                            if (v1 == null || v2 == null) return false;
+                            return v1.equals(v2);
+                        };
+                    } else if (args[0] instanceof IntegerProvider i1 && args[1] instanceof IntegerProvider i2) {
+                        return (s, e) -> {
+                            Integer v1 = i1.apply(s);
+                            Integer v2 = i2.apply(s);
+                            if (v1 == null || v2 == null) return false;
+                            return v1.equals(v2);
+                        };
+                    } else if (args[0] instanceof PieceProvider p1 && args[1] instanceof PieceProvider p2) {
+                        return (s, e) -> {
+                            Piece v1 = p1.apply(s);
+                            Piece v2 = p2.apply(s);
+                            if (v1 == null || v2 == null) return false;
+                            return v1.equals(v2);
+                        };
+                    } else if (args[0] instanceof EngineProvider ep1 && args[1] instanceof EngineProvider ep2) {
+                        return (s, e) -> {
+                            HexEngine v1 = ep1.apply(s);
+                            HexEngine v2 = ep2.apply(s);
+                            if (v1 == null || v2 == null) return false;
+                            return v1.equals(v2);
+                        };
+                    }
                 }
             }
         }
