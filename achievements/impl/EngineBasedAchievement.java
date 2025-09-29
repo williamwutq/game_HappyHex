@@ -110,7 +110,13 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                 return null;
             }
         } else {
-            return null;
+            // If not found, try to parse as constant integer
+            try {
+                int value = Integer.parseInt(varName);
+                return IntegerProvider.constant(value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
         }
     }
     /**
@@ -136,7 +142,13 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                 return null;
             }
         } else {
-            return null;
+            // If not found, try to parse as constant double
+            try {
+                double value = Double.parseDouble(varName);
+                return DoubleProvider.constant(value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
         }
     }
     /**
@@ -159,6 +171,82 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
                     } else return null;
                 };
             } catch (ClassCastException e) {
+                return null;
+            }
+        } else {
+            // If not found, try to parse as constant piece
+            if (varName.endsWith("P")) {
+                varName = varName.substring(0, varName.length() - 1);
+                try {
+                    byte byteRepr = Byte.parseByte(varName);
+                    Piece p = Piece.pieceFromByte(byteRepr, -2);
+                    return PieceProvider.constant(p);
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+            } else if (varName.contains("P")){
+                // Get index of P and split into two parts
+                int pIndex = varName.indexOf('P');
+                String shapePart = varName.substring(0, pIndex);
+                String colorPart = varName.substring(pIndex + 1);
+                try {
+                    byte shape = Byte.parseByte(shapePart);
+                    int color = Integer.parseInt(colorPart);
+                    Piece p = Piece.pieceFromByte(shape, color);
+                    return PieceProvider.constant(p);
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        }
+    }
+    /**
+     * Gets a BlockProvider from a String representation. Syntax: {@code <i>|<k>B<color>}, state is inferred from color.
+     * @param str the String representation of the Block
+     * @return a BlockProvider that returns a Block constant
+     */
+    BlockProvider getBlockProvider(String str){
+        String[] parts = str.split("B");
+        if (parts.length != 2) return null;
+        String[] coords = parts[0].split("\\|");
+        if (coords.length != 2) return null;
+        try {
+            int i = Integer.parseInt(coords[0]);
+            int k = Integer.parseInt(coords[1]);
+            int color = Integer.parseInt(parts[1]);
+            boolean state = color != -1; // If color is -1, block is empty. This is the converse of the logic of the coloring system, which might not be true, but we treat it as such here.
+            Block b = new Block(i, k, color, state);
+            return BlockProvider.constant(b);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    /**
+     * Gets a BlockProvider from a String representation. Syntax: {@code <binary>E}, state is inferred from color.
+     * @param str the String representation of the Block
+     * @return a BlockProvider that returns a Block constant
+     */
+    EngineProvider getEngineProvider(String str){
+        if (str.endsWith("E")) {
+            String binary = str.substring(0, str.length() - 1);
+            try {
+                // Construct boolean array from binary string
+                boolean[] binaryArr = new boolean[binary.length()];
+                for (int i = 0; i < binary.length(); i++) {
+                    char c = binary.charAt(i);
+                    if (c == '0' || c == 'O' || c == 'o' || c == '-' || c == 'F' || c == 'f') {
+                        binaryArr[i] = false;
+                    } else if (c == '1' || c == 'X' || c == 'x' || c == '+' || c == 'T' || c == 't') {
+                        binaryArr[i] = true;
+                    } else {
+                        throw new IllegalArgumentException("Invalid character in binary string: " + c);
+                    }
+                }
+                HexEngine engine = HexEngine.engineFromBooleans(binaryArr);
+                return EngineProvider.constant(engine);
+            } catch (IllegalArgumentException e) {
                 return null;
             }
         } else {
