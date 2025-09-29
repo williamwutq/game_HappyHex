@@ -686,7 +686,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * @return the corresponding GameVariableSupplier
      */
     public static GameVariableSupplier<?> parse(String str) {
-        GameVariableSupplier<?> result = parseRec(autoFormat(autoParen(str)));
+        GameVariableSupplier<?> result = parseRec(autoFormat(autoParen(str.toLowerCase())));
         return s -> {
             try {
                 return result.apply(s);
