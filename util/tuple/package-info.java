@@ -2,7 +2,7 @@
  * This package contains utility classes for working with tuples of various sizes.
  * <p>
  * The main interface is {@link util.tuple.OrderedTuple}, which defines methods for accessing
- * the first and last elements of a tuple.
+ * the first and last elements of a tuple. A {@link util.tuple.Mutable} class is also provided for wrapping mutable values.
  * <p>
  * In the detailed implementations, get methods for all elements are provided. They are named
  * getFirst, getSecond, getThird, ... getNth, and there is also an alias getLast for the last element.
