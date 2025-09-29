@@ -681,13 +681,15 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * @see #pieceOperation(GameVariableSupplier, GameVariableSupplier, String)
      * @see #patternOf(GameVariableSupplier)
      * @see #pieceOf(GameVariableSupplier)
+     * @throws IllegalArgumentException if the string cannot be parsed
      * @param str the string to parse
      * @return the corresponding GameVariableSupplier
      */
     public static GameVariableSupplier<?> parse(String str) {
+        GameVariableSupplier<?> result = parseRec(autoFormat(autoParen(str)));
         return s -> {
             try {
-                return parseRec(autoFormat(autoParen(str))).apply(s);
+                return result.apply(s);
             } catch (Exception e) {
                 return null;
             }
@@ -698,6 +700,7 @@ public interface GameVariableSupplier<T> extends Function<GameState, T> {
      * The string can represent predefined suppliers, casting operations, unary operations, binary operations, or nested expressions.
      * @param str the string to parse
      * @return the corresponding GameVariableSupplier
+     * @throws IllegalArgumentException if the string cannot be parsed
      * @see #parse(String)
      */
     private static GameVariableSupplier<?> parseRec(String str) {
