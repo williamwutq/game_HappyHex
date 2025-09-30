@@ -18,9 +18,9 @@ public class CurveGenerator {
         final Color pointCacheColor = new Color(204, 125, 188);
         final Color backgroundColor = new Color(255, 255, 0,128);
         final String[] commands = new String[]{
-                "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc", "sm", "st", "div", "dva",
+                "add", "set", "sp", "sc", "sr", "ins", "mv", "mx", "my", "mp", "mc", "mr", "sm", "st", "div", "dva",
                 "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc", "mov", "regp",
-                "rd", "rm", "rml", "rmf", "rma", "r",
+                "rd", "rm", "rml", "rmf", "rma", "rmr", "rmra", "srz", "r",
                 "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
                 "s", "oa", "ao", "o", "a",
@@ -281,12 +281,15 @@ public class CurveGenerator {
                     System.out.println("  set index x y cx cy - Sets the point at index to (x, y) with control point (cx, cy)");
                     System.out.println("  sp index dx dy - Sets the point at index by (dx, dy)");
                     System.out.println("  sc index dx dy - Sets the control point at index by (dx, dy)");
+                    System.out.println("  sr index dx dy - Sets the point register at index by (dx, dy)");
+                    System.out.println("  srz index - Sets the point register at index to (0, 0), effectively clearing it");
                     System.out.println("  ins index x y cx cy - Adds a point with coordinates (x, y) and control point (cx, cy) to index index");
                     System.out.println("  mv dx dy - Moves all points by (dx, dy)");
                     System.out.println("  mx dx - Moves all points by (dx, 0)");
                     System.out.println("  my dy - Moves all points by (0, dy)");
                     System.out.println("  mp index dx dy - Moves the point at index by (dx, dy)");
                     System.out.println("  mc index dx dy - Moves the control point at index by (dx, dy)");
+                    System.out.println("  mr index dx dy - Moves the point register at index by (dx, dy)");
                     System.out.println("  mov org dest - Set the point at dest to the coordinates of the point at org, including control point. To refer to a point, use (a/o/)(p/c) index for a point or control point in the A or O register, or r index for a point in the point registers");
                     System.out.println("  sm index - Smoothens the point at index with default position 0.5");
                     System.out.println("  sm index pos - Smoothens the point at index with position pos (0 = straight, 1 = full curve)");
@@ -308,6 +311,8 @@ public class CurveGenerator {
                     System.out.println("  mrc - Mirrors the shape across the line y = x, equivalent to swapping x and y coordinates");
                     System.out.println("  rd - Round all points and control points to the nearest two decimal places");
                     System.out.println("  rd n - Round all points and control points to the nearest n decimal places");
+                    System.out.println("  rmr index - Removes the point register at index");
+                    System.out.println("  rmra - Removes all point registers");
                     System.out.println("  rm index - Removes the indexed point");
                     System.out.println("  rml - Removes the last point");
                     System.out.println("  rmf - Removes the first point");
@@ -353,12 +358,15 @@ public class CurveGenerator {
                             case "set"  -> "set index x y cx cy - Sets the point at index to (x, y) with control point (cx, cy)";
                             case "sp"   -> "sp index dx dy - Sets the point at index by (dx, dy)";
                             case "sc"   -> "sc index dx dy - Sets the control point at index by (dx, dy)";
+                            case "sr"   -> "sr index dx dy - Sets the point register at index by (dx, dy)";
+                            case "srz"  -> "srz index - Sets the point register at index to (0, 0), effectively clearing it";
                             case "ins"  -> "ins index x y cx cy - Adds a point with coordinates (x, y) and control point (cx, cy) to index index";
                             case "mv"   -> "mv dx dy - Moves all points by (dx, dy)";
                             case "mx"   -> "mx dx - Moves all points by (dx, 0)";
                             case "my"   -> "my dy - Moves all points by (0, dy)";
                             case "mp"   -> "mp index dx dy - Moves the point at index by (dx, dy)";
                             case "mc"   -> "mc index dx dy - Moves the control point at index by (dx, dy)";
+                            case "mr"   -> "mr index dx dy - Moves the point register at index by (dx, dy)";
                             case "mov"  -> "mov org dest - Set the point at dest to the coordinates of the point at org, including control point. To refer to a point, use (a/o/)(p/c) index for a point or control point in the A or O register, or r index for a point in the point registers";
                             case "sm"   -> "sm index - Smoothens the point at index with default position 0.5\nsm index pos - Smoothens the point at index with position pos (0 = straight, 1 = full curve)";
                             case "sma"  -> "sma - Smoothens all points with default position 0.5";
@@ -376,6 +384,8 @@ public class CurveGenerator {
                             case "mry"  -> "mry - Mirrors the shape across the y axis";
                             case "mrc"  -> "mrc - Mirrors the shape across the line y = x, equivalent to swapping x and y coordinates";
                             case "rd"   -> "rd - Round all points and control points to the nearest two decimal places\nrd n - Round all points and control points to the nearest n decimal places";
+                            case "rmr"  -> "rmr index - Removes the point register at index";
+                            case "rmra" -> "rmra - Removes all point registers";
                             case "rm"   -> "rm index - Removes the indexed point";
                             case "rml"  -> "rml - Removes the last point";
                             case "rmf"  -> "rmf - Removes the first point";
@@ -416,8 +426,8 @@ public class CurveGenerator {
                                     "Use 'help section' to see commands in each section\n" +
                                     "Sections: move, modify, shape, transform, refine, background, flow, output, system, register";
                             // Sectional help
-                            case "move" -> "move commands: mv, mx, my, mp, mc, mov";
-                            case "modify" -> "modify commands: set, add, sp, sc, ins, rm, rml, rmf, rma, mov";
+                            case "move" -> "move commands: mv, mx, my, mp, mc, mr, mov";
+                            case "modify" -> "modify commands: set, add, sp, sc, sr, srz, ins, rm, rml, rmf, rma, rmr, rmra, mov";
                             case "shape" -> "shape commands: add, ins, rm, make, circle, square, rma";
                             case "transform" -> "transform commands: scl, sxy, scb, ssb, rot, mrx, mry, mrc, rd";
                             case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg, rd";
@@ -425,7 +435,7 @@ public class CurveGenerator {
                             case "flow" -> "undo/redo commands: undo, redo; repeat: r";
                             case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb";
                             case "system" -> "system commands: sysinfo, exit, quit, help, clear";
-                            case "register" -> "register commands: reg, regp, o, a, oa, ao, s, mov";
+                            case "register" -> "register commands: reg, regp, o, a, oa, ao, s, mov, mr, sr, srz, rmr, rmra";
                             default -> "Unknown command";
                         });
                     } else {
@@ -539,6 +549,26 @@ public class CurveGenerator {
                         } catch (IndexOutOfBoundsException e) {
                             System.out.println("Index out of bounds.");
                         }
+                    }
+                } else if (line.equals("rmra")) {
+                    for (int i = 0; i < pointCache.length; i++) {
+                        pointCache[i] = new double[]{0, 0};
+                    }
+                    p.repaint();
+                } else if (line.startsWith("rmr") || line.startsWith("srz")) {
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 1) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            pointCache[index] = new double[]{0, 0};
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: sr index");
                     }
                 } else if (line.equals("rma")) {
                     shapeObj.clear();
@@ -980,6 +1010,40 @@ public class CurveGenerator {
                     shapeObj.mirrorC();
                     addAndBreakUndoChain(shapeObj, undoRef, pastRef);
                     p.repaint();
+                } else if (line.startsWith("mr")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 3) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            double dx = Double.parseDouble(parts[1]);
+                            double dy = Double.parseDouble(parts[2]);
+                            pointCache[index] = new double[]{pointCache[index][0] + dx, pointCache[index][1] + dy};
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: mr index dx dy");
+                    }
+                } else if (line.startsWith("sr")) {
+                    String[] parts = splitArgs(line, 2);
+                    if (parts.length == 3) {
+                        try {
+                            int index = Integer.parseInt(parts[0]);
+                            double x = Double.parseDouble(parts[1]);
+                            double y = Double.parseDouble(parts[2]);
+                            pointCache[index] = new double[]{x, y};
+                            p.repaint();
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: sr index x y");
+                    }
                 } else if (line.equals("print")) {
                     CurvedShape shape = shapeObj.toCurvedShape();
                     if (shape == null) {
