@@ -35,6 +35,7 @@ import java.io.IOException;
 
 public class LauncherGUI {
     private static JFrame mainFrame;
+    private static JPanel popUpPanel = null;
     public static void launch(){
         setupMainFrame();
         LaunchEssentials.initialize();
@@ -150,7 +151,21 @@ public class LauncherGUI {
         return icon.getImage();
     }
     private static void setupMainFrame(){
-        mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion);
+        mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion){
+            @Override
+            public void paint(Graphics g) {
+                // Pop up window should show in the middle
+                super.paint(g);
+                if (popUpPanel != null) {
+                    popUpPanel.paint(g.create(
+                            (getWidth() - popUpPanel.getWidth()) / 2,
+                            (getHeight() - popUpPanel.getHeight()) / 2,
+                            popUpPanel.getWidth(),
+                            popUpPanel.getHeight()
+                    ));
+                }
+            }
+        };
         mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setLayout(new BorderLayout());
         mainFrame.setBackground(LaunchEssentials.launchBackgroundColor);
@@ -264,6 +279,14 @@ public class LauncherGUI {
         setBackgroundColor(GameEssentials.gameBackgroundColor);
         mainFrame.add(fetchGameOverPanel(), BorderLayout.CENTER);
         mainFrame.revalidate();
+        mainFrame.repaint();
+    }
+    public static void showPopUp(JPanel panel){
+        popUpPanel = panel;
+        mainFrame.repaint();
+    }
+    public static void closePopUp() {
+        popUpPanel = null;
         mainFrame.repaint();
     }
 }
