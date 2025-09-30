@@ -19,7 +19,7 @@ public class CurveGenerator {
         final Color backgroundColor = new Color(255, 255, 0,128);
         final String[] commands = new String[]{
                 "add", "set", "sp", "sc", "sr", "ins", "mv", "mx", "my", "mp", "mc", "mr", "sm", "st", "div", "dva",
-                "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc", "mov", "regp",
+                "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc", "mov", "regp", "moa", "mao", "ms",
                 "rd", "rm", "rml", "rmf", "rma", "rmr", "rmra", "srz", "r",
                 "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
@@ -257,6 +257,23 @@ public class CurveGenerator {
                         System.out.println("Switch to A register");
                         p.repaint();
                     }
+                } else if (line.equals("mao")){
+                    // Move shape in a to o
+                    s.set(a.get().clone());
+                    addAndBreakUndoChain(s.get(), undoIndex, pastShapes);
+                } else if (line.equals("moa")){
+                    // Move shape in o to a
+                    a.set(s.get().clone());
+                    addAndBreakUndoChain(a.get(), undoIndexA, pastShapesA);
+                } else if (line.equals("ms")){
+                    // If we are in a, move shape to o, else move shape to a
+                    if (ARegister.get()){
+                        s.set(a.get().clone());
+                        addAndBreakUndoChain(s.get(), undoIndex, pastShapes);
+                    } else {
+                        a.set(s.get().clone());
+                        addAndBreakUndoChain(a.get(), undoIndexA, pastShapesA);
+                    }
                 } else if (line.equals("reg")){
                     if (ARegister.get()) {
                         System.out.println("In A register: Auxiliary Shape Register");
@@ -342,6 +359,9 @@ public class CurveGenerator {
                     System.out.println("  s | oa | ao - Switch between O (ordinary) and A (auxiliary) shape registers");
                     System.out.println("  o - Switch to O register");
                     System.out.println("  a - Switch to A register");
+                    System.out.println("  mao - Move (copy) shape in A register to O register");
+                    System.out.println("  moa - Move (copy) shape in O register to A register");
+                    System.out.println("  ms - Move (copy) shape in current register to the other register");
                     System.out.println("  reg - Show which register is currently active");
                     System.out.println("  regp - Show the point registers");
                     System.out.println("  exit - Exits the program");
@@ -413,6 +433,9 @@ public class CurveGenerator {
                             case "ao"   -> "s | oa | ao - Switch between O (ordinary) and A (auxiliary) shape registers";
                             case "o"    -> "o - Switch to O register";
                             case "a"    -> "a - Switch to A register";
+                            case "mao"  -> "mao - Move (copy) shape in A register to O register";
+                            case "moa"  -> "moa - Move (copy) shape in O register to A register";
+                            case "ms"   -> "ms - Move (copy) shape in current register to the other register";
                             case "reg"  -> "reg - Show which register is currently active";
                             case "regp" -> "regp - Show the point registers";
                             case "exit" -> "exit - Exits the program";
@@ -435,7 +458,7 @@ public class CurveGenerator {
                             case "flow" -> "undo/redo commands: undo, redo; repeat: r";
                             case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb";
                             case "system" -> "system commands: sysinfo, exit, quit, help, clear";
-                            case "register" -> "register commands: reg, regp, o, a, oa, ao, s, mov, mr, sr, srz, rmr, rmra";
+                            case "register" -> "register commands: reg, regp, o, a, oa, ao, s, moa, mao, ms, mov, mr, sr, srz, rmr, rmra";
                             default -> "Unknown command";
                         });
                     } else {
