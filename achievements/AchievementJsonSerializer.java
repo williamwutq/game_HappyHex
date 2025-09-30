@@ -61,6 +61,7 @@ public class AchievementJsonSerializer {
         // Imports: This is necessary to ensure that the built-in achievements are loaded and registered.
         achievements.impl.NumberBasedAchievement.load();
         achievements.impl.QueueBasedAchievement.load();
+        achievements.impl.EngineBasedAchievement.load();
         achievements.impl.EliminationAchievement.load();
         achievements.impl.VariableAchievement.load();
         achievements.abstractimpl.MarkableAchievement.load();
@@ -195,35 +196,48 @@ public class AchievementJsonSerializer {
         }
         javax.json.JsonArray jsonArray = json.getJsonArray("Achievements");
         List<GameAchievementTemplate> achievements = new ArrayList<>();
+        List<DataSerializationException> exceptions = new ArrayList<>();
         // Parse
         for (javax.json.JsonValue value : jsonArray) {
             if (!value.getValueType().equals(javax.json.JsonValue.ValueType.OBJECT)) {
-                throw new DataSerializationException("Invalid JSON: 'achievements' array must contain JSON objects");
+                exceptions.add(new DataSerializationException("Invalid JSON: 'achievements' array must contain JSON objects"));
+                continue;
             }
             JsonObject obj = (JsonObject) value;
             String type;
             try {
                 type = obj.getString("type");
             } catch (Exception e) {
-                throw new DataSerializationException("Invalid JSON: each achievement object must contain a 'type' field", e);
+                exceptions.add(new DataSerializationException("Invalid JSON: each achievement object must contain a 'type' field", e));
+                continue;
             }
             if (!obj.containsKey("name") || !obj.containsKey("description")) {
-                throw new DataSerializationException("Invalid JSON: each achievement object must contain 'name' and 'description' fields");
+                exceptions.add(new DataSerializationException("Invalid JSON: each achievement object must contain 'name' and 'description' fields"));
+                continue;
             }
             Function<JsonObject, GameAchievementTemplate> deserializer = ACHIEVEMENT_DESERIAL_NAME_MAP.get(type);
             GameAchievementTemplate template;
             if (deserializer == null) {
-                throw new DataSerializationException("No deserializer registered for achievement of type " + type);
+                exceptions.add(new DataSerializationException("No deserializer registered for achievement of type " + type));
+                continue;
             }
             try {
                 template = deserializer.apply(obj);
             } catch (Exception e) {
-                throw new DataSerializationException("Failed to deserialize achievement of type " + type, e.getCause());
+                exceptions.add(new DataSerializationException("Failed to deserialize achievement of type " + type, e.getCause()));
+                continue;
             }
             if (HiddenAchievement.isHidden(obj.getString("name"))) {
                 template = HiddenAchievement.wrap(template);
             }
             achievements.add(template);
+        }
+        if (!exceptions.isEmpty()) {
+            DataSerializationException exception = new DataSerializationException("One or more achievements failed to deserialize.");
+            for (DataSerializationException e : exceptions) {
+                exception.addSuppressed(e);
+            }
+            throw exception;
         }
         return achievements.toArray(new GameAchievementTemplate[0]);
     }
