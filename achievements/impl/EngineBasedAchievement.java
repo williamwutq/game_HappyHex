@@ -24,30 +24,95 @@
 
 package achievements.impl;
 
+import achievements.AchievementJsonSerializer;
+import achievements.DataSerializationException;
 import achievements.GameAchievementTemplate;
 import achievements.GameVariableSupplier;
 import achievements.icon.AchievementIcon;
+import achievements.icon.AchievementIconSerialHelper;
 import hex.*;
+import io.JsonConvertible;
 import util.function.TriFunction;
 import util.function.TriPredicate;
 import util.tuple.Pair;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
-public class EngineBasedAchievement implements GameAchievementTemplate {
+/**
+ * An achievement that is based on predicates evaluated against the game engine state.
+ * This achievement can have variables that are updated from the game state and used in the predicates.
+ * The main predicate is an {@link EnginePredicate} that determines if the achievement is completed.
+ * <p>
+ * The achievement can be serialized to and from JSON format using the {@link #toJsonObjectBuilder()} and {@link #fromJsonObject(JsonObject)} methods.
+ * The class must be registered with the {@link AchievementJsonSerializer} using the {@link #load()} method before deserialization can occur.
+ * <p>
+ * The predicates support a variety of operations and can be combined using logical operators.
+ * See the documentation of the predicate methods for details on the supported operations and their syntax.
+ * <p>
+ * The implementation of this class is entirely functional, which enables easy linking of predicates and variables.
+ * This also allows for easy extension of the predicate system by adding new functional interfaces and methods.
+ * As of this version, type safety is not guaranteed due to the dynamic nature of the predicates and variables, but
+ * in tests, type errors are rare and usually indicate a mistake in the achievement definition instead of a runtime error.
+ *
+ * @see GameAchievementTemplate
+ * @see GameState
+ * @see JsonConvertible
+ * @author William Wu
+ * @version 2.0
+ * @since 2.0
+ */
+public class EngineBasedAchievement implements GameAchievementTemplate, JsonConvertible {
     private final String name;
     private final String description;
     private final AchievementIcon icon;
     private final Map<String, VariableAchievement.AchievementVariable<?>> variables;
+    private String mainPredicateSymbol; // For serialization
+    private EnginePredicate mainPredicate;
 
+    public static void load() {
+        AchievementJsonSerializer.registerAchievementClass("EngineBasedAchievement", json -> {
+            try {
+                return fromJsonObject(json);
+            } catch (DataSerializationException e) {
+                throw new RuntimeException("Failed to deserialize EngineBasedAchievement.", e);
+            }
+        });
+    }
+    /**
+     * Constructs an EngineBasedAchievement with the given name, description, icon. Predicate is set to null and should be set later.
+     * Initializes an empty map for variables.
+     * @param name the name of the achievement
+     * @param description the description of the achievement
+     * @param icon the icon of the achievement
+     */
     public EngineBasedAchievement(String name, String description, AchievementIcon icon) {
         this.name = name;
         this.description = description;
         this.icon = icon;
         this.variables = new HashMap<>();
+        this.mainPredicateSymbol = null;
+        this.mainPredicate = null;
+    }
+    /**
+     * Sets the main predicate of the achievement based on the given symbol.
+     * This method compiles the symbol into an EnginePredicate using the {@link #compile(String)} method.
+     * <p>
+     * If the symbol cannot be compiled into a valid EnginePredicate, an IllegalArgumentException is thrown.
+     * It is recommended to preserve the message of the exception for debugging purposes.
+     *
+     * @param symbol the symbol representing the main predicate
+     * @throws IllegalArgumentException if the symbol cannot be compiled into a valid EnginePredicate
+     */
+    public void setPredicate(String symbol) throws IllegalArgumentException {
+        this.mainPredicateSymbol = symbol;
+        this.mainPredicate = compile(symbol);
     }
 
     /**
@@ -75,6 +140,12 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
         return icon;
     }
 
+    /**
+     * Checks if the achievement is completed based on the given GameState.
+     * Updates all variables before evaluating the main predicate.
+     * @param state the input argument to the predicate
+     * @return true if the achievement is completed, false otherwise
+     */
     @Override
     public boolean test(GameState state) {
         // Update variables
@@ -82,11 +153,114 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             entry.getValue().update(state);
         }
         HexEngine engine = state.getEngine();
-        if (engine == null) {
-            return false;
-        }
-        return false;
+        return engine != null && mainPredicate != null && mainPredicate.test(state, engine);
     }
+    /**
+     * Adds a variable to the achievement.
+     * @param name the name of the variable
+     * @param var the variable to add
+     */
+    public void addVariable(String name, VariableAchievement.AchievementVariable<?> var) {
+        variables.put(name, var);
+    }
+    /**
+     * Converts the achievement to a JSON object builder.
+     * @return a {@link JsonObjectBuilder} representing the achievement
+     */
+    @Override
+    public JsonObjectBuilder toJsonObjectBuilder() {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("type", "EngineBasedAchievement");
+        builder.add("name", name());
+        builder.add("description", description());
+        builder.add("icon", AchievementIconSerialHelper.serialize(icon));
+        // Variables
+        JsonArrayBuilder varBuilder = Json.createArrayBuilder();
+        for (Map.Entry<String, VariableAchievement.AchievementVariable<?>> entry : variables.entrySet()) {
+            String varName = entry.getKey();
+            VariableAchievement.AchievementVariable<?> var = entry.getValue();
+            String varSymbol = var.getSymbol();
+            varBuilder.add(Json.createObjectBuilder()
+                    .add("name", varName)
+                    .add("symbol", varSymbol)
+                    .add("type", var.type().getSimpleName())
+            );
+        }
+        builder.add("variables", varBuilder);
+        // Main predicate
+        builder.add("mainPredicate", mainPredicateSymbol);
+        return builder;
+    }
+
+    /**
+     * Converts a JSON object to an EngineBasedAchievement.
+     * @param obj the JSON object to convert
+     * @return an EngineBasedAchievement represented by the JSON object
+     * @throws DataSerializationException if the JSON object is invalid or cannot be converted
+     */
+    public static EngineBasedAchievement fromJsonObject(JsonObject obj) throws DataSerializationException {
+        // Name, description, icon
+        if (!obj.containsKey("name") || !obj.containsKey("description") || !obj.containsKey("icon") || !obj.containsKey("variables") || !obj.containsKey("mainPredicate")) {
+            throw new IllegalArgumentException("JSON object does not contain required fields for EngineBasedAchievement");
+        }
+        String name = obj.getString("name");
+        String description = obj.getString("description");
+        AchievementIcon icon = AchievementIconSerialHelper.deserialize(obj);
+        String mainPredicateSymbol = obj.getString("mainPredicate");
+        EngineBasedAchievement achievement = new EngineBasedAchievement(name, description, icon);
+        // Variables
+        for (var varObj : obj.getJsonArray("variables")) {
+            if (!(varObj instanceof JsonObject varJson) || !varJson.containsKey("name") || !varJson.containsKey("symbol") || !varJson.containsKey("type")) {
+                throw new DataSerializationException("Invalid variable object in JSON array");
+            }
+            String varName = varJson.getString("name");
+            String varSymbol = varJson.getString("symbol");
+            String varType = varJson.getString("type");
+            VariableAchievement.AchievementVariable<?> var;
+            switch (varType) {
+                case "Integer" -> {
+                    try {
+                        GameVariableSupplier<Integer> iv = (GameVariableSupplier<Integer>) GameVariableSupplier.parse(varSymbol);
+                        var = new VariableAchievement.AchievementVariable<>(iv, Integer.class, varSymbol);
+                    } catch (IllegalArgumentException e) {
+                        throw new DataSerializationException("Invalid Integer variable symbol " + varSymbol + " in variables", e);
+                    } catch (ClassCastException e) {
+                        throw new DataSerializationException("Variable symbol " + varSymbol + " does not resolve to Integer type in variables", e); // This should never happen
+                    }
+                }
+                case "Double" -> {
+                    try {
+                        GameVariableSupplier<Double> dv = (GameVariableSupplier<Double>) GameVariableSupplier.parse(varSymbol);
+                        var = new VariableAchievement.AchievementVariable<>(dv, Double.class, varSymbol);
+                    } catch (IllegalArgumentException e) {
+                        throw new DataSerializationException("Invalid Double variable symbol " + varSymbol + " in variables", e);
+                    } catch (ClassCastException e) {
+                        throw new DataSerializationException("Variable symbol " + varSymbol + " does not resolve to Double type in variables", e); // This should never happen
+                    }
+                }
+                case "Piece" -> {
+                    try {
+                        GameVariableSupplier<Piece> pv = (GameVariableSupplier<Piece>) GameVariableSupplier.parse(varSymbol);
+                        var = new VariableAchievement.AchievementVariable<>(pv, Piece.class, varSymbol);
+                    } catch (IllegalArgumentException e) {
+                        throw new DataSerializationException("Invalid Piece variable symbol " + varSymbol + " in variables", e);
+                    } catch (ClassCastException e) {
+                        throw new DataSerializationException("Variable symbol " + varSymbol + " does not resolve to Piece type in variables", e); // This should never happen
+                    }
+                }
+                default -> throw new DataSerializationException("Unsupported variable type " + varType);
+            }
+            achievement.addVariable(varName, var);
+        }
+        // Main predicate
+        try {
+            achievement.setPredicate(mainPredicateSymbol);
+        } catch (IllegalArgumentException e) {
+            throw new DataSerializationException("Invalid main predicate symbol " + mainPredicateSymbol, e);
+        }
+        return achievement;
+    }
+
     // Vars
     /**
      * Gets an IntegerProvider from a String representation of a constant integer.
