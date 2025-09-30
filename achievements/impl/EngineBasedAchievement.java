@@ -1565,7 +1565,12 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             String iexpr = expr.substring(6).trim();
             if (iexpr.startsWith("(") && iexpr.endsWith(")")) {
                 iexpr = iexpr.substring(1, iexpr.length() - 1).trim();
-                return compilerRecursive(iexpr);
+                Object result = compilerRecursive(iexpr);
+                try {
+                    return (EnginePredicate) result;
+                } catch (ClassCastException e) {
+                    throw new IllegalArgumentException("Function " + expr +  " does evaluates to engine predicate, but got " + result.getClass().getInterfaces()[0].getSimpleName() + " instead");
+                }
             } else {
                 throw new IllegalArgumentException("Top level expression is not a legal function in " + expr);
             }
@@ -1573,8 +1578,174 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             throw new IllegalArgumentException("Top level expression is not a legal function in " + expr);
         }
     }
-    private static EnginePredicate compilerRecursive(String expr){
-        return null; // TODO: Implement a full parser for the expression language described above
+    /**
+     * Recursively compiles a sub-expression into the appropriate predicate or provider.
+     * This method handles function parsing, argument splitting, and recursive compilation of arguments.
+     * <p>
+     * The function name is determined by the substring before the first opening parenthesis.
+     * The arguments are extracted from within the parentheses and split by commas, ignoring commas inside nested
+     * parentheses, brackets, braces, or quotes.
+     * Each argument is then compiled recursively.
+     * <p>
+     * The compiled function is then matched against known predicates and providers to construct the appropriate object.
+     * If the compiler cannot recognize the function name or the arguments do not match any known signature,
+     * an IllegalArgumentException is thrown with a very detailed message to aid debugging.
+     * @see #compile(String)
+     * @param expr the sub-expression to compile
+     * @return an Object representing the compiled predicate or provider
+     * @throws IllegalArgumentException if the sub-expression is invalid or cannot be compiled
+     */
+    private Object compilerRecursive(String expr){
+        expr = expr.trim();
+        if (expr.isEmpty())
+            throw new IllegalArgumentException("Empty expression");
+        // If this is a variable or constant, parse it directly
+        if ((expr.startsWith("#{") && expr.endsWith("}")) ||
+            (expr.startsWith("$")) ||
+            (expr.startsWith("${") && expr.endsWith("}"))) {
+            return parseVariable(expr).getFirst();
+        }
+        int firstParen = expr.indexOf('(');
+        String funcName; String argsStr;
+        if (firstParen == -1) {
+            // No parentheses, so this is a function with no arguments
+            funcName = expr.trim(); String[] emptyArgs = new String[0];
+            Object result = linePredicates(funcName, emptyArgs); // We can skip engine predicates as they all require arguments
+            if (result != null) {
+                return result;
+            } else if (blockComparator(funcName) != null) {
+                return blockComparator(funcName);
+            } else if (blocksIterable(funcName) != null) {
+                return blocksIterable(funcName);
+            } else throw new IllegalArgumentException("Unknown function " + funcName + "() in expression " + expr);
+        } else {
+            funcName = expr.substring(0, firstParen).trim();
+            argsStr = expr.substring(firstParen).trim();
+            if (!argsStr.startsWith("(") || !argsStr.endsWith(")"))
+                throw new IllegalArgumentException("Malformed function " + funcName + " in expression " + expr);
+            argsStr = argsStr.substring(1, argsStr.length() - 1);
+            // Split argsStr by commas, but ignore commas inside parentheses
+            String[] argStrings = splitArgs(argsStr);
+            Object[] args = new Object[argStrings.length];
+            for (int i = 0; i < argStrings.length; i++) {
+                args[i] = compilerRecursive(argStrings[i]);
+            }
+            // Now we have funcName and args, construct the appropriate predicate or provider
+            Object result = enginePredicate(funcName, args);
+            if (result != null) {
+                return result;
+            } else {
+                result = linePredicates(funcName, args);
+            }
+            if (result != null) {
+                return result;
+            } else {
+                result = blockPredicates(funcName, args);
+            }
+            if (result != null) {
+                return result;
+            } else if (argStrings.length == 0){
+                result = blockComparator(funcName); // Only attempt if there are no arguments, as comparators take no arguments
+            }
+            if (result != null) {
+                return result;
+            } else if (argStrings.length == 0) {
+                result = blocksIterable(funcName); // Only attempt if there are no arguments, as iterable for block take no arguments
+            }
+            if (result != null) {
+                return result;
+            } else {
+                StringBuilder exceptionStr = new StringBuilder("Unknown function " + funcName);
+                // Add types of args to the exception string. This is to help debugging because most errors are due to wrong signature
+                if (args.length > 0) {
+                    exceptionStr.append("(");
+                    for (int i = 0; i < args.length; i++) {
+                        Object arg = args[i];
+                        switch (arg) {
+                            case EnginePredicate enginePredicate -> exceptionStr.append("EnginePredicate");
+                            case LinePredicate linePredicate -> exceptionStr.append("LinePredicate");
+                            case BlockPredicate blockPredicate -> exceptionStr.append("BlockPredicate");
+                            case BlockComparator blockComparator -> exceptionStr.append("BlockComparator");
+                            case BlocksIterableSupplier blocksIterableSupplier -> exceptionStr.append("BlocksIterableSupplier");
+                            case IntegerProvider integerProvider -> exceptionStr.append("IntegerProvider");
+                            case DoubleProvider doubleProvider -> exceptionStr.append("DoubleProvider");
+                            case PieceProvider pieceProvider -> exceptionStr.append("PieceProvider");
+                            case EngineProvider engineProvider -> exceptionStr.append("EngineProvider");
+                            case Pair<?, ?> p -> exceptionStr.append("Pair<").append(p.getLast().getClass().getSimpleName()).append(">");
+                            case null -> exceptionStr.append("null");
+                            default -> exceptionStr.append(arg.getClass().getInterfaces()[0].getSimpleName());
+                        }
+                        if (i < args.length - 1) exceptionStr.append(", ");
+                    }
+                    exceptionStr.append(") in expression ").append(expr);
+                }
+                throw new IllegalArgumentException(exceptionStr.toString());
+            }
+        }
+    }
+    /**
+     * Splits a string of arguments separated by commas, ignoring commas inside parentheses, brackets, braces, or quotes.
+     * This method handles nested structures and quoted strings correctly.
+     * @param argString the string of arguments to split
+     * @return an array of argument strings
+     */
+    private static String[] splitArgs(String argString) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        int depthParen = 0, depthBracket = 0, depthBrace = 0, depthSingleQuote = 0, depthDoubleQuote = 0;
+
+        for (int i = 0; i < argString.length(); i++) {
+            char c = argString.charAt(i);
+            switch (c) {
+                case '(' -> {
+                    depthParen++;
+                    current.append(c);
+                }
+                case ')' -> {
+                    depthParen--;
+                    current.append(c);
+                }
+                case '[' -> {
+                    depthBracket++;
+                    current.append(c);
+                }
+                case ']' -> {
+                    depthBracket--;
+                    current.append(c);
+                }
+                case '{' -> {
+                    depthBrace++;
+                    current.append(c);
+                }
+                case '}' -> {
+                    depthBrace--;
+                    current.append(c);
+                }
+                case '\'' -> {
+                    depthSingleQuote = 1 - depthSingleQuote; // Toggle
+                    current.append(c);
+                }
+                case '"' -> {
+                    depthDoubleQuote = 1 - depthDoubleQuote; // Toggle
+                    current.append(c);
+                }
+                case ',' -> {
+                    if (depthParen == 0 && depthBracket == 0 && depthBrace == 0 && depthSingleQuote == 0 && depthDoubleQuote == 0) {
+                        String val = current.toString().trim();
+                        if (!val.isEmpty()) result.add(val);
+                        current.setLength(0);
+                        continue; // skip appending the comma
+                    } else {
+                        current.append(c);
+                    }
+                }
+                default -> current.append(c);
+            }
+        }
+        // add last piece
+        String val = current.toString().trim();
+        if (!val.isEmpty()) result.add(val);
+        return result.toArray(new String[0]);
     }
 
     /**
@@ -1591,19 +1762,19 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             provider = getIntegerConstant(constStr);
             if (provider == null) {
                 provider = getDoubleConstant(constStr);
-            } else clazz = Double.class;
-            if (provider == null) {
-                provider = getPieceConstant(constStr);
+                if (provider == null) {
+                    provider = getPieceConstant(constStr);
+                    if (provider == null) {
+                        provider = getEngineProvider(constStr);
+                        if (provider == null) {
+                            provider = getBlockProvider(constStr);
+                            if (provider == null) {
+                                throw new IllegalArgumentException("Invalid constant " + constStr + " expression");
+                            } else clazz = Block.class;
+                        } else clazz = HexEngine.class;
+                    } else clazz = Piece.class;
+                } else clazz = Double.class;
             } else clazz = Integer.class;
-            if (provider == null) {
-                provider = getEngineProvider(constStr);
-            } else clazz = Piece.class;
-            if (provider == null) {
-                provider = getBlockProvider(constStr);
-            } else clazz = HexEngine.class;
-            if (provider == null) {
-                throw new IllegalArgumentException("Invalid constant " + constStr + " expression");
-            } else clazz = Block.class;
         } else if (arg.startsWith("${") && arg.endsWith("}")) {
             String varExpr = arg.substring(2, arg.length() - 1).trim();
             // Get type hint before the first colon
