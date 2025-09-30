@@ -30,6 +30,7 @@ import achievements.icon.AchievementIcon;
 import hex.*;
 import util.function.TriFunction;
 import util.function.TriPredicate;
+import util.tuple.Pair;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -1482,5 +1483,188 @@ public class EngineBasedAchievement implements GameAchievementTemplate {
             }
         }
         return null;
+    }
+
+    // Compiler
+    // Syntax: use spaces, use () to group, always starts with engine() (unless it is equals), everything is treated as function. If something take no arguments, () can be omitted.
+    // Constants: #{value}. Value can be integer, double, piece as byte representation followed by the symbol P, engine as booleanString followed by the symbol E
+    // Variables: $name, where name is the variable name, or anonymously using ${type: expr}, where type is the type of the expression, expr is an expression that evaluates to a number or piece.
+    // See the official documentation in GameVariable for expression syntax.
+    // Example: engine( and (ratio (#{0.4}, #{0.5}), any (lines, pairs (${radius - 1}, color))))
+    // The example means: in the engine, the fill ratio is between 40% and 50%, and there exists at least one line with at least (engine radius - 1) pairs of same-color adjacent blocks.
+    /**
+     * Compiles a string expression into an EnginePredicate.
+     * The expression language supports functions, constants, and variables as described in the class documentation.
+     * The top-level expression must be either an "equals" function or an "engine" function.
+     * @param expr the string expression to compile
+     * @return an EnginePredicate representing the compiled expression
+     * @throws IllegalArgumentException if the expression is invalid or cannot be compiled
+     */
+    private EnginePredicate compile(String expr) {
+        expr = expr.toLowerCase().trim();
+        // Check () balance
+        int balance = 0;
+        char[] charArray = expr.toCharArray();
+        for (int i = 0; i < charArray.length; i++) {
+            char c = charArray[i];
+            if (c == '(') balance++;
+            else if (c == ')') balance--;
+            if (balance < 0)
+                throw new IllegalArgumentException("Unmatched parentheses in expression " + expr + " at position " + i);
+        }
+        if (balance != 0)
+            throw new IllegalArgumentException("Unmatched parentheses in expression " + expr + " at end of expression");
+        // Check that there are no {} inside {}, and for each { immediately there is either # or $
+        boolean inCurly = false;
+        char prevChar = 0;
+        for (int i = 0; i < charArray.length; i++) {
+            char c = charArray[i];
+            if (c == '{') {
+                if (inCurly)
+                    throw new IllegalArgumentException("Nested curly braces in expression " + expr + " at position " + i);
+                inCurly = true;
+                if (prevChar != '#' && prevChar != '$') return null; // Not preceded by # or $
+            } else if (c == '}') {
+                if (!inCurly) return null; // Unmatched }
+                inCurly = false;
+            }
+            prevChar = c;
+        }
+        // If this starts with equals function, parse it directly
+        if (expr.startsWith("equals")) {
+            String iexpr = expr.substring(6).trim();
+            if (iexpr.startsWith("(") && iexpr.endsWith(")")) {
+                iexpr = expr.substring(1, iexpr.length() - 1).trim();
+            } else {
+                throw new IllegalArgumentException("Top level expression is not a legal function in expression " + expr);
+            }
+            // Find the comma that separates the two arguments
+            int commaIndex = iexpr.indexOf(',');
+            if (commaIndex == -1)
+                throw new IllegalArgumentException("Function 'equals' requires two arguments in expression " + expr);
+            String arg1 = iexpr.substring(0, commaIndex).trim();
+            String arg2 = iexpr.substring(commaIndex + 1).trim();
+            // Check arg1 type (constant, named variable, or expression variable)
+            Pair<Object, Class<?>> parsed1 = parseVariable(arg1);
+            Pair<Object, Class<?>> parsed2 = parseVariable(arg2);
+            if (!parsed1.getLast().equals(parsed2.getLast())) {
+                throw new IllegalArgumentException("Function 'equals' requires both arguments to be of the same type in expression " + expr);
+            } else if (parsed1.getLast().equals(Integer.class)) {
+                return enginePredicate("equals", new Object[]{(IntegerProvider) parsed1.getFirst(), (IntegerProvider) parsed2.getFirst()});
+            } else if (parsed1.getLast().equals(Double.class)) {
+                return enginePredicate("equals", new Object[]{(DoubleProvider) parsed1.getFirst(), (DoubleProvider) parsed2.getFirst()});
+            } else if (parsed1.getLast().equals(Piece.class)) {
+                return enginePredicate("equals", new Object[]{(PieceProvider) parsed1.getFirst(), (PieceProvider) parsed2.getFirst()});
+            } else if (parsed1.getLast().equals(HexEngine.class)) {
+                return enginePredicate("equals", new Object[]{(EngineProvider) parsed1.getFirst(), (EngineProvider) parsed2.getFirst()});
+            } else {
+                throw new IllegalArgumentException("Function 'equals' does not support arguments of type " + parsed1.getLast().getSimpleName() + " in expression " + expr);
+            }
+        } else if (expr.startsWith("engine")) {
+            // Remove the leading "engine" and () and parse the rest recursively
+            String iexpr = expr.substring(6).trim();
+            if (iexpr.startsWith("(") && iexpr.endsWith(")")) {
+                iexpr = iexpr.substring(1, iexpr.length() - 1).trim();
+                return compilerRecursive(iexpr);
+            } else {
+                throw new IllegalArgumentException("Top level expression is not a legal function in " + expr);
+            }
+        } else {
+            throw new IllegalArgumentException("Top level expression is not a legal function in " + expr);
+        }
+    }
+    private static EnginePredicate compilerRecursive(String expr){
+        return null; // TODO: Implement a full parser for the expression language described above
+    }
+
+    /**
+     * Parses a variable argument which can be a constant (#{...}), a named variable ($name), or an expression variable (${type: expr}).
+     *
+     * @param arg the argument string to parse
+     * @return a Pair containing the parsed provider (IntegerProvider, DoubleProvider, PieceProvider) and its corresponding Class type (Integer.class, Double.class, Piece.class)
+     * @throws IllegalArgumentException if the argument is invalid or the variable is undefined
+     */
+    private Pair<Object, Class<?>> parseVariable(String arg) {
+        Object provider; Class<?> clazz;
+        if (arg.startsWith("#{") && arg.endsWith("}")) {
+            String constStr = arg.substring(2, arg.length() - 1).trim();
+            provider = getIntegerConstant(constStr);
+            if (provider == null) {
+                provider = getDoubleConstant(constStr);
+            } else clazz = Double.class;
+            if (provider == null) {
+                provider = getPieceConstant(constStr);
+            } else clazz = Integer.class;
+            if (provider == null) {
+                provider = getEngineProvider(constStr);
+            } else clazz = Piece.class;
+            if (provider == null) {
+                provider = getBlockProvider(constStr);
+            } else clazz = HexEngine.class;
+            if (provider == null) {
+                throw new IllegalArgumentException("Invalid constant " + constStr + " expression");
+            } else clazz = Block.class;
+        } else if (arg.startsWith("${") && arg.endsWith("}")) {
+            String varExpr = arg.substring(2, arg.length() - 1).trim();
+            // Get type hint before the first colon
+            int colonIndex = varExpr.indexOf(':');
+            if (colonIndex == -1)
+                throw new IllegalArgumentException("Invalid variable " + varExpr + " expression");
+            String typeHint = varExpr.substring(0, colonIndex).trim().toLowerCase();
+            varExpr = varExpr.substring(colonIndex + 1).trim();
+            // Parse the variable expression
+            GameVariableSupplier<?> supplier;
+            try {
+                supplier = GameVariableSupplier.parse(varExpr);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid variable " + varExpr + " expression");
+            }
+            provider = switch (typeHint) {
+                case "int", "integer" -> (IntegerProvider) (s) -> {
+                    Object val = supplier.apply(s);
+                    if (val instanceof Integer i) return i;
+                    if (val instanceof Double d) return d.intValue();
+                    return null;
+                };
+                case "double", "float" -> (DoubleProvider) (s) -> {
+                    Object val = supplier.apply(s);
+                    if (val instanceof Double d) return d;
+                    if (val instanceof Integer i) return i.doubleValue();
+                    return null;
+                };
+                case "piece" -> (PieceProvider) (s) -> {
+                    Object val = supplier.apply(s);
+                    if (val instanceof Piece p) return p;
+                    return null;
+                };
+                default ->
+                        throw new IllegalArgumentException("Invalid type hint " + typeHint + " in variable " + varExpr + " expression");
+            };
+            clazz = switch (typeHint) {
+                case "int", "integer" -> Integer.class;
+                case "double", "float" -> Double.class;
+                case "piece" -> Piece.class;
+                default -> throw new IllegalArgumentException("Invalid type hint " + typeHint + " in variable " + varExpr + " expression");
+            };
+        } else if (arg.startsWith("$")) {
+            String varName = arg.substring(1).trim();
+            VariableAchievement.AchievementVariable<?> achievementVariable = variables.get(varName);
+            if (achievementVariable == null)
+                throw new IllegalArgumentException("Undefined variable " + varName);
+            // Check type. Here they are named, so we can directly use the cached version
+            clazz = achievementVariable.type();
+            if (clazz.equals(Integer.class)) {
+                provider = (IntegerProvider) (s) -> (Integer) achievementVariable.get();
+            } else if (clazz.equals(Double.class)) {
+                provider = (DoubleProvider) (s) -> (Double) achievementVariable.get();
+            } else if (clazz.equals(Piece.class)) {
+                provider = (PieceProvider) (s) -> (Piece) achievementVariable.get();
+            } else {
+                throw new IllegalArgumentException("Unsupported variable type " + achievementVariable.type().getSimpleName() + " for variable " + varName);
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid argument");
+        }
+        return new Pair<>(provider, clazz);
     }
 }
