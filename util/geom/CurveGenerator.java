@@ -3,7 +3,6 @@ package util.geom;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,10 +15,11 @@ public class CurveGenerator {
         final Color colorA = new Color(255, 255, 255, 191);
         final Color pointColor = new Color(255, 51, 51);
         final Color pointColorA = new Color(255, 153, 0);
+        final Color pointCacheColor = new Color(204, 125, 188);
         final Color backgroundColor = new Color(255, 255, 0,128);
         final String[] commands = new String[]{
                 "add", "set", "sp", "sc", "ins", "mv", "mx", "my", "mp", "mc", "sm", "st", "div", "dva",
-                "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc",
+                "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc", "mov", "regp",
                 "rd", "rm", "rml", "rmf", "rma", "r",
                 "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo",
@@ -29,6 +29,8 @@ public class CurveGenerator {
         };
         final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
         final ArrayList<MutableCurvedShape> pastShapesA = new ArrayList<>();
+        final double[][] pointCache = new double[][] {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
+                                                      {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}; // max 18 points
         pastShapes.add(new MutableCurvedShape());
         pastShapesA.add(new MutableCurvedShape());
         final Stack<CurvedShape> backgroundShapes = new Stack<>();
@@ -104,6 +106,28 @@ public class CurveGenerator {
                             double[] prevPoint = arrayA[i - 1];
                             g2d.drawLine((int) point[0], (int) point[1], (int) prevPoint[2], (int) prevPoint[3]);
                         }
+                    }
+                }
+                if (pointCache != null && pointCache.length > 0) {
+                    double[][] transformedPointCache = new double[pointCache.length][2];
+                    // Scale and shift points
+                    for (int i = 0; i < pointCache.length; i++) {
+                        transformedPointCache[i][0] = pointCache[i][0] * scale + w / 2.0;
+                        transformedPointCache[i][1] = pointCache[i][1] * scale + h / 2.0;
+                    }
+                    double[] zero = new double[]{w / 2.0, h / 2.0};
+                    // Draw points
+                    g2d.setColor(pointCacheColor);
+                    for (double[] point : transformedPointCache) {
+                        if (Math.abs(point[0] - zero[0]) < 0.01 && Math.abs(point[1] - zero[1]) < 0.01) continue;
+                        g2d.drawOval((int) (point[0] - 8), (int) (point[1] - 8), 16, 16);
+                    }
+                    // Write number next to each point
+                    for (int i = 0; i < transformedPointCache.length; i++) {
+                        double[] point = transformedPointCache[i];
+                        if (Math.abs(point[0] - zero[0]) < 0.01 && Math.abs(point[1] - zero[1]) < 0.01) continue;
+                        String str = Integer.toString(i);
+                        g2d.drawString(str, (int) point[0] - 4 * (str.length()), (int) point[1] + 4);
                     }
                 }
                 if (shape != null) {
@@ -239,6 +263,16 @@ public class CurveGenerator {
                     } else {
                         System.out.println("In O register: Ordinary Shape Register");
                     }
+                } else if (line.equals("regp")){
+                    System.out.println("Point Registers:");
+                    for (int i = 0; i < pointCache.length; i++) {
+                        System.out.print("R" + i + ": ");
+                        if (Math.abs(pointCache[i][0]) < 0.0001 && Math.abs(pointCache[i][1]) < 0.0001) {
+                            System.out.println("unused");
+                        } else {
+                            System.out.println("(" + pointCache[i][0] + ", " + pointCache[i][1] + ")");
+                        }
+                    }
                 }
                 else if (line.equals("help")) {
                     System.out.println("Commands:");
@@ -253,6 +287,7 @@ public class CurveGenerator {
                     System.out.println("  my dy - Moves all points by (0, dy)");
                     System.out.println("  mp index dx dy - Moves the point at index by (dx, dy)");
                     System.out.println("  mc index dx dy - Moves the control point at index by (dx, dy)");
+                    System.out.println("  mov org dest - Set the point at dest to the coordinates of the point at org, including control point. To refer to a point, use (a/o/)(p/c) index for a point or control point in the A or O register, or r index for a point in the point registers");
                     System.out.println("  sm index - Smoothens the point at index with default position 0.5");
                     System.out.println("  sm index pos - Smoothens the point at index with position pos (0 = straight, 1 = full curve)");
                     System.out.println("  sma - Smoothens all points with default position 0.5");
@@ -303,6 +338,7 @@ public class CurveGenerator {
                     System.out.println("  o - Switch to O register");
                     System.out.println("  a - Switch to A register");
                     System.out.println("  reg - Show which register is currently active");
+                    System.out.println("  regp - Show the point registers");
                     System.out.println("  exit - Exits the program");
                     System.out.println("  quit - Quits the program");
                     System.out.println("  sysinfo - Display system information");
@@ -323,6 +359,7 @@ public class CurveGenerator {
                             case "my"   -> "my dy - Moves all points by (0, dy)";
                             case "mp"   -> "mp index dx dy - Moves the point at index by (dx, dy)";
                             case "mc"   -> "mc index dx dy - Moves the control point at index by (dx, dy)";
+                            case "mov"  -> "mov org dest - Set the point at dest to the coordinates of the point at org, including control point. To refer to a point, use (a/o/)(p/c) index for a point or control point in the A or O register, or r index for a point in the point registers";
                             case "sm"   -> "sm index - Smoothens the point at index with default position 0.5\nsm index pos - Smoothens the point at index with position pos (0 = straight, 1 = full curve)";
                             case "sma"  -> "sma - Smoothens all points with default position 0.5";
                             case "st"   -> "st index - Straightens the point at index with default factor 0.5\nst index factor - Straightens the point at index with factor (0 = no change, 1 = fully straight)";
@@ -367,6 +404,7 @@ public class CurveGenerator {
                             case "o"    -> "o - Switch to O register";
                             case "a"    -> "a - Switch to A register";
                             case "reg"  -> "reg - Show which register is currently active";
+                            case "regp" -> "regp - Show the point registers";
                             case "exit" -> "exit - Exits the program";
                             case "quit" -> "quit - Quits the program";
                             case "sysinfo" -> "sysinfo - Display system information";
@@ -378,8 +416,8 @@ public class CurveGenerator {
                                     "Use 'help section' to see commands in each section\n" +
                                     "Sections: move, modify, shape, transform, refine, background, flow, output, system, register";
                             // Sectional help
-                            case "move" -> "move commands: mv, mx, my, mp, mc";
-                            case "modify" -> "modify commands: set, add, sp, sc, ins, rm, rml, rmf, rma";
+                            case "move" -> "move commands: mv, mx, my, mp, mc, mov";
+                            case "modify" -> "modify commands: set, add, sp, sc, ins, rm, rml, rmf, rma, mov";
                             case "shape" -> "shape commands: add, ins, rm, make, circle, square, rma";
                             case "transform" -> "transform commands: scl, sxy, scb, ssb, rot, mrx, mry, mrc, rd";
                             case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg, rd";
@@ -387,13 +425,17 @@ public class CurveGenerator {
                             case "flow" -> "undo/redo commands: undo, redo; repeat: r";
                             case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb";
                             case "system" -> "system commands: sysinfo, exit, quit, help, clear";
-                            case "register" -> "register commands: reg, o, a, oa, ao, s";
+                            case "register" -> "register commands: reg, regp, o, a, oa, ao, s, mov";
                             default -> "Unknown command";
                         });
                     } else {
                         System.out.println("Invalid number of arguments. Usage: help command");
                     }
                 } else if (line.equals("sysinfo")){
+                    int rc = 0;
+                    for (double[] pt : pointCache){
+                        if (Math.abs(pt[0]) > 0.001 || Math.abs(pt[1]) > 0.001) rc++;
+                    }
                     System.out.println("System Information:");
                     System.out.println("  Software:     \u001B[1mCurve Generator\u001B[0m (Standalone)");
                     System.out.println("  Package:      \u001B[1mHappyHex\u001B[0m (since v2.0.0) - util.geom - CurveGenerator");
@@ -405,11 +447,17 @@ public class CurveGenerator {
                     System.out.println("  Window Scale: \u001B[4m" + String.format("%.2f", boardScale.get()) + "x\u001B[0m");
                     System.out.println("  Processing:   Single Shape-Processing Thread, Event Dispatch Thread for UI");
                     System.out.println("  Terminal:     Standard Input/Output \u001B[1mEnabled\u001B[0m");
-                    System.out.println("  Registers:    \u001B[4m2\u001B[0m/2 (\u001B[1m\u001B[4mO\u001B[0mrdinary and \u001B[1m\u001B[4mA\u001B[0muxiliary)");
-                    System.out.println("                These are independent shape registers that can be switched between with commands.");
-                    System.out.println("                Each have their individual undo/redo history, and can handle read and modification operations.");
-                    System.out.println("                O register: \u001B[4m" + s.get().size() + "\u001B[0m points \u001B[4m" + (pastShapes.size() - undoIndex.get() - 1) + "\u001B[0m history \u001B[4m" + undoIndex.get() + "\u001B[0m undone");
-                    System.out.println("                A register: \u001B[4m" + a.get().size() + "\u001B[0m points \u001B[4m" + (pastShapesA.size() - undoIndexA.get()-1) + "\u001B[0m history \u001B[4m" + undoIndexA.get()+ "\u001B[0m undone");
+                    System.out.println("  Registers:    \u001B[4m2\u001B[0m/2 Shape Registers (\u001B[1m\u001B[4mO\u001B[0mrdinary and \u001B[1m\u001B[4mA\u001B[0muxiliary) | \u001B[4m" + rc + "\u001B[0m/" + pointCache.length + " Cached Points");
+                    System.out.println("                \u001B[1mShape Registers\u001B[0m: (use \u001B[1ms | oa | ao\u001B[0m to switch, \u001B[1mreg\u001B[0m to view info)");
+                    System.out.println("                  These are independent shape registers that can be switched between with commands.");
+                    System.out.println("                  Each have their individual undo/redo history, and can handle read and modification operations.");
+                    System.out.println("                  O register: \u001B[4m" + s.get().size() + "\u001B[0m points \u001B[4m" + (pastShapes.size() - undoIndex.get() - 1) + "\u001B[0m history \u001B[4m" + undoIndex.get() + "\u001B[0m undone");
+                    System.out.println("                  A register: \u001B[4m" + a.get().size() + "\u001B[0m points \u001B[4m" + (pastShapesA.size() - undoIndexA.get()-1) + "\u001B[0m history \u001B[4m" + undoIndexA.get()+ "\u001B[0m undone");
+                    System.out.println("                \u001B[1mPoint Registers\u001B[0m: (use \u001B[1mregp\u001B[0m to view info)");
+                    System.out.println("                  These are a set of cached points that can be used to temporarily store points for use in commands.");
+                    System.out.println("                  There is only one set of point registers, shared between both shape registers.");
+                    System.out.println("                  There is no differentiation between point and control point, and there is no history tracking.");
+                    System.out.println("                  Points in the point registers can be used in commands by referring to them with 'r index'");
                     System.out.println("  Background:   \u001B[4m" + backgroundShapes.size() + "\u001B[0m/Unlimited (Stack, readonly when in stack)");
                     System.out.println("                This is a stack of background shapes that can be pushed to and pulled from.");
                     System.out.println("                These shapes are drawn behind the current shape, and do not affect the current shape.");
@@ -955,6 +1003,203 @@ public class CurveGenerator {
                         }
                     } else {
                         System.out.println("Invalid number of arguments. Usage: pp index");
+                    }
+                } else if (line.startsWith("mov")){
+                    // mov org des, origin and destination starts with (o/a)p (point), (o/a)c (control), or r (one of the point registers)
+                    String[] parts = splitArgs(line, 3);
+                    if (parts.length == 2) {
+                        String org = parts[0];
+                        String des = parts[1];
+                        boolean useA = ARegister.get(); boolean control = false; boolean bypass = false; int idx;
+                        double[] orgPoint;
+                        if (org.startsWith("op")) {
+                            // Get index
+                            int index = Integer.parseInt(org.substring(2));
+                            if (index < 0 || index >= s.get().size()) {
+                                System.out.println("Index out of bounds for origin.");
+                                continue;
+                            } else {
+                                idx = index;
+                                useA = false;
+                            }
+                        } else if (org.startsWith("p")) {
+                            // Get index
+                            int index = Integer.parseInt(org.substring(1));
+                            if (index < 0 || index >= shapeObj.size()) {
+                                System.out.println("Index out of bounds for origin.");
+                                continue;
+                            } else {
+                                idx = index;
+                            }
+                        } else if (org.startsWith("ap")) {
+                            // Get index
+                            int index = Integer.parseInt(org.substring(2));
+                            if (index < 0 || index >= a.get().size()) {
+                                System.out.println("Index out of bounds for origin.");
+                                continue;
+                            } else {
+                                idx = index;
+                                useA = true;
+                            }
+                        } else if (org.startsWith("oc")) {
+                            // Get index
+                            int index = Integer.parseInt(org.substring(2));
+                            if (index < 0 || index >= s.get().size()) {
+                                System.out.println("Index out of bounds for origin.");
+                                continue;
+                            } else {
+                                idx = index;
+                                useA = false;
+                                control = true;
+                            }
+                        } else if (org.startsWith("c")) {
+                            // Get index
+                            int index = Integer.parseInt(org.substring(1));
+                            if (index < 0 || index >= shapeObj.size()) {
+                                System.out.println("Index out of bounds for origin.");
+                                continue;
+                            } else {
+                                idx = index;
+                                control = true;
+                            }
+                        } else if (org.startsWith("ac")) {
+                            // Get index
+                            int index = Integer.parseInt(org.substring(2));
+                            if (index < 0 || index >= a.get().size()) {
+                                System.out.println("Index out of bounds for origin.");
+                                continue;
+                            } else {
+                                idx = index;
+                                useA = true;
+                                control = true;
+                            }
+                        } else if (org.startsWith("r")) {
+                            // Get index
+                            int index = Integer.parseInt(org.substring(1));
+                            if (index < 0 || index >= pointCache.length) {
+                                System.out.println("Index out of bounds for origin.");
+                                continue;
+                            } else {
+                                idx = index;
+                                bypass = true;
+                            }
+                        } else {
+                            System.out.println("Invalid origin format. Must start with (o/a/)p, (o/a/)c.");
+                            continue;
+                        }
+                        if (!bypass) {
+                            try {
+                                if (useA) {
+                                    orgPoint = a.get().toArray()[idx];
+                                } else {
+                                    orgPoint = s.get().toArray()[idx];
+                                }
+                            } catch (Exception e) {
+                                System.out.println("Error retrieving origin point: " + e.getMessage());
+                                continue;
+                            }
+                            if (control) {
+                                orgPoint = new double[]{orgPoint[2], orgPoint[3]};
+                            } else {
+                                orgPoint = new double[]{orgPoint[0], orgPoint[1]};
+                            }
+                        } else {
+                            orgPoint = pointCache[idx];
+                        }
+                        try {
+                            // Reset
+                            if (des.startsWith("op")) {
+                                // Get index
+                                int index = Integer.parseInt(des.substring(2));
+                                if (index < 0 || index >= s.get().size()) {
+                                    System.out.println("Index out of bounds for destination.");
+                                } else {
+                                    // Set point
+                                    double[][] arr = s.get().toArray();
+                                    s.get().setPoint(index, orgPoint[0], orgPoint[1], arr[index][2], arr[index][3]);
+                                    addAndBreakUndoChain(s.get(), undoIndex, pastShapes);
+                                    p.repaint();
+                                }
+                            } else if (des.startsWith("p")) {
+                                // Get index
+                                int index = Integer.parseInt(des.substring(1));
+                                if (index < 0 || index >= shapeObj.size()) {
+                                    System.out.println("Index out of bounds for destination.");
+                                } else {
+                                    // Set point
+                                    double[][] arr = shapeObj.toArray();
+                                    shapeObj.setPoint(index, orgPoint[0], orgPoint[1], arr[index][2], arr[index][3]);
+                                    addAndBreakUndoChain(shapeObj, undoRef, pastRef);
+                                    p.repaint();
+                                }
+                            } else if (des.startsWith("ap")) {
+                                // Get index
+                                int index = Integer.parseInt(des.substring(2));
+                                if (index < 0 || index >= a.get().size()) {
+                                    System.out.println("Index out of bounds for destination.");
+                                } else {
+                                    // Set point
+                                    double[][] arr = a.get().toArray();
+                                    a.get().setPoint(index, orgPoint[0], orgPoint[1], arr[index][2], arr[index][3]);
+                                    addAndBreakUndoChain(a.get(), undoIndexA, pastShapesA);
+                                    p.repaint();
+                                }
+                            } else if (des.startsWith("oc")) {
+                                // Get index
+                                int index = Integer.parseInt(des.substring(2));
+                                if (index < 0 || index >= s.get().size()) {
+                                    System.out.println("Index out of bounds for destination.");
+                                } else {
+                                    // Set control
+                                    double[][] arr = s.get().toArray();
+                                    s.get().setPoint(index, arr[index][0], arr[index][1], orgPoint[0], orgPoint[1]);
+                                    addAndBreakUndoChain(s.get(), undoIndex, pastShapes);
+                                    p.repaint();
+                                }
+                            } else if (des.startsWith("c")) {
+                                // Get index
+                                int index = Integer.parseInt(des.substring(1));
+                                if (index < 0 || index >= shapeObj.size()) {
+                                    System.out.println("Index out of bounds for destination.");
+                                } else {
+                                    // Set control
+                                    double[][] arr = shapeObj.toArray();
+                                    shapeObj.setPoint(index, arr[index][0], arr[index][1], orgPoint[0], orgPoint[1]);
+                                    addAndBreakUndoChain(shapeObj, undoRef, pastRef);
+                                    p.repaint();
+                                }
+                            } else if (des.startsWith("ac")) {
+                                // Get index
+                                int index = Integer.parseInt(des.substring(2));
+                                if (index < 0 || index >= a.get().size()) {
+                                    System.out.println("Index out of bounds for destination.");
+                                } else {
+                                    // Set control
+                                    double[][] arr = a.get().toArray();
+                                    a.get().setPoint(index, arr[index][0], arr[index][1], orgPoint[0], orgPoint[1]);
+                                    addAndBreakUndoChain(a.get(), undoIndexA, pastShapesA);
+                                    p.repaint();
+                                }
+                            } else if (des.startsWith("r")) {
+                                // Get index
+                                int index = Integer.parseInt(des.substring(1));
+                                if (index < 0 || index >= pointCache.length) {
+                                    System.out.println("Index out of bounds for destination.");
+                                } else {
+                                    // Set point in cache
+                                    pointCache[index] = new double[]{orgPoint[0], orgPoint[1]};
+                                    p.repaint();
+                                }
+                            } else {
+                                System.out.println("Invalid destination format. Must start with (o/a/)p, (o/a/)c.");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number format.");
+                        } catch (IndexOutOfBoundsException e) {
+                            System.out.println("Index out of bounds.");
+                        }
+                    } else {
+                        System.out.println("Invalid number of arguments. Usage: mov origin destination");
                     }
                 } else if (line.equals("json")) {
                     CurvedShape shape = shapeObj.toCurvedShape();
