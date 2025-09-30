@@ -70,14 +70,18 @@ public class VariableAchievement implements GameAchievementTemplate, JsonConvert
     public static class AchievementVariable<T> {
         private final String symbol;
         private final GameVariableSupplier<T> supplier;
+        private final Class<T> type;
         private T value;
         /**
          * Constructs an AchievementVariable with the given supplier and symbol.
          * The initial value is set to null and will be updated when get(GameState) is called.
          * @param supplier the supplier function to compute the variable's value based on the game state
+         * @param type the class type of the variable
+         * @param symbol the symbol representing the variable
          */
-        public AchievementVariable(GameVariableSupplier<T> supplier, String symbol) {
+        public AchievementVariable(GameVariableSupplier<T> supplier, Class<T> type, String symbol) {
             this.supplier = supplier;
+            this.type = type;
             this.symbol = symbol;
             this.value = null;
         }
@@ -112,6 +116,13 @@ public class VariableAchievement implements GameAchievementTemplate, JsonConvert
         public String getSymbol() {
             return symbol;
         }
+        /**
+         * Returns the type of the variable.
+         * @return the class type of the variable
+         */
+        public Class<T> type() {
+            return type;
+        }
     }
 
 
@@ -140,7 +151,7 @@ public class VariableAchievement implements GameAchievementTemplate, JsonConvert
         this.name = name;
         this.description = description;
         this.icon = icon;
-        this.variable = new AchievementVariable<Number>(variableSupplier, symbol);
+        this.variable = new AchievementVariable<Number>(variableSupplier, Number.class, symbol);
     }
     /**
      * {@inheritDoc}
