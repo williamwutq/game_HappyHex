@@ -246,8 +246,7 @@ public final class LaunchEssentials {
         try {
             GameAchievement.loadTemplate();
         } catch (IOException e) {
-            GameAchievement.shutdownAchievementSystem();
-            System.err.println(GameTime.generateSimpleTime() + " Achievement: Achievement System cannot be initialized due to template loading failure because " + e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " Achievement: Achievement System cannot be properly initialized due to template loading failure because " + e.getMessage());
         }
         GameAchievement.initializeGameStateSupplier(GameEssentials::getGameState);
         // Debug: prints out all templates
