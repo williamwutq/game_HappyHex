@@ -650,6 +650,69 @@
     },
     {
       "type": "QueueBasedAchievement",
+      "name": "Strange Stable Sign",
+      "description": "Have a set of four triangular pieces in the queue at the same time",
+      "requiredLeastLength": 3,
+      "requiredMostLength": 127,
+      "requiredPieces": [13, 88, 13, 88],
+      "icon": [
+        {
+          "color": "#FFCC00",
+          "shape": [
+            {"x":0,"y":-0.64,"cx":-0.35,"cy":-0.04},
+            {"x":-0.69,"y":0.56,"cx":0,"cy":0.56},
+            {"x":0.69,"y":0.56,"cx":0.35,"cy":-0.04}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "QueueBasedAchievement",
+      "name": "Rhombus Bus",
+      "description": "Have a set of three rhombus in the queue at the same time",
+      "requiredLeastLength": 3,
+      "requiredMostLength": 127,
+      "requiredPieces": [27, 120, 90],
+      "icon": [
+        {
+          "color": "#DD0000",
+          "shape": [
+            {"x":0.71,"y":0.5,"cx":0.35,"cy":0.71},
+            {"x":0,"y":0.92,"cx":-0.35,"cy":0.71},
+            {"x":-0.71,"y":0.5,"cx":-0.35,"cy":0.29},
+            {"x":0,"y":0.08,"cx":0.35,"cy":0.29}
+          ]
+        },
+        {
+          "color": "#00DD00",
+          "shape": [
+            {"x":-0.79,"y":0.35,"cx":-0.79,"cy":-0.06},
+            {"x":-0.79,"y":-0.47,"cx":-0.43,"cy":-0.67},
+            {"x":-0.06,"y":-0.87,"cx":-0.06,"cy":-0.45},
+            {"x":-0.07,"y":-0.04,"cx":-0.43,"cy":0.16}
+          ]
+        },
+        {
+          "color": "#0000DD",
+          "shape": [
+            {"x":0.79,"y":0.35,"cx":0.79,"cy":-0.06},
+            {"x":0.79,"y":-0.47,"cx":0.43,"cy":-0.67},
+            {"x":0.06,"y":-0.87,"cx":0.06,"cy":-0.45},
+            {"x":0.07,"y":-0.04,"cx":0.43,"cy":0.16}
+          ]
+        },
+        {
+          "color": "#FFFFFF",
+          "shape": [
+            {"x":0,"y":-0.8,"cx":0.26,"cy":-0.8},
+            {"x":0.52,"y":-0.5,"cx":0.0,"cy":-0.8},
+            {"x":-0.52,"y":-0.5,"cx":-0.26,"cy":-0.8}
+          ]
+        }
+      ]
+    },
+    {
+      "type": "QueueBasedAchievement",
       "name": "Big Block Party",
       "description": "Have three big blocks in the queue at the same time",
       "requiredLeastLength": 3,
