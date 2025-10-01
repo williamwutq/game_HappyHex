@@ -1621,12 +1621,7 @@ public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
      */
     public HexEngine clone(){
         HexEngine newEngine;
-        try{
-            newEngine = (HexEngine) super.clone();
-            newEngine.radius = this.radius;
-        } catch (CloneNotSupportedException e) {
-            newEngine = new HexEngine(this.radius);
-        }
+        newEngine = new HexEngine(this.radius);
         for(int i = 0; i < this.length(); i ++){
             newEngine.blocks[i] = this.blocks[i].clone();
         }
