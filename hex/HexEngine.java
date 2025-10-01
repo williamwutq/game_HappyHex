@@ -25,6 +25,11 @@
 package hex;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.function.BiPredicate;
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * The {@code HexEngine} class implements the {@link HexGrid} interface and provides a
@@ -97,7 +102,7 @@ import java.util.ArrayList;
  * @author William Wu
  * @version 2.0
  */
-public class HexEngine implements HexGrid{
+public class HexEngine implements HexGrid, Iterable<Block>, Cloneable {
     private static final double logBaseEOf2 = Math.log(2);
     private int radius;
     private Block[] blocks;
@@ -263,6 +268,57 @@ public class HexEngine implements HexGrid{
         return null;
     }
     /**
+     * Returns a predicate that tests whether a block at a given hex coordinate is within the grid's range.
+     * This predicate can be used to filter or evaluate blocks based on their position.
+     *
+     * @return a predicate that returns true if the block at the given hex coordinate is within range
+     * @since 2.0
+     */
+    public Predicate<Hex> inRangePredicate(){
+        return hex -> hex.inRange(radius);
+    }
+    /**
+     * Returns a predicate that tests whether a block at a given hex coordinate is occupied.
+     * This predicate can be used to filter or evaluate blocks based on their state.
+     *
+     * @return a predicate that returns true if the block at the given hex coordinate is occupied
+     * @since 2.0
+     */
+    public Predicate<Hex> statePredicate(){
+        return this::getState;
+    }
+    /**
+     * Retrieves the state of a {@link Block} at a specific grid coordinate.
+     * This performs a {@link #search binary search} to obtain the targeting block.
+     *
+     * @param i I coordinate
+     * @param k K coordinate
+     * @return the state of the block (true = occupied), or false if out of range
+     * @since 2.0
+     */
+    public boolean getState(int i, int k){
+        Block block = getBlock(i, k);
+        if(block != null){
+            return block.getState();
+        }
+        return false;
+    }
+    /**
+     * Retrieves the state of a {@link Block} at the given hex coordinate.
+     * This performs a {@link #search binary search} to obtain the targeting block.
+     *
+     * @param hex the hex coordinate
+     * @return the state of the block (true = occupied), or false if out of range
+     * @since 2.0
+     */
+    public boolean getState(Hex hex){
+        Block block = getBlock(hex);
+        if(block != null){
+            return block.getState();
+        }
+        return false;
+    }
+    /**
      * Retrieves the {@link Block} at the specified array index.
      * @param index the block array index
      * @return the {@code Block} at the given index
@@ -389,6 +445,282 @@ public class HexEngine implements HexGrid{
         }
     }
     /**
+     * Return an iterator over all blocks in the grid. This is optimized for performance.
+     * <p>
+     * The iterator traverses the blocks in the order they are stored in the internal array, as sorted by
+     * increasing I coordinate and then K coordinate.
+     * @return an iterator over the blocks in the grid
+     * @since 2.0
+     * @see #blockIterator()
+     */
+    public Iterator<Block> iterator() {
+        return new Iterator<Block>() {
+            int currentIndex = 0;
+            @Override
+            public boolean hasNext() {
+                return currentIndex < length();
+            }
+            @Override
+            public Block next() {
+                return blocks[currentIndex++];
+            }
+        };
+    }
+    /**
+     * Return an iterator over all blocks in the grid. This is optimized for performance.
+     * <p>
+     * The iterator traverses the blocks in the order they are stored in the internal array, as sorted by
+     * increasing I coordinate and then K coordinate.
+     * @return an iterator over the blocks in the grid
+     * @since 2.0
+     */
+    public Iterator<Block> blockIterator() {
+        return iterator();
+    }
+    /**
+     * Returns an iterable over lines of blocks along the I axis.
+     * Each iteration returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest I) to the bottommost line (largest I).
+     * <p>
+     * This iterable is useful for operations that need to process or analyze blocks line by line along the I axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterable over lines of blocks along the I axis
+     * @since 2.0
+     * @see #iteratorI()
+     * @see #eliminateI
+     * @see #countEliminateI
+     */
+    public Iterable<Block[]> lineIterableI() {
+        return this::iteratorI;
+    }
+    /**
+     * Return an iterator that iterates over lines of blocks along the I axis.
+     * Each call to {@code next()} returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest I) to the bottommost line (largest I).
+     * <p>
+     * This iterator is useful for operations that need to process or analyze blocks line by line along the I axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterator over lines of blocks along the I axis
+     * @since 2.0
+     * @see #eliminateI
+     * @see #countEliminateI
+     */
+    public Iterator<Block[]> iteratorI() {
+        return new Iterator<Block[]>() {
+            int currentLine = 0;
+            final int maxLines = radius * 2 - 1;
+            final int constTerm = radius * (radius * 3 - 1) / 2;
+            @Override
+            public boolean hasNext() {
+                return currentLine < maxLines;
+            }
+            @Override
+            public Block[] next() {
+                if (currentLine >= maxLines) {
+                    throw new IndexOutOfBoundsException("No more I lines");
+                }
+                Block[] line;
+                int index;
+                if (currentLine < radius) {
+                    // This is equals to the first loop in eliminateI
+                    line = new Block[radius + currentLine];
+                    index = currentLine * (radius * 2 + currentLine - 1) / 2;
+                    System.arraycopy(blocks, index, line, 0, radius + currentLine);
+                } else {
+                    // This is equals to the second loop in eliminateI
+                    int i = maxLines - currentLine - 1;
+                    line = new Block[radius + i];
+                    index = constTerm + (radius - i - 2) * (radius * 3 - 1 + i) / 2;
+                    System.arraycopy(blocks, index, line, 0, line.length);
+                }
+                currentLine++;
+                return line;
+            }
+        };
+    }
+    /**
+     * Returns an iterable over lines of blocks along the J axis.
+     * Each iteration returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest J) to the bottommost line (largest J).
+     * <p>
+     * This iterable is useful for operations that need to process or analyze blocks line by line along the J axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterable over lines of blocks along the J axis
+     * @since 2.0
+     * @see #iteratorJ()
+     * @see #eliminateJ
+     * @see #countEliminateJ
+     */
+    public Iterable<Block[]> lineIterableJ() {
+        return this::iteratorJ;
+    }
+    /**
+     * Return an iterator that iterates over lines of blocks along the J axis.
+     * Each call to {@code next()} returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest J) to the bottommost line (largest J).
+     * <p>
+     * This iterator is useful for operations that need to process or analyze blocks line by line along the J axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterator over lines of blocks along the J axis
+     * @since 2.0
+     * @see #eliminateJ
+     * @see #countEliminateJ
+     */
+    public Iterator<Block[]> iteratorJ() {
+        return new Iterator<Block[]>() {
+            int currentLine = 1 - radius;
+            @Override
+            public boolean hasNext() {
+                return currentLine < radius;
+            }
+            @Override
+            public Block[] next() {
+                if (currentLine >= radius) {
+                    throw new IndexOutOfBoundsException("No more J lines");
+                }
+                Block[] line;
+                int index = 0; int idx = 0;
+                if (currentLine > 0) {
+                    // This is equals to the first loop in eliminateJ
+                    line = new Block[radius * 2 - currentLine - 1];
+                    index = currentLine;
+                    for (int c = 1; c < radius; c++)
+                    {
+                        line[idx++] = blocks[index];
+                        index += radius + c;
+                    }
+                    for (int c = 0; c < radius - currentLine; c++)
+                    {
+                        line[idx++] = blocks[index];
+                        index += 2 * radius - c - 1;
+                    }
+                } else {
+                    // This is equals to the second loop in eliminateJ
+                    int r = -currentLine;
+                    index = radius * r + r * (r - 1) / 2;
+                    line = new Block[radius * 2 + currentLine - 1];
+                    for (int c = 1; c < radius - r; c++){
+                        line[idx++] = blocks[index];
+                        index += radius + c + r;
+                    }
+                    for (int c = 0; c < radius; c++){
+                        line[idx++] = blocks[index];
+                        index += 2 * radius - c - 1;
+                    }
+                }
+                currentLine++;
+                return line;
+            }
+        };
+    }
+    /**
+     * Returns an iterable over lines of blocks along the K axis.
+     * Each iteration returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest K) to the bottommost line (largest K).
+     * <p>
+     * This iterable is useful for operations that need to process or analyze blocks line by line along the K axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterable over lines of blocks along the K axis
+     * @since 2.0
+     * @see #iteratorK()
+     * @see #eliminateK
+     * @see #countEliminateK
+     */
+    public Iterable<Block[]> lineIterableK() {
+        return this::iteratorK;
+    }
+    /**
+     * Return an iterator that iterates over lines of blocks along the K axis.
+     * Each call to {@code next()} returns an array of {@link Block}s representing one line.
+     * The lines are returned in order from the topmost line (smallest K) to the bottommost line (largest K).
+     * <p>
+     * This iterator is useful for operations that need to process or analyze blocks line by line along the K axis,
+     * such as rendering, line elimination, or game logic that depends on row-based interactions.
+     * <p>
+     * The number of lines returned is {@code radius * 2 - 1}, with each line containing a varying number of blocks
+     * depending on its position in the hexagonal grid.
+     * @return an iterator over lines of blocks along the K axis
+     * @since 2.0
+     * @see #eliminateK
+     * @see #countEliminateK
+     */
+    public Iterator<Block[]> iteratorK() {
+        return new Iterator<Block[]>() {
+            int currentLine = 0;
+            final int maxLines = radius * 2 - 1;
+            @Override
+            public boolean hasNext() {
+                return currentLine < maxLines;
+            }
+
+            @Override
+            public Block[] next() {
+                if (currentLine >= maxLines) {
+                    throw new IndexOutOfBoundsException("No more K lines");
+                }
+                Block[] line;
+                int index = 0;
+                int idx = 0;
+                if (currentLine < radius) {
+                    // This is equals to the first loop in eliminateK
+                    line = new Block[radius + currentLine];
+                    index = currentLine;
+                    for (int c = 0; c < radius - 1; c++){
+                        line[idx++] = blocks[index];
+                        index += radius + c;
+                    }
+                    for (int c = 0; c <= currentLine; c++){
+                        line[idx++] = blocks[index];
+                        index += 2 * radius - c - 2;
+                    }
+                } else {
+                    // This is equals to the second loop in eliminateK
+                    int r = currentLine - radius + 2;
+                    index = radius * r + (r - 1) * r / 2 - 1;
+                    line = new Block[radius * 2 - r];
+                    for (int c = r; c < radius; c++) {
+                        line[idx++] = blocks[index];
+                        index += radius + c - 1;
+                    }
+                    for (int c = radius - 1; c >= 0; c--) {
+                        line[idx++] = blocks[index];
+                        index += radius + c - 1;
+                    }
+                }
+                currentLine++;
+                return line;
+            }
+        };
+    }
+
+    /**
+     * Returns a predicate that tests whether the {@code other} grid can be added to this grid
+     * at a given origin without overlap or out-of-bounds errors.
+     *
+     * @return a predicate that returns true if placement is valid
+     * @see #checkAdd
+     * @see #add
+     * @since 2.0
+     */
+    public BiPredicate<Hex, HexGrid> canAddPredicate(){
+        return this::checkAdd;
+    }
+    /**
      * Checks whether the {@code other} grid can be added to this grid
      * at the given {@code origin} without overlap or out-of-bounds errors.
      *
@@ -473,6 +805,18 @@ public class HexEngine implements HexGrid{
         }
         // Return
         return positions;
+    }
+    /**
+     * Returns a predicate that tests whether there is any valid position where {@code other} grid can be added.
+     * This predicate can be used to quickly determine if addition is possible without needing to find all positions.
+     *
+     * @return a predicate that returns true if there is at least one valid position for addition
+     * @see #checkPositions
+     * @see #checkAdd
+     * @since 2.0
+     */
+    public Predicate<HexGrid> anyAddablePredicate(){
+        return other -> !checkPositions(other).isEmpty();
     }
     /**
      * Eliminates fully occupied lines along I, J, or K axes then return the blocks that are being
@@ -858,6 +1202,16 @@ public class HexEngine implements HexGrid{
         return counter;
     }
     /**
+     * Returns a {@link BooleanSupplier} that checks if any lines can be eliminated.
+     * This is useful for passing as a callback or condition in other parts of the program.
+     * @return a BooleanSupplier that returns true if any lines can be eliminated
+     * @see #checkEliminate()
+     * @since 2.0
+     */
+    public BooleanSupplier eliminateSupplier(){
+        return this::checkEliminate;
+    }
+    /**
      * Checks whether any full line can be eliminated in the hex grid.
      * <p>
      * Refactored with new algorithm since version 1.3.4 to reduce time complexity from O(radius^3)
@@ -994,144 +1348,6 @@ public class HexEngine implements HexGrid{
         return false;
     }
     /**
-     * Return the number of blocks to be eliminated during an elimination. This does not perform
-     * the actual elimination but can be used for scoring. For just checking the possibility of
-     * elimination, use {@link #checkEliminate()} instead.
-     * @see #numEliminateI()
-     * @see #numEliminateJ()
-     * @see #numEliminateK()
-     * @since 1.3.4
-     */
-    public int numEliminate(){
-        return numEliminateI() + numEliminateJ() + numEliminateK();
-    }
-    /**
-     * Checks the number of blocks to be eliminated in the direction I.
-     * @return the total number of potential elimination candidates
-     * @see Block#getLineI()
-     * @see #numEliminate()
-     * @since 1.3.4
-     */
-    public int numEliminateI(){
-        int count = 0;
-        for (int i = 0; i < radius; i++){
-            int index = i * (radius * 2 + i - 1) / 2;
-            boolean allValid = true;
-            for (int b = 0; b < radius + i; b++){
-                if (!blocks[index + b].getState()){
-                    allValid = false; break;
-                }
-            }
-            if (allValid) count += radius + i;
-        }
-        int constTerm = radius * (radius * 3 - 1) / 2;
-        for (int i = radius - 2; i >= 0; i--){
-            boolean allValid = true;
-            int index = constTerm + (radius - i - 2) * (radius * 3 - 1 + i) / 2;
-            for (int b = 0; b < radius + i; b++){
-                if (!blocks[index + b].getState()){
-                    allValid = false; break;
-                }
-            }
-            if (allValid) count += radius + i;
-        }
-        return count;
-    }
-    /**
-     * Checks the number of blocks to be eliminated in the direction J.
-     * @return the total number of potential elimination candidates
-     * @see Block#getLineJ()
-     * @see #numEliminate()
-     * @since 1.3.4
-     */
-    public int numEliminateJ(){
-        int count = 0;
-        for (int r = 0; r < radius; r++){
-            int index = r;
-            boolean allValid = true;
-            for (int c = 1; c < radius; c++)
-            {
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += radius + c;
-            }
-            for (int c = 0; c < radius - r; c++)
-            {
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += 2 * radius - c - 1;
-            }
-            if (allValid) count += 2 * radius - r - 1;
-        }
-        for (int r = 1; r < radius; r++){
-            int index = radius * r + r * (r - 1) / 2;
-            boolean allValid = true;
-            for (int c = 1; c < radius - r; c++){
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += radius + c + r;
-            }
-            for (int c = 0; c < radius; c++){
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += 2 * radius - c - 1;
-            }
-            if (allValid) count += 2 * radius - r - 1;
-        }
-        return count;
-    }
-    /**
-     * Checks the number of blocks to be eliminated in the direction K.
-     * @return the total number of potential elimination candidates
-     * @see Block#getLineK()
-     * @see #numEliminate()
-     * @since 1.3.4
-     */
-    public int numEliminateK(){
-        int count = 0;
-        for (int r = 0; r < radius; r++){
-            int index = r;
-            boolean allValid = true;
-            for (int c = 0; c < radius - 1; c++){
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += radius + c;
-            }
-            for (int c = 0; c <= r; c++){
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += 2 * radius - c - 2;
-            }
-            if (allValid) count += radius + r;
-        }
-        for (int r = 1; r < radius; r++){
-            int index = radius * (r + 1) + r * (r + 1) / 2 - 1;
-            boolean allValid = true;
-            for (int c = r; c < radius - 1; c++)
-            {
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += radius + c;
-            }
-            for (int c = radius - 1; c >= 0; c--)
-            {
-                if (!blocks[index].getState()){
-                    allValid = false; break;
-                }
-                index += radius + c - 1;
-            }
-            if (allValid) count += 2 * radius - r - 1;
-        }
-        return count;
-    }
-    /**
      * Computes a density index score for hypothetically placing another {@link HexGrid} onto this grid.
      * <p>
      * The density index is a value between 0 and 1 that represents how "dense" the surrounding area is
@@ -1225,6 +1441,17 @@ public class HexEngine implements HexGrid{
             if (getBlock(i + 1, k + 1).getState()) pattern ++;
         } else if (includeNull) pattern ++;
         return pattern;
+    }
+    /**
+     * Returns a {@link Supplier} that provides the pattern of the specified {@link Hex} position in the grid.
+     *
+     * @param hex the {@link Hex} position to get the pattern for
+     * @return a Supplier that returns the pattern of the specified {@link Hex} position
+     * @see #getPattern(int, int, boolean)
+     * @since 2.0
+     */
+    public Supplier<Integer> patternSupplier(Hex hex){
+        return () -> getPattern(hex.getLineI(), hex.getLineK(), false);
     }
     /**
      * Computes the entropy of the hexagonal grid based on the distribution of 7-block patterns.
@@ -1394,15 +1621,45 @@ public class HexEngine implements HexGrid{
      */
     public HexEngine clone(){
         HexEngine newEngine;
-        try{
-            newEngine = (HexEngine) super.clone();
-            newEngine.radius = this.radius;
-        } catch (CloneNotSupportedException e) {
-            newEngine = new HexEngine(this.radius);
-        }
+        newEngine = new HexEngine(this.radius);
         for(int i = 0; i < this.length(); i ++){
             newEngine.blocks[i] = this.blocks[i].clone();
         }
         return newEngine;
+    }
+    /**
+     * Compares this {@code HexEngine} to another object for equality.
+     * Two {@code HexEngine} objects are considered equal if they have the same radius
+     * and all corresponding {@link Block} objects are equal in state and color.
+     * @param obj the object to compare with this {@code HexEngine}.
+     * @return true if the specified object is a {@code HexEngine} with the same radius and identical blocks; false otherwise.
+     * @since 2.0
+     */
+    @Override
+    public boolean equals(Object obj){
+        if (this == obj) return true;
+        if (!(obj instanceof HexEngine other)) return false;
+        if (this.radius != other.radius) return false;
+        for (int i = 0; i < this.length(); i ++){
+            if (!this.blocks[i].equals(other.blocks[i])) return false;
+        }
+        return true;
+    }
+    /**
+     * Compares this {@code HexEngine} to another object for equality, ignoring block colors.
+     * Two {@code HexEngine} objects are considered equal if they have the same radius
+     * and all corresponding {@link Block} objects are equal in state, regardless of color.
+     * @param obj the object to compare with this {@code HexEngine}.
+     * @return true if the specified object is a {@code HexEngine} with the same radius and identical block states; false otherwise.
+     * @since 2.0
+     */
+    public boolean equalsIgnoreColor(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof HexEngine other)) return false;
+        if (this.radius != other.radius) return false;
+        for (int i = 0; i < this.length(); i++) {
+            if (this.blocks[i].getState() != other.blocks[i].getState()) return false;
+        }
+        return true;
     }
 }

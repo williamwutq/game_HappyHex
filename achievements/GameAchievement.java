@@ -370,11 +370,20 @@ public class GameAchievement implements JsonConvertible {
      * @throws IOException if an I/O error occurs while reading the file
      */
     public static void loadTemplate() throws IOException {
-        GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateResource(TEMPLATES_FILE);
+        GameAchievementTemplate[] templateArr = new GameAchievementTemplate[0];
+        DataSerializationException storedException = null;
+        try {
+            templateArr = AchievementJsonSerializer.deserializeAchievementTemplateResource(TEMPLATES_FILE);
+        } catch (DataSerializationException e) {
+            storedException = e; // This does not catch IOExceptions
+        }
         synchronized (TEMPLATES) {
             for (GameAchievementTemplate template : templateArr) {
                 registerTemplate(template);
             }
+        }
+        if (storedException != null) {
+            throw storedException;
         }
     }
     /**
