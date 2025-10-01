@@ -34,6 +34,7 @@ import hex.GameState;
 import io.JsonConvertible;
 
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import java.util.Objects;
 
@@ -241,13 +242,13 @@ public class VariableAchievement implements GameAchievementTemplate, JsonConvert
      * @return the deserialized VariableAchievement
      * @throws DataSerializationException if the JSON object is invalid or missing required fields
      */
-    public static VariableAchievement fromJsonObject(javax.json.JsonObject json) throws DataSerializationException {
+    public static VariableAchievement fromJsonObject(JsonObject json) throws DataSerializationException {
         if (!json.containsKey("name") || !json.containsKey("description") || !json.containsKey("icon") || !json.containsKey("variable")) {
             throw new DataSerializationException("Missing required fields for VariableAchievement.");
         }
         String name = json.getString("name");
         String description = json.getString("description");
-        AchievementIcon icon = AchievementIconSerialHelper.deserialize(json.getJsonObject("icon"));
+        AchievementIcon icon = AchievementIconSerialHelper.deserialize(json);
         String varSymbol = json.getString("variable");
         GameVariableSupplier<Number> supplier;
         try {
