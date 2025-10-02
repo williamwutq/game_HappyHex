@@ -594,6 +594,24 @@
       ]
     },
     {
+      "type": "markable",
+      "name": "Come On!",
+      "description": "Quit the game immediately after the first move",
+      "icon": {
+        "color": "#DDB1FA",
+        "text": "ONE"
+      }
+    },
+    {
+      "type": "markable",
+      "name": "Zero Footprint",
+      "description": "Quit the game before the first move",
+      "icon": {
+        "color": "#888888",
+        "text": "ZERO"
+      }
+    },
+    {
       "type": "NumberBasedAchievement",
       "name": "I've got something",
       "description": "Achieve 10 turns and score of 36 in any game",
