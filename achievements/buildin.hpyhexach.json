@@ -1402,7 +1402,7 @@
       "type": "VarZero",
       "name": "Filled Just Right",
       "description": "Have the board filled to around half",
-      "variable": "NOT ((FILL > 0.4) AND (FILL < 0.6))",
+      "variable": "(FILL lesser 0.6) plus (FILL greater 0.4) minus 2.0",
       "icon": [
         {
           "color": "#00EE99",
