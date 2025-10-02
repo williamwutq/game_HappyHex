@@ -35,7 +35,7 @@ import java.io.IOException;
 
 public class LauncherGUI {
     private static JFrame mainFrame;
-    private static JPanel popUpPanel = null;
+    private static Component popUpPanel = null;
     public static void launch(){
         setupMainFrame();
         LaunchEssentials.initialize();
@@ -281,7 +281,7 @@ public class LauncherGUI {
         mainFrame.revalidate();
         mainFrame.repaint();
     }
-    public static void showPopUp(JPanel panel){
+    public static void showPopUp(Component panel){
         popUpPanel = panel;
         mainFrame.repaint();
     }
