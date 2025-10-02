@@ -114,6 +114,19 @@ public class LauncherGUI {
                 "Try autoplay, I said",
                 "Games are no-brainer",
                 "What is the coolest feature?",
+                "Achievements are cool",
+                "Try to unlock all achievements",
+                "Have a goal, player",
+                "Trophies, what does it do?",
+                "Trophies, what are they?",
+                "Try to unlock all trophies",
+                "There's meanings behind games",
+                "Try to get all trophies",
+                "Could this game be beaten?",
+                "What is the meaning of life",
+                "How did we get to there",
+                "When theme change, icon stay",
+                "From welcome to ??????"
         };
         return hints[LaunchEssentials.getRandomIndex(hints.length)];
     }
