@@ -73,6 +73,7 @@ public abstract class StaticAchievement implements GameAchievementTemplate, Json
         EnginePerfectFitAchievement.load();
         EngineAllPerfectFitAchievement.load();
         EngineUnoAchievement.load();
+        EngineMiddleUnoAchievement.load();
         DarkThemeAchievement.load();
         WhiteThemeAchievement.load();
         GodModeBaseAchievement.load();
