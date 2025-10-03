@@ -62,7 +62,7 @@ public abstract class StaticAchievement implements GameAchievementTemplate, Json
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize EliminationAchievement.", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
         // Load all built-in achievements

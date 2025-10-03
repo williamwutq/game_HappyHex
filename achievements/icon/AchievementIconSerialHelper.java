@@ -107,7 +107,7 @@ public class AchievementIconSerialHelper {
             } catch (ClassCastException ignored) {
                 // If it fails, continue
             } catch (DataSerializationException | IllegalArgumentException e) {
-                throw new DataSerializationException("Failed to deserialize AchievementIcon because " + e.getMessage(), e);
+                throw new DataSerializationException("Failed to deserialize AchievementIcon", e);
             }
             try {
                 // Attempt to deserialize as Json Array, turn into AchievementShapedIcon
@@ -115,9 +115,9 @@ public class AchievementIconSerialHelper {
             } catch (ClassCastException e) {
                 // An exception is thrown instead of retuning empty icon because the 'icon' key exists but is of an invalid type
                 // This is considered illegal data, while a missing 'icon' key is considered valid and returns an empty icon
-                throw new DataSerializationException("Failed to deserialize AchievementIcon: 'icon' is neither a JsonObject nor a JsonArray.", e);
+                throw new DataSerializationException("Failed to deserialize AchievementIcon: 'icon' is neither a JsonObject nor a JsonArray", e);
             } catch (DataSerializationException e) {
-                throw new DataSerializationException("Failed to deserialize AchievementIcon because " + e.getMessage(), e);
+                throw new DataSerializationException("Failed to deserialize AchievementIcon", e);
             }
         }
     }
