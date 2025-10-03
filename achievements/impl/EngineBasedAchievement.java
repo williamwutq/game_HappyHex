@@ -81,7 +81,7 @@ public class EngineBasedAchievement implements GameAchievementTemplate, JsonConv
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize EngineBasedAchievement.", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
     }

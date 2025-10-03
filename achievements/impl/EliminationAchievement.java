@@ -73,7 +73,7 @@ public class EliminationAchievement implements GameAchievementTemplate, JsonConv
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize EliminationAchievement", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
     }
