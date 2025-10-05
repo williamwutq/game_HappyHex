@@ -24,6 +24,7 @@
 
 package achievements.icon;
 
+import achievements.AchievementJsonSerializer;
 import io.JsonConvertible;
 import util.tuple.Pair;
 
@@ -258,11 +259,12 @@ public class AchievementGradientIcon implements AchievementIcon, JsonConvertible
             BufferedImage image = new BufferedImage(s, s, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = image.createGraphics();
             paintBackground(image, size);
-            paintComponent(g2d, size);
-            g2d.dispose();
             cachedImage = image;
             g.drawImage(image, 0, 0, null);
+            g2d.dispose();
         }
+        g.setColor(TRANSPARENT); // This is a bit of a hack to remove the default solid background imposed by the icon
+        AchievementIcon.super.paint(g, size);
     }
     /**
      * Paints the gradient background onto the provided BufferedImage at the specified size.
@@ -271,17 +273,17 @@ public class AchievementGradientIcon implements AchievementIcon, JsonConvertible
      * @param size The size of the image (assumed to be square).
      */
     public void paintBackground(BufferedImage img, double size){
-        for (int y = 0; y < size; y++) {
+        for (int y = 0; y < (int) size; y++) {
             double ty = y / (size - 1);
             Color leftColor = interpolate(c00, c01, ty);
             Color rightColor = interpolate(c10, c11, ty);
-            for (int x = 0; x < size; x++) {
+            for (int x = 0; x < (int) size; x++) {
                 double tx = x / (size - 1);
                 Color pixelColor = interpolate(leftColor, rightColor, tx);
-                if (isInRoundCorner(x, y, size, size * 0.1)) {
-                    pixelColor = TRANSPARENT;
-                } else {
-                    img.setRGB(x, y, pixelColor.getRGB());
+                if (!isInRoundCorner(x, y, size, size * 0.1)) {
+                    try {
+                        img.setRGB(x, y, pixelColor.getRGB());
+                    } catch (Exception ignored) {}
                 }
             }
         }
