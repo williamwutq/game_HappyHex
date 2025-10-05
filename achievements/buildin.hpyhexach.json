@@ -1400,6 +1400,28 @@
     },
     {
       "type": "EliminationAchievement",
+      "name": "Mission 007: Line Eliminator",
+      "description": "Eliminate at least seven lines in a single move",
+      "requiredMinEliminationBlock": 1,
+      "requiredMinEliminationLine": 7,
+      "requiredMinEliminationDirection": 1,
+      "icon": {
+        "background" : {
+          "00": "#E0FF66",
+          "01": "#6EE63E",
+          "10": "#DCF5DD",
+          "11": "#EEE3CC"
+        },
+        "base" : {
+          "icon": {
+            "color": "#4E7D4C",
+            "text": "007"
+          }
+        }
+      }
+    },
+    {
+      "type": "EliminationAchievement",
       "name": "Octoris",
       "description": "Eliminate at least eight lines in a single move",
       "requiredMinEliminationBlock": 1,
