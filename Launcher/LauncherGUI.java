@@ -27,13 +27,14 @@ package Launcher;
 import GUI.GameEssentials;
 import Launcher.panel.*;
 import achievements.GameAchievement;
+import util.fgui.GraphicsDisplayer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 
-public class LauncherGUI {
+public class LauncherGUI implements GraphicsDisplayer {
     private static JFrame mainFrame;
     private static Component popUpPanel = null;
     public static void launch(){
@@ -288,5 +289,26 @@ public class LauncherGUI {
     public static void closePopUp() {
         popUpPanel = null;
         mainFrame.repaint();
+    }
+
+    @Override
+    public void display(Component component) {
+        if (component == null) return;
+        if (popUpPanel != null){
+            popUpPanel = component;
+        } else {
+            showPopUp(component);
+        }
+    }
+    @Override
+    public void remove() {
+        if (popUpPanel != null){
+            popUpPanel = null;
+            mainFrame.repaint();
+        }
+    }
+    @Override
+    public Component current() {
+        return popUpPanel;
     }
 }
