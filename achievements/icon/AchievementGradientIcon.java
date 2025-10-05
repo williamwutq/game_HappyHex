@@ -254,17 +254,20 @@ public class AchievementGradientIcon implements AchievementIcon, JsonConvertible
     public void paint(Graphics g, double size) {
         int s = (int) Math.round(size);
         if (cachedImage != null && cachedImage.getWidth() == s && cachedImage.getHeight() == s) {
-            g.drawImage(cachedImage, 0, 0, null);
+            g.drawImage(cachedImage, 0, 0, null); // If the cached image is valid, use it.
         } else {
+            // Create a new buffered image and paint the gradient background onto it.
             BufferedImage image = new BufferedImage(s, s, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = image.createGraphics();
             paintBackground(image, size);
             cachedImage = image;
+            // Draw the cached image onto the provided graphics context.
             g.drawImage(image, 0, 0, null);
             g2d.dispose();
         }
         g.setColor(TRANSPARENT); // This is a bit of a hack to remove the default solid background imposed by the icon
-        AchievementIcon.super.paint(g, size);
+        baseIcon.paint(g, size); // Always paint the base icon on top
+        // Could use super here, but in case there is another paint overrider like GradientIcon, this applies both overrides
     }
     /**
      * Paints the gradient background onto the provided BufferedImage at the specified size.
