@@ -1399,6 +1399,53 @@
       ]
     },
     {
+      "type": "EliminationAchievement",
+      "name": "Octoris",
+      "description": "Eliminate at least eight lines in a single move",
+      "requiredMinEliminationBlock": 1,
+      "requiredMinEliminationLine": 8,
+      "requiredMinEliminationDirection": 1,
+      "icon": [
+        {
+          "color": "#AAA633",
+          "shape": [
+            {"x":0.28,"y":-0.11,"cx":0.3,"cy":0},
+            {"x":0.28,"y":0.11,"cx":0.25,"cy":0.21},
+            {"x":0.17,"y":0.28,"cx":0,"cy":0.43},
+            {"x":-0.17,"y":0.28,"cx":-0.25,"cy":0.21},
+            {"x":-0.28,"y":0.11,"cx":-0.3,"cy":0},
+            {"x":-0.28,"y":-0.11,"cx":0,"cy":-1.12}
+          ]
+        },
+        {
+          "color": "#C22317",
+          "shape": [
+            {"x":0.17,"y":0.05,"cx":0.35,"cy":0},
+            {"x":0.69,"y":0.6,"cx":0.49,"cy":0},
+            {"x":0.69,"y":-0.6,"cx":0.35,"cy":0},
+            {"x":0.17,"y":-0.05,"cx":0,"cy":-0.1},
+            {"x":-0.17,"y":-0.05,"cx":-0.35,"cy":0},
+            {"x":-0.69,"y":-0.6,"cx":-0.49,"cy":0},
+            {"x":-0.69,"y":0.6,"cx":-0.35,"cy":0},
+            {"x":-0.17,"y":0.05,"cx":0,"cy":0.1}
+          ]
+        },
+        {
+          "color": "#636363",
+          "shape": [
+            {"x":0.17,"y":0.05,"cx":0.28,"cy":0.02},
+            {"x":0.44,"y":0.22,"cx":0.36,"cy":0},
+            {"x":0.44,"y":-0.22,"cx":0.28,"cy":-0.02},
+            {"x":0.17,"y":-0.05,"cx":0.0,"cy":-0.1},
+            {"x":-0.17,"y":-0.05,"cx":-0.28,"cy":-0.02},
+            {"x":-0.44,"y":-0.22,"cx":-0.36,"cy":0},
+            {"x":-0.44,"y":0.22,"cx":-0.28,"cy":0.02},
+            {"x":-0.17,"y":0.05,"cx":0.0,"cy":0.1}
+          ]
+        }
+      ]
+    },
+    {
       "type": "VarZero",
       "name": "Filled Just Right",
       "description": "Have the board filled to around half",
