@@ -43,6 +43,8 @@ public interface StmlValue<T> extends StmlObject {
      * Enumeration of possible STML value types.
      */
     enum ValueType {
+        /** Null value */
+        NULL("null"),
         /** String value */
         STRING("string"),
         /** Integer value */
