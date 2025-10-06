@@ -1,6 +1,7 @@
 package util.fgui;
 
 import javax.swing.*;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.event.WindowAdapter;
@@ -78,7 +79,12 @@ public class TestWindow {
         JFrame f = new JFrame();
         f.setSize(size);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        f.setBackground(c.getBackground());
+        Color solidColor = c.getBackground();
+        if (solidColor.getAlpha() != 255) {
+            // If the background color is not fully opaque, set it to opaque
+            solidColor = new Color(solidColor.getRed(), solidColor.getGreen(), solidColor.getBlue());
+        }
+        f.setBackground(solidColor);
         f.add(c);
         f.setTitle(title);
         return f;
@@ -135,7 +141,12 @@ public class TestWindow {
         JFrame f = new JFrame();
         f.setSize(size);
         f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        f.setBackground(c.getBackground());
+        Color solidColor = c.getBackground();
+        if (solidColor.getAlpha() != 255) {
+            // If the background color is not fully opaque, set it to opaque
+            solidColor = new Color(solidColor.getRed(), solidColor.getGreen(), solidColor.getBlue());
+        }
+        f.setBackground(solidColor);
         f.add(c);
         f.setTitle(title);
         f.addWindowListener(new WindowAdapter() {
