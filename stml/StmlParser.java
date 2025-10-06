@@ -35,7 +35,7 @@ public class StmlParser {
      */
     public StmlParser(File file) {
     }
-    public static StmlObject parseObjectRecursive(String stml){
+    public static StmlValue<?> parseObjectRecursive(String stml){
         if (stml == null || stml.isBlank()) return StmlNull.INSTANCE;
         stml = stml.trim();
         if (stml.equals("null") || stml.equals("NULL") || stml.equals("Null")) {
@@ -60,7 +60,7 @@ public class StmlParser {
             String[] elements = stml.substring(1, stml.length() - 1).split(",");
             StmlList list = new StmlList(elements.length);
             for (String element : elements) {
-                StmlObject obj = new StmlFuture(element);
+                StmlValue<?> obj = new StmlFuture(element);
                 list.add(obj);
             }
             return list;

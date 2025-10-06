@@ -26,10 +26,10 @@ package stml.obj;
 
 import stml.StmlParser;
 
-public class StmlFuture implements StmlValue<StmlObject>, Cloneable {
+public class StmlFuture implements StmlValue<StmlValue<?>>, Cloneable {
     private String stml;
     private boolean resolved = false;
-    private StmlObject value;
+    private StmlValue<?> value;
     /**
      * Create a new StmlFuture instance with the given STML string.
      * @param stml The STML string to be resolved later.
@@ -39,7 +39,7 @@ public class StmlFuture implements StmlValue<StmlObject>, Cloneable {
     }
 
     @Override
-    public StmlObject getValue() {
+    public StmlValue<?> getValue() {
         if (resolved) return value;
         value = StmlParser.parseObjectRecursive(stml);
         resolved = true;
@@ -53,10 +53,8 @@ public class StmlFuture implements StmlValue<StmlObject>, Cloneable {
         if (resolved) {
             if (value == null) {
                 return ValueType.NULL;
-            } else if (value instanceof StmlValue<?> stmlV) {
-                return stmlV.getType();
             } else {
-                return ValueType.OBJECT;
+                return value.getType();
             }
         } else return ValueType.FUTURE;
     }

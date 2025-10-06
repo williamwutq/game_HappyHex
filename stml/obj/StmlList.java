@@ -2,7 +2,7 @@ package stml.obj;
 
 import java.util.*;
 
-public class StmlList extends ArrayList<StmlObject> implements StmlObject, StmlValue<List<StmlObject>>, Cloneable {
+public class StmlList extends ArrayList<StmlValue<?>> implements StmlObject, StmlValue<List<StmlValue<?>>>, Cloneable {
     /**
      * Create a new empty StmlList instance.
      */
@@ -20,7 +20,7 @@ public class StmlList extends ArrayList<StmlObject> implements StmlObject, StmlV
      * Create a new StmlList instance with the given collection of elements.
      * @param c The collection of elements to add to the list.
      */
-    public StmlList(Collection<? extends StmlObject> c) {
+    public StmlList(Collection<? extends StmlValue<?>> c) {
         super(c);
     }
     /**
@@ -29,7 +29,7 @@ public class StmlList extends ArrayList<StmlObject> implements StmlObject, StmlV
      * @return java List
      */
     @Override
-    public List<StmlObject> getValue() {
+    public List<StmlValue<?>> getValue() {
         return Collections.unmodifiableList(this);
     }
     /**
