@@ -79,7 +79,7 @@ public class AchievementNotification {
     private static final List<Pair<Username, GameAchievementTemplate>> notifications = new ArrayList<>();
     private static boolean isUpdated = false;
     private static final Object lock = new Object();
-    private static Runnable notifier = () -> {};
+    private static Runnable notifier = null;
     private static Username cacheUsername = currentUsername();
 
     private AchievementNotification() {
@@ -203,7 +203,7 @@ public class AchievementNotification {
      */
     public static int size() {
         synchronized (lock) {
-            Username u = getUsername();
+            Username u = currentUsername();
             int count = 0;
             Iterator<Pair<Username, GameAchievementTemplate>> it = notifications.iterator();
             while (it.hasNext()) {
@@ -249,7 +249,7 @@ public class AchievementNotification {
         synchronized (lock) {
             notifications.add(new Pair<>(user, achievement));
             isUpdated = true;
-            notifier.run();
+            if (notifier != null) notifier.run();
         }
     }
     /**
@@ -267,7 +267,7 @@ public class AchievementNotification {
                     notifications.add(new Pair<>(user, t));
                 }
                 isUpdated = true;
-                notifier.run();
+                if (notifier != null) notifier.run();
             }
         }
     }
