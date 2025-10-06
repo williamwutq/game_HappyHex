@@ -112,4 +112,94 @@ public class StmlString implements StmlValue<String>, Comparable<StmlValue<Strin
     public int hashCode() {
         return value.hashCode();
     }
+    /**
+     * Escape special characters in a string for STML representation.
+     * The following characters are escaped: backslash (\), quotes (\" and \'), newline (\n), carriage return (\r), tab (\t), and Unicode characters outside the printable ASCII range.
+     * @param str The input string to escape.
+     * @return The escaped string.
+     */
+    public static String escape(String str) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : str.toCharArray()) {
+            switch (c) {
+                case '\\' -> sb.append("\\\\");
+                case '\"' -> sb.append("\\\"");
+                case '\'' -> sb.append("\\'");
+                case '\n' -> sb.append("\\n");
+                case '\r' -> sb.append("\\r");
+                case '\t' -> sb.append("\\t");
+                default -> {
+                    if (c < 32 || c > 126) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
+    /**
+     * Unescape special characters in a string from STML representation.
+     * The following escape sequences are unescaped: backslash (\\), quotes (\" and \'), newline (\n), carriage return (\r), tab (\t), and Unicode characters (\ uXXXX).
+     * @param str The input string to unescape.
+     * @return The unescaped string.
+     */
+    public static String unescape(String str) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '\\' && i + 1 < str.length()) {
+                char next = str.charAt(i + 1);
+                switch (next) {
+                    case '\\' -> {
+                        sb.append('\\');
+                        i++;
+                    }
+                    case '\"' -> {
+                        sb.append('\"');
+                        i++;
+                    }
+                    case '\'' -> {
+                        sb.append('\'');
+                        i++;
+                    }
+                    case 'n' -> {
+                        sb.append('\n');
+                        i++;
+                    }
+                    case 'r' -> {
+                        sb.append('\r');
+                        i++;
+                    }
+                    case 't' -> {
+                        sb.append('\t');
+                        i++;
+                    }
+                    case 'u' -> {
+                        if (i + 5 < str.length()) {
+                            String hex = str.substring(i + 2, i + 6);
+                            try {
+                                int codePoint = Integer.parseInt(hex, 16);
+                                sb.append((char) codePoint);
+                                i += 5;
+                            } catch (NumberFormatException e) {
+                                sb.append("\\u").append(hex); // preserve raw text
+                                i += 5;
+                            }
+                        } else {
+                            sb.append("\\u"); // preserve partial escape
+                        }
+                    }
+                    default -> {
+                        sb.append('\\').append(next);
+                        i++;
+                    }
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 }
