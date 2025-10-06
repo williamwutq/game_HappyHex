@@ -25,6 +25,7 @@
 package Launcher;
 
 import GUI.GameEssentials;
+import Launcher.panel.AchievementNotificationPanel;
 import achievements.GameAchievement;
 import hexio.HexLogger;
 import io.*;
@@ -257,6 +258,7 @@ public final class LaunchEssentials {
 //         python.PythonCommandProcessor.setDebugEnabled(true);
 //         python.PythonCommandProcessor.DEBUG.copierThread(System.out, () -> (GameTime.generateSimpleTime() + (GameEssentials.getAutoplayHandler().isUsingML() ? " Hpyhexml" : " Autoplay"))).start();
         GameEssentials.getAutoplayHandler().addMLPrecondition(() -> mlEnabled);
+        AchievementNotificationPanel.register();
         // Print the launch message
         System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: You are playing HappyHex Version " + currentGameVersion + ". Good Luck!");
     }
