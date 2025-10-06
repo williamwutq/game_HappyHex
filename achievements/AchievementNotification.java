@@ -34,6 +34,47 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+/**
+ * The {@code AchievementNotification} class manages a queue of achievement notifications
+ * for users in a thread-safe manner. It allows adding, retrieving, and checking for
+ * notifications associated with specific usernames and achievement templates.
+ * <p>
+ * The class ensures that notifications are only retained for the currently active user,
+ * automatically clearing notifications when the user logs out or switches accounts.
+ * <p>
+ * The class provides methods to push new notifications, check for available notifications,
+ * and pop notifications from the queue. It also includes a mechanism to hook a notifier
+ * that is called whenever a new notification is added.
+ * <p>
+ * This class is designed to be used in environments where multiple threads may interact
+ * with the notification queue, ensuring data integrity and consistency through synchronization.
+ * <p>
+ * To use retrieve notifications, use the following pattern:
+ * <pre>{@code
+ * if (AchievementNotification.isUpdated()) {
+ *    while (AchievementNotification.hasNext()) {
+ *        Pair<Username, GameAchievementTemplate> notification = AchievementNotification.popNotification();
+ *        // Process the notification
+ *    }
+ * }
+ * }</pre>
+ * or if processing multiple notifications at the same time:
+ * <pre>{@code
+ * if (AchievementNotification.isUpdated()) {
+ *    int size = AchievementNotification.size();
+ *    for (int i = 0; i < size; i++) {
+ *        Pair<Username, GameAchievementTemplate> notification = AchievementNotification.popNotification();
+ *        // Process the notification
+ *    }
+ * }
+ * }</pre>
+ *
+ * @see GameAchievementTemplate
+ * @see Username
+ * @author William Wu
+ * @version 2.0
+ * @since 2.0
+ */
 public class AchievementNotification {
     private static final List<Pair<Username, GameAchievementTemplate>> notifications = new ArrayList<>();
     private static boolean isUpdated = false;
