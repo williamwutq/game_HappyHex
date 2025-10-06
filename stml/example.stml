@@ -166,7 +166,7 @@ complicatedList = [1, 2, {key = VALUE, key2 = 5}, [["c", 'd', true], "pi"], 5]
 # - Lists can reference constants and values, including those defined later in the same section or in a sub/super section if
 # they are referenced with the name of the sub/super section they are defined in
 # - Lists can be empty, e.g., []
-# - Lists are closed, meaning they cannot be extended later
+# - Lists are closed, meaning they cannot be extended later, unless it is a list of anonymous subsections
 # - Lists are ordered, meaning the order of elements is preserved
 # - Lists are by default not final, meaning they can be redefined later, unless annotated with #@final
 # - The . after the section name declares an anonymous subsection of the section Extras. When a section has multiple anonymous subsections,
