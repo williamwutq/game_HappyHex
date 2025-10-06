@@ -24,7 +24,9 @@
 
 package stml.obj;
 
-class StmlFuture implements StmlValue<StmlObject>, Cloneable {
+import stml.StmlParser;
+
+public class StmlFuture implements StmlValue<StmlObject>, Cloneable {
     private String stml;
     private boolean resolved = false;
     private StmlObject value;
@@ -38,11 +40,24 @@ class StmlFuture implements StmlValue<StmlObject>, Cloneable {
 
     @Override
     public StmlObject getValue() {
-        return null;
+        if (resolved) return value;
+        value = StmlParser.parseObjectRecursive(stml);
+        resolved = true;
+        if (value == null) {
+            return StmlNull.INSTANCE;
+        } else return value;
     }
 
     @Override
     public ValueType getType() {
-        return null;
+        if (resolved) {
+            if (value == null) {
+                return ValueType.NULL;
+            } else if (value instanceof StmlValue<?> stmlV) {
+                return stmlV.getType();
+            } else {
+                return ValueType.OBJECT;
+            }
+        } else return ValueType.FUTURE;
     }
 }

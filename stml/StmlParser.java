@@ -24,6 +24,8 @@
 
 package stml;
 
+import stml.obj.*;
+
 import java.io.File;
 
 public class StmlParser {
@@ -32,5 +34,49 @@ public class StmlParser {
      * @param file The file to parse.
      */
     public StmlParser(File file) {
+    }
+    public static StmlObject parseObjectRecursive(String stml){
+        if (stml == null || stml.isBlank()) return StmlNull.INSTANCE;
+        stml = stml.trim();
+        if (stml.equals("null") || stml.equals("NULL") || stml.equals("Null")) {
+            return StmlNull.INSTANCE;
+        } else if (stml.equals("true") || stml.equals("TRUE") || stml.equals("True")) {
+            return StmlBoolean.TRUE;
+        } else if (stml.equals("false") || stml.equals("FALSE") || stml.equals("False")) {
+            return StmlBoolean.FALSE;
+        } else if (stml.startsWith("\"") && stml.endsWith("\"")) {
+            // Get the string literal
+            String str = stml.substring(1, stml.length() - 1);
+            // Unescape the string
+            str = StmlString.unescape(str);
+            return new StmlString(str);
+        } else if (stml.startsWith("'") && stml.endsWith("'")) {
+            // Get the string literal
+            String str = stml.substring(1, stml.length() - 1);
+            // Unescape the string
+            str = StmlString.unescape(str);
+            return new StmlString(str);
+        } else if (stml.startsWith("[") && stml.endsWith("]")) {
+            String[] elements = stml.substring(1, stml.length() - 1).split(",");
+            StmlList list = new StmlList(elements.length);
+            for (String element : elements) {
+                StmlObject obj = new StmlFuture(element);
+                list.add(obj);
+            }
+            return list;
+        } else if (stml.startsWith("{") && stml.endsWith("}")) {
+            return null; // TODO: implement object parsing
+        } else {
+            // Parse as number or unquoted string
+            try {
+                return new StmlInteger(stml);
+            } catch (NumberFormatException e) {
+                try {
+                    return new StmlFloat(stml);
+                } catch (NumberFormatException ignored) {}
+            }
+            // This is a string without quotes
+            return new StmlString(stml);
+        }
     }
 }

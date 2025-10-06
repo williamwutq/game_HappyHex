@@ -58,7 +58,9 @@ public interface StmlValue<T> extends StmlObject {
         /** Annotation of object */
         ANNOTATION("annotation"),
         /** Nested configuration object */
-        OBJECT(""); // Object has no suffix, not annotated
+        OBJECT(""), // Object has no suffix, not annotated
+        /** Future value to be resolved later */
+        FUTURE(""); // Internal use only, not annotated
         private final String typeAnnotationString;
         ValueType(String tas) {
             this.typeAnnotationString = tas;
