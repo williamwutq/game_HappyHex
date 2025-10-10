@@ -36,14 +36,11 @@ import java.io.IOException;
 
 public class LauncherGUI implements GraphicsDisplayer {
     private static JFrame mainFrame;
-    private static JLayeredPane layeredPane;
     private static Component popUpPanel = null;
-    public static final LauncherGUI INSTANCE = new LauncherGUI();
-    private LauncherGUI(){}
     public static void launch(){
         setupMainFrame();
         LaunchEssentials.initialize();
-        layeredPane.add(fetchLaunchPanel(), BorderLayout.CENTER);
+        mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
         mainFrame.validate();
         mainFrame.setVisible(true);
         mainFrame.setSize(new Dimension(800, 800));
@@ -157,22 +154,23 @@ public class LauncherGUI implements GraphicsDisplayer {
     private static void setupMainFrame(){
         mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion){
             @Override
-            public void doLayout() {
+            public void paint(Graphics g) {
+                // Pop up window should show in the middle
+                super.paint(g);
                 if (popUpPanel != null) {
-                    // Set to half the width and height of the frame
-                    popUpPanel.setSize(getWidth() / 2, getHeight() / 2);
-                    popUpPanel.setLocation((getWidth() - popUpPanel.getWidth()) / 2, (getHeight() - popUpPanel.getHeight()) / 2);
-                    popUpPanel.validate();
+                    popUpPanel.paint(g.create(
+                            (getWidth() - popUpPanel.getWidth()) / 2,
+                            (getHeight() - popUpPanel.getHeight()) / 2,
+                            popUpPanel.getWidth(),
+                            popUpPanel.getHeight()
+                    ));
                 }
-                super.doLayout();
             }
         };
         mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        mainFrame.setLayout(new BorderLayout());
         mainFrame.setBackground(LaunchEssentials.launchBackgroundColor);
         mainFrame.setIconImage(fetchIconImage());
-        layeredPane = new JLayeredPane();
-        layeredPane.setLayout(new BorderLayout());
-        mainFrame.setContentPane(layeredPane);
         Taskbar.getTaskbar().setIconImage(fetchIconImage());
         mainFrame.setSize(new Dimension(400, 400));
         mainFrame.setMinimumSize(new Dimension(400, 400));
@@ -203,12 +201,12 @@ public class LauncherGUI implements GraphicsDisplayer {
         });
     }
     public static void removeAllFromFrame(){
-        layeredPane.removeAll();
-        layeredPane.setLayout(new BorderLayout());
-        layeredPane.revalidate();
+        mainFrame.getContentPane().removeAll();
+        mainFrame.setLayout(new BorderLayout());
+        mainFrame.getContentPane().revalidate();
     }
     public static void resetColor(){
-        for (Component component : layeredPane.getComponents()){
+        for (Component component : mainFrame.getContentPane().getComponents()){
             if (component instanceof Recolorable){
                 ((Recolorable) component).resetColor();
             }
@@ -223,8 +221,8 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackgroundColor);
-        layeredPane.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
-        layeredPane.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
+        mainFrame.add(GameEssentials.fetchGamePanel(), BorderLayout.CENTER);
+        mainFrame.add(GameEssentials.fetchPiecePanel(), BorderLayout.SOUTH);
     }
     public static void toResumeGame(){
         LaunchEssentials.endGame();
@@ -232,7 +230,7 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(LaunchEssentials.launchBackgroundColor);
-        layeredPane.add(fetchResumePanel(), BorderLayout.CENTER);
+        mainFrame.add(fetchResumePanel(), BorderLayout.CENTER);
     }
     public static void toLogInPage(){
         LaunchEssentials.endGame();
@@ -240,7 +238,7 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(LaunchEssentials.launchBackgroundColor);
-        layeredPane.add(fetchLoginPanel(), BorderLayout.CENTER);
+        mainFrame.add(fetchLoginPanel(), BorderLayout.CENTER);
     }
     public static void toSettings(){
         LaunchEssentials.endGame();
@@ -248,7 +246,7 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(LaunchEssentials.launchBackgroundColor);
-        layeredPane.add(fetchSettingPanel(), BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
+        mainFrame.add(fetchSettingPanel(), BorderLayout.CENTER);
     }
     public static void toAchievements(){
         LaunchEssentials.endGame();
@@ -256,7 +254,7 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(LaunchEssentials.launchBackgroundColor);
-        layeredPane.add(fetchAchievementPanel(), BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
+        mainFrame.add(fetchAchievementPanel(), BorderLayout.CENTER);
     }
     public static void toThemes(){
         LaunchEssentials.endGame();
@@ -264,7 +262,7 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(LaunchEssentials.launchBackgroundColor);
-        layeredPane.add(fetchThemePanel(), BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
+        mainFrame.add(fetchThemePanel(), BorderLayout.CENTER);
     }
     public static void returnHome(){
         LaunchEssentials.endGame();
@@ -272,7 +270,7 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(LaunchEssentials.launchBackgroundColor);
-        layeredPane.add(fetchLaunchPanel(), BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
+        mainFrame.add(fetchLaunchPanel(), BorderLayout.CENTER);
     }
     public static void toGameOver(){
         LaunchEssentials.endGame();
@@ -280,19 +278,15 @@ public class LauncherGUI implements GraphicsDisplayer {
         // Initialization
         removeAllFromFrame();
         setBackgroundColor(GameEssentials.gameBackgroundColor);
-        layeredPane.add(fetchGameOverPanel(), BorderLayout.CENTER, JLayeredPane.DEFAULT_LAYER);
-        layeredPane.revalidate();
-        layeredPane.repaint();
+        mainFrame.add(fetchGameOverPanel(), BorderLayout.CENTER);
+        mainFrame.revalidate();
+        mainFrame.repaint();
     }
     public static void showPopUp(Component panel){
         popUpPanel = panel;
-        layeredPane.add(popUpPanel, JLayeredPane.POPUP_LAYER);
-        layeredPane.revalidate();
         mainFrame.repaint();
     }
     public static void closePopUp() {
-        layeredPane.remove(popUpPanel);
-        layeredPane.revalidate();
         popUpPanel = null;
         mainFrame.repaint();
     }
@@ -300,14 +294,15 @@ public class LauncherGUI implements GraphicsDisplayer {
     @Override
     public void display(Component component) {
         if (component == null) return;
-        remove();
-        showPopUp(component);
+        if (popUpPanel != null){
+            popUpPanel = component;
+        } else {
+            showPopUp(component);
+        }
     }
     @Override
     public void remove() {
         if (popUpPanel != null){
-            layeredPane.remove(popUpPanel);
-            layeredPane.revalidate();
             popUpPanel = null;
             mainFrame.repaint();
         }
