@@ -120,6 +120,32 @@ public class TypedScope implements Scope {
         return variables.containsKey(new TypePair(name, clazz));
     }
     /**
+     * Checks whether a variable with the specified name is defined
+     * in the current scope or any of its {@link #parent} scopes.
+     * <p>
+     * If {@link Scope#containsLocal(String name)} returns {@code}
+     * true, this method should always return true.
+     * <p>
+     * This method enforces type constraints, so it only returns {@code true}
+     * if a variable with the exact given name and type exists in any scope
+     * in the scope chain.
+     *
+     * @implNote The implementation of this method in {@code TypedScope} traverses
+     * the scope chain starting from the current scope and moving up through parent scopes.
+     * It uses {@link #containsLocal(String)} to check each scope for the variable.
+     * If found in any scope, it returns {@code true}; otherwise, it returns {@code false}.
+     */
+    public boolean contains(Class<?> clazz, String name) {
+        TypedScope scope = this;
+        while (scope != null) {
+            if (scope.containsLocal(clazz, name)) {
+                return true;
+            }
+            scope = scope.parent;
+        }
+        return false;
+    }
+    /**
      * {@inheritDoc}
      * <p>
      * It is recommended to use {@link #define(Class, String)} to define variables with specific types,
@@ -150,6 +176,40 @@ public class TypedScope implements Scope {
     public void define(Class<?> clazz, String name) {
         if (!containsLocal(clazz, name)) {
             variables.put(new TypePair(name, clazz), null); // Initialize with null to indicate uninitialized variable
+        }
+    }
+    /**
+     * Lazily defines a new variable with the specified name and type in the current scope
+     * only if it does not already exist in the current scope or any ancestor scope.
+     * <p>
+     * If a variable with the same name and type exists in the <em>current</em> scope or any
+     * ancestor scope, this call has no effect.
+     * If a variable with the same name but different type exists in the current scope,
+     * both variable can coexist, as they are treated as distinct due to their differing types.
+     *
+     * @param clazz the class type of the variable to define.
+     * @param name  the name of the variable to define.
+     */
+    public void lazyDefine(Class<?> clazz, String name) {
+        if (!contains(clazz, name)) {
+            variables.put(new TypePair(name, clazz), null);
+        }
+    }
+    /**
+     * Lazily defines a new variable with the specified name and type in the current scope
+     * only if it does not already exist in the current scope.
+     * <p>
+     * If a variable with the same name and type exists in the <em>current</em> scope,
+     * this call has no effect.
+     * If a variable with the same name but different type exists in the current scope,
+     * both variable can coexist, as they are treated as distinct due to their differing types.
+     *
+     * @param clazz the class type of the variable to define.
+     * @param name  the name of the variable to define.
+     */
+    public void lazyDefineLocal(Class<?> clazz, String name) {
+        if (!containsLocal(clazz, name)) {
+            variables.put(new TypePair(name, clazz), null);
         }
     }
     /**
@@ -212,6 +272,52 @@ public class TypedScope implements Scope {
             return;
         }
         throw new java.util.NoSuchElementException("Variable '" + name + "' is not defined in the current scope or any ancestor.");
+    }
+    /**
+     * Assigns a value to a variable with the specified name and type in the current scope only.
+     * <p>
+     * If a variable with the given name and type exists in the current scope, its value is updated.
+     * If no such variable exists, it is created in the current scope with the given value.
+     * This method does not search parent scopes; it only affects the current scope.
+     *
+     * @param clazz the expected class type of the variable.
+     * @param name  the name of the variable to assign.
+     * @param value the value to assign.
+     */
+    public void lazyAssignLocal(Class<?> clazz, String name, Object value) {
+        TypePair key = new TypePair(name, clazz);
+        if (!clazz.isInstance(value)) {
+            // User us trying to say that this variable is of type clazz, but value is not of that type
+            throw new IllegalArgumentException("Type mismatch: variable '" + name + "' expects type " + clazz.getName());
+        } else {
+            variables.put(key, value);
+        }
+    }
+    /**
+     * Assigns a value to a variable with the specified name and type in the current scope
+     * or any ancestor scope. If the variable does not exist in any scope, it is created
+     * in the current scope with the given value.
+     * <p>
+     * If a variable with the given name and type exists in the current scope or any ancestor,
+     * its value is updated. If no such variable exists, it is created in the current scope
+     * with the given value.
+     *
+     * @param clazz the expected class type of the variable.
+     * @param name  the name of the variable to assign.
+     * @param value the value to assign.
+     */
+    public void lazyAssign(Class<?> clazz, String name, Object value) {
+        TypePair key = new TypePair(name, clazz);
+        if (!clazz.isInstance(value)) {
+            // User us trying to say that this variable is of type clazz, but value is not of that type
+            throw new IllegalArgumentException("Type mismatch: variable '" + name + "' expects type " + clazz.getName());
+        } else if (variables.containsKey(key)) {
+            variables.put(key, value);
+        } else if (parent != null && parent.contains(clazz, name)) {
+            parent.assign(name, value);
+        } else {
+            variables.put(key, value);
+        }
     }
     /**
      * {@inheritDoc}
