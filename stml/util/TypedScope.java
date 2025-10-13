@@ -214,17 +214,16 @@ public class TypedScope implements Scope {
      * {@inheritDoc}
      * <p>
      * This will destroy all variables with the given name, regardless of their type.
-     * If no variable with the specified name exists in the current scope or any ancestor,
-     * this call has no effect.
+     * If no variable with the specified name exists in the current scope,
+     * this call has no effect. It does not affect variables in parent scopes.
+     * @implNote The implementation of this method in {@code TypedScope} removes all entries
+     * from the local {@code variables} map whose names match the given name.
+     * @return {@code true} if any variables were removed, {@code false} otherwise.
      */
     @Override
-    public void destroy(String name) {
+    public boolean destroyLocal(String name) {
         // Remove all variables with the given name in the current scope
-        variables.keySet().removeIf(pair -> pair.name.equals(name));
-        // Also attempt to destroy in parent scope
-        if (parent != null && parent.contains(name)) {
-            parent.destroy(name);
-        }
+        return variables.keySet().removeIf(pair -> pair.name.equals(name));
     }
     /**
      * Removes a variable with the specified name and type from the current scope only.

@@ -110,16 +110,17 @@ public class TreeScope implements Scope {
     }
     /**
      * {@inheritDoc}
+     * @return {@code true} if any variables were removed, {@code false} otherwise.
      */
     @Override
-    public void destroy(String name) {
+    public boolean destroyLocal(String name) {
         if (isValidName(name)) {
             if (containsLocal(name)) {
                 variables.remove(name);
-            } else if (parent != null && parent.contains(name)) {
-                parent.destroy(name);
+                return true;
             }
         }
+        return false;
     }
     /**
      * {@inheritDoc}

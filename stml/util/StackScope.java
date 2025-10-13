@@ -239,13 +239,14 @@ public class StackScope implements Scope {
      * @param name the variable name to remove.
      * @implNote This implementation removes the variable from the map at the current index in the stack only.
      * If the scope is invalidated, it throws an {@code IllegalStateException}, as destruction cannot be made in an invalid scope.
+     * @return {@code true} if the variable was found and removed, {@code false} otherwise.
      */
     @Override
-    public void destroy(String name) {
+    public boolean destroyLocal(String name) {
         if (!isValid()) {
             throw new IllegalStateException("Cannot destroy variable in an invalidated scope.");
         }
-        stack.get(index).remove(name);
+        return stack.get(index).remove(name) != null;
     }
     /**
      * {@inheritDoc}

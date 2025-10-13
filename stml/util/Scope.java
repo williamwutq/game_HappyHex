@@ -186,16 +186,61 @@ public interface Scope {
      * <p>
      * When a variable is shadowed, a new variable is declared within this more specific scope,
      * and the variable with the same name in the outer scope is effectively hidden.
+     * If this shadowing behavior is not desired, use {@link #lazyDefine(String)} instead.
      *
      * @param name the name of the variable to define.
      */
     void define(String name);
+    /**
+     * Defines a new variable in the current scope only if it does not already exist
+     * in the current scope or any ancestor scope.
+     * <p>
+     * If the variable with the specified name already exists in the current scope
+     * or any ancestor, this call has no effect.
+     * If it does not exist, a new variable is defined in the current scope.
+     * <p>
+     * Different from {@link #lazyDefineLocal(String)} or {@link #define(String)},
+     * this method ensures that the variable is defined only if it does not exist
+     * in the entire scope chain, preventing shadowing of variables in ancestor scopes.
+     *
+     * @param name the name of the variable to define.
+     * @implNote The default implementation first checks if the variable exists using {@link #contains(String)}.
+     * If it exists, it returns {@code false}. If it does not exist, it calls {@link #define(String)}
+     * to define the variable in the current scope and returns {@code true}.
+     */
+    default void lazyDefine(String name){
+        if (!contains(name)) {
+            define(name);
+        }
+    }
+    /**
+     * Defines a new variable in the current scope only if it does not already exist
+     * in the current scope.
+     * <p>
+     * If the variable with the specified name already exists in the current scope,
+     * this call has no effect.
+     * If it does not exist, a new variable is defined in the current scope.
+     *
+     * @param name the name of the variable to define.
+     * @implNote The default implementation simply calls {@link #define(String)}.
+     * Because {@link #define(String)} has no effect if the variable already exists
+     * in the current scope, this method effectively ensures the variable is defined
+     * locally if it does not already exist locally.
+     * @implSpec There is no reason to override this method because it is
+     * effectively the same as {@link #define(String)}.
+     */
+    default void lazyDefineLocal(String name){
+        define(name);
+    }
     /**
      * Assigns a value to an existing variable in the current scope or any ancestor scope.
      * <p>
      * In general, the variable with the specified name in the most local scope is assigned.
      * If no variable with the specified name exists in the scope hierarchy,
      * an {@code NoSuchElementException} exception is thrown.
+     * <p>
+     * For lazy assignment that defines the variable if it does not exist,
+     * see {@link #lazyAssign(String, Object)}.
      *
      * @param name  the name of the variable to assign.
      * @param value the value to assign.
@@ -206,10 +251,67 @@ public interface Scope {
      */
     void assign(String name, Object value);
     /**
-     * Removes a variable from the current scope only.
+     * Assigns a value to a variable in the current scope, defining it first if it does not exist.
+     * <p>
+     * If the variable with the specified name already exists in the current scope or any ancestor,
+     * it is assigned the new value. If it does not exist, a new variable is defined in the current
+     * scope and then assigned the value.
+     * <p>
+     * Notice that if a variable with the same name exists in a parent scope but not in the current scope,
+     * that variable is modified instead of defining a new variable in the current scope. This may
+     * result in dangerous side effects if not intended.
+     * <p>
+     * For lazy assignment that always defines the variable in the current scope, see
+     * {@link #lazyAssignLocal(String, Object)}.
+     *
+     * @param name  the name of the variable to assign.
+     * @param value the value to assign.
+     * @implNote The default implementation first checks if the variable exists using {@link #contains(String)}.
+     * If it exists, it calls {@link #assign(String, Object)} to assign the value.
+     * If it does not exist, it calls {@link #define(String)} to define the variable in the current scope,
+     * and then calls {@link #assign(String, Object)} to assign the value.
+     */
+    default void lazyAssign(String name, Object value){
+        if (contains(name)) {
+            assign(name, value);
+        } else {
+            define(name);
+            assign(name, value);
+        }
+    }
+    /**
+     * Defines a new variable in the current scope and assigns it a value locally, shadowing
+     * any variable with the same name in ancestor scopes.
+     * <p>
+     * If the variable already exists in this scope, it is assigned the new value.
+     * If not, a new variable is defined in the current scope and then assigned the value.
+     * This method ensures that the variable is always defined in the current scope,
+     * regardless of whether a variable with the same name exists in a parent scope.
+     * <p>
+     * This may lead to unintended shadowing of variables in ancestor scopes, which
+     * should be used with caution. If shadowing is not desired, use
+     * {@link #lazyAssign(String, Object)} instead.
+     *
+     * @param name  the name of the variable to define and assign.
+     * @param value the value to assign.
+     * @implNote The default implementation is a sequence of {@link #define(String)}
+     * and {@link #assign(String, Object)}. Because {@link #define(String)} has no effect
+     * if the variable already exists in the current scope, this method effectively
+     * ensures the variable is defined locally before assignment.
+     */
+    default void lazyAssignLocal(String name, Object value){
+        define(name);
+        assign(name, value);
+    }
+    /**
+     * Removes a variable from the current scope only, return whether the variable is removed.
      * <p>
      * If the variable does not exist in the current scope, this call has no effect.
      * Variables with the same name in ancestor scopes are not affected.
+     * <p>
+     * To recursively remove all variable from all ancestor scopes, see {@link #destroyRecursive(String)}.
+     * To remove the most local occurrence of the variable from the entire scope chain,
+     * see {@link #destroy(String)}.
      *
      * @param name the name of the variable to remove.
      * @implSpec The implementation of this method is responsible for
@@ -217,8 +319,73 @@ public interface Scope {
      * in the current scope, the method should simply return without any action. If the implementation
      * enforces type constraints, it should ensure a variable of the same name but different type can
      * be created later after the existing variable is destroyed.
+     * @return {@code true} if the variable was present and removed, {@code false} otherwise.
      */
-    void destroy(String name);
+    boolean destroyLocal(String name);
+    /**
+     * Removes a variable from the current scope or any ancestor scope, return whether
+     * a variable is removed.
+     * <p>
+     * In general, the variable with the specified name in the most local scope is removed.
+     * If no variable with the specified name exists in the scope hierarchy,
+     * this call has no effect.
+     * <p>
+     * For simple scope usage, this might not be the desired behavior. Consider using
+     * {@link #destroyLocal(String)} to remove a variable only from the current scope.
+     * <p>
+     * The method differs from {@link #destroyRecursive(String)} in that it removes
+     * only the most local occurrence of the variable, not all occurrences in the entire
+     * scope chain. Thus, this is generally safer.
+     *
+     * @param name the name of the variable to remove.
+     * @implNote The default implementation first attempts to remove the variable
+     * from the current scope using {@link #destroyLocal(String)}. If that fails,
+     * it recursively calls {@code destroy} on the parent scope. If no parent exists,
+     * the method simply returns without any action.
+     * @return {@code true} if a variable was removed, {@code false} otherwise.
+     */
+    default boolean destroy(String name){
+        if (destroyLocal(name)) {
+            return true;
+        } else {
+            Scope parent = parent();
+            if (parent != null) {
+                return parent.destroy(name);
+            }
+        }
+        return false;
+    }
+    /**
+     * Removes all variables from the current scope and all ancestor scopes, return whether
+     * any variable is removed.
+     * <p>
+     * All variables with the specified name in the current scope and all ancestor scopes
+     * are removed. If no variable with the specified name exists in the scope hierarchy,
+     * this call has no effect.
+     * <p>
+     * For simple scope usage, this might not be the desired behavior. Consider using
+     * {@link #destroyLocal(String)} to remove a variable only from the current scope.
+     * <p>
+     * The method differs from {@link #destroy(String)} in that it removes
+     * all occurrences of the variable in the entire scope chain, not just
+     * the most local one.
+     *
+     * @param name the name of the variable to remove.
+     * @implNote The default implementation first removes the variable
+     * from the current scope using {@link #destroyLocal(String)}. It then
+     * recursively calls {@code destroyRecursive} on the parent scope if it exists.
+     * @return {@code true} if any variable was removed, {@code false} otherwise.
+     */
+    default boolean destroyRecursive(String name){
+        boolean removed = destroyLocal(name);
+        Scope parent = parent();
+        if (parent != null) {
+            if (parent.destroyRecursive(name)){
+                removed = true;
+            }
+        }
+        return removed;
+    }
     /**
      * Retrieves the value of a variable from the current scope or one of its ancestors.
      * <p>
