@@ -273,4 +273,18 @@ public class StackScope implements Scope {
         }
         throw new NoSuchElementException("Variable '" + name + "' not defined in current or ancestor scopes.");
     }
+    /**
+     * Returns a string representation of the current scope for debugging purposes.
+     * <p>
+     * The string includes the scope's index in the stack, the number of variables
+     * defined in the current scope, and a listing of the variable names and their
+     * current values.
+     * <p>
+     * If the scope is invalidated, the string indicates that the scope is invalid.
+     * @return a string representation of the current scope.
+     */
+    @Override
+    public String toString() {
+        return "StackScope{index=" + index + ", stackSize=" + stack.size() + ", variables=" + map + "}";
+    }
 }

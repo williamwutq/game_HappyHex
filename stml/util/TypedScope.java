@@ -357,12 +357,21 @@ public class TypedScope implements Scope {
         }
         throw new java.util.NoSuchElementException("Variable '" + name + "' with type " + clazz.getName() + " is not defined in the current scope or any ancestor.");
     }
+    /**
+     * Return a string representation of the scope for debugging purposes.
+     * This includes the variables defined in the current scope and a recursive
+     * representation of the parent scope.
+     * <p>
+     * The format is:
+     * <pre>
+     * TypedScope{variables={var1=value1, var2=value2, ...}, parent=TypedScope{...}}
+     * </pre>
+     * If the scope is global (has no parent), it indicates "global" instead of
+     * showing a parent scope.
+     * @return a string representation of the scope.
+     */
+    @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("TypedScope{");
-        sb.append("variables=").append(variables);
-        sb.append(", parent=").append(parent == null ? "null" : parent.toString());
-        sb.append('}');
-        return sb.toString();
+        return "TypedScope{variables=" + variables.toString() + ", " + (parent == null ? "global" : "parent=" + parent.toString()) + '}';
     }
 }

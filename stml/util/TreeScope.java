@@ -155,4 +155,21 @@ public class TreeScope implements Scope {
     private static boolean isValidName(String name) {
         return name != null && !name.isBlank();
     }
+    /**
+     * Return a string representation of the scope for debugging purposes.
+     * This includes the variables defined in the current scope and a recursive
+     * representation of the parent scope.
+     * <p>
+     * The format is:
+     * <pre>
+     * TreeScope{variables={var1=value1, var2=value2, ...}, parent=TypedScope{...}}
+     * </pre>
+     * If the scope is global (has no parent), it indicates "global" instead of
+     * showing a parent scope.
+     * @return a string representation of the scope.
+     */
+    @Override
+    public String toString() {
+        return "TreeScope{variables=" + variables.toString() + ", " + (parent == null ? "global" : "parent=" + parent.toString()) + '}';
+    }
 }

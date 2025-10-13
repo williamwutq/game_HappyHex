@@ -230,4 +230,17 @@ public class ScopeView {
             return current.lookup(name);
         }
     }
+    /**
+     * Return a string representation of the current scope.
+     * This method provides a string representation of the current scope,
+     * which can be useful for debugging and logging purposes.
+     *
+     * @return A string representation of the current scope.
+     */
+    @Override
+    public String toString() {
+        synchronized (root) {
+            return current.toString();
+        }
+    }
 }
