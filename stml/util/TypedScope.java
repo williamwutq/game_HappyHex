@@ -48,10 +48,13 @@ public class TypedScope implements Scope {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
             TypePair other = (TypePair) obj;
+            System.out.println(name + " vs " + other.name);
+            System.out.println(type + " vs " + other.type);
+            System.out.println(name.equals(other.name) + " && " + type.equals(other.type));
             return name.equals(other.name) && type.equals(other.type);
         }
     }
-    private final Scope parent;
+    private final TypedScope parent;
     private final Map<TypePair, Object> variables;
     /**
      * Constructs a new child {@code TypedScope} with the specified parent.
@@ -59,7 +62,7 @@ public class TypedScope implements Scope {
      *
      * @param parent the parent scope of this new scope.
      */
-    private TypedScope (Scope parent) {
+    private TypedScope (TypedScope parent) {
         this.parent = parent;
         this.variables = new HashMap<>();
     }
@@ -75,7 +78,7 @@ public class TypedScope implements Scope {
     }
     /** {@inheritDoc} */
     @Override
-    public Scope parent() {
+    public TypedScope parent() {
         return parent;
     }
     /**
@@ -84,7 +87,7 @@ public class TypedScope implements Scope {
      * If the child scope modify variables in the parent scope, the changes will be visible in this scope.
      */
     @Override
-    public Scope make() {
+    public TypedScope make() {
         return new TypedScope(this);
     }
     /**
@@ -234,9 +237,75 @@ public class TypedScope implements Scope {
      * @param clazz the expected class type of the variable to remove.
      * @param name  the name of the variable to remove.
      */
-    public void destroy(Class<?> clazz, String name) {
+    public boolean destroyLocal(Class<?> clazz, String name) {
         TypePair key = new TypePair(name, clazz);
-        variables.remove(key);
+        return variables.remove(key) != null;
+    }
+    /**
+     * Removes a variable from the current scope or any ancestor scope, return whether
+     * a variable is removed.
+     * <p>
+     * In general, the variable with the specified name in the most local scope is removed.
+     * If no variable with the specified name exists in the scope hierarchy,
+     * this call has no effect.
+     * <p>
+     * For simple scope usage, this might not be the desired behavior. Consider using
+     * {@link #destroyLocal(Class, String)} to remove a variable only from the current scope.
+     * <p>
+     * The method differs from {@link #destroyRecursive(Class, String)} in that it removes
+     * only the most local occurrence of the variable, not all occurrences in the entire
+     * scope chain. Thus, this is generally safer.
+     * <p>
+     * This will destroy all variables with the given name, regardless of their type,
+     * in the current scope or any ancestor scope.
+     * If no variable with the specified name exists in any scope, this call has no effect.
+     *
+     * @implNote The implementation of this method in {@code TypedScope} first checks if the variable
+     * is defined in the current scope using {@link #containsLocal(String)}. If found, it removes all
+     * matching entries from the local {@code variables} map. If not found locally, it recursively calls
+     * {@code destroy} on the parent scope.
+     * @return {@code true} if any variables were removed, {@code false} otherwise.
+     */
+    public boolean destroy(Class<?> clazz, String name) {
+        TypedScope scope = this;
+        while (scope != null) {
+            if (scope.destroyLocal(clazz, name)) {
+                return true;
+            }
+            scope = scope.parent;
+        }
+        return false;
+    }
+    /**
+     * Removes all variables with the specified name and type from the current scope
+     * and all ancestor scopes, returning whether any variable was removed.
+     * <p>
+     * This method traverses the entire scope chain, removing all occurrences of
+     * the variable with the given name and type. If no such variable exists in
+     * any scope, this call has no effect.
+     * <p>
+     * This is a more aggressive operation than {@link #destroy(Class, String)},
+     * which only removes the most local occurrence of the variable. Use this method
+     * with caution, as it can affect multiple scopes.
+     *
+     * @param clazz the expected class type of the variable to remove.
+     * @param name  the name of the variable to remove.
+     * @return {@code true} if any variables were removed, {@code false} otherwise.
+     * @implNote The implementation of this method in {@code TypedScope} first checks if the variable
+     * is defined in the current scope using {@link #containsLocal(String)}. If found, it removes all
+     * matching entries from the local {@code variables} map. If not found locally, it recursively calls
+     * {@code destroy} on the parent scope.
+     */
+    public boolean destroyRecursive(Class<?> clazz, String name) {
+        boolean removed = false;
+        TypedScope scope = this;
+        while (scope != null) {
+            if (scope.destroyLocal(clazz, name)) {
+                removed = true;
+            }
+            scope = scope.parent;
+        }
+        return removed;
     }
     /**
      * {@inheritDoc}
@@ -284,8 +353,16 @@ public class TypedScope implements Scope {
         }
         // Not found locally, check parent
         if (parent != null) {
-            return parent.lookup(name);
+            return parent.lookup(clazz, name);
         }
         throw new java.util.NoSuchElementException("Variable '" + name + "' with type " + clazz.getName() + " is not defined in the current scope or any ancestor.");
+    }
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TypedScope{");
+        sb.append("variables=").append(variables);
+        sb.append(", parent=").append(parent == null ? "null" : parent.toString());
+        sb.append('}');
+        return sb.toString();
     }
 }
