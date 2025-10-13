@@ -270,6 +270,8 @@ public interface Scope {
      * If it exists, it calls {@link #assign(String, Object)} to assign the value.
      * If it does not exist, it calls {@link #define(String)} to define the variable in the current scope,
      * and then calls {@link #assign(String, Object)} to assign the value.
+     * @throws ClassCastException if the implementation enforces type constraints
+     *         and the provided value is incompatible with the variable's type.
      */
     default void lazyAssign(String name, Object value){
         if (contains(name)) {
@@ -298,6 +300,8 @@ public interface Scope {
      * and {@link #assign(String, Object)}. Because {@link #define(String)} has no effect
      * if the variable already exists in the current scope, this method effectively
      * ensures the variable is defined locally before assignment.
+     * @throws ClassCastException if the implementation enforces type constraints
+     *          and the provided value is incompatible with the variable's type.
      */
     default void lazyAssignLocal(String name, Object value){
         define(name);
