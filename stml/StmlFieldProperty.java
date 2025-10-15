@@ -122,4 +122,32 @@ public enum StmlFieldProperty {
 	public boolean permitsAnyWrite() {
 		return !isFinal && !isClosed;
 	}
+	/**
+	 * Return a finalized version of this {@code StmlFieldProperty}
+	 * <p>
+	 * If the property is already final, it stays final. Otherwise, the corresponding
+	 * field that is final is returned.
+	 * <p>
+	 * Do not confuse this method with {@link #isFinal()}, which returns <em>whether</em>
+	 * the property is final.
+	 */
+	public StmlFieldProperty finalized() {
+	    if (this == DEFAULT || this == FINAL) {
+		return FINAL;
+	    } else return IMMUTABLE;
+	}
+	/**
+         * Return a closed version of this {@code StmlFieldProperty}
+         * <p>
+         * If the property is already closed, it stays closed. Otherwise, the corresponding
+         * field that is final is returned.
+         * <p>
+         * Do not confuse this method with {@link #isClosed()}, which returns <em>whether</em>
+         * the property is closed.
+         */
+	public StmlFieldProperty closed() {
+	    if (this == DEFAULT || this == CLOSED) {
+		return CLOSED;
+	    } else return IMMUTABLE;
+	}
 }
