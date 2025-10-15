@@ -361,7 +361,14 @@ public final class GameEssentials implements GameGUIInterface {
             if (GameEssentials.getTurn() != 0) {
                 System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game ends by force quitting.");
                 GameEssentials.logGame();
+                int t = getTurn();
+                if (t == 1){
+                    markIfExists("Come On!");
+                } else if (t < 20) {
+                    markIfExists("Sweet Home");
+                }
             } else {
+                markIfExists("Zero Footprint");
                 System.out.println(io.GameTime.generateSimpleTime() + " GameEssentials: Game quits without change.");
             }
             CompletableFuture.runAsync(autoplayHandler::genericClose);
@@ -377,6 +384,9 @@ public final class GameEssentials implements GameGUIInterface {
             if (GameEssentials.getTurn() != 0) {
                 logGame();
                 markIfExists("Game On");
+                if (getTurn() < 20) {
+                    markIfExists("SadHex");
+                }
             }
             resetGame();
             Launcher.LauncherGUI.toGameOver();

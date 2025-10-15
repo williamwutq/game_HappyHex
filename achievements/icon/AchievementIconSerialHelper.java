@@ -36,11 +36,127 @@ import java.awt.*;
  * This class provides static methods to convert between AchievementIcon instances
  * and their JSON representations. It handles different types of AchievementIcon,
  * including AchievementEmptyIcon, AchievementTextIcon, and AchievementShapedIcon.
+ * <p>
+ * Json requirements:
+ * <ul>
+ * <li>
+ * If the "icon" key is missing, null, or an empty object, it is treated as AchievementEmptyIcon.
+ * <p>
+ * The following Json examples are valid representations of empty icons:
+ * {@code {}}, {@code {"icon": null}}, {@code {"icon": {}}}
+ * <pre>
+ * </li>
+ * <li>
+ * If the "icon" key contains a JsonObject, a text field, and a color field, it is treated as AchievementTextIcon.
+ * <p>
+ * The following Json examples are valid representations of text icons:
+ * {@snippet lang=json :
+ * {
+ *   "icon":
+ *   {
+ *     "text": "16",
+ *     "color": {"r": 255, "g": 0, "b": 0}
+ *   }
+ * }} and
+ * {@snippet lang=json :
+ * {
+ *   "icon":
+ *   {
+ *     "text": "@HERE",
+ *     "color": "#AACC00FF"
+ *   }
+ * }}
+ * </li>
+ * <li>
+ * If the "icon" key contains a JsonObject with "background" and "base" fields, it is treated as AchievementGradientIcon.
+ * The "background" field must contain color fields "00", "01", "10", and "11" for the four corners of the gradient.
+ * The "base" field is recursively deserialized into another AchievementIcon, so it must have an "icon" key.
+ * <p>
+ * The following Json example is a valid representation of a gradient icon:
+ * {@snippet lang=json :
+ * {
+ *   "icon":
+ *   {
+ *     "background":
+ *     {
+ *       "00": "#FF0000",
+ *       "01": "#00FF00",
+ *       "10": "#0000FF",
+ *       "11": "#FFFF00"
+ *     },
+ *     "base":
+ *     {
+ *       "icon":
+ *       {
+ *         "text": "Good Game",
+ *         "color": "#FFFFFF"
+ *       }
+ *     }
+ *   }
+ * }}
+ * The following Json examples are not valid:
+ * {@snippet lang=json :
+ * {
+ * "icon":
+ *   {
+ *   "background":
+ *     {
+ *       "00": "#FF0000",
+ *       "01": "#00FF00",
+ *       "10": "#0000FF",
+ *       "11": "#FFFF00"
+ *     },
+ *     "base":
+ *     {
+ *       "text": "Missing icon key",
+ *       "color": "#000000"
+ *     }
+ *   }
+ * }}
+ * or
+ * {@snippet lang=json :
+ * {
+ *   "icon":
+ *   {
+ *     "background":
+ *     {
+ *       "00": "#FF0000",
+ *       "01": "#00FF00",
+ *       "10": "#0000FF",
+ *       "11": "#FFFF00"
+ *     },
+ *     "base":
+ *     {
+ *       "icon":
+ *       {
+ *         "background":
+ *         {
+ *           "00": "#FF0000",
+ *           "01": "#00FF00",
+ *           "10": "#0000FF",
+ *           "11": "#FFFF00"
+ *         },
+ *         "base": {
+ *           "icon": {
+ *             "text": "Illegal Recursion of Background",
+ *             "color": "#FFFFFF"
+ *           }
+ *         }
+ *       }
+ *     }
+ *   }
+ * }}
+ * In the first case, the "base" field is missing the required "icon" key.
+ * In the second case, the "base" field contains another gradient icon, which is not allowed, as if this were to be allowed,
+ * the operation could not decide which gradient background to apply any may not apply any at all.
+ * </li>
+ * </ul>
  *
  * @see AchievementIcon
  * @see AchievementEmptyIcon
  * @see AchievementTextIcon
  * @see AchievementShapedIcon
+ * @see JsonColorConverter
  * @author William Wu
  * @version 2.0
  */
@@ -107,7 +223,7 @@ public class AchievementIconSerialHelper {
             } catch (ClassCastException ignored) {
                 // If it fails, continue
             } catch (DataSerializationException | IllegalArgumentException e) {
-                throw new DataSerializationException("Failed to deserialize AchievementIcon because " + e.getMessage(), e);
+                throw new DataSerializationException("Failed to deserialize AchievementIcon", e);
             }
             try {
                 // Attempt to deserialize as Json Array, turn into AchievementShapedIcon
@@ -115,9 +231,9 @@ public class AchievementIconSerialHelper {
             } catch (ClassCastException e) {
                 // An exception is thrown instead of retuning empty icon because the 'icon' key exists but is of an invalid type
                 // This is considered illegal data, while a missing 'icon' key is considered valid and returns an empty icon
-                throw new DataSerializationException("Failed to deserialize AchievementIcon: 'icon' is neither a JsonObject nor a JsonArray.", e);
+                throw new DataSerializationException("Failed to deserialize AchievementIcon: 'icon' is neither a JsonObject nor a JsonArray", e);
             } catch (DataSerializationException e) {
-                throw new DataSerializationException("Failed to deserialize AchievementIcon because " + e.getMessage(), e);
+                throw new DataSerializationException("Failed to deserialize AchievementIcon", e);
             }
         }
     }

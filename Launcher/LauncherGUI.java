@@ -27,14 +27,22 @@ package Launcher;
 import GUI.GameEssentials;
 import Launcher.panel.*;
 import achievements.GameAchievement;
+import util.fgui.GraphicsDisplayer;
+import util.fgui.GraphicsProvider;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 
-public class LauncherGUI {
+public class LauncherGUI implements GraphicsDisplayer {
+    public static LauncherGUI INSTANCE = new LauncherGUI(); // Singleton for interface
+    private LauncherGUI (){
+        // Prevent instantiation
+    }
     private static JFrame mainFrame;
+    private static JFrame popUpFrame = null;
+    private static GraphicsProvider lastProvider = null;
     public static void launch(){
         setupMainFrame();
         LaunchEssentials.initialize();
@@ -114,6 +122,19 @@ public class LauncherGUI {
                 "Try autoplay, I said",
                 "Games are no-brainer",
                 "What is the coolest feature?",
+                "Achievements are cool",
+                "Try to unlock all achievements",
+                "Have a goal, player",
+                "Trophies, what does it do?",
+                "Trophies, what are they?",
+                "Try to unlock all trophies",
+                "There's meanings behind games",
+                "Try to get all trophies",
+                "Could this game be beaten?",
+                "What is the meaning of life",
+                "How did we get to there",
+                "When theme change, icon stay",
+                "From welcome to ??????"
         };
         return hints[LaunchEssentials.getRandomIndex(hints.length)];
     }
@@ -149,8 +170,29 @@ public class LauncherGUI {
         ImageIcon icon = new ImageIcon(LauncherGUI.class.getResource(path));
         return icon.getImage();
     }
+    private static JFrame makePopUpFrame(String title){
+        JFrame popUpFrame = new JFrame("HappyHex " + title);
+        popUpFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        popUpFrame.setLayout(new BorderLayout());
+        popUpFrame.setSize(new Dimension(400, 200));
+        popUpFrame.setLocationRelativeTo(mainFrame); // Center relative to main frame
+        popUpFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                if (lastProvider != null){
+                    lastProvider.close();
+                    lastProvider = null;
+                }
+                popUpFrame.dispose();
+            }
+        });
+        popUpFrame.setBackground(LaunchEssentials.launchBackgroundColor);
+        popUpFrame.setIconImage(fetchIconImage());
+        Taskbar.getTaskbar().setIconImage(fetchIconImage());
+        popUpFrame.setResizable(false);
+        return popUpFrame;
+    }
     private static void setupMainFrame(){
-        mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion);
+        mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion){};
         mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setLayout(new BorderLayout());
         mainFrame.setBackground(LaunchEssentials.launchBackgroundColor);
@@ -265,5 +307,47 @@ public class LauncherGUI {
         mainFrame.add(fetchGameOverPanel(), BorderLayout.CENTER);
         mainFrame.revalidate();
         mainFrame.repaint();
+    }
+    public static void showPopUp(Component panel){
+        popUpFrame = makePopUpFrame("Pop-Up");
+        popUpFrame.add(panel, BorderLayout.CENTER);
+        popUpFrame.setVisible(true);
+        popUpFrame.repaint();
+    }
+    public static void closePopUp() {
+        if (popUpFrame == null) return;
+        popUpFrame.setVisible(false);
+        popUpFrame.dispose();
+        popUpFrame = null;
+    }
+
+    @Override
+    public void display(Component component) {
+        if (component == null) return;
+        if (popUpFrame != null){
+            closePopUp();
+            popUpFrame = null;
+            showPopUp(component);
+        } else {
+            showPopUp(component);
+        }
+    }
+    @Override
+    public void accept(GraphicsProvider provider) {
+        if (provider == null) return;
+        lastProvider = provider;
+        GraphicsDisplayer.super.accept(provider);
+    }
+
+    @Override
+    public void remove() {
+        if (popUpFrame != null){
+            closePopUp();
+        }
+    }
+    @Override
+    public Component current() {
+        if (popUpFrame == null) return null;
+        return popUpFrame.getContentPane().getComponent(0);
     }
 }

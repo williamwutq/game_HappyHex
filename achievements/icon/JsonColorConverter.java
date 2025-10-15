@@ -46,6 +46,16 @@ import java.awt.*;
  * All color representations contain four components: red, green, blue, and alpha (opacity).
  * Each component is an integer in the range [0, 255].
  * <p>
+ * The following JSON representations are supported: (using the example of an opaque red color)
+ * <ul>
+ *   <li>JsonArray: [255, 0, 0, 255]</li>
+ *   <li>JsonArray (without alpha): [255, 0, 0] (alpha defaults to 255)</li>
+ *   <li>JsonObject: {"r": 255, "g": 0, "b": 0, "a": 255}</li>
+ *   <li>JsonObject (without alpha): {"r": 255, "g": 0, "b": 0} (alpha defaults to 255)</li>
+ *   <li>String: "#FF0000FF"</li>
+ *   <li>String (without alpha): "#FF0000" (alpha defaults to 255)</li>
+ * </ul>
+ * <p>
  * It is recommended to use the JsonArray representation for compactness, when possible.
  * <p>
  * This class is not instantiable and only provides static utility methods.
@@ -65,15 +75,19 @@ public class JsonColorConverter {
     }
     /**
      * Converts a JSON array to a Color object.
-     * The JSON array must have exactly 4 elements representing the RGBA components of the color.
+     * The JSON array must have exactly 4 elements representing the RGBA components of the color or 3 elements representing RGB (alpha defaults to 255).
      *
      * @param array The JsonArray to convert.
      * @return A Color object representing the color.
      * @throws IllegalArgumentException if the array does not have exactly 4 elements, or if the elements are not valid integers in the range [0, 255].
      */
     public static Color jsonArrayToColor(JsonArray array){
-        if (array.size() != 4) throw new IllegalArgumentException("Color array must have exactly 4 elements (r, g, b, a)");
-        return new Color(array.getInt(0), array.getInt(1), array.getInt(2), array.getInt(3));
+        if (array.size() == 4) {
+            return new Color(array.getInt(0), array.getInt(1), array.getInt(2), array.getInt(3));
+        } else if (array.size() == 3) {
+            return new Color(array.getInt(0), array.getInt(1), array.getInt(2), 255);
+        }
+        throw new IllegalArgumentException("Color array must have exactly 4 elements (r, g, b, a)");
     }
     /**
      * Converts a Color object to a JSON object.
@@ -92,16 +106,17 @@ public class JsonColorConverter {
     }
     /**
      * Converts a JSON object to a Color object.
-     * The JSON object must contain the keys "r", "g", "b", and "a" representing the RGBA components of the color.
+     * The JSON object must contain the keys "r", "g", and "b" representing the RGBA components of the color.
+     * The "a" key is optional and defaults to 255 if not present.
      *
      * @param obj The JsonObject to convert.
      * @return A Color object representing the color.
      * @throws IllegalArgumentException if any of the required keys are missing, or if the values are not valid integers in the range [0, 255].
      */
     public static Color jsonObjectToColor(JsonObject obj){
-        if (!obj.containsKey("r") || !obj.containsKey("g") || !obj.containsKey("b") || !obj.containsKey("a"))
-            throw new IllegalArgumentException("Color object must contain keys 'r', 'g', 'b', and 'a'");
-        return new Color(obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a"));
+        if (!obj.containsKey("r") || !obj.containsKey("g") || !obj.containsKey("b"))
+            throw new IllegalArgumentException("Color object must contain keys 'r', 'g', and 'b'");
+        return new Color(obj.getInt("r"), obj.getInt("g"), obj.getInt("b"), obj.getInt("a", 255));
     }
     /**
      * Converts a Color object to a string representation in the format #RRGGBBAA.

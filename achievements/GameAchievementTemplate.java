@@ -39,6 +39,8 @@ import java.util.function.Predicate;
  * Implementing classes should provide a unique name and description for the achievement, as well as
  * the logic to determine if the achievement has been achieved. Implementing classes can optionally
  * provide an icon from the achievement, or a default icon will be provided. All templates should be immutable.
+ * Optionally, more detailed information about the achievement can be provided by overriding the
+ * {@link #details()} method.
  * <p>
  * This interface is intended to be used in conjunction with game state management systems to track
  * and reward player accomplishments.
@@ -69,6 +71,17 @@ public interface GameAchievementTemplate extends Predicate<GameState> {
      * @return the description of the achievement
      */
     String description();
+    /**
+     * Additional details about the achievement. This may provide more context or information about
+     * how to achieve it.
+     * <p>
+     * By default, this method returns the same value as {@link #description()}. Implementing classes
+     * can override this method to provide more detailed information if desired.
+     * @return additional details about the achievement
+     */
+    default String details() {
+        return description();
+    }
     /**
      * The icon representing the achievement. This icon will be displayed in the game's UI.
      * <p>

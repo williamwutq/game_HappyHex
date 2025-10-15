@@ -24,6 +24,8 @@
 
 package hex;
 
+import java.util.function.Predicate;
+
 /**
  * The {@code Block} class extends {@link Hex} and represents a colored block with an occupancy state
  * within the hexagonal grid system.
@@ -45,9 +47,9 @@ package hex;
  * @see Hex
  * @since 0.6
  * @author William Wu
- * @version 1.3
+ * @version 2.0
  */
-public class Block extends Hex{
+public class Block extends Hex implements Cloneable, Predicate<Hex> {
     private int color;
     private boolean state;
 
@@ -286,5 +288,20 @@ public class Block extends Hex{
      */
     public Block subtract(Hex other){
         return new Block(thisHex().subtract(other), this.color, this.state);
+    }
+
+    /**
+     * Tests if the given hex coordinate is occupied.
+     * <p>
+     * If the given hex coordinate is not this coordinate, it will return false.
+     * If this coordinate is not occupied, it will return false.
+     * @param hex The hex coordinate to test.
+     * @return true if the given hex coordinate is equal to this block and this block is occupied, false otherwise.
+     * @since 2.0
+     */
+    @Override
+    public boolean test(Hex hex) {
+        if (hex == null) return false;
+        return this.equals(hex) && this.state;
     }
 }

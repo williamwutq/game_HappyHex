@@ -24,6 +24,7 @@
 
 package game;
 
+import static achievements.abstractimpl.MarkableAchievement.markIfExists;
 import hex.Piece;
 
 /**
@@ -154,6 +155,9 @@ public class Queue{
     public Piece next(){
         Piece next = getFirst();
         Piece generated = generate(next);
+        if (PieceFactory.isEasy()){
+            markIfExists("Easy Peasy");
+        }
         for(int i = 1; i < pieces.length; i ++){
             pieces[i - 1] = pieces[i];
         }
@@ -177,6 +181,9 @@ public class Queue{
         } else {
             Piece fetch = pieces[index];
             Piece generated = generate(fetch);
+            if (PieceFactory.isEasy()){
+                markIfExists("Easy Peasy");
+            }
             for(int i = index + 1; i < pieces.length; i ++){
                 pieces[i - 1] = pieces[i];
             }

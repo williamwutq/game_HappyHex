@@ -26,16 +26,15 @@ package Launcher;
 
 import GUI.GameEssentials;
 import achievements.GameAchievement;
-import achievements.GameAchievementTemplate;
 import hexio.HexLogger;
 import io.*;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
 
 /**
  * The {@link LaunchEssentials} class provides essential launcher utilities.
@@ -46,7 +45,7 @@ public final class LaunchEssentials {
         // Prevent instantiation
     }
     // Program info
-    public static final GameVersion currentGameVersion = new GameVersion(2, 0, 0);
+    public static final GameVersion currentGameVersion = new GameVersion(2, 0, 1);
     public static final String currentGameName = "HappyHex";
     public static final String currentEnvironment = "java";
 
@@ -246,10 +245,10 @@ public final class LaunchEssentials {
         try {
             GameAchievement.loadTemplate();
         } catch (IOException e) {
-            GameAchievement.shutdownAchievementSystem();
-            System.err.println(GameTime.generateSimpleTime() + " Achievement: Achievement System cannot be initialized due to template loading failure because " + e.getMessage());
+            System.err.println(GameTime.generateSimpleTime() + " Achievement: Achievement System cannot be properly initialized due to template loading failure because " + e.getMessage() + "\nSuppressed: " + Arrays.toString(e.getSuppressed()));
         }
         GameAchievement.initializeGameStateSupplier(GameEssentials::getGameState);
+        achievements.AchievementNotification.hookNotifier(Launcher.panel.AchievementNotificationPanel::fetch);
         // Debug: prints out all templates
 //        System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: Loaded " + GameAchievement.getTemplates().size() + " achievement templates:");
 //        for (GameAchievementTemplate t : GameAchievement.getTemplates()){

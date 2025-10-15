@@ -5,8 +5,8 @@ This is a very happy and fun game, with some Easter Eggs, for everyone :)
 
 <b>Author:</b> William Wu  
 <b>Languages:</b> Java ([Graphics](#Graphics-(GUI))), Python (used for autoplay and [ML](#develop--machine-learning))  
-<b>Last edited:</b> 10/09/2025  
-<b>Latest release:</b> [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.0)
+<b>Last edited:</b> 21/09/2025  
+<b>Latest release:</b> [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.1)
 
 > [!IMPORTANT]
 > This project need the following [dependencies](#Dependencies) to run:
@@ -195,6 +195,51 @@ The page contains the following elements:
 
   A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](#Main-Page).  
 
+#### Trophies Page
+
+This page displays the trophies and achievements the player has unlocked. Trophies are purely for fun and do not affect game play.
+
+The page contains the following elements:
+
+- <b>Game Title</b>
+
+  This is the exact same element as that in [Main Page](#Main-Page), with the only difference being the elimination of the space above this title.
+  The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
+  which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation.
+  The sequencing of the colors is randomized every time the page is refreshed.
+
+- <b>Achievements Title</b>
+  Under the Game Title, there is a text "Achievements", which indicates that this is the trophies page used to display achievements.
+  The font of this title will be the exact same font as that used in the [Settings Page](#Settings-Page).
+
+- <b>Close Button</b>
+
+  Unlike other close buttons with a "QUIT" text, this is a small button with an "X" text on it, located in the top right corner of the page.
+  When clicked, this button redirects to the [Main Page](#Main-Page) unconditionally. The button is automatically resized to the same size as
+  the height of the achievements title and is on the exact same horizontal line as the title.
+
+- <b>Trophies Display Area</b>
+
+  This is an area that displays all the trophies and achievements the player has unlocked.
+  Each trophy is represented by an icon, its name, and a description of how to unlock it.
+  If the player has not unlocked any trophies, this area will be blank.
+  Underneath all the achievement items there is a small area with a text and four buttons, used to navigate through the pages of trophies.
+  The text displays the current page number, in the format "Page X", and the buttons function as follows:
+  - `<<`: Go to the first page of trophies.
+  - `<`: Go to the previous page of trophies.
+  - `>`: Go to the next page of trophies.
+  - `>>`: Go to the last page of trophies.
+  Displayed content and the page number will change accordingly when the buttons are clicked.
+
+  It is important to mention that the number of items in a page is dynamically determined by the size of the game window. When the window is resized,
+  the number of items that can be displayed in a single page will change accordingly. The minimum number of items that will be displayed on a page is 1,
+  and the minimum number of item slots on a page is 3. If the page number is big and resizing changes the number of items displayed dramatically,
+  the indicated page number may change, but the content is preserved as much as possible.
+
+- <b>Game Credits</b>
+
+  A section detailing the credit and copyright information of the HappyHex game, identical to that in [Main Page](#Main-Page).
+
 #### Settings Page
 
 The settings page allows the player to control over key game parameters, enhancing the game functionality while make HappyHex more fun.  
@@ -203,7 +248,7 @@ The page contains the following elements:
 
 - <b>Game Title</b>  
   
-  This is the exact same element as that in [Main Page](Main-Page), with the only difference being the elimination of the space above this title.
+  This is the exact same element as that in [Main Page](#Main-Page), with the only difference being the elimination of the space above this title.
   The element contains the game title, appears on the topmost of the page. The title contain the characters "⬢HAPPY⬢⬢HEX⬢" with 12 different colors,
   which will be the exact same color as the [colors](#Normal-Color-Theme) used for piece and block generation. 
   The sequencing of the colors is randomized every time the page is refreshed.
@@ -542,6 +587,65 @@ generate the single-block piece but may generate the full 7-block piece.
   if machine learning models are enabled and available, and python evironment supporting that model is detected, the machine learning model will be used instead.
   When using a machine learning model, the autoplay will be smarter, but it will need time to load during startup.
 
+### Achievement System
+
+The **Achievement System** lets players earn and track achievements in a game. It's easy to use, saves progress,
+and works smoothly in the background.
+
+#### What It Does
+- **Defines Achievements**: Set up achievements with names, descriptions, and icons using simple templates.
+- **Tracks Player Progress**: Keeps a record of each player's achievements.
+- **Runs in the Background**: Updates achievements automatically without slowing down the game. This is achieved
+through a dedicated thread that handles achievement checks and a clock thread that triggers periodic updates.
+- **Saves Data**: Stores achievements as JSON files for easy loading and saving.
+
+#### Key Features
+**Achievement Templates (`GameAchievementTemplate`)**
+- **What They Are**: Blueprints for achievements with a name, description, and icon.
+- **How They Work**:
+    - Provide an unique name for identification and brief description.
+    - Define what players need to do to unlock the achievement.
+    - Can be configured with implementation specific JSON fields for variable criteria.
+    - Automatically generate a unique icon based on the achievement’s name (or use a custom one).
+    - Stay consistent and can’t be changed once set.
+
+**Player Achievements (`UserAchievements`)**
+- **What They Are**: A collection of achievements tied to a specific player.
+- **How They Work**:
+    - Save all achievements a player has earned.
+    - Each saved achievement is tied to its template for reference.
+    - Only the game system can update them to keep things safe and consistent.
+    - Can be saved to or loaded from JSON.
+
+**Special Achievements**
+- **Hidden Achievements**:
+    - Secret achievements players don’t see in the game interface.
+    - Used for tracking internal goals (e.g., game mechanics).
+    - Saved and loaded like regular achievements but hidden from view.
+- **Phantom Achievements**:
+    - Special achievements that always check conditions, even if already earned.
+    - Can be "unachieved" if conditions change.
+    - Never shown to players and used for ongoing system checks.
+- **Markable Achievements**:
+    - Achievements that can be triggered by things like button clicks or external events.
+    - Safe to use across different parts of the game.
+    - Must be reset when switching players to avoid mix-ups.
+
+#### How The System Works
+1. **Setup**: Load achievement templates from a JSON file included in the game.
+2. **Playing**: When a player is logged in, the system checks their progress in the background every 120ms (adjustable).
+3. **Saving**: Achievements are saved as JSON to keep progress safe.
+4. **Shutdown**: Stop the system cleanly to free up resources when the game is closed.
+
+#### JSON Setup
+Achievements are set up using JSON with these fields:
+- `name`: A unique name for the achievement (required).
+- `description`: What the achievement is about (required).
+- `icon`: The achievement’s visual (optional, auto-generated if not provided).
+- `type`: The kind of achievement (links to its specific rules).
+
+The setup is automatically loaded when the game starts, and its contents are fixed.
+
 ### Easter Eggs  
 #### Prohibited Usernames  
 The following usernames are prohibited from inputting into the log-in field in the log-in page. This includes the capitalized and lowercase
@@ -755,18 +859,13 @@ of the future but current architecture is being designed around it. At the same 
 
 ### Future Timeline
 > This timeline is subject to frequent change
-- Latest Release: [2.0.0](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.0)
+- Latest Release: [2.0.1](https://github.com/williamwutq/game_HappyHex/releases/tag/v2.0.1)
 
 > Version 2 will be fundamentally different from all of Version 1 and be incompatible.
 > - Add user achievements
 > - Add completed achievements and unlockable system
 > - Make themes and shinning font unlock-able
 > - Use machine learning to train AI for advanced autoplay
-  
-- Version 2.0.1
-  - Improve autoplay ml efficiency through asynchronous programming and optimization
-  - Add button to disable machine learning models
-  - Add the achievement system
 
 ## Code packages
 The packages in the source code, their dependencies, and their functions.
@@ -860,9 +959,17 @@ None
 To establish an interface to execute commands and enable callbacks between controllers and runners. This facilitates thus
 the communication between different processes by streamlining the command execution service.
 
+### Achievement System
+package `achievements`
+**Dependencies**:
+`io`, `GUI`, `util.geom`, `javax.json`, and `java.awt`
+**Function**:
+To manage the achievement system, including serializing and deserializing achievement data, tracking player progress, and displaying achievements in the GUI.
+It also spawns and manages its own threading system to handle achievement updates.
+
 ### Utility
 package `util`  
 **Dependencies**:  
-None  
+Various, depending on the utility  
 **Function**:  
 A bunch of utilities used by the game, mostly generated by artificial intelligence and modified by me.  

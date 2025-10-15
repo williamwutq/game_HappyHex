@@ -146,14 +146,14 @@ public class NotAchievedAchievement implements PhantomAchievementTemplate, JsonC
             throw new IllegalArgumentException("Invalid type: " + jsonObject.getString("type"));
         }
         if (!jsonObject.containsKey("name") || !jsonObject.containsKey("description") || !jsonObject.containsKey("template")) {
-            throw new DataSerializationException("Missing required fields in JSON object for NotAchievedAchievement.");
+            throw new DataSerializationException("Missing required fields in JSON object for NotAchievedAchievement");
         }
         String templateName = jsonObject.getString("template");
         Map<String, GameAchievementTemplate> templateMap = GameAchievement.getTemplates().stream()
                 .collect(Collectors.toMap(GameAchievementTemplate::name, t -> t));
         if (!templateMap.containsKey(templateName)) {
-            throw new DataSerializationException("Unknown requirement: " + templateName + ", templates may not have been loaded." +
-                    "If this is the initialization, serialize independent templates first.");
+            throw new DataSerializationException("Unknown requirement: " + templateName + ", templates may not have been loaded; " +
+                    "If this is the initialization, serialize independent templates first");
         } else {
             GameAchievementTemplate template = templateMap.get(templateName);
             return new NotAchievedAchievement(template);
@@ -164,7 +164,7 @@ public class NotAchievedAchievement implements PhantomAchievementTemplate, JsonC
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize not.", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
     }

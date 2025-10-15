@@ -274,7 +274,7 @@ public class GameAchievement implements JsonConvertible {
         if (isPhantom){
             // Phantom achievements always update
             try {
-                achieved = template.test(state);
+                achieved = template.test(state); // Phantom achievements can be un-achieved and are not announced
             } catch (Exception ignored) {
                 // Ideally, no exception should be thrown here, but this deals with poorly written templates
             }
@@ -289,11 +289,20 @@ public class GameAchievement implements JsonConvertible {
             if (newValue) {
                 achieved = true;
                 if (!isHidden) {
-                    // Only announce if not phantom or hidden
+                    notifyAchieved(); // Notify
                     System.out.println(GameTime.generateSimpleTime() + " Achievement: Achievement \"" + template.name() + "\" unlocked for " + user);
                 }
             }
         }
+    }
+    /**
+     * Notify that the achievement has been achieved by pushing a notification to the notification queue.
+     * This method should be called when the achievement is first achieved.
+     * <p>
+     * This method is none blocking and will return immediately. It can be run on any thread, including the AUT.
+     */
+    private void notifyAchieved(){
+        AchievementNotification.pushNotificationAsync(this.user, this.template);
     }
 
     // Serialization and deserialization
@@ -370,11 +379,20 @@ public class GameAchievement implements JsonConvertible {
      * @throws IOException if an I/O error occurs while reading the file
      */
     public static void loadTemplate() throws IOException {
-        GameAchievementTemplate[] templateArr = AchievementJsonSerializer.deserializeAchievementTemplateResource(TEMPLATES_FILE);
+        GameAchievementTemplate[] templateArr = new GameAchievementTemplate[0];
+        DataSerializationException storedException = null;
+        try {
+            templateArr = AchievementJsonSerializer.deserializeAchievementTemplateResource(TEMPLATES_FILE);
+        } catch (DataSerializationException e) {
+            storedException = e; // This does not catch IOExceptions
+        }
         synchronized (TEMPLATES) {
             for (GameAchievementTemplate template : templateArr) {
                 registerTemplate(template);
             }
+        }
+        if (storedException != null) {
+            throw storedException;
         }
     }
     /**
