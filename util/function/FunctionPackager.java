@@ -10,6 +10,8 @@ import java.util.function.*;
  * <p>
  * All functions are packaged into a {@link util.function.FailableFunction} that can throw any exception.
  * In this signature, the return type is {@code Object}, and the input is an array of {@code Object}, and the exception type is {@code Exception}.
+ * <p>
+ * To use, simply call the static {@code packFunc} method with the function to be packed as an argument.
  *
  * @see util.function.FailableFunction
  */
