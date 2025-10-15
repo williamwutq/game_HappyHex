@@ -74,7 +74,7 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize serial.", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
     }
@@ -233,8 +233,8 @@ public class SerialAchievement implements GameAchievementTemplate, JsonConvertib
         for (int i = 0; i < reqArray.size(); i++) {
             String reqName = reqArray.getString(i);
             if (!templateMap.containsKey(reqName)) {
-                throw new DataSerializationException("Unknown requirement: " + reqName + ", templates may not have been loaded." +
-                        "If this is the initialization, serialize independent templates first.");
+                throw new DataSerializationException("Unknown requirement: " + reqName + ", templates may not have been loaded; " +
+                        "If this is the initialization, serialize independent templates first");
             }
             requirements[i] = templateMap.get(reqName);
         }

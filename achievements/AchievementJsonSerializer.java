@@ -208,7 +208,7 @@ public class AchievementJsonSerializer {
             try {
                 type = obj.getString("type");
             } catch (Exception e) {
-                exceptions.add(new DataSerializationException("Invalid JSON: each achievement object must contain a 'type' field", e));
+                exceptions.add(new DataSerializationException("Invalid JSON: each achievement object must contain a 'type' field because " + unpackExceptionMessage(e)));
                 continue;
             }
             if (!obj.containsKey("name") || !obj.containsKey("description")) {
@@ -224,7 +224,7 @@ public class AchievementJsonSerializer {
             try {
                 template = deserializer.apply(obj);
             } catch (Exception e) {
-                exceptions.add(new DataSerializationException("Failed to deserialize achievement of type " + type, e.getCause()));
+                exceptions.add(new DataSerializationException("Failed to deserialize achievement of type " + type + " because " + unpackExceptionMessage(e)));
                 continue;
             }
             if (HiddenAchievement.isHidden(obj.getString("name"))) {
@@ -240,6 +240,44 @@ public class AchievementJsonSerializer {
             throw exception;
         }
         return achievements.toArray(new GameAchievementTemplate[0]);
+    }
+    /**
+     * Unpacks the full exception message chain into a single string.
+     * <p>
+     * This method traverses the cause chain of the given exception and concatenates
+     * the messages of each exception in the chain into a single string.
+     * <p>
+     * The format is:
+     * {@code "OriginalMessage caused by [CauseClassName] CauseMessage caused by [NextCauseClassName] NextCauseMessage ..."}
+     * If there are suppressed exceptions, they are included in the format:
+     * {@code " | suppressed {[SuppressedClassName] SuppressedMessage, [NextSuppressedClassName] NextSuppressedMessage, ...}"}.
+     *
+     * @param e the exception to unpack
+     * @return a string containing the full exception message chain
+     */
+    private static String unpackExceptionMessage(Throwable e) {
+        StringBuilder sb = new StringBuilder(e.getMessage());
+        Throwable cause = e.getCause();
+        while (cause != null) {
+            sb.append(" caused by [").append(cause.getClass().getSimpleName()).append("] ").append(cause.getMessage());
+            Throwable[] suppressed = cause.getSuppressed();
+            if (suppressed != null && suppressed.length > 1) {
+                sb.append(" | suppressed {[")
+                        .append(suppressed[0].getClass().getSimpleName())
+                        .append("] ")
+                        .append(unpackExceptionMessage(suppressed[0]));
+                for (int i = 1; i < suppressed.length; i++) {
+                    Throwable sup = suppressed[i];
+                    sb.append(", [")
+                            .append(sup.getClass().getSimpleName())
+                            .append("] ")
+                            .append(unpackExceptionMessage(sup));
+                }
+                sb.append("}");
+            }
+            cause = cause.getCause();
+        }
+        return sb.toString();
     }
     /**
      * Deserializes an array of GameAchievementTemplate from a JSON file.

@@ -132,7 +132,7 @@ public class VariableAchievement implements GameAchievementTemplate, JsonConvert
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize VariableAchievement.", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
     }

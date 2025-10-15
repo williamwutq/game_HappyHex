@@ -71,7 +71,7 @@ public class QueueBasedAchievement implements GameAchievementTemplate, JsonConve
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize QueueBasedAchievement.", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
     }

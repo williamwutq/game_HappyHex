@@ -84,7 +84,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
             try {
                 return fromJsonObject(json);
             } catch (DataSerializationException e) {
-                throw new RuntimeException("Failed to deserialize markable.", e);
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         });
     }
@@ -111,7 +111,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
         this.flag = new AtomicBoolean(false);
         synchronized (globalRegistry) {
             if (globalRegistry.containsKey(name)) {
-                throw new IllegalArgumentException("An achievement with the name '" + name + "' already exists.");
+                throw new IllegalArgumentException("An achievement with the name '" + name + "' already exists");
             }
             globalRegistry.put(name, this);
         }
@@ -202,7 +202,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
             if (achievement != null) {
                 achievement.mark();
             } else {
-                throw new IllegalArgumentException("No achievement found with the name '" + name + "'.");
+                throw new IllegalArgumentException("No achievement found with the name '" + name + "'");
             }
         }
     }
@@ -221,7 +221,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
             if (achievement != null) {
                 achievement.reset();
             } else {
-                throw new IllegalArgumentException("No achievement found with the name '" + name + "'.");
+                throw new IllegalArgumentException("No achievement found with the name '" + name + "'");
             }
         }
     }
@@ -315,7 +315,7 @@ public class MarkableAchievement implements GameAchievementTemplate, JsonConvert
      */
     public static MarkableAchievement fromJsonObject(JsonObject jsonObject) throws DataSerializationException {
         if (!jsonObject.containsKey("name") || !jsonObject.containsKey("description")) {
-            throw new DataSerializationException("Invalid JSON object for MarkableAchievement: missing required fields.");
+            throw new DataSerializationException("Invalid JSON object for MarkableAchievement: missing required fields");
         }
         String name = jsonObject.getString("name");
         String description = jsonObject.getString("description");
