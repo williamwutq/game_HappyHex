@@ -31,6 +31,8 @@ import javax.swing.border.*;
 import javax.swing.text.*;
 import java.awt.*;
 
+import static achievements.abstractimpl.MarkableAchievement.markIfExists;
+
 public class GameLoginField extends JTextField{
     public GameLoginField(){
         super(Username.MAX_LENGTH);
@@ -53,11 +55,19 @@ public class GameLoginField extends JTextField{
                 if ((fb.getDocument().getLength() + string.length()) <= Username.MAX_LENGTH) {
                     super.insertString(fb, offset, string, attr);
                 }
+                String text = fb.getDocument().getText(0, fb.getDocument().getLength());
+                if (text.toLowerCase().contains("c++") || text.toLowerCase().contains("cpp")){
+                    markIfExists("ChappyHex");
+                }
             }
             public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
                 if (text == null) return;
                 if ((fb.getDocument().getLength() - length + text.length()) <= Username.MAX_LENGTH) {
                     super.replace(fb, offset, length, text, attrs);
+                }
+                String totalText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                if (totalText.toLowerCase().contains("c++") || totalText.toLowerCase().contains("cpp")){
+                    markIfExists("ChappyHex");
                 }
             }
         });

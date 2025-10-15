@@ -221,6 +221,231 @@ public class MutableCurvedShape implements Cloneable {
         }
     }
     /**
+     * Straightens the curve at the specified index by setting the control point to be the midpoint between
+     * the current point and the next point.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point whose control point is to be straightened
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void straighten(int index){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        // Set the control point of the current index to be the midpoint between the current and next points
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        current[2] = (current[0] + next[0]) / 2;
+        current[3] = (current[1] + next[1]) / 2;
+    }
+    /**
+     * Straightens the curve at the specified index by moving the control point towards the midpoint between
+     * the current point and the next point by a given factor.
+     * A factor of 0 leaves the control point unchanged, while a factor of 1 sets it to the midpoint.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point whose control point is to be straightened
+     * @param factor a value between 0 and 1 indicating how much to move the control point towards the midpoint
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     * @throws IllegalArgumentException if the factor is not between 0 and 1
+     */
+    public void straighten(int index, double factor){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        if(factor < 0 || factor > 1){
+            throw new IllegalArgumentException("Factor must be between 0 and 1");
+        }
+        // Try to set the control point of the current index to be the midpoint of the current and next points
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        current[2] = current[2] + ((current[0] + next[0]) / 2 - current[2]) * factor;
+        current[3] = current[3] + ((current[1] + next[1]) / 2 - current[3]) * factor;
+    }
+    /**
+     * Straightens the curves at all points in the MutableCurvedShape by setting each control point to be the
+     * midpoint between its corresponding point and the next point.
+     * This effectively makes all segments of the shape straight lines and is useful for making polygons.
+     */
+    public void straightenAll(){
+        for(int i = 0; i < points.size(); i++){
+            straighten(i);
+        }
+    }
+    /**
+     * Smoothens the curve at the specified index by setting the current point on the line between the previous
+     * control point and the current control point.
+     * If the index is the first point, it connects back to the last point.
+     * @param index the index of the point to be smoothened
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void smoothen(int index, double position){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        // Try to set the current point on the line between the previous control point and the current control point
+        double[] current = points.get(index);
+        double[] previous = points.get((index - 1 + points.size()) % points.size());
+        current[0] = previous[2] + (current[2] - previous[2]) * position;
+        current[1] = previous[3] + (current[3] - previous[3]) * position;
+    }
+    /**
+     * Smoothens the curves at all points in the MutableCurvedShape by setting each point on the line between
+     * the previous control point and the current control point.
+     * This effectively makes all segments of the shape smoother and is useful for creating rounded shapes.
+     * <p>
+     * Unnecessary use of this method is discouraged as it can lead to loss of detail in the shape. Not everything need to be perfectly smooth!
+     */
+    public void smoothenAll(){
+        for(int i = 0; i < points.size(); i++){
+            smoothen(i, 0.5);
+        }
+    }
+    /**
+     * Subdivides the curve at the specified index by adding a new point between the current point and the next point.
+     * The new point is placed at the midpoint of the curve segment, and the control points are adjusted accordingly
+     * to maintain the shape of the curve.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point where the curve should be subdivided
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void subdivide(int index){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        double x1 = current[0];
+        double y1 = current[1];
+        double cx = current[2];
+        double cy = current[3];
+        double x2 = next[0];
+        double y2 = next[1];
+        double cx1 = (x1 + cx) * 0.5;
+        double cy1 = (y1 + cy) * 0.5;
+        double cx2 = (cx + x2) * 0.5;
+        double cy2 = (cy + y2) * 0.5;
+        cx = (cx1 + cx2) * 0.5;
+        cy = (cy1 + cy2) * 0.5;
+        addPoint(index + 1, cx, cy, cx2, cy2);
+        current[2] = cx1;
+        current[3] = cy1;
+    }
+    /**
+     * Subdivides the curve at the specified index by inserting a new point along the segment
+     * between the current point and the next point, at the given position [0,1].
+     * <ul>
+     *   <li>position = 0 corresponds to the current point</li>
+     *   <li>position = 1 corresponds to the next point</li>
+     * </ul>
+     * If index is the last point, it connects back to the first point.
+     *
+     * @param index the index of the point where the curve should be subdivided
+     * @param position the normalized position along the curve segment (0 = at current, 1 = at next)
+     * @throws IndexOutOfBoundsException if index is invalid
+     * @throws IllegalArgumentException if position is out of bounds (<0 or >1)
+     */
+    public void subdivide(int index, double position) {
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        if (position <= 0.0 || position >= 1.0) {
+            // do nothing if exactly 0 or 1
+            if (position == 0.0 || position == 1.0) return;
+            throw new IllegalArgumentException("Position must be in range [0,1], got: " + position);
+        }
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        double x1 = current[0];
+        double y1 = current[1];
+        double cx = current[2];
+        double cy = current[3];
+        double x2 = next[0];
+        double y2 = next[1];
+        // De Casteljau subdivision for quadratic Bézier at arbitrary t
+        double t = position;
+        double x12 = (1 - t) * x1 + t * cx;
+        double y12 = (1 - t) * y1 + t * cy;
+        double x23 = (1 - t) * cx + t * x2;
+        double y23 = (1 - t) * cy + t * y2;
+        double xMid = (1 - t) * x12 + t * x23;
+        double yMid = (1 - t) * y12 + t * y23;
+        addPoint(index + 1, xMid, yMid, x23, y23);
+        current[2] = x12;
+        current[3] = y12;
+    }
+    /**
+     * Subdivides the curve at the specified index into a given number of equal parts by adding multiple new points.
+     * Each new point is placed at equal intervals along the curve segment, and the control points are adjusted accordingly
+     * to maintain the shape of the curve.
+     * If the index is the last point, it connects back to the first point.
+     * @param index the index of the point where the curve should be subdivided
+     * @param parts the number of equal parts to subdivide the curve into (must be at least 1)
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     * @throws IllegalArgumentException if parts is less than 1
+     */
+    public void subdivide(int index, int parts){
+        if(parts < 1){
+            throw new IllegalArgumentException("Parts must be at least 1");
+        }
+        for(int i = parts - 1; i > 0; i--){
+            subdivide(index, i / (double)(i + 1.0));
+        }
+    }
+    /**
+     * Subdivides all curves in the MutableCurvedShape into a given number of equal parts by adding multiple new points.
+     * Each curve segment is subdivided into the specified number of parts, and the control points are adjusted accordingly
+     * to maintain the shape of the curve.
+     * @param parts the number of equal parts to subdivide each curve into (must be at least 1)
+     * @throws IllegalArgumentException if parts is less than 1
+     */
+    public void subdivideAll(int parts){
+        if(parts < 1){
+            throw new IllegalArgumentException("Parts must be at least 1");
+        }
+        int originalSize = points.size();
+        for(int i = 0; i < originalSize; i++){
+            subdivide(i * parts, parts);
+        }
+    }
+    /**
+     * Merges the point at the specified index with its neighboring points by removing it and recalculating
+     * the control point of the previous point to maintain a smooth curve.
+     * The new control point is calculated as the intersection of the lines formed by the control lines
+     * of the previous and next points.
+     * If the index is the first or last point, it connects back to the last or first point respectively.
+     * <p>
+     * Information loss occurs when using this method, as one point is removed from the shape. Use with caution!
+     * @param index the index of the point to be merged
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+     */
+    public void merge(int index){
+        if (index < 0 || index >= points.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + points.size());
+        }
+        // Merge and recalculate control point. The new control point is the intersection of the lines formed by the control lines
+        double[] previous = points.get((index - 1 + points.size()) % points.size());
+        double[] current = points.get(index);
+        double[] next = points.get((index + 1) % points.size());
+        // Direction of previous control line
+        double dir1X = previous[0] - previous[2];
+        double dir1Y = previous[1] - previous[3];
+        // Direction of current control line
+        double dir2X = current[2] - next[0];
+        double dir2Y = current[3] - next[1];
+        // Solve for intersection using determinants
+        double det = dir1X * dir2Y - dir1Y * dir2X;
+        if (Math.abs(det) < 1e-10) {
+            // Lines are parallel, set control point to midpoint between previous and next points
+            previous[2] = (previous[0] + next[0]) / 2;
+            previous[3] = (previous[1] + next[1]) / 2;
+        } else {
+            double t = ((previous[2] - current[2]) * dir2Y - (previous[3] - current[3]) * dir2X) / det;
+            previous[2] -= t * dir1X;
+            previous[3] -= t * dir1Y;
+        }
+        // Remove current point
+        removePoint(index);
+    }
+    /**
      * Returns the number of points in the MutableCurvedShape.
      * @return the number of points
      */

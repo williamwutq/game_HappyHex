@@ -101,7 +101,7 @@ package hex;
  * </p>
  * @since 0.6
  * @author William Wu
- * @version 1.1
+ * @version 2.0
  */
 public class Hex{
     private final double halfSinOf60 = Math.sqrt(3) / 4;
@@ -297,6 +297,48 @@ public class Hex{
      */
     public boolean adjacent(Hex other){
         return front(other) || back(other);
+    }
+    /**
+     * Determines if this hex coordinate is adjacent to another hex coordinate on the I-axis.
+     * Two hex coordinates are considered adjacent on the I-axis if they share an edge along that axis.
+     *
+     * @param other The other hex to compare with.
+     * @return True if the hex coordinates are adjacent on the I-axis, otherwise false.
+     * @see #adjacent(Hex)
+     * @see #frontI(Hex)
+     * @see #backI(Hex)
+     * @since 2.0
+     */
+    public boolean adjacentI(Hex other){
+        return frontI(other) || backI(other);
+    }
+    /**
+     * Determines if this hex coordinate is adjacent to another hex coordinate on the J-axis.
+     * Two hex coordinates are considered adjacent on the J-axis if they share an edge along that axis.
+     *
+     * @param other The other hex to compare with.
+     * @return True if the hex coordinates are adjacent on the J-axis, otherwise false.
+     * @see #adjacent(Hex)
+     * @see #frontJ(Hex)
+     * @see #backJ(Hex)
+     * @since 2.0
+     */
+    public boolean adjacentJ(Hex other){
+        return frontJ(other) || backJ(other);
+    }
+    /**
+     * Determines if this hex coordinate is adjacent to another hex coordinate on the K-axis.
+     * Two hex coordinates are considered adjacent on the K-axis if they share an edge along that axis.
+     *
+     * @param other The other hex to compare with.
+     * @return True if the hex coordinates are adjacent on the K-axis, otherwise false.
+     * @see #adjacent(Hex)
+     * @see #frontK(Hex)
+     * @see #backK(Hex)
+     * @since 2.0
+     */
+    public boolean adjacentK(Hex other){
+        return frontK(other) || backK(other);
     }
     /**
      * Determines if this hex coordinate is in front of another hex coordinate.

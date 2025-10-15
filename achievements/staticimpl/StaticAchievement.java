@@ -55,6 +55,7 @@ import java.util.HashMap;
 public abstract class StaticAchievement implements GameAchievementTemplate, JsonConvertible {
     protected String name;
     protected String description;
+    protected String details;
     protected AchievementIcon icon;
     static final protected HashMap<String, Class<? extends StaticAchievement>> IMPLEMENTATIONS = new HashMap<>();
     public static void load()  {
@@ -69,6 +70,7 @@ public abstract class StaticAchievement implements GameAchievementTemplate, Json
         LoggedInAchievement.load();
         IdenticalQueueAchievement.load();
         AccumulatedEliminationAchievement.load();
+        EngineAllColorAchievement.load();
         EnginePerfectFitAchievement.load();
         EngineAllPerfectFitAchievement.load();
         DarkThemeAchievement.load();
@@ -84,6 +86,7 @@ public abstract class StaticAchievement implements GameAchievementTemplate, Json
     public StaticAchievement(String name, String description, AchievementIcon icon){
         this.name = name;
         this.description = description;
+        this.details = description;
         this.icon = icon;
     }
     /**
@@ -101,6 +104,14 @@ public abstract class StaticAchievement implements GameAchievementTemplate, Json
     @Override
     public String description() {
         return description;
+    }
+    /**
+     * {@inheritDoc}
+     * @return additional details about the achievement
+     */
+    @Override
+    public String details() {
+        return details;
     }
     /**
      * {@inheritDoc}
@@ -166,13 +177,21 @@ public abstract class StaticAchievement implements GameAchievementTemplate, Json
         try {
             String name = json.getString("name");
             String description = json.getString("description");
+            if (name == null || description == null) {
+                throw new DataSerializationException("Missing required fields in StaticAchievement JSON");
+            }
+            String details = json.getString("detail", description);
             AchievementIcon icon = AchievementIconSerialHelper.deserialize(json);
             // Search for the correct implementation class
             synchronized (IMPLEMENTATIONS){
                 Class<? extends StaticAchievement> implClass = IMPLEMENTATIONS.get(name);
                 if (implClass != null) {
-                    return implClass.getConstructor(String.class, String.class, AchievementIcon.class)
+                    StaticAchievement achievement = implClass.getConstructor(String.class, String.class, AchievementIcon.class)
                             .newInstance(name, description, icon);
+                    // Set details if different from description. This is constructed after initialization to allow for defaulting.
+                    // In this way, implementations can just provide the three-argument constructor and not worry about details if they don't want to.
+                    achievement.details = details;
+                    return achievement;
                 } else {
                     throw new DataSerializationException("Unknown StaticAchievement type: " + name);
                 }
