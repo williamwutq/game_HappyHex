@@ -35,8 +35,12 @@ import java.awt.event.*;
 import java.io.IOException;
 
 public class LauncherGUI implements GraphicsDisplayer {
+    public LauncherGUI INSTANCE = new LauncherGUI(); // Singleton for interface
+    private LauncherGUI (){
+        // Prevent instantiation
+    }
     private static JFrame mainFrame;
-    private static Component popUpPanel = null;
+    private static JFrame popUpFrame = null;
     public static void launch(){
         setupMainFrame();
         LaunchEssentials.initialize();
@@ -151,22 +155,16 @@ public class LauncherGUI implements GraphicsDisplayer {
         ImageIcon icon = new ImageIcon(LauncherGUI.class.getResource(path));
         return icon.getImage();
     }
+    private static JFrame makePopUpFrame(String title){
+        JFrame popUpFrame = new JFrame("HappyHex " + title);
+        popUpFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        popUpFrame.setLayout(new BorderLayout());
+        popUpFrame.setSize(new Dimension(400, 200));
+        popUpFrame.setLocationRelativeTo(mainFrame); // Center relative to main frame
+        return popUpFrame;
+    }
     private static void setupMainFrame(){
-        mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion){
-            @Override
-            public void paint(Graphics g) {
-                // Pop up window should show in the middle
-                super.paint(g);
-                if (popUpPanel != null) {
-                    popUpPanel.paint(g.create(
-                            (getWidth() - popUpPanel.getWidth()) / 2,
-                            (getHeight() - popUpPanel.getHeight()) / 2,
-                            popUpPanel.getWidth(),
-                            popUpPanel.getHeight()
-                    ));
-                }
-            }
-        };
+        mainFrame = new JFrame("HappyHex Version " + Launcher.LaunchEssentials.currentGameVersion){};
         mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.setLayout(new BorderLayout());
         mainFrame.setBackground(LaunchEssentials.launchBackgroundColor);
@@ -283,32 +281,37 @@ public class LauncherGUI implements GraphicsDisplayer {
         mainFrame.repaint();
     }
     public static void showPopUp(Component panel){
-        popUpPanel = panel;
-        mainFrame.repaint();
+        popUpFrame = makePopUpFrame("Pop-Up");
+        popUpFrame.add(panel, BorderLayout.CENTER);
+        popUpFrame.setVisible(true);
+        popUpFrame.repaint();
     }
     public static void closePopUp() {
-        popUpPanel = null;
-        mainFrame.repaint();
+        if (popUpFrame == null) return;
+        popUpFrame.setVisible(false);
+        popUpFrame.dispose();
+        popUpFrame = null;
     }
 
     @Override
     public void display(Component component) {
         if (component == null) return;
-        if (popUpPanel != null){
-            popUpPanel = component;
+        if (popUpFrame != null){
+            closePopUp();
+            popUpFrame = null;
+            showPopUp(component);
         } else {
             showPopUp(component);
         }
     }
     @Override
     public void remove() {
-        if (popUpPanel != null){
-            popUpPanel = null;
-            mainFrame.repaint();
+        if (popUpFrame != null){
+            closePopUp();
         }
     }
     @Override
     public Component current() {
-        return popUpPanel;
+        return popUpFrame.getContentPane().getComponent(0);
     }
 }
