@@ -28,6 +28,7 @@ import GUI.GameEssentials;
 import Launcher.panel.*;
 import achievements.GameAchievement;
 import util.fgui.GraphicsDisplayer;
+import util.fgui.GraphicsProvider;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +42,7 @@ public class LauncherGUI implements GraphicsDisplayer {
     }
     private static JFrame mainFrame;
     private static JFrame popUpFrame = null;
+    private static GraphicsProvider lastProvider = null;
     public static void launch(){
         setupMainFrame();
         LaunchEssentials.initialize();
@@ -157,10 +159,23 @@ public class LauncherGUI implements GraphicsDisplayer {
     }
     private static JFrame makePopUpFrame(String title){
         JFrame popUpFrame = new JFrame("HappyHex " + title);
-        popUpFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        popUpFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         popUpFrame.setLayout(new BorderLayout());
         popUpFrame.setSize(new Dimension(400, 200));
         popUpFrame.setLocationRelativeTo(mainFrame); // Center relative to main frame
+        popUpFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                if (lastProvider != null){
+                    lastProvider.close();
+                    lastProvider = null;
+                }
+                popUpFrame.dispose();
+            }
+        });
+        popUpFrame.setBackground(LaunchEssentials.launchBackgroundColor);
+        popUpFrame.setIconImage(fetchIconImage());
+        Taskbar.getTaskbar().setIconImage(fetchIconImage());
+        popUpFrame.setResizable(false);
         return popUpFrame;
     }
     private static void setupMainFrame(){
@@ -305,6 +320,13 @@ public class LauncherGUI implements GraphicsDisplayer {
         }
     }
     @Override
+    public void accept(GraphicsProvider provider) {
+        if (provider == null) return;
+        lastProvider = provider;
+        GraphicsDisplayer.super.accept(provider);
+    }
+
+    @Override
     public void remove() {
         if (popUpFrame != null){
             closePopUp();
@@ -312,6 +334,7 @@ public class LauncherGUI implements GraphicsDisplayer {
     }
     @Override
     public Component current() {
+        if (popUpFrame == null) return null;
         return popUpFrame.getContentPane().getComponent(0);
     }
 }

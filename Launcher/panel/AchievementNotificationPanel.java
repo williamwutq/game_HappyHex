@@ -131,10 +131,10 @@ public class AchievementNotificationPanel extends JPanel implements GraphicsProv
     }
     public static void fetch() {
         if (AchievementNotification.isUpdated()) {
-            if (AchievementNotification.hasNext()) {
+            if (AchievementNotification.hasNext() && LauncherGUI.INSTANCE.current() == null) {
+                // If there is notification and no current panel, show the next notification. Otherwise, logic is handled in next()
                 Pair<Username, GameAchievementTemplate> notification = AchievementNotification.popNotification();
                 AchievementNotificationPanel panel = new AchievementNotificationPanel(notification.getLast(), notification.getFirst().toString());
-                System.out.println("Displaying achievement notification for " + notification.getFirst() + ": " + notification.getLast().name());
                 LauncherGUI.INSTANCE.accept(panel);
             }
         }
@@ -146,6 +146,9 @@ public class AchievementNotificationPanel extends JPanel implements GraphicsProv
             AchievementNotificationPanel panel = new AchievementNotificationPanel(notification.getLast(), notification.getFirst().toString());
             LauncherGUI.INSTANCE.accept(panel);
         }
+    }
+    public void close() {
+        next();
     }
     @Override
     public Component get() {
