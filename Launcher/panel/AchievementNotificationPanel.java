@@ -39,7 +39,6 @@ import java.awt.geom.AffineTransform;
 public class AchievementNotificationPanel extends JPanel implements GraphicsProvider {
     private final GameAchievementTemplate achievement;
     private final String username;
-    private final JButton closeButton = new JButton("X");
 
     public static void register(){
         AchievementNotification.hookNotifier(AchievementNotificationPanel::fetch);
@@ -52,14 +51,6 @@ public class AchievementNotificationPanel extends JPanel implements GraphicsProv
         this.setLayout(null);
         this.setDoubleBuffered(true);
         this.setPreferredSize(new Dimension(400, 200));
-        closeButton.setMargin(new Insets(0, 0, 0, 0));
-        closeButton.setFocusPainted(false);
-        closeButton.setBorderPainted(false);
-        closeButton.setContentAreaFilled(false);
-        closeButton.setForeground(LaunchEssentials.launchQuitButtonBackgroundColor);
-        closeButton.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, 12));
-        closeButton.addActionListener(e -> AchievementNotificationPanel.next());
-        this.add(closeButton);
     }
 
     @Override
@@ -137,11 +128,6 @@ public class AchievementNotificationPanel extends JPanel implements GraphicsProv
         g2.dispose();
         // Paint close button on top
         super.paint(g);
-    }
-    public void doLayout() {
-        int buttonSize = this.getHeight() / 5;
-        closeButton.setBounds(this.getWidth() - buttonSize - 5, 5, buttonSize, buttonSize);
-        closeButton.setFont(new Font(LaunchEssentials.launchVersionFont, Font.PLAIN, buttonSize  / 2));
     }
     public static void fetch() {
         if (AchievementNotification.isUpdated()) {

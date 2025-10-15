@@ -248,6 +248,7 @@ public final class LaunchEssentials {
             System.err.println(GameTime.generateSimpleTime() + " Achievement: Achievement System cannot be properly initialized due to template loading failure because " + e.getMessage() + "\nSuppressed: " + Arrays.toString(e.getSuppressed()));
         }
         GameAchievement.initializeGameStateSupplier(GameEssentials::getGameState);
+        achievements.AchievementNotification.hookNotifier(Launcher.panel.AchievementNotificationPanel::fetch);
         // Debug: prints out all templates
 //        System.out.println(GameTime.generateSimpleTime() + " LaunchLogger: Loaded " + GameAchievement.getTemplates().size() + " achievement templates:");
 //        for (GameAchievementTemplate t : GameAchievement.getTemplates()){
