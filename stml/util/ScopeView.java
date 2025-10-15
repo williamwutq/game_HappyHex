@@ -53,6 +53,40 @@ public class ScopeView {
         }
     }
     /**
+     * Get the current scope.
+     * This method returns the current scope in the scope hierarchy.
+     * The current scope can be changed by entering or exiting scopes.
+     * <p>
+     * Note that the returned scope should not be modified directly,
+     * as it may lead to inconsistent state. Use the provided methods
+     * in {@code ScopeView} to manipulate the scope. However, reading
+     * operations are safe and can be performed on the returned scope.
+     *
+     * @return The current scope.
+     */
+    public Scope current() {
+        synchronized (root) {
+            return current;
+        }
+    }
+    /**
+     * Get the root (global) scope.
+     * This method returns the root scope, which is the global scope
+     * in the scope hierarchy.
+     * <p>
+     * Note that the returned scope should not be modified directly,
+     * as it may lead to inconsistent state. Use the provided methods
+     * in {@code ScopeView} to manipulate the scope. However, reading
+     * operations are safe and can be performed on the returned scope.
+     *
+     * @return The root (global) scope.
+     */
+    public Scope root() {
+        synchronized (root) {
+            return root;
+        }
+    }
+    /**
      * Check if the current scope is the global scope.
      * This method returns {@code true} if the current scope
      * is the root scope (global scope); otherwise, it returns {@code false}.
