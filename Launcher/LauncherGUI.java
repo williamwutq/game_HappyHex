@@ -35,7 +35,7 @@ import java.awt.event.*;
 import java.io.IOException;
 
 public class LauncherGUI implements GraphicsDisplayer {
-    public LauncherGUI INSTANCE = new LauncherGUI(); // Singleton for interface
+    public static LauncherGUI INSTANCE = new LauncherGUI(); // Singleton for interface
     private LauncherGUI (){
         // Prevent instantiation
     }
