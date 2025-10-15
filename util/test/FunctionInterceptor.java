@@ -495,9 +495,14 @@ public final class FunctionInterceptor implements FailableFunction<Object[], Obj
      * <p>
      * The minimum interval is 1000 milliseconds (1 second) to prevent excessive CPU usage.
      * If a smaller interval is provided, it will be set to 1000 milliseconds.
+     * <p>
+     * Note: This method does not provide a way to stop the background thread. The thread will run until the JVM exits.
+     * It is strongly not recommended to call this method multiple times on the same interceptor instance,
+     * as this will spawn multiple background threads that all clear the same call list, leading to
+     * unpredictable behavior.
      * @param intervalMillis the interval in milliseconds at which to clear the recorded function calls, minimum 1000ms.
      */
-    public void spawAutoClearThread(long intervalMillis) {
+    public void spawnAutoClearThread(long intervalMillis) {
         int interval = intervalMillis < 1000 ? 1000 : (int) intervalMillis;
         Thread cleaner = new Thread(() -> {
             while (true) {
