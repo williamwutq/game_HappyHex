@@ -74,6 +74,45 @@ public class StmlScope {
     }
 
     /**
+     * Sets the property of this scope to final if not set.
+     * <p>
+     * After this method is called, existing variables in the scope will be final and cannot
+     * be changed later. However, if the variables reference macros or other variables, and the
+     * referenced variables are not final, the variables maybe changed in the background.
+     * <p>
+     * This does not impact the ability to add new variables. This does not force the parser to parse
+     * entered variables.
+     */
+    public void finalize() {
+	// Get property
+	Object obj = this.view.lookup(propertyKey);
+	if (obj instanceof StmlFieldProperty p) {
+	    this.view.assignLocal(propertyKey, p.finalized());
+	} // This should always happen. If it does not happen, we do not deal with it either
+    }
+
+    /**
+     * Sets the property of this scope to closed if not set.
+     * <p>
+     * After this method is called, this scope will no longer accept new variables, and calling functions
+     * for new entries will result in exceptions being thrown. However, variables can still be modified and
+     * overwritten.
+     * <p>
+     * Since unnamed scope depend on list operation (expansion), when this scope is set to closed, it may no
+     * longer accept unnamed scope operations, if the closed scope is the parent scope.
+     * <p>
+     * This does not impact the ability to modify variables through any means. This does not force the parser
+     * to parse any varaiables.
+     */
+    public void close() {
+	// Get property
+	Object obj = this.view.lookup(propertyKey);
+	if (obj instanceof StmlFieldProperty p) {
+	    this.view.assignLocal(propertyKey, p.closed());
+	} // This should always happen. If it does not happen, we do not deal with it either
+    }
+
+    /**
      * Cleans up a name string by replacing leading/trailing/multiple dots with current content.
      * <p>
      * This method processes a name string to replace leading, trailing, and multiple consecutive dots
