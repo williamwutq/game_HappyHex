@@ -83,12 +83,12 @@ public class StmlScope {
      * This does not impact the ability to add new variables. This does not force the parser to parse
      * entered variables.
      */
-    public void finalize() {
-	// Get property
-	Object obj = this.view.lookup(propertyKey);
-	if (obj instanceof StmlFieldProperty p) {
-	    this.view.assignLocal(propertyKey, p.finalized());
-	} // This should always happen. If it does not happen, we do not deal with it either
+    public void finalized() {
+	    // Get property
+    	Object obj = this.view.lookup(propertyKey);
+    	if (obj instanceof StmlFieldProperty p) {
+    	    this.view.assignLocal(propertyKey, p.finalized());
+    	} // This should always happen. If it does not happen, we do not deal with it either
     }
 
     /**
@@ -102,14 +102,14 @@ public class StmlScope {
      * longer accept unnamed scope operations, if the closed scope is the parent scope.
      * <p>
      * This does not impact the ability to modify variables through any means. This does not force the parser
-     * to parse any varaiables.
+     * to parse any variables.
      */
-    public void close() {
-	// Get property
-	Object obj = this.view.lookup(propertyKey);
-	if (obj instanceof StmlFieldProperty p) {
-	    this.view.assignLocal(propertyKey, p.closed());
-	} // This should always happen. If it does not happen, we do not deal with it either
+    public void closed() {
+	    // Get property
+	    Object obj = this.view.lookup(propertyKey);
+	    if (obj instanceof StmlFieldProperty p) {
+	        this.view.assignLocal(propertyKey, p.closed());
+	    } // This should always happen. If it does not happen, we do not deal with it either
     }
 
     /**
@@ -256,7 +256,7 @@ public class StmlScope {
         // If old one was using array, pop it, move view to global
         if (wasUsingArray) {
             wasUsingArray = false;
-            // TODO
+            popAndMoveToGlobal();
         }
         // Reset current content to the cleaned name split by dots
         currentContent = cleanName.split("\\.");
@@ -292,6 +292,8 @@ public class StmlScope {
                 // Should not happen due to cleanupNameString
             } else if (afterDot.isEmpty()) {
                 // This indicates the array mechanism, create an unnamed scope
+                createUnnamedScope(scopeView);
+                return;
             }
             Scope s;
             ScopeView sv;
@@ -357,7 +359,253 @@ public class StmlScope {
         }
     }
 
+    /**
+     * Pops the current scope and moves the view to global.
+     * <p>
+     * This method pops the current scope from the view, and moves the view to the global scope.
+     * The popped scope is stored in the array object in the parent scope.
+     * If the current scope is already global, this method does nothing.
+     * <p>
+     * This method is called when switching from using the array mechanism to not using it.
+     */
+    private void popAndMoveToGlobal() {
+        // TODO
+    }
 
+    /**
+     * Recursively looks up a name in this scope.
+     * <p>
+     * This method looks up a name in this scope, handling dot-separated paths and
+     * array access. If the name contains dots, it splits the name at the first dot and looks
+     * up the part before the dot in the current scope. If it finds a scope, it recurses into
+     * that scope with the part after the dot. If it does not find a scope, it returns the
+     * object found or null if not found.
+     * <p>
+     * If the name does not contain dots, it checks if it is an array access (ends with ']'
+     * or contains '['). If so, it looks up the array object in the current scope and tries
+     * to parse the index from the name. If successful, it returns a new ScopeView for the
+     * scope at that index in the array. If not successful, it throws an exception.
+     * <p>
+     * If the name is neither dot-separated nor an array access, it simply looks up the name
+     * in the current scope and returns the result or null if not found.
+     * <p>
+     * The behavior of this function is undefined for array access objects during the parsing of
+     * said objects. This means parse must not force parse the future objects.
+     *
+     * @param name The name to look up. This can be a dot-separated path or an array access.
+     * @return The object found, or null if not found.
+     * @throws IllegalArgumentException if the name is invalid
+     * @throws IllegalStateException if an array access is attempted on a non-list object
+     */
+    public Object lookUpRecursive(String name) {
+        String cleanName = cleanupNameString(name);
+        // If old one was using array, pop it, move view to global
+        if (wasUsingArray) {
+            wasUsingArray = false;
+            popAndMoveToGlobal();
+        }
+        return lookupRecursive(this.view, cleanName);
+    }
+    /**
+     * Recursively looks up a name in the given scope view.
+     * <p>
+     * This method looks up a name in the given scope view, handling dot-separated paths and
+     * array access. If the name contains dots, it splits the name at the first dot and looks
+     * up the part before the dot in the current scope. If it finds a scope, it recurses into
+     * that scope with the part after the dot. If it does not find a scope, it returns the
+     * object found or null if not found.
+     * <p>
+     * If the name does not contain dots, it checks if it is an array access (ends with ']'
+     * or contains '['). If so, it looks up the array object in the current scope and tries
+     * to parse the index from the name. If successful, it returns a new ScopeView for the
+     * scope at that index in the array. If not successful, it throws an exception.
+     * <p>
+     * If the name is neither dot-separated nor an array access, it simply looks up the name
+     * in the current scope and returns the result or null if not found.
+     * <p>
+     * The behavior of this function is undefined for array access objects during the parsing of
+     * said objects. This means parse must not force parse the future objects.
+     *
+     * @param scopeView The scope view to look up the name in.
+     * @param name The name to look up. This can be a dot-separated path or an array access.
+     * @return The object found, or null if not found.
+     * @throws IllegalArgumentException if the name is invalid
+     * @throws IllegalStateException if an array access is attempted on a non-list object
+     */
+    public Object lookupRecursive(ScopeView scopeView, String name) {
+        // Get the index of the '.' in the name
+        int dotIndex = name.indexOf('.');
+        if (dotIndex == -1) {
+            if (name.trim().endsWith("]") || name.contains("[")) {
+                // Do array access
+                Object arrObj = scopeView.lookup(arrayKey);
+                if (arrObj instanceof List<?>) {
+                    try {
+                        List<Scope> arr = (List<Scope>) arrObj;
+                        String indexStr = name.trim();
+                        if (indexStr.startsWith("[")) {
+                            indexStr = indexStr.substring(1);
+                        }
+                        if (indexStr.endsWith("]")) {
+                            indexStr = indexStr.substring(0, indexStr.length() - 1);
+                        }
+                        indexStr = indexStr.trim();
+                        int index = Integer.parseInt(indexStr);
+                        if (index < 0 || index >= arr.size()) {
+                            return null; // Out of bounds
+                        }
+                        Scope s = arr.get(index);
+                        return new ScopeView(s);
+                    } catch (ClassCastException e) {
+                        throw new IllegalStateException("Array object is not a list"); // Should not happen
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Invalid array index: " + name);
+                    }
+                } else {
+                    throw new IllegalStateException("Array object is not a list"); // Should not happen
+                }
+            }
+            // No dot, just property lookup here
+            return scopeView.lookup(removeQuotes(name));
+        } else {
+            // Get the name before and after the dot
+            String beforeDot = removeQuotes(name.substring(0, dotIndex).trim());
+            String afterDot = name.substring(dotIndex + 1).trim();
+            if (beforeDot.isEmpty()) {
+                throw new IllegalArgumentException("Invalid name: empty segment before dot in \"" + name + "\"");
+                // Should not happen due to cleanupNameString
+            } else if (afterDot.isEmpty()) {
+                // This indicates the array mechanism, where it should return an unnamed scope.
+                // However, unnamed scope are to be accessed by [] and not by dot, so this is invalid.
+                throw new IllegalArgumentException("Invalid name: empty segment after dot in \"" + name + "\"");
+            }
+            // Get the scope if it is a scope
+            if (!this.view.contains(beforeDot)) {
+                return null; // Not found
+            } else {
+                Object obj = this.view.lookup(beforeDot);
+                if (obj instanceof ScopeView svo) {
+                    // Recurse
+                    return lookupRecursive(svo, afterDot);
+                } else {
+                    return obj; // Not a scope, return the object
+                }
+            }
+        }
+    }
+
+    /**
+     * Recursively assigns a value to a name in this scope.
+     * <p>
+     * This method assigns a value to a name in this scope, handling dot-separated paths.
+     * If the name contains dots, it splits the name at the first dot and looks up the part before
+     * the dot in the current scope. If it finds a scope, it recurses into that scope with the part
+     * after the dot. If it does not find a scope, it creates a new scope and recurses into it.
+     * <p>
+     * If the name does not contain dots, it assigns the value to the name in the current scope.
+     * If the name already exists, it checks if it is final or closed and throws an exception if
+     * so. Otherwise, it assigns the value to the name.
+     *
+     * @param name The name to assign the value to. This can be a dot-separated path.
+     * @param value The value to assign.
+     * @throws IllegalArgumentException if the name is invalid
+     * @throws IllegalStateException if an intermediate scope is final and cannot be overridden,
+     *                               or if trying to override a final field
+     */
+    public void lazyAssignRecursive(String name, Object value) {
+        String cleanName = cleanupNameString(name);
+        // If old one was using array, pop it, move view to global
+        if (wasUsingArray) {
+            wasUsingArray = false;
+            popAndMoveToGlobal();
+        }
+        lazyAssignRecursive(this.view, cleanName, value);
+    }
+    /**
+     * Recursively assigns a value to a name in the given scope view.
+     * <p>
+     * This method assigns a value to a name in the given scope view, handling dot-separated paths.
+     * If the name contains dots, it splits the name at the first dot and looks up the part before
+     * the dot in the current scope. If it finds a scope, it recurses into that scope with the part
+     * after the dot. If it does not find a scope, it creates a new scope and recurses into it.
+     * <p>
+     * If the name does not contain dots, it assigns the value to the name in the current scope.
+     * If the name already exists, it checks if it is final or closed and throws an exception if
+     * so. Otherwise, it assigns the value to the name.
+     *
+     * @param scopeView The scope view to assign the value in.
+     * @param name The name to assign the value to. This can be a dot-separated path.
+     * @param value The value to assign.
+     * @throws IllegalArgumentException if the name is invalid
+     * @throws IllegalStateException if an intermediate scope is final and cannot be overridden,
+     *                               or if trying to override a final field
+     */
+    private void lazyAssignRecursive(ScopeView scopeView, String name, Object value) {
+        // Get the index of the '.' in the name
+        int dotIndex = name.indexOf('.');
+        if (dotIndex == -1) {
+            Scope s = scopeView.root();
+            if (!s.contains(removeQuotes(name))) {
+                // Check access: if closed, cannot add new
+                Object obj = s.lookup(propertyKey);
+                if (obj instanceof StmlFieldProperty p) {
+                    if (p.isClosed()) {
+                        throw new IllegalStateException("Cannot override final field " + name);
+                    }
+                }
+                s.lazyAssignLocal(removeQuotes(name), value);
+            } else {
+                // Check access: if final, cannot override
+                Object obj = s.lookup(propertyKey);
+                if (obj instanceof StmlFieldProperty p) {
+                    if (p.isFinal()) {
+                        throw new IllegalStateException("Cannot override final field " + name);
+                    }
+                } // This should always happen. We allow writing if property is not found
+                s.lazyAssignLocal(removeQuotes(name), value);
+            }
+        } else {
+            // Get the name before and after the dot
+            String beforeDot = removeQuotes(name.substring(0, dotIndex).trim());
+            String afterDot = name.substring(dotIndex + 1).trim();
+            if (beforeDot.isEmpty()) {
+                throw new IllegalArgumentException("Invalid name: empty segment before dot in \"" + name + "\"");
+                // Should not happen due to cleanupNameString
+            } else if (afterDot.isEmpty()) {
+                throw new IllegalArgumentException("Invalid name: empty segment after dot in \"" + name + "\"");
+                // This is because unnamed scopes are final and cannot be assigned to
+            }
+            Scope s;
+            ScopeView sv;
+            // Get or create the scope before the dot
+            if (!this.view.contains(beforeDot)) {
+                s = new TreeScope();
+                sv = new ScopeView(scopeView.root());
+                s.lazyAssign(propertyKey, StmlFieldProperty.DEFAULT);
+                s.lazyAssign(arrayKey, new ArrayList<>());
+                scopeView.root().lazyAssignLocal(beforeDot, sv);
+            } else {
+                Object obj = this.view.lookup(beforeDot);
+                if (obj instanceof ScopeView svo) {
+                    sv = svo;
+                } else {
+                    // Loop up property to see if it's final
+                    if (this.property().isFinal()) {
+                        throw new IllegalStateException("Cannot override final field " + beforeDot);
+                    } else {
+                        // Override the field
+                        s = new TreeScope();
+                        sv = new ScopeView(scopeView.root());
+                        s.lazyAssign(propertyKey, StmlFieldProperty.DEFAULT);
+                        s.lazyAssign(arrayKey, new ArrayList<>());
+                        scopeView.root().lazyAssignLocal(beforeDot, sv);
+                    }
+                }
+            }
+            // Now we should have a scope at beforeDot, recurse
+            lazyAssignRecursive(sv, afterDot, value);
+        }
+    }
 
     public static void main(String[] args) {
         String name = "......a. 'b. ' .c";
