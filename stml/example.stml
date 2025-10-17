@@ -34,7 +34,7 @@
 # - This is a multi-line commend, and it is constructed with multiple single line comments
 # - Note that the above integerValue = 7 is parsed as int because it is not inside a commend
 
-#type Color #@closed, #@ordered
+#type Color #@closed, ordered
 R = int!
 G = int!
 B = int!
