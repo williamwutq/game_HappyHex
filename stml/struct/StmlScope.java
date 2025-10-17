@@ -426,7 +426,24 @@ public class StmlScope {
      * This method is called when switching from using the array mechanism to not using it.
      */
     private void popAndMoveToGlobal() {
-        // TODO
+        // Get with view
+        if (!this.view.isGlobal()){
+            // Only pop if not global
+            Scope s = this.view.current();
+            // Add to the array object in the parent scope
+            Object arrObj = s.parent().lookup(arrayKey);
+            if (arrObj instanceof List<?>) {
+                try {
+                    List<Scope> arr = (List<Scope>) arrObj;
+                    arr.add(s);
+                } catch (ClassCastException e) {
+                    throw new IllegalStateException("Array object is not a list"); // Should not happen
+                }
+                this.view.toRoot(); // Move to global
+            } else {
+                throw new IllegalStateException("Array object is not a list"); // Should not happen
+            }
+        }
     }
 
     /**
