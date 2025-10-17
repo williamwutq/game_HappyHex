@@ -681,6 +681,50 @@ public class StmlScope {
         }
     }
 
+    /**
+     * Checks if a character is legal in a scope name.
+     * @param c The character to check.
+     * @return True if the character is legal, false otherwise.
+     */
+    public static boolean isLegalScopeNameChar(char c) {
+        // Rules: letters, digits, underscore, hyphen, space, single quote, double quote,
+        // caret, exclamation mark, question mark, asterisk, plus, pipe, at sign, and any non-ASCII character
+        return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == ' ' || c == '\'' || c == '"'
+                || c == '^' || c == '!' || c == '?' || c == '*' || c == '+' || c == '|' || c == '@' || c >= 128;
+    }
+    /**
+     * Checks if a scope name is legal.
+     * @param name The scope name to check.
+     * @return True if the scope name is legal, false otherwise.
+     */
+    public static boolean isLegalScopeName(String name) {
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (!isLegalScopeNameChar(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * Checks if a scope name segment is legal.
+     * <p>
+     * Differs from isLegalScopeName in that dots are not allowed in segments.
+     * @param name The scope name segment to check.
+     * @return True if the scope name segment is legal, false otherwise.
+     */
+    public static boolean isLegalScopeNameSegment(String name) {
+        // Empty segments are not allowed
+        if (name.isEmpty()) return false;
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (!isLegalScopeNameChar(c) || c == '.') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void main(String[] args) {
         String name = "......a. 'b. ' .c";
         String[] currentContent = "x.y.z.'k '.p.q.".split("\\.");
