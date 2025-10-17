@@ -113,6 +113,63 @@ public class StmlScope {
     }
 
     /**
+     * Sets the property of the named scope to final if not set.
+     * <p>
+     * After this method is called, existing variables in the named scope will be final and cannot
+     * be changed later. However, if the variables reference macros or other variables, and the
+     * referenced variables are not final, the variables maybe changed in the background.
+     * <p>
+     * This does not impact the ability to add new variables. This does not force the parser to parse
+     * entered variables.
+     *
+     * @param name The name of the scope to finalize. This can be a dot-separated path to a nested scope.
+     * @throws IllegalArgumentException if the name is invalid or does not refer to a scope
+     */
+    public void finalized(String name) {
+        // Get object
+        Object obj = this.lookUpRecursive(name);
+        if (obj instanceof ScopeView svo) {
+            // Get property
+            Object propObj = svo.lookup(propertyKey);
+            if (propObj instanceof StmlFieldProperty p) {
+                svo.assignLocal(propertyKey, p.finalized());
+            } // This should always happen. If it does not happen, we do not deal with it either
+        } else {
+            throw new IllegalArgumentException("Cannot finalize non-scope object " + name);
+        }
+    }
+
+    /**
+     * Sets the property of the named scope to closed if not set.
+     * <p>
+     * After this method is called, the named scope will no longer accept new variables, and calling functions
+     * for new entries will result in exceptions being thrown. However, variables can still be modified and
+     * overwritten.
+     * <p>
+     * Since unnamed scope depend on list operation (expansion), when this scope is set to closed, it may no
+     * longer accept unnamed scope operations, if the closed scope is the parent scope.
+     * <p>
+     * This does not impact the ability to modify variables through any means. This does not force the parser
+     * to parse any variables.
+     *
+     * @param name The name of the scope to close. This can be a dot-separated path to a nested scope.
+     * @throws IllegalArgumentException if the name is invalid or does not refer to a scope
+     */
+    public void closed(String name) {
+        // Get object
+        Object obj = this.lookUpRecursive(name);
+        if (obj instanceof ScopeView svo) {
+            // Get property
+            Object propObj = svo.lookup(propertyKey);
+            if (propObj instanceof StmlFieldProperty p) {
+                svo.assignLocal(propertyKey, p.closed());
+            } // This should always happen. If it does not happen, we do not deal with it either
+        } else {
+            throw new IllegalArgumentException("Cannot close non-scope object " + name);
+        }
+    }
+
+    /**
      * Cleans up a name string by replacing leading/trailing/multiple dots with current content.
      * <p>
      * This method processes a name string to replace leading, trailing, and multiple consecutive dots
