@@ -25,7 +25,8 @@ public class CurveGenerator {
                 "clear", "print", "pp", "json", "info", "undo", "redo",
                 "s", "oa", "ao", "o", "a",
                 "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb",
-                "sysinfo", "exit", "quit", "help"
+                "sysinfo", "exit", "quit", "help",
+                "svgp"
         };
         final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
         final ArrayList<MutableCurvedShape> pastShapesA = new ArrayList<>();
@@ -342,6 +343,9 @@ public class CurveGenerator {
                     System.out.println("  pp index - Prints the point and control point at index");
                     System.out.println("  json - Outputs the shape as a JSON array");
                     System.out.println("  json [json] - Loads the shape from a JSON array");
+                    System.out.println("  svgp - Outputs the shape as an SVG path");
+                    System.out.println("  svgf - Outputs the shape as a complete SVG file string");
+                    System.out.println("  svgb - Outputs all background shapes together as a complete SVG file string");
                     System.out.println("  info - Shows information about the current shape");
                     System.out.println("  undo - Undoes the last action");
                     System.out.println("  redo - Redoes the last undone action");
@@ -417,6 +421,8 @@ public class CurveGenerator {
                             case "print"-> "print - Prints the list of points and control points";
                             case "pp"   -> "pp index - Prints the point and control point at index";
                             case "json" -> "json - Outputs the shape as a JSON array\njson [json] - Loads the shape from a JSON array";
+                            case "svgp" -> "svgp - Outputs the shape as an SVG path";
+                            case "svgf" -> "svgf - Outputs the shape as a complete SVG file string";
                             case "info" -> "info - Shows information about the current shape";
                             case "undo" -> "undo - Undoes the last action";
                             case "redo" -> "redo - Redoes the last undone action";
@@ -456,7 +462,7 @@ public class CurveGenerator {
                             case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg, rd";
                             case "background" -> "background commands: psb, pb, rmb, clb, lsb, printb, ldb, scb, ssb";
                             case "flow" -> "undo/redo commands: undo, redo; repeat: r";
-                            case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb";
+                            case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb, svgp, svgf";
                             case "system" -> "system commands: sysinfo, exit, quit, help, clear";
                             case "register" -> "register commands: reg, regp, o, a, oa, ao, s, moa, mao, ms, mov, mr, sr, srz, rmr, rmra";
                             default -> "Unknown command";
@@ -1408,6 +1414,36 @@ public class CurveGenerator {
                                 System.out.printf("Point: (%.2f, %.2f), Control: (%.2f, %.2f)%n", point[0], point[1], point[2], point[3]);
                             }
                         }
+                    }
+                } else if (line.equals("svgp")) {
+                    CurvedShape shape = shapeObj.toCurvedShape();
+                    if (shape == null) {
+                        System.out.println("No points in the shape.");
+                    } else {
+                        System.out.println(shape.toSvgPath());
+                    }
+                } else if (line.equals("svgf")) {
+                    CurvedShape shape = shapeObj.toCurvedShape();
+                    if (shape == null) {
+                        System.out.println("No points in the shape.");
+                    } else {
+                        CurvedShape shapeC = shape.scaled(200);
+                        System.out.println("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"-200 -200 400 400\">" +
+                                "<path d=\"" + shapeC.toSvgPath() + "\" fill=\"black\" stroke=\"none\"/></svg>");
+                    }
+                } else if (line.equals("svgb")) {
+                    // Get background shapes
+                    if (backgroundShapes.isEmpty()) {
+                        System.out.println("No background shapes.");
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"-200 -200 400 400\">");
+                        for (CurvedShape shape : backgroundShapes) {
+                            CurvedShape shapeC = shape.scaled(200);
+                            sb.append("<path d=\"").append(shapeC.toSvgPath()).append("\" fill=\"\"rgba(0, 0, 0, 0.5)\"\" stroke=\"none\"/>");
+                        }
+                        sb.append("</svg>");
+                        System.out.println(sb.toString());
                     }
                 } else if (line.isEmpty()) {
                     // Do nothing for empty input
