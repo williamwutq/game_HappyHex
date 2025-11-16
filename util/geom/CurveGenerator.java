@@ -22,7 +22,7 @@ public class CurveGenerator {
                 "scl", "sxy", "scb", "ssb", "rot", "mrx", "mry", "mrc", "mov", "regp", "moa", "mao", "ms",
                 "rd", "rm", "rml", "rmf", "rma", "rmr", "rmra", "srz", "r",
                 "circle", "square", "make",
-                "clear", "print", "pp", "json", "info", "undo", "redo",
+                "clear", "print", "pp", "json", "info", "undo", "redo", "rmhis",
                 "s", "oa", "ao", "o", "a",
                 "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb",
                 "sysinfo", "exit", "quit", "help",
@@ -426,6 +426,7 @@ public class CurveGenerator {
                             case "info" -> "info - Shows information about the current shape";
                             case "undo" -> "undo - Undoes the last action";
                             case "redo" -> "redo - Redoes the last undone action";
+                            case "rmhis"-> "rmhis - Clears the undo/redo history of the current register";
                             case "r"    -> "r - Repeat the last command, whether valid or not";
                             case "psb"  -> "psb - Pushes the current shape to the background shapes";
                             case "pb"   -> "pb index - Pulls the background shape at index to the first layer\npb i l - Pulls the background shape at index i to the layer l";
@@ -461,8 +462,8 @@ public class CurveGenerator {
                             case "transform" -> "transform commands: scl, sxy, scb, ssb, rot, mrx, mry, mrc, rd";
                             case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg, rd";
                             case "background" -> "background commands: psb, pb, rmb, clb, lsb, printb, ldb, scb, ssb";
-                            case "flow" -> "undo/redo commands: undo, redo; repeat: r";
-                            case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb, svgp, svgf";
+                            case "flow" -> "undo/redo commands: undo, redo, rmhis; repeat: r";
+                            case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb, svgp, svgf, svgb";
                             case "system" -> "system commands: sysinfo, exit, quit, help, clear";
                             case "register" -> "register commands: reg, regp, o, a, oa, ao, s, moa, mao, ms, mov, mr, sr, srz, rmr, rmra";
                             default -> "Unknown command";
@@ -565,6 +566,13 @@ public class CurveGenerator {
                         backgroundShapes.pop();
                         p.repaint();
                     }
+                } else if (line.equals("rmhis")) {
+                    // Clear undo/redo history
+                    pastRef.clear();
+                    pastRef.add(shapeObj.clone());
+                    undoRef.set(0);
+                    System.out.println("Cleared undo/redo history.");
+                    p.repaint();
                 } else if (line.startsWith("rmb")) {
                     String[] parts = splitArgs(line, 3);
                     if (parts.length == 1) {
