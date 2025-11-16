@@ -26,7 +26,7 @@ public class CurveGenerator {
                 "s", "oa", "ao", "o", "a",
                 "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb",
                 "sysinfo", "exit", "quit", "help",
-                "svgp"
+                "svgp", "svgf", "svgb"
         };
         final ArrayList<MutableCurvedShape> pastShapes = new ArrayList<>();
         final ArrayList<MutableCurvedShape> pastShapesA = new ArrayList<>();
