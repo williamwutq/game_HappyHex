@@ -315,7 +315,6 @@ public class CurveGenerator {
                                 regs = part;
                             } else {
                                 System.out.println("Extra argument: " + part);
-                                range = null;
                                 continue listeningLoop;
                             }
                         }
@@ -327,8 +326,12 @@ public class CurveGenerator {
                         try {
                             rangePredicate = createTestBasedOnExpression(range);
                         } catch (Exception e) {
-                            System.out.println("Invalid range expression: " + e.getMessage());
-                            continue listeningLoop;
+                            if (range.equals("all")) {
+                                rangePredicate = point -> true;
+                            } else {
+                                System.out.println("Invalid range expression: " + e.getMessage());
+                                continue listeningLoop;
+                            }
                         }
                         // Check register only contains o, a, r
                         for (char c : regs.toCharArray()) {
@@ -1679,7 +1682,7 @@ public class CurveGenerator {
         pastShapes.add(shape.clone());
     }
     public static Predicate<double[]> createTestBasedOnExpression(String expression) {
-        expression += " ";
+        expression += "  ";
         // Grep helper function. Follow the syntax of range modifiers and restrictions.
         int mode = 0; StringBuffer buffer;
         java.util.Stack<Object> objectStack = new java.util.Stack<>();
@@ -1738,6 +1741,7 @@ public class CurveGenerator {
                     if (expression.charAt(i) == ',') {
                         mode = 3; // Expect another number
                     } else mode = 4; // End of expression
+                    break;
                 default: // Process stack after identifier
                     // At this point, we should have identifier (char), operator (String), number(s) (Double)
                     java.util.List<Double> numbers = new java.util.ArrayList<>();
