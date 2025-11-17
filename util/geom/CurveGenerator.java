@@ -24,7 +24,7 @@ public class CurveGenerator {
                 "circle", "square", "make",
                 "clear", "print", "pp", "json", "info", "undo", "redo", "rmhis",
                 "s", "oa", "ao", "o", "a",
-                "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb",
+                "psb", "pb", "rmb", "clb", "ldb", "lsb", "printb", "grep",
                 "sysinfo", "exit", "quit", "help",
                 "svgp", "svgf", "svgb"
         };
@@ -291,6 +291,8 @@ public class CurveGenerator {
                             System.out.println("(" + pointCache[i][0] + ", " + pointCache[i][1] + ")");
                         }
                     }
+                } else if (line.startsWith("grep")){
+
                 }
                 else if (line.equals("help")) {
                     System.out.println("Commands:");
@@ -349,6 +351,7 @@ public class CurveGenerator {
                     System.out.println("  info - Shows information about the current shape");
                     System.out.println("  undo - Undoes the last action");
                     System.out.println("  redo - Redoes the last undone action");
+                    System.out.println("  rmhis - Clears the undo/redo history of the current register");
                     System.out.println("  r - Repeat the last command, whether valid or not");
                     System.out.println("  psb - Pushes the current shape to the background shapes");
                     System.out.println("  pb index - Pulls the background shape at index to the first layer");
@@ -358,6 +361,7 @@ public class CurveGenerator {
                     System.out.println("  clb - Clears all background shapes");
                     System.out.println("  lsb - List the background shapes");
                     System.out.println("  printb - Prints the list of points and control points of background shapes");
+                    System.out.println("  grep [flags] range regs - Search for points in shapes matching in the specified range and contain the specific registers, case insensitive");
                     System.out.println("  ldb - Load the most recent background shape");
                     System.out.println("  ldb index - Load the indexed background shape");
                     System.out.println("  s | oa | ao - Switch between O (ordinary) and A (auxiliary) shape registers");
@@ -434,6 +438,35 @@ public class CurveGenerator {
                             case "clb"  -> "clb - Clears all background shapes";
                             case "lsb"  -> "lsb - List the background shapes";
                             case "printb"-> "printb - Prints the list of points and control points of background shapes";
+                            case "grep" -> "grep [flags] range regs - Search for points in shapes matching in the specified range and contain the specific registers, case insensitive\n" +
+                                    "Flags:\n" +
+                                    "    -c (count only)\n" +
+                                    "    -v (invert range match)\n" +
+                                    "    -h (include history)\n" +
+                                    "    -i (include history index and index in shape)\n" +
+                                    "Range Modifiers:\n" +
+                                    "    x (X coordinate modifier)\n" +
+                                    "    y (Y coordinate modifier)\n" +
+                                    "    c (X and Y coordinate modifier), empty input for no modifier\n" +
+                                    "Range Restricts:\n" +
+                                    "    <(value) (less than)\n" +
+                                    "    >(value) (greater than)\n" +
+                                    "    =(value) (equal to)\n" +
+                                    "    <=(value) (less than or equal to)\n" +
+                                    "    >=(value) (greater than or equal to)\n" +
+                                    "    [(value1),(value2) (between value1 and value2 inclusive)\n" +
+                                    "    [=(value1),(value2) (between value1 and value2 exclusive)\n" +
+                                    "    [>(value1),(value2) (between value1, exclusive, and value2, inclusive)\n" +
+                                    "    [<(value1),(value2) (between value1, inclusive, and value2, exclusive)\n" +
+                                    "    !(value) (not equal to)\n" +
+                                    "    !=(value) (not equal to)\n" +
+                                    "    ![(value1),(value2) (not between value1 and value2 inclusive)\n" +
+                                    "    ![=(value1),(value2) (not between value1 and value2 exclusive)\n" +
+                                    "    Note: The symbols can be used in any order, e.g. [=! is the same as ![=\n" +
+                                    "Registers:" +
+                                    "    o (O register)," +
+                                    "    a (A register)," +
+                                    "    r (point registers) in any combination";
                             case "ldb"  -> "ldb - Load the most recent background shape\nldb index - Load the indexed background shape";
                             case "s"    -> "s | oa | ao - Switch between O (ordinary) and A (auxiliary) shape registers";
                             case "oa"   -> "s | oa | ao - Switch between O (ordinary) and A (auxiliary) shape registers";
@@ -463,8 +496,8 @@ public class CurveGenerator {
                             case "refine" -> "refine commands: sm, sma, st, sta, div, dva, mg, rd";
                             case "background" -> "background commands: psb, pb, rmb, clb, lsb, printb, ldb, scb, ssb";
                             case "flow" -> "undo/redo commands: undo, redo, rmhis; repeat: r";
-                            case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb, svgp, svgf, svgb";
-                            case "system" -> "system commands: sysinfo, exit, quit, help, clear";
+                            case "output" -> "output commands: sysinfo, print, pp, json, info, printb, lsb, svgp, svgf, svgb, grep";
+                            case "system" -> "system commands: sysinfo, exit, quit, help, clear, grep";
                             case "register" -> "register commands: reg, regp, o, a, oa, ao, s, moa, mao, ms, mov, mr, sr, srz, rmr, rmra";
                             default -> "Unknown command";
                         });
