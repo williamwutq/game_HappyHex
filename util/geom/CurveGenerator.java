@@ -221,6 +221,7 @@ public class CurveGenerator {
         // Listen in standard input
         new Thread(() -> {
             java.util.Scanner scanner = new java.util.Scanner(System.in);
+            listeningLoop:
             while (true) {
                 String prev = previousCommand.get();
                 System.out.print(">>> ");
@@ -293,7 +294,47 @@ public class CurveGenerator {
                         }
                     }
                 } else if (line.startsWith("grep")){
-
+                    boolean countOnly = false;
+                    boolean includeHistory = false;
+                    boolean includeIndices = false;
+                    String range = null; String regs = null;
+                    String[] parts = splitArgs(line, 4);
+                    for (String part : parts) {
+                        if (part.equals("-c")) {
+                            countOnly = true;
+                        } else if (part.equals("-h")) {
+                            includeHistory = true;
+                        } else if (part.equals("-i")) {
+                            includeIndices = true;
+                        } else if (range == null) {
+                            range = part;
+                        } else if (regs == null) {
+                            regs = part;
+                        } else {
+                            System.out.println("Extra argument: " + part);
+                            range = null;
+                            continue listeningLoop;
+                        }
+                    }
+                    if (range == null || regs == null) {
+                        System.out.println("Invalid arguments. Usage: grep [flags] range regs");
+                        continue listeningLoop;
+                    }
+                    Predicate<double[]> rangePredicate;
+                    try {
+                        rangePredicate = createTestBasedOnExpression(range);
+                    } catch (Exception e) {
+                        System.out.println("Invalid range expression: " + e.getMessage());
+                        continue listeningLoop;
+                    }
+                    // Check register only contains o, a, r
+                    for (char c : regs.toCharArray()) {
+                        if (c != 'o' && c != 'a' && c != 'r' && c != 'O' && c != 'A' && c != 'R') {
+                            System.out.println("Invalid register specifier: " + c);
+                            continue listeningLoop;
+                        }
+                    }
+                    // TODO: implement get shapes matching criteria
                 }
                 else if (line.equals("help")) {
                     System.out.println("Commands:");
@@ -439,10 +480,9 @@ public class CurveGenerator {
                             case "clb"  -> "clb - Clears all background shapes";
                             case "lsb"  -> "lsb - List the background shapes";
                             case "printb"-> "printb - Prints the list of points and control points of background shapes";
-                            case "grep" -> "grep [flags] range regs - Search for points in shapes matching in the specified range and contain the specific registers, case insensitive\n" +
+                            case "grep" -> {yield "grep [flags] range regs - Search for points in shapes matching in the specified range and contain the specific registers, case insensitive\n" +
                                     "Flags:\n" +
                                     "    -c (count only)\n" +
-                                    "    -v (invert range match)\n" +
                                     "    -h (include history)\n" +
                                     "    -i (include history index and index in shape)\n" +
                                     "Range Modifiers:\n" +
@@ -471,7 +511,7 @@ public class CurveGenerator {
                                     "Registers:" +
                                     "    o (O register)," +
                                     "    a (A register)," +
-                                    "    r (point registers) in any combination";
+                                    "    r (point registers) in any combination";}
                             case "ldb"  -> "ldb - Load the most recent background shape\nldb index - Load the indexed background shape";
                             case "s"    -> "s | oa | ao - Switch between O (ordinary) and A (auxiliary) shape registers";
                             case "oa"   -> "s | oa | ao - Switch between O (ordinary) and A (auxiliary) shape registers";
@@ -1545,7 +1585,7 @@ public class CurveGenerator {
         }
         pastShapes.add(shape.clone());
     }
-    public Predicate<double[]> createTestBasedOnExpression(String expression) {
+    public static Predicate<double[]> createTestBasedOnExpression(String expression) {
         expression += " ";
         // Grep helper function. Follow the syntax of range modifiers and restrictions.
         int mode = 0; StringBuffer buffer;
