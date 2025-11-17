@@ -3,6 +3,7 @@ package util.geom;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -294,47 +295,139 @@ public class CurveGenerator {
                         }
                     }
                 } else if (line.startsWith("grep")){
-                    boolean countOnly = false;
-                    boolean includeHistory = false;
-                    boolean includeIndices = false;
-                    String range = null; String regs = null;
-                    String[] parts = splitArgs(line, 4);
-                    for (String part : parts) {
-                        if (part.equals("-c")) {
-                            countOnly = true;
-                        } else if (part.equals("-h")) {
-                            includeHistory = true;
-                        } else if (part.equals("-i")) {
-                            includeIndices = true;
-                        } else if (range == null) {
-                            range = part;
-                        } else if (regs == null) {
-                            regs = part;
-                        } else {
-                            System.out.println("Extra argument: " + part);
-                            range = null;
-                            continue listeningLoop;
-                        }
-                    }
-                    if (range == null || regs == null) {
-                        System.out.println("Invalid arguments. Usage: grep [flags] range regs");
-                        continue listeningLoop;
-                    }
-                    Predicate<double[]> rangePredicate;
                     try {
-                        rangePredicate = createTestBasedOnExpression(range);
-                    } catch (Exception e) {
-                        System.out.println("Invalid range expression: " + e.getMessage());
-                        continue listeningLoop;
-                    }
-                    // Check register only contains o, a, r
-                    for (char c : regs.toCharArray()) {
-                        if (c != 'o' && c != 'a' && c != 'r' && c != 'O' && c != 'A' && c != 'R') {
-                            System.out.println("Invalid register specifier: " + c);
+                        boolean countOnly = false;
+                        boolean includeHistory = false;
+                        boolean includeIndices = false;
+                        String range = null;
+                        String regs = null;
+                        String[] parts = splitArgs(line, 4);
+                        for (String part : parts) {
+                            if (part.equals("-c")) {
+                                countOnly = true;
+                            } else if (part.equals("-h")) {
+                                includeHistory = true;
+                            } else if (part.equals("-i")) {
+                                includeIndices = true;
+                            } else if (range == null) {
+                                range = part;
+                            } else if (regs == null) {
+                                regs = part;
+                            } else {
+                                System.out.println("Extra argument: " + part);
+                                range = null;
+                                continue listeningLoop;
+                            }
+                        }
+                        if (range == null || regs == null) {
+                            System.out.println("Invalid arguments. Usage: grep [flags] range regs");
                             continue listeningLoop;
                         }
+                        Predicate<double[]> rangePredicate;
+                        try {
+                            rangePredicate = createTestBasedOnExpression(range);
+                        } catch (Exception e) {
+                            System.out.println("Invalid range expression: " + e.getMessage());
+                            continue listeningLoop;
+                        }
+                        // Check register only contains o, a, r
+                        for (char c : regs.toCharArray()) {
+                            if (c != 'o' && c != 'a' && c != 'r' && c != 'O' && c != 'A' && c != 'R') {
+                                System.out.println("Invalid register specifier: " + c);
+                                continue listeningLoop;
+                            }
+                        }
+                        boolean includeO = regs.toLowerCase().contains("o");
+                        boolean includeA = regs.toLowerCase().contains("a");
+                        boolean includeR = regs.toLowerCase().contains("r");
+                        HashMap<double[], String> map = new HashMap(); // Map from point to name
+                        ArrayList<String> outputStrings = new ArrayList<>();
+                        if (includeO) {
+                            try {
+                                double[][] array = s.get().toCurvedShape().toArray();
+                                for (int i = 0; i < array.length; i++) {
+                                    double[] pointAndCtrl = array[i];
+                                    double[] point = new double[]{pointAndCtrl[0], pointAndCtrl[1]};
+                                    double[] control = new double[]{pointAndCtrl[2], pointAndCtrl[3]};
+                                    String indexString = (includeIndices ? i + "" : "");
+                                    map.put(point, "op" + indexString);
+                                    map.put(control, "oc" + indexString);
+                                }
+                                if (includeHistory) {
+                                    // Dig history
+                                    for (int h = pastShapes.size() - 2; h >= 0; h--) {
+                                        MutableCurvedShape histShape = pastShapes.get(h);
+                                        double[][] histArray = histShape.toCurvedShape().toArray();
+                                        for (int i = 0; i < histArray.length; i++) {
+                                            double[] pointAndCtrl = histArray[i];
+                                            double[] point = new double[]{pointAndCtrl[0], pointAndCtrl[1]};
+                                            double[] control = new double[]{pointAndCtrl[2], pointAndCtrl[3]};
+                                            String indexString = (includeIndices ? i + "" : "");
+                                            String historyIndexString = (includeIndices ? "h" + (pastShapes.size() - 1 - h) : "");
+                                            map.putIfAbsent(point, historyIndexString + "op" + indexString);
+                                            map.putIfAbsent(control, historyIndexString + "oc" + indexString);
+                                        }
+                                    }
+                                }
+                            } catch (NullPointerException ignored) {
+
+                            }
+                        }
+                        if (includeA) {
+                            try {
+                                double[][] array = a.get().toCurvedShape().toArray();
+                                for (int i = 0; i < array.length; i++) {
+                                    double[] pointAndCtrl = array[i];
+                                    double[] point = new double[]{pointAndCtrl[0], pointAndCtrl[1]};
+                                    double[] control = new double[]{pointAndCtrl[2], pointAndCtrl[3]};
+                                    String indexString = (includeIndices ? i + "" : "");
+                                    map.put(point, "ap" + indexString);
+                                    map.put(control, "ac" + indexString);
+                                }
+                                if (includeHistory) {
+                                    // Dig history
+                                    for (int h = pastShapesA.size() - 2; h >= 0; h--) {
+                                        MutableCurvedShape histShape = pastShapesA.get(h);
+                                        double[][] histArray = histShape.toCurvedShape().toArray();
+                                        for (int i = 0; i < histArray.length; i++) {
+                                            double[] pointAndCtrl = histArray[i];
+                                            double[] point = new double[]{pointAndCtrl[0], pointAndCtrl[1]};
+                                            double[] control = new double[]{pointAndCtrl[2], pointAndCtrl[3]};
+                                            String indexString = (includeIndices ? i + "" : "");
+                                            String historyIndexString = (includeIndices ? "h" + (pastShapesA.size() - 1 - h) : "");
+                                            map.putIfAbsent(point, historyIndexString + "ap" + indexString);
+                                            map.putIfAbsent(control, historyIndexString + "ac" + indexString);
+                                        }
+                                    }
+                                }
+                            } catch (NullPointerException ignored) {
+
+                            }
+                        }
+                        if (includeR) {
+                            for (int i = 0; i < pointCache.length; i++) {
+                                double[] point = pointCache[i];
+                                if (Math.abs(point[0]) < 0.0001 && Math.abs(point[1]) < 0.0001) continue;
+                                String indexString = (includeIndices ? i + "" : "");
+                                map.put(point, "r" + indexString);
+                            }
+                        }
+                        // Check items in map against predicate
+                        for (double[] point : map.keySet()) {
+                            if (rangePredicate.test(point)) {
+                                outputStrings.add(map.get(point) + ": (" + point[0] + ", " + point[1] + ")");
+                            }
+                        }
+                        if (countOnly) {
+                            System.out.println("Found " + outputStrings.size() + " matching points.");
+                        } else {
+                            for (String outputString : outputStrings) {
+                                System.out.println(outputString);
+                            }
+                        }
+                    } catch (Exception e){
+                        System.out.println("Error during grep: " + e.getMessage());
                     }
-                    // TODO: implement get shapes matching criteria
                 }
                 else if (line.equals("help")) {
                     System.out.println("Commands:");
@@ -1590,7 +1683,6 @@ public class CurveGenerator {
         // Grep helper function. Follow the syntax of range modifiers and restrictions.
         int mode = 0; StringBuffer buffer;
         java.util.Stack<Object> objectStack = new java.util.Stack<>();
-        objectStack.push((Predicate<double[]>)(point -> true)); // Start with a true predicate
         // 0 = start of expression: express identifier (x, y, or c)
         // 2 = expect range restriction (<, <=, =, >=, >, etc.)
         // 3 = expect number
@@ -1641,10 +1733,10 @@ public class CurveGenerator {
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException("Invalid number format: " + numberStr);
                     }
+                    objectStack.push(number);
                     // Read next character, check is , or other
                     if (expression.charAt(i) == ',') {
                         mode = 3; // Expect another number
-                        objectStack.push(number);
                     } else mode = 4; // End of expression
                 default: // Process stack after identifier
                     // At this point, we should have identifier (char), operator (String), number(s) (Double)
@@ -1672,7 +1764,8 @@ public class CurveGenerator {
                     } else {
                         // Get boolean operator
                         if (!(objectStack.peek() instanceof Boolean)) {
-                            throw new IllegalArgumentException("Expected boolean operator before predicate.");
+                            // There is no previous boolean operator, just push
+                            objectStack.push(predicate);
                         } else {
                             boolean isAnd = (Boolean)objectStack.pop();
                             if (objectStack.peek() instanceof Predicate) {
@@ -1698,6 +1791,10 @@ public class CurveGenerator {
             }
         }
         if (objectStack.size() != 1 || !(objectStack.peek() instanceof Predicate) || mode != 4) {
+            System.out.println("Remaining objects: ");
+            for (Object obj : objectStack) {
+                System.out.println(" - " + obj);
+            }
             throw new IllegalArgumentException("Invalid expression format.");
         } else {
             return (Predicate<double[]>)objectStack.pop();
