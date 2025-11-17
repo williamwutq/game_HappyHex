@@ -7,6 +7,7 @@ import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 public class CurveGenerator {
     public static void main(String[] args){
@@ -448,21 +449,25 @@ public class CurveGenerator {
                                     "    x (X coordinate modifier)\n" +
                                     "    y (Y coordinate modifier)\n" +
                                     "    c (X and Y coordinate modifier), empty input for no modifier\n" +
+                                    "    Note: They can be chained with & and | operators, in linear precedence order. () are not allowed.\n" +
                                     "Range Restricts:\n" +
                                     "    <(value) (less than)\n" +
                                     "    >(value) (greater than)\n" +
                                     "    =(value) (equal to)\n" +
                                     "    <=(value) (less than or equal to)\n" +
                                     "    >=(value) (greater than or equal to)\n" +
-                                    "    [(value1),(value2) (between value1 and value2 inclusive)\n" +
-                                    "    [=(value1),(value2) (between value1 and value2 exclusive)\n" +
-                                    "    [>(value1),(value2) (between value1, exclusive, and value2, inclusive)\n" +
-                                    "    [<(value1),(value2) (between value1, inclusive, and value2, exclusive)\n" +
+                                    "    [(value1),(value2) (between value1 and value2 exclusive)\n" +
+                                    "    [=(value1),(value2) (between value1 and value2 inclusive)\n" +
+                                    "    [>(value1),(value2) (between value1, inclusive, and value2, exclusive)\n" +
+                                    "    [<(value1),(value2) (between value1, exclusive, and value2, inclusive)\n" +
                                     "    !(value) (not equal to)\n" +
                                     "    !=(value) (not equal to)\n" +
                                     "    ![(value1),(value2) (not between value1 and value2 inclusive)\n" +
                                     "    ![=(value1),(value2) (not between value1 and value2 exclusive)\n" +
                                     "    Note: The symbols can be used in any order, e.g. [=! is the same as ![=\n" +
+                                    "Example Ranges:\n" +
+                                    "    x[=1,-1&y>-0.5|c<0.2 (X coordinate between 1 and -1 exclusive, and Y coordinate greater than -0.5, or both coordinates less than 0.2)\n" +
+                                    "    Note: You may not use space in any range expression\n" +
                                     "Registers:" +
                                     "    o (O register)," +
                                     "    a (A register)," +
@@ -1539,5 +1544,322 @@ public class CurveGenerator {
             pastShapes.subList(pastShapes.size() - undoIndex.getAndSet(0), pastShapes.size()).clear();
         }
         pastShapes.add(shape.clone());
+    }
+    public Predicate<double[]> createTestBasedOnExpression(String expression) {
+        expression += " ";
+        // Grep helper function. Follow the syntax of range modifiers and restrictions.
+        int mode = 0; StringBuffer buffer;
+        java.util.Stack<Object> objectStack = new java.util.Stack<>();
+        objectStack.push((Predicate<double[]>)(point -> true)); // Start with a true predicate
+        // 0 = start of expression: express identifier (x, y, or c)
+        // 2 = expect range restriction (<, <=, =, >=, >, etc.)
+        // 3 = expect number
+        // 4 = end of expression. expect termination or boolean operator (& or |)
+        loop:
+        for (int i = 0; i < expression.length(); i++) {
+            char c = expression.charAt(i);
+            switch (mode) {
+                case 0: // Start of expression
+                    buffer = new StringBuffer();
+                    while (i < expression.length() && Character.isLetter(expression.charAt(i))) {
+                        buffer.append(expression.charAt(i));
+                        i++;
+                    }
+                    String identifier = buffer.toString();
+                    if (identifier.equals("x") || identifier.equals("y") || identifier.equals("c")) {
+                        mode = 2;
+                        objectStack.push(identifier.charAt(0));
+                    } else {
+                        throw new IllegalArgumentException("Invalid identifier: " + identifier);
+                    }
+                    i--; // Step back to reprocess current character
+                    break;
+                case 2: // Expect range restriction
+                    // Read until not [=<>!
+                    buffer = new StringBuffer();
+                    while (i < expression.length() && ("[=<>!".indexOf(expression.charAt(i)) != -1)) {
+                        buffer.append(expression.charAt(i));
+                        i++;
+                    }
+                    String operator = buffer.toString();
+                    mode = 3; // Expect number
+                    objectStack.push(operator);
+                    i--; // Step back to reprocess current character
+                    break;
+                case 3: // Expect number
+                    // Read until non-number character
+                    buffer = new StringBuffer();
+                    while (i < expression.length() && (Character.isDigit(expression.charAt(i)) ||
+                        expression.charAt(i) == '.' || expression.charAt(i) == '-')) {
+                        buffer.append(expression.charAt(i));
+                        i++;
+                    }
+                    String numberStr = buffer.toString();
+                    double number;
+                    try {
+                        number = Double.parseDouble(numberStr);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Invalid number format: " + numberStr);
+                    }
+                    // Read next character, check is , or other
+                    if (expression.charAt(i) == ',') {
+                        mode = 3; // Expect another number
+                        objectStack.push(number);
+                    } else mode = 4; // End of expression
+                default: // Process stack after identifier
+                    // At this point, we should have identifier (char), operator (String), number(s) (Double)
+                    java.util.List<Double> numbers = new java.util.ArrayList<>();
+                    while (!objectStack.isEmpty() && objectStack.peek() instanceof Double) {
+                        numbers.add(0, (Double)objectStack.pop());
+                    }
+                    if (objectStack.isEmpty() || !(objectStack.peek() instanceof String)) {
+                        throw new IllegalArgumentException("Expected operator after identifier.");
+                    }
+                    String op = (String)objectStack.pop();
+                    if (objectStack.isEmpty() || !(objectStack.peek() instanceof Character)) {
+                        throw new IllegalArgumentException("Expected identifier before operator.");
+                    }
+                    char id = (Character)objectStack.pop();
+                    // Create predicate
+                    double[] numsArray = new double[numbers.size()];
+                    for (int j = 0; j < numbers.size(); j++) {
+                        numsArray[j] = numbers.get(j);
+                    }
+                    Predicate<double[]> predicate = makePointPredicate(id, op, numsArray);
+                    if (objectStack.isEmpty()) {
+                        // Nothing to combine with, just push
+                        objectStack.push(predicate);
+                    } else {
+                        // Get boolean operator
+                        if (!(objectStack.peek() instanceof Boolean)) {
+                            throw new IllegalArgumentException("Expected boolean operator before predicate.");
+                        } else {
+                            boolean isAnd = (Boolean)objectStack.pop();
+                            if (objectStack.peek() instanceof Predicate) {
+                                throw new IllegalArgumentException("Expected boolean operator before predicate.");
+                            } else {
+                                Predicate<double[]> left = (Predicate<double[]>)objectStack.pop();
+                                Predicate<double[]> combined = joinPointPredicates(isAnd, left, predicate);
+                                objectStack.push(combined);
+                            }
+                        }
+                    }
+                    // Put predicate back on stack
+                    if (c == '&') {
+                        mode = 0;
+                        objectStack.push(Boolean.TRUE); // AND
+                    } else if (c == '|') {
+                        mode = 0;
+                        objectStack.push(Boolean.FALSE); // Or
+                    } else {
+                        break loop;
+                    }
+                    break;
+            }
+        }
+        if (objectStack.size() != 1 || !(objectStack.peek() instanceof Predicate) || mode != 4) {
+            throw new IllegalArgumentException("Invalid expression format.");
+        } else {
+            return (Predicate<double[]>)objectStack.pop();
+        }
+    }
+    public static Predicate<double[]> makePointPredicate (char target, String operator, double... numbers) {
+        boolean hasEx = operator.contains("!");
+        boolean hasEq = operator.contains("=");
+        boolean hasGt = operator.contains(">");
+        boolean hasLt = operator.contains("<");
+        boolean hasIn = operator.contains("[");
+        if (!hasEx && !hasEq && !hasGt && !hasLt && !hasIn) {
+            return point -> true; // All points match
+        } else if (hasGt && hasLt) {
+            throw new IllegalArgumentException("Illegal Combination of operators");
+        } else if (hasIn) {
+            if (numbers.length != 2) {
+                throw new IllegalArgumentException("Range operator requires exactly two numbers.");
+            }
+            double lower = Math.min(numbers[0], numbers[1]);
+            double upper = Math.max(numbers[0], numbers[1]);
+            if (hasGt && hasEq || hasLt && hasEq) {
+                throw new IllegalArgumentException("Illegal Combination of operators");
+            }
+            if (hasGt) {
+                if (target == 'x'){
+                    return point -> {
+                        try {
+                            double x = point[0];
+                            return hasEx ^ (lower <= x && x < upper);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    };
+                } else if (target == 'y'){
+                    return point -> {
+                        try {
+                            double y = point[1];
+                            return hasEx ^ (lower <= y && y < upper);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    };
+                } else return point -> {
+                    try {
+                        double x = point[0];
+                        double y = point[1];
+                        return hasEx ^ (lower <= x && x < upper && lower <= y && y < upper);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            } else if (hasLt) {
+                if (target == 'x'){
+                    return point -> {
+                        try {
+                            double x = point[0];
+                            return hasEx ^ (lower < x && x <= upper);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    };
+                } else if (target == 'y'){
+                    return point -> {
+                        try {
+                            double y = point[1];
+                            return hasEx ^ (lower < y && y <= upper);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    };
+                } else return point -> {
+                    try {
+                        double x = point[0];
+                        double y = point[1];
+                        return hasEx ^ (lower < x && x <= upper && lower < y && y <= upper);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            } else if (hasEq) {
+                if (target == 'x'){
+                    return point -> {
+                        try {
+                            double x = point[0];
+                            return hasEx ^ (lower <= x && x <= upper);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    };
+                } else if (target == 'y'){
+                    return point -> {
+                        try {
+                            double y = point[1];
+                            return hasEx ^ (lower <= y && y <= upper);
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    };
+                } else return point -> {
+                    try {
+                        double x = point[0];
+                        double y = point[1];
+                        return hasEx ^ (lower <= x && x <= upper && lower <= y && y <= upper);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            } else // [ or ![
+                if (target == 'x'){
+                return point -> {
+                    try {
+                        double x = point[0];
+                        return hasEx ^ (lower < x && x < upper);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            } else if (target == 'y'){
+                return point -> {
+                    try {
+                        double y = point[1];
+                        return hasEx ^ (lower < y && y < upper);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            } else {
+                return point -> {
+                    try {
+                        double x = point[0];
+                        double y = point[1];
+                        return hasEx ^ (lower < x && x < upper && lower < y && y < upper);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            }
+        } else {
+            if (numbers.length != 1) {
+                throw new IllegalArgumentException("Operator requires exactly one number.");
+            }
+            double value = numbers[0];
+            final boolean hasEqn = (!hasGt && !hasLt && !hasIn) || hasEq; // turn ! into !=
+            if (target == 'x'){
+                return point -> {
+                    try {
+                        double x = point[0];
+                        boolean v = false;
+                        if (hasGt && x > value)  v = true;
+                        if (hasLt && x < value)  v = true;
+                        if (hasEqn && x == value)v = true;
+                        return v ^ hasEx;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            } else if (target == 'y'){
+                return point -> {
+                    try {
+                        double y = point[1];
+                        boolean v = false;
+                        if (hasGt && y > value)  v = true;
+                        if (hasLt && y < value)  v = true;
+                        if (hasEqn && y == value)v = true;
+                        return v ^ hasEx;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            } else {
+                return point -> {
+                    try {
+                        double x = point[0];
+                        double y = point[1];
+                        boolean v = false;
+                        if (hasGt && x > value)  v = true;
+                        if (hasLt && x < value)  v = true;
+                        if (hasEqn && x == value)v = true;
+                        if (hasGt && y > value)  v = true;
+                        if (hasLt && y < value)  v = true;
+                        if (hasEqn && y == value)v = true;
+                        return v ^ hasEx;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                };
+            }
+        }
+    }
+    @SuppressWarnings("unchecked")
+    public static Predicate<double[]> joinPointPredicates (boolean isAnd, Predicate<double[]>... predicates) {
+        return point -> {
+            for (Predicate<double[]> predicate : predicates) {
+                boolean result = predicate.test(point);
+                if (isAnd && !result) {
+                    return false;
+                } else if (!isAnd && result) {
+                    return true;
+                }
+            }
+            return isAnd;
+        };
     }
 }
