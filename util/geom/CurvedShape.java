@@ -211,4 +211,19 @@ public class CurvedShape {
         }
         return new CurvedShape(points);
     }
+    /**
+     * Converts the CurvedShape to an SVG path string.
+     * @return a String representing the SVG path of the curved shape
+     */
+    public String toSvgPath() {
+        StringBuilder sb = new StringBuilder();
+        if (numPoints > 0) {
+            sb.append(String.format("M %.3f %.3f ", xPoints[0], yPoints[0]));
+            for (int i = 1; i < numPoints; i++) {
+                sb.append(String.format("Q %.3f %.3f, %.3f %.3f ", xControls[i - 1], yControls[i - 1], xPoints[i], yPoints[i]));
+            }
+            sb.append(String.format("Q %.3f %.3f, %.3f %.3f Z", xControls[numPoints - 1], yControls[numPoints - 1], xPoints[0], yPoints[0]));
+        }
+        return sb.toString().trim();
+    }
 }
