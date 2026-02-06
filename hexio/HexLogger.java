@@ -45,8 +45,7 @@ import java.util.ArrayList;
  * enabling developers to save game states to binary files, read them back, and manage game data efficiently.
  * It is particularly useful for tracking player progress, debugging, and analyzing game sessions. The
  * logged data, especially in binary format, could be used for training, helping future developers to build
- * advanced autoplay systems. The class currently only supports the {@code hex.binary} data formats, with
- * plans to support additional binary formats in future releases.
+ * advanced autoplay systems. The class supports the {@code hex.binary} and {@code hex.coloredbinary} data formats.
  *
  * <h3>Function</h3>
  * The {@code HexLogger} class provides the following key functionalities:
@@ -67,8 +66,7 @@ import java.util.ArrayList;
  * </ul>
  *
  * <h3>Data Format</h3>
- * This is version 1.3 of the {@code HexLogger} class, adhering to the {@code hex.binary} format standard.
- * It currently only supports reading and writing n the {@code hex.binary} format, stored in files with suffix {@code .hpyhex}.
+ * The class supports the {@code hex.binary} and {@code hex.coloredbinary} data formats.
  *
  * <h3>Example Usage</h3>
  * Below is an example demonstrating how to use the {@code HexLogger} class to log a game session,
