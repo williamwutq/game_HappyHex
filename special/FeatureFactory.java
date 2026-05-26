@@ -80,6 +80,8 @@ public class FeatureFactory {
             java.time.LocalDate date = java.time.LocalDate.now();
             if ((date.getMonthValue() == 2 && date.getDayOfMonth() == 14)) {
                 return new special.Valentine.FilledWithLove();
+            } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 22)) {
+                return new special.WinterSuki.WinterSuki();
             } else if ((date.getMonthValue() == 12 && date.getDayOfMonth() == 25)) {
                 return new special.Christmas.ChristmasSuper();
             }

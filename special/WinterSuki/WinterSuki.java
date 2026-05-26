@@ -60,7 +60,7 @@ public class WinterSuki implements SpecialFeature {
                "This theme cause game hexagons to be RGB, background to be white, unfilled tiles to be blue, pieces and settings buttons to be RGBW, and home screen buttons to be yellow.";
     }
     public String getFeatureTarget() {
-        return "GUI, LaunchGUI, LauncherEssentials, GameEssentials";
+        return "Animation, GUI, LaunchGUI, LauncherEssentials, GameEssentials";
     }
     public int getSupportVersionMajor() {
         return 1;
@@ -88,6 +88,9 @@ public class WinterSuki implements SpecialFeature {
     public Object[] process(Object[] objects) {
         if (isActive()){
             if (objects == null || objects.length == 0) return null;
+            if (objects[0] instanceof GUI.animation.DisappearEffect && objects[1] instanceof hex.Block) {
+                return new Object[]{new SnowFlakeAnimation((hex.Block) objects[1])};
+            }
             boolean isColorBaseArray = objects.length == 6 || objects.length == 12;
             int k = 0;
             while (k < objects.length && isColorBaseArray) {
