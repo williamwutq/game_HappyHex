@@ -44,7 +44,7 @@ public class WinterSuki implements SpecialFeature {
         validate();
     }
     public int getFeatureID() {
-        return 0;
+        return 7;
     }
     public int getGroupID() {
         return 1; // default
@@ -56,8 +56,8 @@ public class WinterSuki implements SpecialFeature {
         return "ColorModifier";
     }
     public String getFeatureDescription() {
-        return "This feature is to celebrate my friend who is the first person to reach 40 turns in Devil mode. To celebrate, I promise him that I will add this new theme." +
-               "This theme cause game hexagons to be RGB, background to be white, unfilled tiles to be blue, pieces and settings buttons to be RGBW, and home screen buttons to be yellow.";
+        return "This feature is dedicated to my friend Suki, who loves ice skating and really enjoys all kinds of food. She came up with the theme 'Snow', so here is the theme for her! " +
+               "This theme causes ice cream and snowflake animations to appear when blocks are cleared, and changes the color scheme of the game to a winter theme. ";
     }
     public String getFeatureTarget() {
         return "Animation, GUI, LaunchGUI, LauncherEssentials, GameEssentials";
