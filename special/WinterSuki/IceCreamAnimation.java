@@ -127,6 +127,7 @@ public class IceCreamAnimation extends Animation {
         g2d.fillPolygon(coneXs, coneYs, 3);
 
         // Waffle lines (clipped to cone triangle)
+        float borderW = Math.max(1.5f, (float)(size * 0.04));
         g2d.setClip(new Polygon(coneXs, coneYs, 3));
         g2d.setColor(new Color(WAFFLE_COLOR.getRed(), WAFFLE_COLOR.getGreen(), WAFFLE_COLOR.getBlue(), alpha));
         g2d.setStroke(new BasicStroke(1.5f));
@@ -143,12 +144,20 @@ public class IceCreamAnimation extends Animation {
         g2d.fillOval((int)(cx - scoopR), (int)(botCY - scoopR), (int)(2 * scoopR), (int)(2 * scoopR));
         g2d.setColor(new Color(255, 255, 255, (int)(alpha * 0.35)));
         g2d.fillOval((int)(cx + scoopR * 0.1), (int)(botCY - scoopR * 0.65), (int)(scoopR * 0.28), (int)(scoopR * 0.28));
+        // Bottom scoop border
+        g2d.setStroke(new BasicStroke(borderW, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2d.setColor(new Color(Math.max(0, scoopColor.getRed() - 80), Math.max(0, scoopColor.getGreen() - 80), Math.max(0, scoopColor.getBlue() - 80), alpha));
+        g2d.drawOval((int)(cx - scoopR), (int)(botCY - scoopR), (int)(2 * scoopR), (int)(2 * scoopR));
 
         // --- Top scoop (cream) ---
         g2d.setColor(new Color(CREAM_COLOR.getRed(), CREAM_COLOR.getGreen(), CREAM_COLOR.getBlue(), alpha));
         g2d.fillOval((int)(cx - topR), (int)(topCY - topR), (int)(2 * topR), (int)(2 * topR));
         g2d.setColor(new Color(255, 255, 255, (int)(alpha * 0.70)));
         g2d.fillOval((int)(cx + topR * 0.1), (int)(topCY - topR * 0.65), (int)(topR * 0.28), (int)(topR * 0.28));
+        // Top scoop border
+        g2d.setStroke(new BasicStroke(borderW, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2d.setColor(new Color(180, 180, 190, alpha));
+        g2d.drawOval((int)(cx - topR), (int)(topCY - topR), (int)(2 * topR), (int)(2 * topR));
 
         // --- Cherry on top ---
         double cherryR  = scoopR * 0.22;
