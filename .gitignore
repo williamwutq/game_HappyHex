@@ -36,3 +36,6 @@ users/
 /out
 *.class
 */*.class
+
+### tagging ###
+*/TAGS
