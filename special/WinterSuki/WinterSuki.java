@@ -90,6 +90,8 @@ public class WinterSuki implements SpecialFeature {
             if (objects == null || objects.length == 0) return null;
             if (objects[0] instanceof GUI.animation.DisappearEffect && objects[1] instanceof hex.Block) {
                 return new Object[]{new SnowFlakeAnimation((hex.Block) objects[1])};
+            } else if (objects[0] instanceof GUI.animation.CenteringEffect && objects[1] instanceof hex.Block) {
+                return new Object[]{new IceCreamAnimation((hex.Block) objects[1])};
             }
             boolean isColorBaseArray = objects.length == 6 || objects.length == 12;
             int k = 0;
