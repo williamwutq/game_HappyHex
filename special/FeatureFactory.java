@@ -60,6 +60,7 @@ public class FeatureFactory {
             } else if (hint.equals("White") || hint.equals("5")) {
                 return new special.Styles.WhiteTheme();
             }
+            return new special.WinterSuki.WinterSuki(); // TODO REMOVE DEBUG
         } else if (className.equals("Piece") || className.equals("hex.Piece")) {
             if (hint.equals("God")){
                 return new special.Logic.GodMode();
@@ -85,6 +86,7 @@ public class FeatureFactory {
             } else if ((date.getMonthValue() == 12 && date.getDayOfMonth() == 25)) {
                 return new special.Christmas.ChristmasSuper();
             }
+            return new special.WinterSuki.WinterSuki(); // TODO REMOVE DEBUG
         }
         return new DefaultFeature(); // Default feature do nothing
     }
