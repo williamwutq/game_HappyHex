@@ -43,6 +43,8 @@ public class FeatureFactory {
                 return new special.Thanksgiving.GratefulHarvest();
             } else if ((date.getMonthValue() == 6 && date.getDayOfMonth() == 16)) {
                 return new special.Snowy.Snowy();
+            } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 22)) {
+                return new special.WinterSuki.WinterSuki();
             } else if ((date.getMonthValue() == 12 && date.getDayOfMonth() == 25)) {
                 return new special.Christmas.ChristmasSuper();
             } else if ((date.getMonthValue() == 7 && date.getDayOfMonth() == 4)) {
