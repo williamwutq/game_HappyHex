@@ -106,24 +106,33 @@ public class WinterSuki implements SpecialFeature {
             }
             if (isColorBaseArray){
                 return new Color[]{
-                        Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW,
-                        Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW,
-                        Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW
+                        new Color(108, 180, 218), // ice blue
+                        new Color( 68, 128, 178), // glacier cerulean
+                        new Color( 42,  82, 145), // deep navy
+                        new Color( 88, 148, 188), // steel blue
+                        new Color(132, 108, 192), // twilight violet
+                        new Color(168, 138, 198), // dusty lavender
+                        new Color( 52,  98,  72), // winter pine
+                        new Color( 38,  78,  58), // deep spruce
+                        new Color(112,  70,  46), // chestnut brown
+                        new Color(148, 100,  64), // warm walnut
+                        new Color(208, 190, 164), // frost beige
+                        new Color(154, 152, 112), // sage khaki
                 };
             } else if(objects.length == 2 && objects[0] instanceof Color && objects[1] instanceof String){
                 String hint = (String) objects[1];
                 if(hint.contains("SlidingButtonOn")){
-                    objects[0] = Color.BLUE;
+                    objects[0] = new Color(108, 180, 218); // ice blue
                 } else if (hint.contains("SlidingButtonOff")){
-                    objects[0] = Color.RED;
+                    objects[0] = new Color(112,  70,  46); // chestnut brown
                 } else if (hint.contains("GameQuitFont") || hint.contains("GameDisplayFont")) {
-                    objects[0] = Color.DARK_GRAY;
+                    objects[0] = new Color( 42,  82, 145); // deep navy
                 } else if (hint.contains("PieceSelected")){
-                    objects[0] = Color.LIGHT_GRAY;
+                    objects[0] = new Color( 88, 148, 188); // steel blue
                 } else if (hint.contains("Button") && !hint.contains("SlidingButtonEmpty")) {
-                    objects[0] = Color.DARK_GRAY;
+                    objects[0] = new Color( 42,  82, 145); // deep navy
                 } else if (hint.contains("Background")) {
-                    objects[0] = Color.WHITE;
+                    objects[0] = new Color(228, 222, 212); // pale winter frost
                 }
             }
         } return objects;
