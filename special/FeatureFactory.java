@@ -43,6 +43,8 @@ public class FeatureFactory {
                 return new special.Thanksgiving.GratefulHarvest();
             } else if ((date.getMonthValue() == 6 && date.getDayOfMonth() == 16)) {
                 return new special.Snowy.Snowy();
+            } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 22)) {
+                return new special.WinterSuki.WinterSuki();
             } else if ((date.getMonthValue() == 12 && date.getDayOfMonth() == 25)) {
                 return new special.Christmas.ChristmasSuper();
             } else if ((date.getMonthValue() == 7 && date.getDayOfMonth() == 4)) {
@@ -58,6 +60,7 @@ public class FeatureFactory {
             } else if (hint.equals("White") || hint.equals("5")) {
                 return new special.Styles.WhiteTheme();
             }
+            return new special.WinterSuki.WinterSuki(); // TODO REMOVE DEBUG
         } else if (className.equals("Piece") || className.equals("hex.Piece")) {
             if (hint.equals("God")){
                 return new special.Logic.GodMode();
@@ -78,9 +81,12 @@ public class FeatureFactory {
             java.time.LocalDate date = java.time.LocalDate.now();
             if ((date.getMonthValue() == 2 && date.getDayOfMonth() == 14)) {
                 return new special.Valentine.FilledWithLove();
+            } else if ((date.getMonthValue() == 9 && date.getDayOfMonth() == 22)) {
+                return new special.WinterSuki.WinterSuki();
             } else if ((date.getMonthValue() == 12 && date.getDayOfMonth() == 25)) {
                 return new special.Christmas.ChristmasSuper();
             }
+            return new special.WinterSuki.WinterSuki(); // TODO REMOVE DEBUG
         }
         return new DefaultFeature(); // Default feature do nothing
     }
