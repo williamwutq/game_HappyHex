@@ -1,0 +1,316 @@
+HXS: HASTE Sprite Documents
+
+Status:  Stable
+Date:    2026-10-26
+Author:  William Wu
+
+
+Table of Contents
+
+   1. Introduction
+   2. Conventions
+   3. File Layout
+   4. Magic
+   5. Palette
+      5.1. Palette Container
+      5.2. OKLB Cells
+   6. Frames
+      6.1. Frame Containers
+      6.2. Index Size
+   7. Decoding
+   8. Notes (Informative)
+   9. Example
+   Appendix A. OKLab and OKLCH (Informative)
+
+
+1. Introduction
+
+   HXS is the document format of the HASTE sprite editor: one animated,
+   paletted, hexagonal sprite in a file with the extension ".hxs".
+
+   An HXS file holds:
+
+   o  a palette of colors in OKLab, stored as half-precision floats,
+   o  one or more frames, each a hexagonal sprite whose cells are
+      palette indices. All frames have the same shape and face the
+      same way.
+
+   HXS is built entirely from HASTE containers (HASTE.txt). The palette
+   is itself a HASTE container, shaped as a straight line of cells, and
+   every frame is a HASTE container. Because a HASTE header gives the
+   exact length of its container, containers can be placed back to back
+   with no further framing, and every part of the file carries its own
+   CRC-32.
+
+   Frames have no timing. Playback rate, layers, and other editor state
+   are outside this version of the format.
+
+
+2. Conventions
+
+   The key words "MUST", "MUST NOT", "SHOULD", and "MAY" are to be
+   interpreted as described in RFC 2119.
+
+   All multi-byte values are little-endian, as in HASTE.
+
+   "Container" means a HASTE container, and its fields (direction,
+   scale, side lengths A, B, C, FourCC, pixel size p, cells) are as
+   defined in HASTE.txt. Cell indices are in HASTE cell order.
+
+   "f16" is an IEEE 754 binary16 floating-point number, stored as a
+   little-endian u16.
+
+   "Reject" means the reader MUST fail and MUST NOT return any part of
+   the document.
+
+   Sections marked "Informative" do not impose requirements.
+
+
+3. File Layout
+
+   Offset     Size    Content
+   --------   -----   ------------------------------------------
+          0   4       magic "HXS1" (Section 4)
+          4   P       palette container (Section 5)
+      4 + P   F_0     frame 0 container (Section 6)
+          .   F_1     frame 1 container
+          .   ...
+          .   F_k-1   frame k-1 container
+
+   P and each F_i are the lengths their container headers imply. The
+   file ends exactly after the last frame. There is at least one frame.
+
+   The number of frames is not stored: a reader reads frame containers
+   until the end of the file.
+
+
+4. Magic
+
+   The file MUST start with the four bytes 48 58 53 31 ("HXS1").
+
+   The final character is the version of this format. A later,
+   incompatible version would use a different final character.
+
+
+5. Palette
+
+5.1. Palette Container
+
+   The palette is a container with:
+
+      side lengths   A = 1, B = 1, C = n, where n is 1 to 65536
+      pixel size     p = 6 (64 bits per cell)
+      FourCC         "OKLB" (4F 4B 4C 42)
+
+   Its shape is a straight line of n cells, and palette index i is the
+   cell with index i, which is the cell at (a, c) = (i, 0).
+
+   The direction and scale of the palette container have no meaning.
+   Writers MUST set both to 0, and readers MUST ignore them.
+
+5.2. OKLB Cells
+
+   Each 64-bit cell is four f16 values:
+
+      bytes 0-1   L       OKLab lightness, 0 to 1
+      bytes 2-3   a       OKLab a, any finite value
+      bytes 4-5   b       OKLab b, any finite value
+      bytes 6-7   alpha   opacity, 0 (transparent) to 1 (opaque)
+
+   Alpha is straight, not premultiplied: L, a, and b are the color
+   of the cell regardless of its opacity.
+
+   A cell is valid if all four values are finite and both L and alpha
+   lie in [0, 1]. Negative zero counts as zero.
+
+   A cell with alpha 0 is fully transparent. HXS reserves no palette
+   index for transparency.
+
+   "OKLB" may also be used as the FourCC of any HASTE container whose
+   64-bit cells have this layout, for example to export a sprite with
+   direct colors instead of palette indices.
+
+
+6. Frames
+
+6.1. Frame Containers
+
+   Each frame is a container with:
+
+      side lengths   the same A, B, C in every frame
+      direction      the same in every frame
+      scale          the same in every frame
+      pixel size     p as given by Section 6.2, the same in every frame
+      FourCC         "OKLI" (4F 4B 4C 49)
+
+   Every frame header is therefore identical to that of frame 0, and
+   the direction and scale of frame 0 are those of the whole sprite. A
+   sprite's frames are drawings of one object in one orientation, so
+   they do not turn or resize from frame to frame.
+
+   Each cell holds an index into the palette, which MUST be less than
+   n.
+
+   Frames are ordered as they appear in the file.
+
+6.2. Index Size
+
+   A frame cell holds 2^p bits. p MUST be the smallest value for which
+   every palette index fits:
+
+      n               p   bits per cell
+      -------------   -   -------------
+      1 to 2          0    1
+      3 to 4          1    2
+      5 to 16         2    4
+      17 to 256       3    8
+      257 to 65536    4   16
+
+   The size of the palette therefore fixes the encoding of every frame,
+   and a document has exactly one valid encoding for a given palette
+   and set of frames.
+
+
+7. Decoding
+
+   A reader MUST reject a file if any of these holds:
+
+   1. The file does not start with "HXS1".
+
+   2. The bytes after the magic do not begin with a valid container,
+      according to the rules of HASTE.txt Section 7.
+
+   3. The palette container does not have A = 1, B = 1, p = 6, and
+      FourCC "OKLB".
+
+   4. A palette cell is not valid (Section 5.2).
+
+   5. There is no frame.
+
+   6. The bytes after a container are neither the end of the file nor
+      the start of a valid container. This includes a truncated final
+      frame.
+
+   7. A frame's side lengths, direction, or scale differ from those
+      of frame 0.
+
+   8. A frame's FourCC is not "OKLI", or its p is not the one Section
+      6.2 gives for n.
+
+   9. A frame cell holds an index of n or more.
+
+   These checks may be performed in any order.
+
+
+8. Notes (Informative)
+
+8.1. Size
+
+   A 4-frame sprite of radius 8 (169 cells) with a 16-color palette
+   takes:
+
+      magic                                   4
+      palette    13 + 16 * 8 + 4      =     145
+      frames     4 * (13 + 85 + 4)    =     408
+      ------------------------------------------
+      total                                 557 bytes
+
+8.2. Reading as a Stream
+
+   A reader never needs to look ahead. It reads the 4-byte magic, then
+   for each container reads the 13-byte header, takes the container
+   length from it, and reads the rest. haste-codec's io::read_into does
+   exactly this, and one buffer can be reused for every container.
+
+8.3. Rotating a Sprite
+
+   Every frame is an ordinary HASTE container, so its direction can be
+   changed in place, with the CRC-32 patched from the changed byte
+   alone (HASTE.txt Section 8.1). Rotating a sprite changes every
+   frame this way. No other part of the file changes.
+
+8.4. Why f16 OKLab
+
+   OKLab is close to perceptually uniform, so evenly spaced values look
+   evenly spaced, and blending or ramping in it behaves well. Storing
+   it as four f16 values keeps full precision (L to about 0.0005 near
+   1, finer near 0) without a hand-tuned bit split. The 8-byte entry is
+   also exactly Metal's half4, so a palette can be uploaded to the GPU
+   as stored.
+
+   Editors present colors as OKLCH (Appendix A), which is OKLab in
+   polar form, and convert on save.
+
+8.5. Gamut
+
+   OKLab can describe colors no display shows. HXS stores the color as
+   chosen and does not clip it: mapping into the gamut of a particular
+   display is the renderer's job.
+
+
+9. Example
+
+   A palette of n = 3 colors:
+
+      index   L        a        b        alpha   color
+      -----   ------   ------   ------   -----   -----------
+        0     0        0        0        0       transparent
+        1     1        0        0        1       white
+        2     0.6279   0.2249   0.1259   1       sRGB red
+
+   and two frames of shape (2, 2, 2), so 7 cells each, facing 3
+   o'clock at scale 0. Since n = 3, p = 1 and each cell is 2 bits:
+
+      frame 0:   indices 0, 1, 1, 2, 1, 1, 0
+      frame 1:   indices 0, 2, 2, 1, 2, 2, 0
+
+   File, 83 bytes:
+
+      48 58 53 31                 "HXS1"
+
+      Palette, 41 bytes:
+      00 00                       direction 0, scale 0
+      00 00 00 00 02 00           A-1 = 0, B-1 = 0, C-1 = 2
+      4F 4B 4C 42                 "OKLB"
+      06                          p = 6
+      00 00 00 00 00 00 00 00     index 0: L 0, a 0, b 0, alpha 0
+      00 3C 00 00 00 00 00 3C     index 1: L 1, a 0, b 0, alpha 1
+      06 39 32 33 07 30 00 3C     index 2: L 0.6279, a 0.2249,
+                                           b 0.1259, alpha 1
+      1A B5 13 49                 CRC-32 = 0x4913B51A
+
+      Frame 0, 19 bytes:
+      03 00                       direction 3, scale 0
+      01 00 01 00 01 00           A-1 = 1, B-1 = 1, C-1 = 1
+      4F 4B 4C 49                 "OKLI"
+      01                          p = 1
+      94 05                       2-bit cells 0, 1, 1, 2 | 1, 1, 0
+      FE F7 8B 05                 CRC-32 = 0x058BF7FE
+
+      Frame 1, 19 bytes:
+      03 00                       direction 3, scale 0
+      01 00 01 00 01 00           A-1 = 1, B-1 = 1, C-1 = 1
+      4F 4B 4C 49                 "OKLI"
+      01                          p = 1
+      68 0A                       2-bit cells 0, 2, 2, 1 | 2, 2, 0
+      DE 44 3D 2D                 CRC-32 = 0x2D3D44DE
+
+
+Appendix A. OKLab and OKLCH (Informative)
+
+   OKLab is defined by Bjoern Ottosson, "A perceptual color space for
+   image processing" (2020). It is computed from linear sRGB (D65)
+   through a fixed linear map, a cube root, and a second linear map.
+
+   OKLCH is OKLab in polar coordinates:
+
+      C = sqrt(a^2 + b^2)
+      h = atan2(b, a), in degrees, 0 to 360
+
+   and back:
+
+      a = C * cos(h)
+      b = C * sin(h)
+
+   Hue is undefined when C = 0. An editor converting a gray back from
+   OKLab should keep the hue the user last chose rather than report 0.

@@ -1,0 +1,647 @@
+HASTE: HexAgonal Sprite Transfer Standard codEc
+
+Status:  Stable
+Date:    2026-10-19
+Author:  William Wu
+
+
+Table of Contents
+
+   1. Introduction
+   2. Conventions
+   3. Geometry
+      3.1. Axes
+      3.2. Line Coordinates
+      3.3. Sprite Shape
+      3.4. Cell Order
+      3.5. Derivation of the Cell Order (Informative)
+   4. Direction
+   5. Scale
+      5.1. Scale Table
+      5.2. Lattice Mapping
+      5.3. Cell Shapes (Informative)
+   6. Container Layout
+      6.1. Direction and Scale Word
+      6.2. Side Lengths
+      6.3. FourCC
+      6.4. Pixel Size Byte
+      6.5. Cell Data
+      6.6. Checksum
+   7. Decoding
+   8. Notes (Informative)
+   9. Examples
+   Appendix A. CRC-32 Parameters
+   Appendix B. Scale Table, First Entries
+
+
+1. Introduction
+
+   HASTE is a minimal binary container for a single hexagonal sprite: a
+   set of colored cells on a hexagonal lattice whose outline is a
+   hexagon with opposite sides of equal length.
+
+   A HASTE container records:
+
+   o  the side lengths of the sprite (Section 3.3),
+   o  the direction the sprite faces (Section 4),
+   o  an integer scale relating the sprite to a base grid (Section 5),
+   o  the size of one cell in bits and a FourCC naming the pixel layout
+      and color space (Sections 6.3 and 6.4),
+   o  the cells, as one bit-packed array (Section 6.5),
+   o  a CRC-32 over everything before it (Section 6.6).
+
+   HASTE is a container. It does not define color spaces, pixel
+   layouts, or FourCC codes.
+
+   A container holds exactly one sprite. HASTE has no magic number, no
+   version field, no frames, and no metadata. Framing, animation, and
+   identification are the job of whatever outer container carries a
+   HASTE container.
+
+   The coordinate system follows the HappyHex projects (hpyhex,
+   hpyhex-rs). See Section 8.5.
+
+
+2. Conventions
+
+   The key words "MUST", "MUST NOT", "SHOULD", and "MAY" are to be
+   interpreted as described in RFC 2119.
+
+   All multi-byte integers are unsigned and little-endian.
+
+   Bit 0 of a byte or integer is its least significant bit.
+
+   "Reject" means the decoder MUST fail and MUST NOT return any cell
+   data from the container.
+
+   "x mod y" is the non-negative remainder. "/" is exact division
+   unless stated otherwise.
+
+   Sections marked "Informative" do not impose requirements.
+
+
+3. Geometry
+
+3.1. Axes
+
+   The lattice has three axes, a, b, and c, 60 degrees apart. Turning
+   clockwise, as seen by the viewer, the axis directions follow each
+   other in the order +a, +b, +c:
+
+   o  +b is +a rotated 60 degrees clockwise.
+   o  +c is +b rotated 60 degrees clockwise.
+
+   Axis +b bisects the 120 degree angle between +a and +c.
+
+   Shown in the default orientation (direction 3, Section 4):
+
+                +a   (1 o'clock)
+               /
+              /
+             o - - - +b   (3 o'clock)
+              \
+               \
+                +c   (5 o'clock)
+
+   Neighboring cells are exactly one step apart along one of the six
+   directions +a, +b, +c, -a, -b, -c.
+
+3.2. Line Coordinates
+
+   Each cell has line coordinates (a, b, c), which satisfy
+
+      b = c - a        (equivalently  a - b + c = 0)
+
+   so a cell is identified by the pair (a, c).
+
+   The line coordinate x of a cell is constant along every line
+   parallel to axis x. Stepping to a neighbor changes the coordinates
+   as follows:
+
+      direction     (a, c) becomes      b changes by
+      ---------     --------------      ------------
+         +a           (a,   c+1)            +1
+         +b           (a+1, c+1)             0
+         +c           (a+1, c  )            -1
+         -a           (a,   c-1)            -1
+         -b           (a-1, c-1)             0
+         -c           (a-1, c  )            +1
+
+   Equivalently, if +a, +b, +c also denote unit vectors, the center of
+   cell (a, c) lies at
+
+      a * (+c) + c * (+a)
+
+   relative to the center of cell (0, 0), in units of the
+   center-to-center distance. Note that +a + +c = +b.
+
+3.3. Sprite Shape
+
+   A sprite is described by three side lengths A, B, C, each an integer
+   from 1 to 65536, counted in cells. Its outline is a hexagon with
+   sides of A, B, C, A, B, C cells.
+
+   The origin cell (a, b, c) = (0, 0, 0) is a corner of the sprite.
+   All cells have a >= 0 and c >= 0.
+
+   A cell (a, c) belongs to the sprite if and only if all of these
+   hold:
+
+      0        <=  a      <=  B + C - 2
+      0        <=  c      <=  A + B - 2
+      -(C - 1) <=  c - a  <=  A - 1
+
+   Starting at the origin, the boundary runs:
+
+   o  A cells along +a,
+   o  then B cells along +b,
+   o  then C cells along +c,
+   o  then back through A, B, C cells in the opposite directions.
+
+   So the side of length X always lies parallel to axis X.
+
+   The number of cells is
+
+      N = A*B + B*C + C*A - A - B - C + 1
+
+   which is always at least 1.
+
+   Degenerate shapes are valid. For example:
+
+   o  (1, 1, C) is a straight line of C cells along +c.
+   o  (A, 1, 1) is a straight line of A cells along +a.
+   o  B = 1 gives a parallelogram.
+
+   Example: (A, B, C) = (3, 2, 2), drawn in direction 5 (+a pointing
+   right, +c pointing down-left). Each number is the cell's index
+   (Section 3.4):
+
+                   0   1   2
+                 3   4   5   6
+                   7   8   9
+
+3.4. Cell Order
+
+   Cells are stored in one array, ordered by a ascending, then by c
+   ascending. Cells sharing the same a form a row.
+
+   For row a, where 0 <= a <= B + C - 2:
+
+      first(a)  = max(0, a - C + 1)              smallest c in the row
+      length(a) = A + a - max(0, a - B + 1) - max(0, a - C + 1)
+
+   Let
+
+      g(m) = m * (m - 1) / 2    if m > 0
+             0                  otherwise
+
+   The number of cells in all rows before row a is
+
+      S(a) = a*A + a*(a - 1)/2 - g(a - B + 1) - g(a - C + 1)
+
+   and the index of cell (a, c) is
+
+      index(a, c) = S(a) + c - first(a)
+
+   To recover the cell at index i:
+
+   o  Find the largest a with S(a) <= i. S is strictly increasing, so
+      a linear scan or a binary search over rows works.
+   o  Then c = first(a) + i - S(a).
+
+3.5. Derivation of the Cell Order (Informative)
+
+   Row bounds. Fix a row a. The bounds of Section 3.3 that involve c
+   are
+
+      c >= 0              c >= a - (C - 1)
+      c <= A + B - 2      c <= a + (A - 1)
+
+   The larger lower bound and the smaller upper bound win:
+
+      first(a) = max(0, a - C + 1)
+      last(a)  = min(A + B - 2, a + A - 1)
+               = a + A - 1 - max(0, a - B + 1)
+
+   so
+
+      length(a) = last(a) - first(a) + 1
+                = A + a - max(0, a - B + 1) - max(0, a - C + 1)
+
+   Reading the formula. Row 0 is the side of A cells along +a. Each
+   following row starts one step further along +c:
+
+   o  Unclamped, every row would be one cell longer than the previous
+      one. That is the "A + a" term.
+   o  Once a passes B - 1, the end of the row reaches the side of B
+      cells and stops growing. The row loses one cell per row from
+      then on. That is the first max term.
+   o  Once a passes C - 1, the start of the row reaches the side of C
+      cells and starts moving. The row loses another cell per row.
+      That is the second max term.
+
+   So rows grow by one cell per row until the first corner, stay the
+   same length between the two corners, and shrink by one cell per row
+   after the second corner. For example, (A, B, C) = (3, 2, 4):
+
+      a          0   1   2   3   4
+      length(a)  3   4   4   4   3      total 18 = N
+
+   Row starts. S(a) is the sum of length(t) for t = 0 to a - 1. Sum
+   each term separately:
+
+      sum of (A + t)            = a*A + a*(a - 1)/2
+
+      sum of max(0, t - B + 1)  = 1 + 2 + ... + (a - B)
+                                = g(a - B + 1)
+
+      sum of max(0, t - C + 1)  = g(a - C + 1)
+
+   For the middle sum, the terms are 0 until t = B - 1, then 1, 2, ...
+   up to a - B at t = a - 1. Their total is the triangular number
+
+      (a - B)(a - B + 1)/2 = g(a - B + 1)
+
+   When a <= B - 1 the corner has not been reached and the sum is 0,
+   which is why g(m) is 0 for m <= 0.
+
+   Index. The index of (a, c) is the number of cells in earlier rows,
+   S(a), plus the position of c within its row, c - first(a).
+
+   Checks:
+
+   o  S(B + C - 1), the sum over all rows, equals N.
+   o  For A = B = C = r and a < r, both max terms are 0 and first(a) =
+      0. That gives index = a*r + a*(a - 1)/2 + c, the first-half
+      formula of hpyhex's HexEngine.index_of.
+   o  S is strictly increasing because every row holds at least one
+      cell, so the inverse lookup in Section 3.4 is well defined.
+
+
+4. Direction
+
+   The direction field d, an integer from 0 to 11, gives the screen
+   direction in which the sprite faces. The sprite faces along +b.
+
+   Directions are read as a clock face seen by the viewer: 12 o'clock
+   is up on the display and 3 o'clock is right. Value d means +b points
+   at d o'clock, with 0 meaning 12 o'clock. Each increment of d rotates
+   the sprite 30 degrees clockwise.
+
+   Given d:
+
+      +a  points at  (d - 2) mod 12  o'clock
+      +b  points at   d              o'clock
+      +c  points at  (d + 2) mod 12  o'clock
+
+   The orientation matching the hpyhex coordinate diagram is d = 3.
+
+   Because axes lie along the neighbor directions, the parity of d
+   decides the cell orientation:
+
+   o  Odd d gives pointy-top cells: one axis is horizontal.
+   o  Even d gives flat-top cells: one axis is vertical.
+
+   Direction affects only how the sprite is presented. It never
+   changes the cell data, which is always stored in the sprite's own
+   coordinates.
+
+   Values 12 to 15 are invalid.
+
+
+5. Scale
+
+   The scale field s, an integer from 0 to 4095, relates the sprite's
+   lattice to the lattice of a base grid that the sprite is drawn
+   onto. Every value of s is valid.
+
+   Scale has no effect on decoding. The cell count, the size of the
+   data section, and the cell order depend only on A, B, C, and the
+   pixel size.
+
+5.1. Scale Table
+
+   Enumerate every integer pair (x, y) with x >= 1 and y >= 0. Sort
+   the pairs by
+
+      n = x*x + x*y + y*y
+
+   ascending, and pairs with equal n by y ascending. Scale index s is
+   the s-th pair of this list, counting from 0.
+
+   n is the scale's area ratio: the number of base cells that one
+   sprite cell covers. The values of n that occur are the Loeschian
+   numbers 1, 3, 4, 7, 9, 12, 13, ... For example, n = 5 and n = 6
+   cannot occur.
+
+   Some n are reached by more than one pair. For example, 7 = (2,1)
+   and 7 = (1,2). Such pairs are distinct lattices (mirror images of
+   each other) and have distinct indices.
+
+   Appendix B lists the first entries. Index 4095 is (x, y) = (78, 8),
+   n = 6772.
+
+5.2. Lattice Mapping
+
+   For scale pair (x, y), the sprite cell (a, c) corresponds to base
+   cell (a0, c0), measured from the base cell under the sprite origin:
+
+      a0 = (x + y) * a - y * c
+      c0 =  y      * a + x * c
+
+   This is an integer linear map with determinant n.
+
+   Geometrically, the sprite lattice is the base lattice scaled by
+   sqrt(n) and rotated counterclockwise by
+
+      theta = atan2(y * sqrt(3) / 2, x + y / 2)
+
+   which lies in [0, 60) degrees. For example:
+
+      s    (x, y)    n    theta
+      -    ------    -    -----------
+      0    (1, 0)    1     0 degrees
+      1    (1, 1)    3    30 degrees
+      2    (2, 0)    4     0 degrees
+      3    (2, 1)    7    ~19.1 degrees
+      4    (1, 2)    7    ~40.9 degrees
+
+   The base grid's +b axis therefore points theta clockwise from the
+   sprite's +b axis (Section 4). For example, at s = 1 the base +b
+   points at (d + 1) mod 12 o'clock.
+
+   For every scale it supports, a renderer SHOULD closely approximate
+   the scaled grid with the base grid. The base cells it assigns to
+   each sprite cell should cluster around that cell's anchor, and
+   together they should approximate the cell's scaled and rotated
+   hexagon.
+
+   This specification does not dictate:
+
+   o  which base cells make up each sprite cell, beyond the anchor
+      given by the map above,
+   o  how a renderer that does not draw onto a hexagonal base grid uses
+      scale,
+   o  what a renderer does with a scale it does not support.
+
+5.3. Cell Shapes (Informative)
+
+   One natural choice of base cells per sprite cell:
+
+      n = 1   the single hexagon
+      n = 3   a triangle of 3 cells around a shared vertex
+      n = 4   a 2 x 2 rhombus ("<>")
+      n = 7   a hexagon of 7 cells, rotated ~19.1 or ~40.9 degrees
+
+   Other shapes that tile the base grid with the same anchors are
+   equally valid.
+
+
+6. Container Layout
+
+   Offset   Size      Field
+   ------   -------   ---------------------------------------------
+        0   2         direction and scale word (Section 6.1)
+        2   2         A - 1 (Section 6.2)
+        4   2         B - 1
+        6   2         C - 1
+        8   4         FourCC (Section 6.3)
+       12   1         pixel size byte (Section 6.4)
+       13   D         cell data (Section 6.5)
+   13 + D   4         CRC-32 (Section 6.6)
+
+   The total length of a container is exactly 17 + D bytes.
+
+   Every u16 field starts at an even offset, and the FourCC starts at a
+   multiple of 4.
+
+6.1. Direction and Scale Word
+
+   A little-endian u16:
+
+      bits  0-3    direction d (Section 4), 0-11
+      bits  4-15   scale index s (Section 5), 0-4095
+
+   The direction is the low nibble of byte 0.
+
+6.2. Side Lengths
+
+   Three little-endian u16 fields holding A - 1, B - 1, and C - 1, in
+   that order. Each side length is therefore 1 to 65536.
+
+6.3. FourCC
+
+   Four bytes naming the pixel layout and the color space of each
+   cell, stored in character order. Byte 8 holds the first character.
+
+   00 00 00 00   Unknown. Cells are opaque bpp-bit values.
+   FF FF FF FF   Reserved. A decoder MUST reject it.
+   anything else A pixel-layout-and-color-space code.
+
+   HASTE does not maintain a registry of codes. Codes are expected to
+   be intuitive and agreed upon by senders and receivers. They SHOULD
+   consist of printable ASCII (0x20-0x7E), padded with spaces.
+
+   A FourCC describes both how the bpp bits of a cell divide into
+   channels and which color space those channels are in.
+
+   Transparency, if any, is an alpha channel within the pixel layout.
+   The container itself has no notion of an empty cell: every cell of
+   the hexagon is present in the data.
+
+6.4. Pixel Size Byte
+
+      bits  0-3    p, where the pixel size is bpp = 2^p bits per cell
+      bits  4-7    reserved, MUST be 0
+
+   bpp therefore ranges from 1 to 32768. Every value of p is valid.
+
+6.5. Cell Data
+
+   The cell data section is
+
+      D = ceil(N * bpp / 8)
+
+   bytes. It is read as a little-endian bit stream: stream bit k is bit
+   (k mod 8) of data byte floor(k / 8).
+
+   Cell i, in the order of Section 3.4, occupies stream bits
+
+      i * bpp   to   (i + 1) * bpp - 1
+
+   least significant bit first. As a result:
+
+   o  For bpp < 8, the first cell of each byte sits in its low bits.
+   o  For bpp >= 8, each cell is a little-endian integer of bpp / 8
+      bytes.
+
+   How the bits of a cell are split into channels is defined by the
+   FourCC, not by this specification.
+
+   Stream bits after the last cell, at most 7, are padding and MUST be
+   0.
+
+6.6. Checksum
+
+   The final 4 bytes are a little-endian u32 holding the CRC-32 of
+   bytes 0 to 12 + D: every byte of the container before the checksum.
+
+   The CRC is the IEEE 802.3 CRC-32, the one used by zlib, gzip, and
+   PNG. Its parameters are in Appendix A.
+
+
+7. Decoding
+
+   A decoder MUST reject a container if any of these holds:
+
+   1. The container is shorter than 17 bytes.
+   2. The direction d is greater than 11.
+   3. A reserved bit of the pixel size byte is set.
+   4. The FourCC is FF FF FF FF.
+   5. The container length is not exactly 17 + D bytes, with D
+      computed from A, B, C, and bpp.
+   6. The stored CRC-32 does not match the CRC-32 computed over bytes 0
+      to 12 + D. Something was corrupted, and the data MUST NOT be
+      used.
+   7. A padding bit (Section 6.5) is set.
+   8. The decoder recognizes the FourCC, and the code implies a pixel
+      size different from bpp.
+
+   A FourCC the decoder does not recognize is not grounds for
+   rejection. The cells are still well defined as bpp-bit values.
+
+   The scale index is never grounds for rejection.
+
+   These checks may be performed in any order.
+
+   Implementations SHOULD compute N, N * bpp, and D in 64-bit unsigned
+   arithmetic. The maximums are:
+
+      N        12,884,705,281
+      N * bpp  422,206,022,647,808    (fits in 49 bits)
+
+   A decoder MAY refuse a container that exceeds its resource limits.
+   Such a refusal is a limitation of the decoder, not a judgement that
+   the container is invalid.
+
+
+8. Notes (Informative)
+
+8.1. Rotation in Transit
+
+   A sprite can be rotated in 30 degree steps by rewriting only the low
+   nibble of byte 0. The cell data never moves.
+
+   The CRC-32 must then be updated. CRC-32 is affine over GF(2), so for
+   two messages of equal length:
+
+      CRC(m1) XOR CRC(m2)
+
+   depends only on m1 XOR m2. Here m1 XOR m2 is a single changed
+   nibble followed by 12 + D zero bytes, so the new CRC can be
+   computed in O(log D) without reading the cell data, in the same way
+   as zlib's crc32_combine.
+
+8.2. Mirroring
+
+   Mirroring is not a direction. To mirror a sprite across its +b
+   axis:
+
+   o  re-encode it with side lengths (C, B, A) instead of (A, B, C),
+   o  move cell (a, c) to (c, a),
+   o  keep the same direction.
+
+8.3. Canonical Form
+
+   A given on-screen image can be encoded several ways. The same
+   pixels can be described with any of the six directions of matching
+   parity, each with its data reordered accordingly. This
+   specification does not prefer any of them.
+
+8.4. Framing
+
+   HASTE carries no magic number and no version. Because the length is
+   implied by the header, a decoder handed a buffer can check it
+   completely (Section 7). Identifying the content as HASTE, and
+   separating consecutive containers, is left to the outer container.
+
+8.5. Relation to HappyHex
+
+   The line coordinates (a, b, c) are the hpyhex line coordinates
+   (I, J, K), and the pair (a, c) is hpyhex's Hex(i, k).
+
+   For a regular sprite, A = B = C = r, the cell order of Section 3.4
+   is exactly the order of hpyhex's HexEngine of radius r, and index(a,
+   c) equals HexEngine.index_of. A 1-bpp HASTE sprite with A = B = C =
+   r therefore carries a HexEngine state vector unchanged.
+
+
+9. Examples
+
+   Example 1. Regular sprite (A, B, C) = (2, 2, 2): N = 7.
+
+   o  Direction 3, scale index 0, bpp 1 (p = 0), FourCC unknown.
+   o  Cells 0 to 6 hold 1, 0, 1, 1, 0, 1, 0.
+   o  D = ceil(7 * 1 / 8) = 1.
+
+   Cell coordinates, drawn in direction 5:
+
+         index   (a, c)   b
+         -----   ------   --
+           0     (0, 0)    0              0   1
+           1     (0, 1)    1            2   3   4
+           2     (1, 0)   -1              5   6
+           3     (1, 1)    0
+           4     (1, 2)    1
+           5     (2, 1)   -1
+           6     (2, 2)    0
+
+   Container, 18 bytes:
+
+      03 00                 d = 3, s = 0
+      01 00 01 00 01 00     A-1 = 1, B-1 = 1, C-1 = 1
+      00 00 00 00           FourCC unknown
+      00                    p = 0 (bpp 1), reserved 0
+      2D                    cells: 0b0_0101101 (top bit is padding)
+      A6 27 C8 50           CRC-32 = 0x50C827A6
+
+   Example 2. Irregular sprite (A, B, C) = (3, 1, 2): N = 6.
+
+   o  Direction 5, scale index 1 (n = 3), bpp 8 (p = 3).
+   o  Hypothetical FourCC "G8  ", used here only for illustration.
+   o  Cells 0 to 5 hold 0x00, 0x10, 0x20, 0x30, 0x40, 0x50.
+   o  D = 6.
+
+   Container, 23 bytes:
+
+      15 00                 d = 5, s = 1
+      02 00 00 00 01 00     A-1 = 2, B-1 = 0, C-1 = 1
+      47 38 20 20           FourCC "G8  "
+      03                    p = 3 (bpp 8)
+      00 10 20 30 40 50     cells
+      88 C1 F9 4F           CRC-32 = 0x4FF9C188
+
+
+Appendix A. CRC-32 Parameters
+
+   Name:           CRC-32 (CRC-32/ISO-HDLC; IEEE 802.3; zlib crc32)
+   Polynomial:     0x04C11DB7  (reflected: 0xEDB88320)
+   Initial value:  0xFFFFFFFF
+   Reflect input:  yes
+   Reflect output: yes
+   Final XOR:      0xFFFFFFFF
+   Check value:    CRC-32("123456789") = 0xCBF43926
+
+
+Appendix B. Scale Table, First Entries
+
+      s    (x, y)    n         s    (x, y)    n
+      --   ------    --        --   ------    --
+       0   (1, 0)     1         8   (1, 3)    13
+       1   (1, 1)     3         9   (4, 0)    16
+       2   (2, 0)     4        10   (3, 2)    19
+       3   (2, 1)     7        11   (2, 3)    19
+       4   (1, 2)     7        12   (4, 1)    21
+       5   (3, 0)     9        13   (1, 4)    21
+       6   (2, 2)    12        14   (5, 0)    25
+       7   (3, 1)    13        15   (3, 3)    27
