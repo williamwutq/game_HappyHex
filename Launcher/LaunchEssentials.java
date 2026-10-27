@@ -135,6 +135,8 @@ public final class LaunchEssentials {
     public static boolean isGameStarted(){
         return gameStarted;
     }
+
+    @SuppressWarnings("deprecation") // GameMode.Unspecified support is intentional
     public static void startGame(String name){
         gameStarted = true;
         String player = getCurrentPlayer();

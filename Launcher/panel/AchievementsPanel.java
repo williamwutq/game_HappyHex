@@ -228,7 +228,7 @@ public class AchievementsPanel extends UniversalPanel {
             int w = getWidth(); int h = getHeight(); int a = Math.min(w, h);
             g2.setStroke(new BasicStroke((float) a / 6));
             g2.setColor(this.getForeground());
-            int p = a / 4; int wp = (w - a / 2) / 2; int hp = (h - a / 2) / 2;
+            int wp = (w - a / 2) / 2; int hp = (h - a / 2) / 2;
             g2.drawLine(wp, hp, w - wp, h - hp);
             g2.drawLine(w - wp, hp, wp, h - hp);
         }

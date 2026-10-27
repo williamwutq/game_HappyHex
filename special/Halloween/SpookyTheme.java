@@ -36,10 +36,6 @@ import special.SpecialFeature;
 import java.awt.*;
 
 public class SpookyTheme implements SpecialFeature {
-    private String[] whiteList = new String[]{
-            "Quit",
-            "Confirm",
-    };
     private boolean enable;
     private boolean valid;
     public SpookyTheme(){
@@ -92,7 +88,6 @@ public class SpookyTheme implements SpecialFeature {
         if(isActive()) {
             if (objects == null || objects.length == 0) return null;
             if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String){
-                String font = (String) objects[0];
                 String hint = (String) objects[1];
                 if(hint.contains("Title")){
                     return new String[]{"Luminari"}; // or maybe Brush Script MT
@@ -158,10 +153,5 @@ public class SpookyTheme implements SpecialFeature {
         } else if (number < lower){
             return lower;
         } else return number;
-    }
-    private boolean inWhiteList(String str){
-        for(String ignore : whiteList){
-            if(str.contains(ignore)) return true;
-        } return false;
     }
 }

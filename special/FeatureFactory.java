@@ -86,7 +86,6 @@ public class FeatureFactory {
             } else if ((date.getMonthValue() == 12 && date.getDayOfMonth() == 25)) {
                 return new special.Christmas.ChristmasSuper();
             }
-            return new special.WinterSuki.WinterSuki(); // TODO REMOVE DEBUG
         }
         return new DefaultFeature(); // Default feature do nothing
     }
