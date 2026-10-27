@@ -44,6 +44,10 @@ import java.util.zip.CRC32;
  *     <li>FourCC {@code "RGBA"}, sRGBA with 32 bits per cell (p = 5). The bytes of a cell are R, G, B, A in that
  *         order. An alpha of 0 is an empty block; any other alpha is a filled block.</li>
  *     <li>FourCC {@code "BGRA"}, the same as {@code "RGBA"} but the bytes of a cell are B, G, R, A in that order.</li>
+ *     <li>FourCC {@code "OKLB"}, OKLab with alpha, 64 bits per cell (p = 6). A cell is four little-endian IEEE 754
+ *         binary16 values: L (lightness, 0 to 1), a, b (any finite value) and alpha (opacity, 0 to 1), in that
+ *         order. An alpha of 0 is an empty block; any other alpha is a filled block. Colors are converted from and to
+ *         sRGB. A cell with a NaN or infinite value is rejected; L and alpha outside 0 to 1 are clamped.</li>
  * </ul>
  * Anything else is rejected with an {@link IOException} on decoding. Direction and scale describe only how a sprite is
  * presented and are never needed to decode the cells, so decoding ignores them. Encoding writes direction 3 and scale 0,
@@ -67,6 +71,8 @@ public final class HASTE {
     public static final int FOURCC_RGBA = 0x52474241;
     /** The FourCC of an sRGBA container with blue first, {@code "BGRA"}. */
     public static final int FOURCC_BGRA = 0x42475241;
+    /** The FourCC of an OKLab container with alpha, {@code "OKLB"}. */
+    public static final int FOURCC_OKLB = 0x4F4B4C42;
     /** The direction written by default, which matches the HappyHex coordinate diagram. */
     public static final int DEFAULT_DIRECTION = 3;
     /** The scale written by default, which is one sprite cell per base cell. */
@@ -80,6 +86,7 @@ public final class HASTE {
     private static final int CRC_SIZE = 4;
     private static final int MASK_EXPONENT = 0;
     private static final int RGBA_EXPONENT = 5; // Shared by RGBA and BGRA
+    private static final int OKLB_EXPONENT = 6;
 
     // Write
 
@@ -194,6 +201,48 @@ public final class HASTE {
     }
 
     /**
+     * Encodes an engine as an {@code "OKLB"} container with the default direction and scale. A filled block is
+     * written as its color from {@link GameEssentials#generateColor(int)} converted to OKLab with alpha 1, and an
+     * empty block is written with every value 0, which is fully transparent.
+     *
+     * @param engine the engine, whose block states and colors are stored
+     * @return the container
+     * @throws IllegalArgumentException if the engine is null or has a radius above {@link #MAX_RADIUS}
+     */
+    public static byte[] encodeOklab(HexEngine engine) {
+        return encodeOklab(engine, DEFAULT_DIRECTION, DEFAULT_SCALE);
+    }
+
+    /**
+     * Encodes an engine as an {@code "OKLB"} container, see {@link #encodeOklab(HexEngine)}.
+     *
+     * @param engine    the engine, whose block states and colors are stored
+     * @param direction the direction, 0 to 11
+     * @param scale     the scale index, 0 to 4095
+     * @return the container
+     * @throws IllegalArgumentException if the engine is null, too large, or direction or scale is out of range
+     */
+    public static byte[] encodeOklab(HexEngine engine, int direction, int scale) {
+        if (engine == null) throw new IllegalArgumentException("Engine is null");
+        if (engine.getRadius() < 1 || engine.getRadius() > MAX_RADIUS) {
+            // In general, this should not happen
+            throw new IllegalArgumentException("Engine radius must be 1 to " + MAX_RADIUS + ": " + engine.getRadius());
+        }
+        int n = engine.length();
+        byte[] out = container(engine.getRadius(), direction, scale, FOURCC_OKLB, OKLB_EXPONENT, 8 * n);
+        for (int i = 0; i < n; i++) {
+            if (!engine.getBlock(i).getState()) continue; // all zeros is transparent
+            float[] lab = srgbToOklab(GameEssentials.generateColor(engine.getBlock(i).getColor()).getRGB());
+            int at = HEADER_SIZE + 8 * i;
+            put16(out, at, toHalf(Math.max(0f, Math.min(1f, lab[0])))); // L
+            put16(out, at + 2, toHalf(lab[1]));                         // a
+            put16(out, at + 4, toHalf(lab[2]));                         // b
+            put16(out, at + 6, 0x3C00);                              // alpha = 1.0
+        }
+        return seal(out);
+    }
+
+    /**
      * Writes an engine to a stream as a {@code "MASK"} container. The stream is not closed.
      *
      * @param engine the engine
@@ -226,19 +275,30 @@ public final class HASTE {
     public static void writeBgra(HexEngine engine, OutputStream out) throws IOException {
         out.write(encodeBgra(engine));
     }
+    /**
+     * Writes an engine to a stream as an {@code "OKLB"} container. The stream is not closed.
+     *
+     * @param engine the engine
+     * @param out    the stream
+     * @throws IOException if writing fails
+     * @see #encodeOklab(HexEngine)
+     */
+    public static void writeOklab(HexEngine engine, OutputStream out) throws IOException {
+        out.write(encodeOklab(engine));
+    }
 
     // Read and Decode
 
     /**
      * Decodes a container held in its entirety by a buffer.
      * <p>
-     * A {@code "MASK"} container gives an engine with default colors. For an {@code "RGBA"} or {@code "BGRA"} container, a cell with alpha
+     * A {@code "MASK"} container gives an engine with default colors. For an {@code "RGBA"}, {@code "BGRA"} or {@code "OKLB"} container, a cell with alpha
      * 0 is an empty block with the default color, and any other cell is a filled block whose color index is the palette
      * color nearest to the cell, see {@link #nearestColor(int)}.
      *
      * @param container the container, exactly {@code 17 + D} bytes
      * @return the engine
-     * @throws IOException if the container is invalid, or is not {@code "MASK"}, {@code "RGBA"} or {@code "BGRA"} with
+     * @throws IOException if the container is invalid, or is not {@code "MASK"}, {@code "RGBA"}, {@code "BGRA"} or {@code "OKLB"} with
      *                     {@code A = B = C}, or exceeds {@link #MAX_RADIUS}
      */
     public static HexEngine decode(byte[] container) throws IOException {
@@ -247,7 +307,7 @@ public final class HASTE {
         int radius = checkHeader(container);
         int fourCC = fourCC(container);
         int n = 1 + 3 * radius * (radius - 1);
-        int size = fourCC == FOURCC_MASK ? (n + 7) / 8 : 4 * n;
+        int size = fourCC == FOURCC_MASK ? (n + 7) / 8 : (fourCC == FOURCC_OKLB ? 8 : 4) * n;
         if (container.length != HEADER_SIZE + size + CRC_SIZE)
             throw new IOException("HASTE container length " + container.length + " does not match header, expected "
                     + (HEADER_SIZE + size + CRC_SIZE));
@@ -268,6 +328,20 @@ public final class HASTE {
                 if ((container[HEADER_SIZE + (i >> 3)] >> (i & 7) & 1) != 0) {
                     engine.setState(i, true);
                 }
+            }
+        } else if (fourCC == FOURCC_OKLB) {
+            // Decode OKLab
+            for (int i = 0; i < n; i++) {
+                int at = HEADER_SIZE + 8 * i;
+                float[] v = new float[4];
+                for (int k = 0; k < 4; k++) {
+                    v[k] = fromHalf(get16(container, at + 2 * k));
+                    if (Float.isNaN(v[k]) || Float.isInfinite(v[k]))
+                        throw new IOException("HASTE OKLB cell " + i + " has a value that is not finite");
+                }
+                if (v[3] <= 0f) continue; // transparent
+                engine.setState(i, true);
+                engine.setColor(i, nearestColor(oklabToSrgb(Math.max(0f, Math.min(1f, v[0])), v[1], v[2])));
             }
         } else {
             // Decode Color
@@ -301,7 +375,7 @@ public final class HASTE {
         if (header.length < HEADER_SIZE) throw new IOException("HASTE container is truncated");
         int radius = checkHeader(header);
         int n = 1 + 3 * radius * (radius - 1);
-        int size = fourCC(header) == FOURCC_MASK ? (n + 7) / 8 : 4 * n;
+        int size = fourCC(header) == FOURCC_MASK ? (n + 7) / 8 : (fourCC(header) == FOURCC_OKLB ? 8 : 4) * n;
         byte[] rest = in.readNBytes(size + CRC_SIZE);
         if (rest.length < size + CRC_SIZE) throw new IOException("HASTE container is truncated");
         byte[] container = new byte[HEADER_SIZE + rest.length];
@@ -311,6 +385,89 @@ public final class HASTE {
     }
 
     // Helpers
+
+    private static void put16(byte[] b, int at, int v) {
+        b[at] = (byte) v;
+        b[at + 1] = (byte) (v >>> 8);
+    }
+    private static int get16(byte[] b, int at) {
+        return (b[at] & 0xFF) | (b[at + 1] & 0xFF) << 8;
+    }
+
+    // ----- OKLAB -----
+
+    /** Converts a float to IEEE 754 binary16 bits, rounding to nearest even. */
+    private static int toHalf(float f) {
+        int bits = Float.floatToRawIntBits(f);
+        int sign = bits >>> 16 & 0x8000;
+        int abs = bits & 0x7FFFFFFF;
+        if (abs > 0x7F800000)  return sign | 0x7E00;                // NaN
+        if (abs >= 0x477FF000) return sign | 0x7C00;                // infinity, or too large
+        if (abs < 0x38800000) {                                     // subnormal or zero in half
+            if (abs < 0x33000000) return sign;                      // below half the smallest subnormal
+            int shift = 126 - (abs >>> 23);
+            int mantissa = (abs & 0x7FFFFF) | 0x800000;
+            int half = mantissa >>> shift;
+            int rest = mantissa & ((1 << shift) - 1), middle = 1 << (shift - 1);
+            if (rest > middle || (rest == middle && (half & 1) != 0)) half++;
+            return sign | half;
+        }
+        int half = (abs - 0x38000000) >>> 13;
+        int rest = abs & 0x1FFF;
+        if (rest > 0x1000 || (rest == 0x1000 && (half & 1) != 0)) half++; // a carry may roll into the exponent
+        return sign | half;
+    }
+
+    /** Converts IEEE 754 binary16 bits to a float. */
+    private static float fromHalf(int h) {
+        int sign = (h & 0x8000) << 16;
+        int exponent = h >>> 10 & 0x1F;
+        int mantissa = h & 0x3FF;
+        if (exponent == 0) {
+            float value = mantissa * 5.9604645e-8f; // mantissa * 2^-24
+            return sign != 0 ? -value : value;
+        }
+        if (exponent == 31) return Float.intBitsToFloat(sign | 0x7F800000 | mantissa << 13);
+        return Float.intBitsToFloat(sign | (exponent + 112) << 23 | mantissa << 13);
+    }
+
+    private static double srgbToLinear(int channel) {
+        double c = channel / 255.0;
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    private static int linearToSrgb(double linear) {
+        double c = Math.max(0, Math.min(1, linear));
+        c = c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+        return (int) Math.round(Math.max(0, Math.min(1, c)) * 255);
+    }
+
+    /** Converts the RGB of an ARGB value, from sRGB, to OKLab {L, a, b}. */
+    private static float[] srgbToOklab(int argb) {
+        double r = srgbToLinear(argb >> 16 & 0xFF), g = srgbToLinear(argb >> 8 & 0xFF), b = srgbToLinear(argb & 0xFF);
+        double l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+        double m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+        double s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+        return new float[]{
+                (float) (0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s),
+                (float) (1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s),
+                (float) (0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s)
+        };
+    }
+
+    /** Converts OKLab to an opaque ARGB value in sRGB, clamping colors outside the sRGB gamut. */
+    private static int oklabToSrgb(float lightness, float a, float b) {
+        double l = lightness + 0.3963377774 * a + 0.2158037573 * b;
+        double m = lightness - 0.1055613458 * a - 0.0638541728 * b;
+        double s = lightness - 0.0894841775 * a - 1.2914855480 * b;
+        l = l * l * l;
+        m = m * m * m;
+        s = s * s * s;
+        int r =  linearToSrgb(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s);
+        int g =  linearToSrgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s);
+        int bl = linearToSrgb(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s);
+        return 0xFF000000 | r << 16 | g << 8 | bl;
+    }
 
     /**
      * Returns the color index of the palette color nearest to an ARGB value, comparing red, green and blue by squared
@@ -398,8 +555,10 @@ public final class HASTE {
             if (exponent != MASK_EXPONENT) throw new IOException("HASTE FourCC \"MASK\" requires 1 bit per cell");
         } else if (fourCC == FOURCC_RGBA || fourCC == FOURCC_BGRA) {
             if (exponent != RGBA_EXPONENT) throw new IOException("HASTE FourCC \"RGBA\" and \"BGRA\" require 32 bits per cell");
+        } else if (fourCC == FOURCC_OKLB) {
+            if (exponent != OKLB_EXPONENT) throw new IOException("HASTE FourCC \"OKLB\" requires 64 bits per cell");
         } else {
-            throw new IOException("HASTE format as indicated by FourCC is not supported by HappyHex, only \"MASK\", \"RGBA\" and \"BGRA\" are");
+            throw new IOException("HASTE format as indicated by FourCC is not supported by HappyHex, only \"MASK\", \"RGBA\", \"BGRA\" and \"OKLB\" are");
         }
         int a = ((bytes[2] & 0xFF) | (bytes[3] & 0xFF) << 8) + 1;
         int b = ((bytes[4] & 0xFF) | (bytes[5] & 0xFF) << 8) + 1;
