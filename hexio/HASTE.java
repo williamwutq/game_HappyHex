@@ -47,7 +47,7 @@ import java.util.zip.CRC32;
  *     <li>FourCC {@code "OKLB"}, OKLab with alpha, 64 bits per cell (p = 6). A cell is four little-endian IEEE 754
  *         binary16 values: L (lightness, 0 to 1), a, b (any finite value) and alpha (opacity, 0 to 1), in that
  *         order. An alpha of 0 is an empty block; any other alpha is a filled block. Colors are converted from and to
- *         sRGB. A cell with a NaN or infinite value is rejected; L and alpha outside 0 to 1 are clamped.</li>
+ *         sRGB. A cell is rejected if any value is NaN or infinite, or if L or alpha is outside 0 to 1.</li>
  * </ul>
  * Anything else is rejected with an {@link IOException} on decoding. Direction and scale describe only how a sprite is
  * presented and are never needed to decode the cells, so decoding ignores them. Encoding writes direction 3 and scale 0,
@@ -339,9 +339,11 @@ public final class HASTE {
                     if (Float.isNaN(v[k]) || Float.isInfinite(v[k]))
                         throw new IOException("HASTE OKLB cell " + i + " has a value that is not finite");
                 }
-                if (v[3] <= 0f) continue; // transparent
+                if (v[0] < 0f || v[0] > 1f || v[3] < 0f || v[3] > 1f) // negative zero is zero
+                    throw new IOException("HASTE OKLB cell " + i + " has L or alpha outside 0 to 1");
+                if (v[3] == 0f) continue; // transparent
                 engine.setState(i, true);
-                engine.setColor(i, nearestColor(oklabToSrgb(Math.max(0f, Math.min(1f, v[0])), v[1], v[2])));
+                engine.setColor(i, nearestColor(oklabToSrgb(v[0], v[1], v[2])));
             }
         } else {
             // Decode Color
