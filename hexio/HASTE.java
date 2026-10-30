@@ -117,7 +117,8 @@ public final class HASTE {
             throw new IllegalArgumentException("Engine radius must be 1 to " + MAX_RADIUS + ": " + engine.getRadius());
         }
         int n = engine.length();
-        byte[] out = container(engine.getRadius(), direction, scale, FOURCC_MASK, MASK_EXPONENT, (n + 7) / 8);
+        int r = engine.getRadius();
+        byte[] out = container(r, r, r, direction, scale, FOURCC_MASK, MASK_EXPONENT, (n + 7) / 8);
         for (int i = 0; i < n; i++) {
             if (engine.getBlock(i).getState()) {
                 out[HEADER_SIZE + (i >> 3)] |= (byte) (1 << (i & 7));
@@ -185,7 +186,8 @@ public final class HASTE {
             throw new IllegalArgumentException("Engine radius must be 1 to " + MAX_RADIUS + ": " + engine.getRadius());
         }
         int n = engine.length();
-        byte[] out = container(engine.getRadius(), direction, scale, fourCC, RGBA_EXPONENT, 4 * n);
+        int r = engine.getRadius();
+        byte[] out = container(r, r, r, direction, scale, fourCC, RGBA_EXPONENT, 4 * n);
         for (int i = 0; i < n; i++) {
             if (!engine.getBlock(i).getState()) continue; // transparent black is all zeros
             // A filled block must not read back as empty, so its alpha is never 0.
@@ -229,7 +231,8 @@ public final class HASTE {
             throw new IllegalArgumentException("Engine radius must be 1 to " + MAX_RADIUS + ": " + engine.getRadius());
         }
         int n = engine.length();
-        byte[] out = container(engine.getRadius(), direction, scale, FOURCC_OKLB, OKLB_EXPONENT, 8 * n);
+        int r = engine.getRadius();
+        byte[] out = container(r, r, r, direction, scale, FOURCC_OKLB, OKLB_EXPONENT, 8 * n);
         for (int i = 0; i < n; i++) {
             if (!engine.getBlock(i).getState()) continue; // all zeros is transparent
             float[] lab = srgbToOklab(GameEssentials.generateColor(engine.getBlock(i).getColor()).getRGB());
@@ -388,18 +391,18 @@ public final class HASTE {
 
     // Helpers
 
-    private static void put16(byte[] b, int at, int v) {
+    static void put16(byte[] b, int at, int v) {
         b[at] = (byte) v;
         b[at + 1] = (byte) (v >>> 8);
     }
-    private static int get16(byte[] b, int at) {
+    static int get16(byte[] b, int at) {
         return (b[at] & 0xFF) | (b[at + 1] & 0xFF) << 8;
     }
 
     // ----- OKLAB -----
 
     /** Converts a float to IEEE 754 binary16 bits, rounding to nearest even. */
-    private static int toHalf(float f) {
+    static int toHalf(float f) {
         int bits = Float.floatToRawIntBits(f);
         int sign = bits >>> 16 & 0x8000;
         int abs = bits & 0x7FFFFFFF;
@@ -421,7 +424,7 @@ public final class HASTE {
     }
 
     /** Converts IEEE 754 binary16 bits to a float. */
-    private static float fromHalf(int h) {
+    static float fromHalf(int h) {
         int sign = (h & 0x8000) << 16;
         int exponent = h >>> 10 & 0x1F;
         int mantissa = h & 0x3FF;
@@ -445,7 +448,7 @@ public final class HASTE {
     }
 
     /** Converts the RGB of an ARGB value, from sRGB, to OKLab {L, a, b}. */
-    private static float[] srgbToOklab(int argb) {
+    static float[] srgbToOklab(int argb) {
         double r = srgbToLinear(argb >> 16 & 0xFF), g = srgbToLinear(argb >> 8 & 0xFF), b = srgbToLinear(argb & 0xFF);
         double l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
         double m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
@@ -498,8 +501,10 @@ public final class HASTE {
     }
 
     /**
-     * Allocates a container, make header, and zero its data
-     * @param radius The radius of the container
+     * Allocates a container, makes its header, and zeros its data
+     * @param a The side length A, from 1 to 65536
+     * @param b The side length B, from 1 to 65536
+     * @param c The side length C, from 1 to 65536
      * @param direction The direction of the container, in [0..12)
      * @param scale The scale of the container, in [0..4095]
      * @param fourCC The FOURCC packed into an int. See {@link HASTE#fourCC}.
@@ -507,7 +512,7 @@ public final class HASTE {
      * @param dataSize the size of the data in bytes
      * @throws IllegalArgumentException if direction or scale is out of range
      */
-    private static byte[] container(int radius, int direction, int scale, int fourCC, int exponent, int dataSize) {
+    static byte[] container(int a, int b, int c, int direction, int scale, int fourCC, int exponent, int dataSize) {
         if (direction < 0 || direction > 11) {
             throw new IllegalArgumentException("Direction must be 0 to 11: " + direction);
         }
@@ -518,9 +523,10 @@ public final class HASTE {
         int word = direction | scale << 4;
         out[0] = (byte) word;
         out[1] = (byte) (word >>> 8);
+        int[] sides = {a, b, c};
         for (int side = 0; side < 3; side++) {
-            out[2 + 2 * side] = (byte) (radius - 1);
-            out[3 + 2 * side] = (byte) (radius - 1 >>> 8);
+            out[2 + 2 * side] = (byte) (sides[side] - 1);
+            out[3 + 2 * side] = (byte) (sides[side] - 1 >>> 8);
         }
         for (int i = 0; i < 4; i++) out[8 + i] = (byte) (fourCC >>> (24 - 8 * i));
         out[12] = (byte) exponent;
@@ -528,7 +534,7 @@ public final class HASTE {
     }
 
     /** Appends the CRC-32 of everything before it. */
-    private static byte[] seal(byte[] out) {
+    static byte[] seal(byte[] out) {
         CRC32 crc = new CRC32();
         crc.update(out, 0, out.length - CRC_SIZE);
         long sum = crc.getValue();
