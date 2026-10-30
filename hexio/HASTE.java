@@ -48,6 +48,10 @@ import java.util.zip.CRC32;
  *         binary16 values: L (lightness, 0 to 1), a, b (any finite value) and alpha (opacity, 0 to 1), in that
  *         order. An alpha of 0 is an empty block; any other alpha is a filled block. Colors are converted from and to
  *         sRGB. A cell is rejected if any value is NaN or infinite, or if L or alpha is outside 0 to 1.</li>
+ *     <li>FourCC {@code "OKLI"}, palette indices with 1, 2, 4, 8 or 16 bits per cell (p = 0 to 4). The palette is not
+ *         part of the container, so it is read and written only by {@link #encodeIndexed} and
+ *         {@link #decodeIndexed}, and {@link #decode(byte[])} rejects it. The index of a block is
+ *         {@link #paletteIndex(boolean, int)}.</li>
  * </ul>
  * Anything else is rejected with an {@link IOException} on decoding. Direction and scale describe only how a sprite is
  * presented and are never needed to decode the cells, so decoding ignores them. Encoding writes direction 3 and scale 0,
@@ -73,6 +77,14 @@ public final class HASTE {
     public static final int FOURCC_BGRA = 0x42475241;
     /** The FourCC of an OKLab container with alpha, {@code "OKLB"}. */
     public static final int FOURCC_OKLB = 0x4F4B4C42;
+    /** The FourCC of a palette-indexed container, {@code "OKLI"}. */
+    public static final int FOURCC_OKLI = 0x4F4B4C49;
+    /** The number of palette entries of the {@code "OKLI"} containers that HappyHex writes. */
+    public static final int INDEXED_PALETTE_SIZE = 14;
+    /** The palette index of an empty block. */
+    public static final int INDEX_EMPTY = 0;
+    /** The palette index of a filled block of color index -2, and of any color index that has no entry. */
+    public static final int INDEX_FILLED = 1;
     /** The direction written by default, which matches the HappyHex coordinate diagram. */
     public static final int DEFAULT_DIRECTION = 3;
     /** The scale written by default, which is one sprite cell per base cell. */
@@ -87,6 +99,8 @@ public final class HASTE {
     private static final int MASK_EXPONENT = 0;
     private static final int RGBA_EXPONENT = 5; // Shared by RGBA and BGRA
     private static final int OKLB_EXPONENT = 6;
+    private static final int MAX_INDEX_EXPONENT = 4; // OKLI cells are 1, 2, 4, 8 or 16 bits
+    private static final int MAX_PALETTE_SIZE = 65536;
 
     // Write
 
@@ -307,18 +321,15 @@ public final class HASTE {
     public static HexEngine decode(byte[] container) throws IOException {
         if (container == null || container.length < HEADER_SIZE + CRC_SIZE)
             throw new IOException("HASTE container is truncated");
-        int radius = checkHeader(container);
-        int fourCC = fourCC(container);
+        int radius = checkHeader(container, 0);
+        int fourCC = fourCC(container, 0);
+        if (fourCC == FOURCC_OKLI) throw new IOException("HASTE OKLI container needs a palette, see decodeIndexed");
         int n = 1 + 3 * radius * (radius - 1);
         int size = fourCC == FOURCC_MASK ? (n + 7) / 8 : (fourCC == FOURCC_OKLB ? 8 : 4) * n;
         if (container.length != HEADER_SIZE + size + CRC_SIZE)
             throw new IOException("HASTE container length " + container.length + " does not match header, expected "
                     + (HEADER_SIZE + size + CRC_SIZE));
-        CRC32 crc = new CRC32();
-        crc.update(container, 0, HEADER_SIZE + size);
-        long stored = 0;
-        for (int i = 0; i < 4; i++) stored |= (container[HEADER_SIZE + size + i] & 0xFFL) << (8 * i);
-        if (crc.getValue() != stored) throw new IOException("HASTE CRC mismatch");
+        checkCrc(container, 0, size);
 
         HexEngine engine = new HexEngine(radius);
         if (fourCC == FOURCC_MASK) {
@@ -335,15 +346,7 @@ public final class HASTE {
         } else if (fourCC == FOURCC_OKLB) {
             // Decode OKLab
             for (int i = 0; i < n; i++) {
-                int at = HEADER_SIZE + 8 * i;
-                float[] v = new float[4];
-                for (int k = 0; k < 4; k++) {
-                    v[k] = fromHalf(get16(container, at + 2 * k));
-                    if (Float.isNaN(v[k]) || Float.isInfinite(v[k]))
-                        throw new IOException("HASTE OKLB cell " + i + " has a value that is not finite");
-                }
-                if (v[0] < 0f || v[0] > 1f || v[3] < 0f || v[3] > 1f) // negative zero is zero
-                    throw new IOException("HASTE OKLB cell " + i + " has L or alpha outside 0 to 1");
+                float[] v = readOklab(container, HEADER_SIZE + 8 * i, i);
                 if (v[3] == 0f) continue; // transparent
                 engine.setState(i, true);
                 engine.setColor(i, nearestColor(oklabToSrgb(v[0], v[1], v[2])));
@@ -378,9 +381,10 @@ public final class HASTE {
     public static HexEngine read(InputStream in) throws IOException {
         byte[] header = in.readNBytes(HEADER_SIZE);
         if (header.length < HEADER_SIZE) throw new IOException("HASTE container is truncated");
-        int radius = checkHeader(header);
+        int radius = checkHeader(header, 0);
+        if (fourCC(header, 0) == FOURCC_OKLI) throw new IOException("HASTE OKLI container needs a palette, see decodeIndexed");
         int n = 1 + 3 * radius * (radius - 1);
-        int size = fourCC(header) == FOURCC_MASK ? (n + 7) / 8 : (fourCC(header) == FOURCC_OKLB ? 8 : 4) * n;
+        int size = fourCC(header, 0) == FOURCC_MASK ? (n + 7) / 8 : (fourCC(header, 0) == FOURCC_OKLB ? 8 : 4) * n;
         byte[] rest = in.readNBytes(size + CRC_SIZE);
         if (rest.length < size + CRC_SIZE) throw new IOException("HASTE container is truncated");
         byte[] container = new byte[HEADER_SIZE + rest.length];
@@ -389,7 +393,164 @@ public final class HASTE {
         return decode(container);
     }
 
+    // Palette Indices
+
+    /** A sprite decoded by {@link #decodeIndexed}. */
+    public static final class Indexed {
+        /** The engine, with the state and color index of each block taken from its palette index. */
+        public final HexEngine engine;
+        /** The direction, 0 to 11. */
+        public final int direction;
+        /** The scale index, 0 to 4095. */
+        public final int scale;
+        /** The length of the container in bytes. */
+        public final int length;
+
+        private Indexed(HexEngine engine, int direction, int scale, int length) {
+            this.engine = engine;
+            this.direction = direction;
+            this.scale = scale;
+            this.length = length;
+        }
+    }
+
+    /**
+     * Returns the palette index of a block. An empty block has index {@link #INDEX_EMPTY} for any color index. A filled
+     * block has index 2 to 13 for the color indices 0 to 11 and index {@link #INDEX_FILLED} for any other color index,
+     * such as -2 or 12.
+     *
+     * @param state the state of the block, true if filled
+     * @param color the color index of the block
+     * @return the palette index, 0 to {@link #INDEXED_PALETTE_SIZE} - 1
+     */
+    public static int paletteIndex(boolean state, int color) {
+        if (!state) return INDEX_EMPTY;
+        return color >= 0 && color < INDEXED_PALETTE_SIZE - 2 ? color + 2 : INDEX_FILLED;
+    }
+
+    /**
+     * Returns the state of the blocks with a palette index. It is false for {@link #INDEX_EMPTY} and true for all other
+     * indices.
+     *
+     * @param index the palette index, 0 to {@link #INDEXED_PALETTE_SIZE} - 1
+     * @return the state
+     * @throws IllegalArgumentException if the index is not in the palette
+     */
+    public static boolean stateOfIndex(int index) {
+        if (index < 0 || index >= INDEXED_PALETTE_SIZE) throw new IllegalArgumentException("Not a palette index: " + index);
+        return index != INDEX_EMPTY;
+    }
+
+    /**
+     * Returns the color index of the blocks with a palette index. It is -1 for {@link #INDEX_EMPTY}, -2 for
+     * {@link #INDEX_FILLED} and the palette index minus 2 for indices 2 to 13.
+     *
+     * @param index the palette index, 0 to {@link #INDEXED_PALETTE_SIZE} - 1
+     * @return the color index
+     * @throws IllegalArgumentException if the index is not in the palette
+     */
+    public static int colorOfIndex(int index) {
+        if (index < 0 || index >= INDEXED_PALETTE_SIZE) throw new IllegalArgumentException("Not a palette index: " + index);
+        return index == INDEX_EMPTY ? -1 : index - 2;
+    }
+
+    /**
+     * Encodes an engine as an {@code "OKLI"} container of {@link #INDEXED_PALETTE_SIZE} palette entries, with 4 bits per
+     * cell. The palette index of each block is {@link #paletteIndex(boolean, int)}.
+     *
+     * @param engine    the engine
+     * @param direction the direction, 0 to 11
+     * @param scale     the scale index, 0 to 4095
+     * @return the container
+     * @throws IllegalArgumentException if the engine is null, too large, or direction or scale is out of range
+     */
+    public static byte[] encodeIndexed(HexEngine engine, int direction, int scale) {
+        if (engine == null) throw new IllegalArgumentException("Engine is null");
+        if (engine.getRadius() < 1 || engine.getRadius() > MAX_RADIUS) {
+            throw new IllegalArgumentException("Engine radius must be 1 to " + MAX_RADIUS + ": " + engine.getRadius());
+        }
+        int r = engine.getRadius(), n = engine.length();
+        int exponent = indexExponent(INDEXED_PALETTE_SIZE);
+        byte[] out = container(r, r, r, direction, scale, FOURCC_OKLI, exponent, indexedSize(n, 1 << exponent));
+        for (int i = 0; i < n; i++) {
+            int index = paletteIndex(engine.getBlock(i).getState(), engine.getBlock(i).getColor());
+            out[HEADER_SIZE + i / 2] |= (byte) (index << (i % 2 * 4)); // the first cell takes the low bits
+        }
+        return seal(out);
+    }
+
+    /**
+     * Decodes the {@code "OKLI"} container at a position of a buffer. The container may be followed by other bytes. An
+     * index of {@link #INDEXED_PALETTE_SIZE} or more is a filled block with color index -2, because HappyHex has no
+     * color for it.
+     *
+     * @param data        the buffer
+     * @param at          the offset of the container
+     * @param paletteSize the number of palette entries, 1 to 65536, which fixes the bits per cell
+     * @return the sprite, whose {@link Indexed#length} is the length of the container
+     * @throws IOException if the container is invalid or truncated, is not {@code "OKLI"} with {@code A = B = C}, has
+     *                     bits per cell that do not fit {@code paletteSize}, has a radius above {@link #MAX_RADIUS},
+     *                     or has a palette index that is not less than {@code paletteSize}
+     * @throws IllegalArgumentException if the palette size is out of range
+     */
+    public static Indexed decodeIndexed(byte[] data, int at, int paletteSize) throws IOException {
+        if (paletteSize < 1 || paletteSize > MAX_PALETTE_SIZE)
+            throw new IllegalArgumentException("Palette size must be 1 to " + MAX_PALETTE_SIZE + ": " + paletteSize);
+        if (data == null || at < 0 || data.length - at < HEADER_SIZE + CRC_SIZE)
+            throw new IOException("HASTE container is truncated");
+        int radius = checkHeader(data, at);
+        if (fourCC(data, at) != FOURCC_OKLI) throw new IOException("HASTE container is not OKLI");
+        int exponent = indexExponent(paletteSize), bits = 1 << exponent;
+        if ((data[at + 12] & 0xF) != exponent)
+            throw new IOException("HASTE OKLI p " + (data[at + 12] & 0xF) + " does not match " + exponent
+                    + ", which a palette of " + paletteSize + " requires");
+        int n = 1 + 3 * radius * (radius - 1);
+        int size = indexedSize(n, bits);
+        if ((long) data.length - at < (long) HEADER_SIZE + size + CRC_SIZE) throw new IOException("HASTE container is truncated");
+        checkCrc(data, at, size);
+        int tail = n * bits & 7;
+        if (tail != 0 && (data[at + HEADER_SIZE + size - 1] & 0xFF) >>> tail != 0)
+            throw new IOException("HASTE padding bits are not zero");
+        int base = at + HEADER_SIZE;
+        HexEngine engine = new HexEngine(radius);
+        for (int i = 0; i < n; i++) {
+            int index;
+            if (bits == 16) {
+                index = get16(data, base + 2 * i);
+            } else if (bits == 8) {
+                index = data[base + i] & 0xFF;
+            } else { // the first cell takes the lowest bits of the first byte
+                index = (data[base + i * bits / 8] & 0xFF) >>> (i * bits % 8) & ((1 << bits) - 1);
+            }
+            if (index >= paletteSize)
+                throw new IOException("HASTE OKLI cell " + i + " has index " + index + ", not in the palette of " + paletteSize);
+            if (index == INDEX_EMPTY) continue;
+            engine.setState(i, true);
+            engine.setColor(i, colorOfIndex(index < INDEXED_PALETTE_SIZE ? index : INDEX_FILLED));
+        }
+        return new Indexed(engine, data[at] & 0xF, get16(data, at) >>> 4, HEADER_SIZE + size + CRC_SIZE);
+    }
+
     // Helpers
+
+    /** Returns p for the smallest cell size that holds every index of a palette of n entries. */
+    private static int indexExponent(int n) {
+        return n <= 2 ? 0 : n <= 4 ? 1 : n <= 16 ? 2 : n <= 256 ? 3 : 4;
+    }
+
+    /** Returns the size in bytes of cells of a given number of bits, with unused bits in the last byte. */
+    private static int indexedSize(int cells, int bits) {
+        return (int) (((long) cells * bits + 7) / 8);
+    }
+
+    /** Checks the CRC-32 of the container at a position, whose data has a given size. */
+    private static void checkCrc(byte[] b, int at, int dataSize) throws IOException {
+        CRC32 crc = new CRC32();
+        crc.update(b, at, HEADER_SIZE + dataSize);
+        long stored = 0;
+        for (int i = 0; i < CRC_SIZE; i++) stored |= (b[at + HEADER_SIZE + dataSize + i] & 0xFFL) << (8 * i);
+        if (crc.getValue() != stored) throw new IOException("HASTE CRC mismatch");
+    }
 
     static void put16(byte[] b, int at, int v) {
         b[at] = (byte) v;
@@ -400,6 +561,26 @@ public final class HASTE {
     }
 
     // ----- OKLAB -----
+
+    /**
+     * Reads and validates one OKLB cell.
+     *
+     * @param at   the offset of the cell in the buffer
+     * @param cell the index of the cell, for the message
+     * @return L, a, b and alpha
+     * @throws IOException if a value is NaN or infinite, or if L or alpha is outside 0 to 1
+     */
+    static float[] readOklab(byte[] b, int at, int cell) throws IOException {
+        float[] v = new float[4];
+        for (int k = 0; k < 4; k++) {
+            v[k] = fromHalf(get16(b, at + 2 * k));
+            if (Float.isNaN(v[k]) || Float.isInfinite(v[k]))
+                throw new IOException("HASTE OKLB cell " + cell + " has a value that is not finite");
+        }
+        if (v[0] < 0f || v[0] > 1f || v[3] < 0f || v[3] > 1f) // negative zero is zero
+            throw new IOException("HASTE OKLB cell " + cell + " has L or alpha outside 0 to 1");
+        return v;
+    }
 
     /** Converts a float to IEEE 754 binary16 bits, rounding to nearest even. */
     static int toHalf(float f) {
@@ -543,34 +724,36 @@ public final class HASTE {
     }
 
     /** Pack a fourCC */
-    private static int fourCC(byte[] b) {
-        return (b[8] & 0xFF) << 24 | (b[9] & 0xFF) << 16 | (b[10] & 0xFF) << 8 | (b[11] & 0xFF);
+    static int fourCC(byte[] b, int at) {
+        return (b[at + 8] & 0xFF) << 24 | (b[at + 9] & 0xFF) << 16 | (b[at + 10] & 0xFF) << 8 | (b[at + 11] & 0xFF);
     }
 
     /**
-     * Validates the first 13 bytes against the HASTE rules and the supported subset.
+     * Validates the 13 bytes at a position against the HASTE rules and the supported subset.
      *
      * @return the engine radius
      */
-    private static int checkHeader(byte[] bytes) throws IOException {
-        int direction = bytes[0] & 0xF;
+    private static int checkHeader(byte[] bytes, int at) throws IOException {
+        int direction = bytes[at] & 0xF;
         if (direction > 11) throw new IOException("HASTE direction is invalid: " + direction);
-        int fourCC = fourCC(bytes);
+        int fourCC = fourCC(bytes, at);
         if (fourCC == 0xFFFFFFFF) throw new IOException("HASTE FourCC FF FF FF FF is reserved");
-        if ((bytes[12] & 0xF0) != 0) throw new IOException("HASTE pixel size byte has reserved bits set");
-        int exponent = bytes[12] & 0xF;
+        if ((bytes[at + 12] & 0xF0) != 0) throw new IOException("HASTE pixel size byte has reserved bits set");
+        int exponent = bytes[at + 12] & 0xF;
         if (fourCC == FOURCC_MASK) {
             if (exponent != MASK_EXPONENT) throw new IOException("HASTE FourCC \"MASK\" requires 1 bit per cell");
         } else if (fourCC == FOURCC_RGBA || fourCC == FOURCC_BGRA) {
             if (exponent != RGBA_EXPONENT) throw new IOException("HASTE FourCC \"RGBA\" and \"BGRA\" require 32 bits per cell");
         } else if (fourCC == FOURCC_OKLB) {
             if (exponent != OKLB_EXPONENT) throw new IOException("HASTE FourCC \"OKLB\" requires 64 bits per cell");
+        } else if (fourCC == FOURCC_OKLI) {
+            if (exponent > MAX_INDEX_EXPONENT) throw new IOException("HASTE FourCC \"OKLI\" requires 1 to 16 bits per cell");
         } else {
             throw new IOException("HASTE format as indicated by FourCC is not supported by HappyHex, only \"MASK\", \"RGBA\", \"BGRA\" and \"OKLB\" are");
         }
-        int a = ((bytes[2] & 0xFF) | (bytes[3] & 0xFF) << 8) + 1;
-        int b = ((bytes[4] & 0xFF) | (bytes[5] & 0xFF) << 8) + 1;
-        int c = ((bytes[6] & 0xFF) | (bytes[7] & 0xFF) << 8) + 1;
+        int a = ((bytes[at + 2] & 0xFF) | (bytes[at + 3] & 0xFF) << 8) + 1;
+        int b = ((bytes[at + 4] & 0xFF) | (bytes[at + 5] & 0xFF) << 8) + 1;
+        int c = ((bytes[at + 6] & 0xFF) | (bytes[at + 7] & 0xFF) << 8) + 1;
         // Assert that a == b == c
         if (a != b || b != c) throw new IOException("HASTE sprite is not a regular hexagon, which is not supported by HappyHex");
         if (a > MAX_RADIUS)   throw new IOException("HASTE radius " + a + " exceeds the limits of this decoder (HappyHex 2.1)");
